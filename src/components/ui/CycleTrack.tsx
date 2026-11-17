@@ -1,8 +1,8 @@
 import { cn } from "@/lib/cn";
-import type { Derived } from "./logic";
-import type { Status } from "./types";
 
-const fill: Record<Status, string> = {
+export type CycleStatus = "overdue" | "soon" | "ok" | "never";
+
+const fill: Record<CycleStatus, string> = {
   overdue: "bg-danger",
   soon: "bg-warning",
   ok: "bg-primary",
@@ -11,6 +11,7 @@ const fill: Record<Status, string> = {
 
 /**
  * A trilha do ciclo: da última vez (esquerda) até a próxima (direita).
+ * Serve para tudo que se repete: compromissos, contato com pessoas...
  * O preenchimento mostra quanto do período já passou; o anel à direita é o vencimento.
  */
 export function CycleTrack({
@@ -18,7 +19,7 @@ export function CycleTrack({
   size = "sm",
   className,
 }: {
-  derived: Derived;
+  derived: { status: CycleStatus; progress: number };
   size?: "sm" | "lg";
   className?: string;
 }) {

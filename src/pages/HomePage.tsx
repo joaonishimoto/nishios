@@ -4,10 +4,21 @@ import { ptBR } from "date-fns/locale";
 import { ArrowRight } from "lucide-react";
 import { Dot } from "@/components/ui/Badge";
 import { UPCOMING_NAV } from "@/components/shell/nav";
-import { CycleTrack } from "@/modules/compromissos/CycleTrack";
+import { CycleTrack } from "@/components/ui/CycleTrack";
 import { MarkDone } from "@/modules/compromissos/MarkDone";
 import { derive, dueLabel, shortDate, STATUS_META, today } from "@/modules/compromissos/logic";
 import { useAttention } from "@/modules/compromissos/useAttention";
+import { Avatar } from "@/components/ui/Avatar";
+import {
+  birthdayLabel,
+  byContactUrgency,
+  contact,
+  needsContact,
+  nextContactLabel,
+  upcomingBirthdays,
+} from "@/modules/pessoas/logic";
+import { usePeople } from "@/modules/pessoas/store";
+import type { Person } from "@/modules/pessoas/types";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Progress } from "@/components/ui/Progress";
 import { cn } from "@/lib/cn";
@@ -17,6 +28,21 @@ import { useRoutine } from "@/modules/rotina/store";
 import { byPriority, needsAttention } from "@/modules/tarefas/logic";
 import { useTasks } from "@/modules/tarefas/store";
 import { DueLabel, TaskCheck } from "@/modules/tarefas/TaskBits";
+
+function PersonLine({ person, detail, tone }: { person: Person; detail: string; tone: string }) {
+  return (
+    <li className="border-b border-border last:border-b-0">
+      <Link
+        to={`/pessoas?p=${person.id}`}
+        className="flex items-center gap-3 px-3 py-2 hover:bg-surface-hover"
+      >
+        <Avatar name={person.name} />
+        <span className="min-w-0 flex-1 truncate font-medium">{person.name}</span>
+        <span className={cn("shrink-0 text-sm", tone)}>{detail}</span>
+      </Link>
+    </li>
+  );
+}
 
 function SectionHeader({ title, to, linkLabel }: { title: string; to: string; linkLabel: string }) {
   return (
@@ -46,6 +72,12 @@ export function HomePage() {
   const dueHabits = habits.filter((h) => isScheduled(h, now));
   const doneHabits = dueHabits.filter((h) => isDone(h, now)).length;
   const todayTasks = tasks.filter((t) => needsAttention(t, now)).sort(byPriority);
+  const { people } = usePeople();
+  const birthdays = upcomingBirthdays(people, 7, now);
+  const toReach = people
+    .filter((p) => needsContact(p, now))
+    .sort((a, b) => byContactUrgency(a, b, now))
+    .slice(0, 4);
   const dateLine = format(now, "EEEE, d 'de' MMMM", { locale: ptBR });
 
   return (
@@ -201,6 +233,30 @@ export function HomePage() {
           </ul>
         )}
       </section>
+
+      {(toReach.length > 0 || birthdays.length > 0) && (
+        <section>
+          <SectionHeader title="Pessoas" to="/pessoas" linkLabel="Ver todas" />
+          <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
+            {birthdays.map(({ person, birthday: b }) => (
+              <PersonLine
+                key={`b-${person.id}`}
+                person={person}
+                detail={`Aniversário ${birthdayLabel(b).toLowerCase()}, faz ${b.turning}`}
+                tone="text-warning-strong"
+              />
+            ))}
+            {toReach.map((person) => (
+              <PersonLine
+                key={`c-${person.id}`}
+                person={person}
+                detail={nextContactLabel(contact(person, now))}
+                tone="text-danger-strong"
+              />
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section>
         <h2 className="text-xl font-semibold tracking-tight">O que vem nas próximas fases</h2>

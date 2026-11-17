@@ -10,7 +10,7 @@ import { PageHeader } from "@/components/shell/PageHeader";
 import { cn } from "@/lib/cn";
 import { CommitmentForm } from "./CommitmentForm";
 import { CommitmentPanel } from "./CommitmentPanel";
-import { CycleTrack } from "./CycleTrack";
+import { CycleTrack } from "@/components/ui/CycleTrack";
 import { MarkDone } from "./MarkDone";
 import {
   byUrgency,

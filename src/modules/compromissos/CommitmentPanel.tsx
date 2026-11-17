@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Dialog, DialogBody } from "@/components/ui/Dialog";
 import { useToast } from "@/components/ui/Toast";
 import { CommitmentForm } from "./CommitmentForm";
-import { CycleTrack } from "./CycleTrack";
+import { CycleTrack } from "@/components/ui/CycleTrack";
 import { MarkDone } from "./MarkDone";
 import {
   derive,
