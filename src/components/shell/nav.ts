@@ -6,7 +6,6 @@ import {
   House,
   Package,
   PawPrint,
-  Swords,
   Target,
   Users,
   Wallet,
@@ -25,6 +24,7 @@ export const MAIN_NAV: NavItem[] = [
   { label: "Tarefas", icon: CircleCheckBig, to: "/tarefas" },
   { label: "Rotina e metas", icon: Target, to: "/rotina" },
   { label: "Compromissos", icon: CalendarClock, to: "/compromissos" },
+  { label: "Treinos", icon: Dumbbell, to: "/treinos" },
   { label: "Bens e desejos", icon: Package, to: "/bens" },
   { label: "Pessoas", icon: Users, to: "/pessoas" },
 ];
@@ -32,8 +32,6 @@ export const MAIN_NAV: NavItem[] = [
 /** Módulos planejados, na ordem das próximas fases. */
 export const UPCOMING_NAV: NavItem[] = [
   { label: "Finanças", icon: Wallet },
-  { label: "Academia", icon: Dumbbell },
-  { label: "Luta", icon: Swords },
   { label: "Pets", icon: PawPrint },
   { label: "Skills", icon: GraduationCap },
 ];
