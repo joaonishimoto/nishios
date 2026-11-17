@@ -3,7 +3,8 @@ import { usePersistentState } from "@/lib/storage";
 import { seedHome } from "./seed";
 import type { Home } from "./types";
 
-const KEY = "nishios:casa:v1";
+// v2: o apartamento passou a começar vazio.
+const KEY = "nishios:casa:v2";
 
 interface Store {
   home: Home;

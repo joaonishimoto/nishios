@@ -57,7 +57,7 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
 - **Bens e desejos**:
   - Meus bens: agrupados por categoria, com valor de compra, data, garantia (avisa quando está acabando) e onde fica. O topo mostra o total.
   - Lista de desejos: preço, prioridade, data pretendida e link. "Comprei" registra a compra e move o item para os bens.
-- **Casa**: o apartamento em 3D, montado a partir da planta (cômodos, paredes, móveis e a área externa).
+- **Casa**: o apartamento em 3D, montado a partir da planta (cômodos, paredes e a área externa). Começa vazio, só com o que vem da construção: pias, vasos, boxes, tanque, bancada da cozinha, porta da varanda e muro.
   - Duas vistas: **3D** (low-poly, com luz e sombra; arraste para girar e role para aproximar) e **Planta** (vista de cima, a padrão no celular).
   - Clique em um cômodo, ou no nome dele, para a câmera ir até ele: as paredes baixam, o resto da casa fica apagado e os móveis ganham etiqueta.
   - Cada móvel pode ser ligado a um bem de **Bens e desejos**. O painel do cômodo soma o valor e mostra as garantias; ligar um móvel também atualiza o "Onde fica" do bem. "Criar bem novo" cadastra o bem já preenchido a partir do móvel.
