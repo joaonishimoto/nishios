@@ -164,9 +164,11 @@ function buildShower(f: Fixture, mats: FixtureMaterials, opts: FixtureOptions, a
     w: [f.x + inset, cz, 1, 0],
     e: [f.x + f.w - inset, cz, -1, 0],
   }[f.wall];
-  add(new THREE.CylinderGeometry(0.012, 0.012, top - 1.0, 12), mats.metal, hx, 1.0 + (top - 1.0) / 2, hz);
+  // O cano sai do alto da parede cortada, para o chuveiro não flutuar com as paredes baixas.
+  const base = Math.max(0.05, Math.min(1.0, opts.maxHeight - 0.2));
+  add(new THREE.CylinderGeometry(0.012, 0.012, top - base, 12), mats.metal, hx, base + (top - base) / 2, hz);
   const arm = add(new THREE.CylinderGeometry(0.012, 0.012, 0.22, 12), mats.metal, hx + dx * 0.11, top, hz + dz * 0.11);
   arm.rotation.set(dz ? Math.PI / 2 : 0, 0, dx ? Math.PI / 2 : 0);
   add(new THREE.CylinderGeometry(0.1, 0.08, 0.025, 28), mats.metal, hx + dx * 0.22, top - 0.02, hz + dz * 0.22);
-  add(new THREE.CylinderGeometry(0.04, 0.04, 0.06, 16), mats.metal, hx + dx * 0.02, 1.1, hz + dz * 0.02);
+  add(new THREE.CylinderGeometry(0.04, 0.04, 0.06, 16), mats.metal, hx + dx * 0.02, base + 0.1, hz + dz * 0.02);
 }
