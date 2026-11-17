@@ -3,6 +3,8 @@ import { Palette } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { today } from "@/lib/dates";
 import { useAttention } from "@/modules/compromissos/useAttention";
+import { needsContact } from "@/modules/pessoas/logic";
+import { usePeople } from "@/modules/pessoas/store";
 import { needsAttention } from "@/modules/tarefas/logic";
 import { useTasks } from "@/modules/tarefas/store";
 import { MAIN_NAV, UPCOMING_NAV } from "./nav";
@@ -13,11 +15,13 @@ const item =
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const attention = useAttention();
   const { tasks } = useTasks();
+  const { people } = usePeople();
   const now = today();
   /** Contador ao lado de cada item: o que pede atenção naquele módulo. */
   const counts: Record<string, number> = {
     "/compromissos": attention.length,
     "/tarefas": tasks.filter((t) => needsAttention(t, now)).length,
+    "/pessoas": people.filter((p) => needsContact(p, now)).length,
   };
 
   return (

@@ -1,6 +1,6 @@
 # NishiOS
 
-Sistema pessoal de gestão de vida. Já tem o shell do app (barra lateral, topo, tema claro e escuro), o design system e três módulos: **tarefas**, **rotina e metas** e **compromissos recorrentes**.
+Sistema pessoal de gestão de vida. Já tem o shell do app (barra lateral, topo, tema claro e escuro), o design system e cinco módulos: **tarefas**, **rotina e metas**, **compromissos recorrentes**, **bens e desejos** e **pessoas**.
 
 Só frontend: sem login e sem backend. Os dados ficam salvos no `localStorage` do navegador e começam com exemplos.
 
@@ -11,10 +11,14 @@ Só frontend: sem login e sem backend. Os dados ficam salvos no `localStorage` d
 Precisa do Node 20 ou mais novo.
 
 ```bash
-git clone https://github.com/joaonishimoto/nishios.git
-cd nishios
-npm install
-npm run dev
+cd ~ && git clone https://github.com/joaonishimoto/nishios.git
+cd ~/nishios && npm install && npm run dev
+```
+
+Para atualizar depois e rodar de novo:
+
+```bash
+cd ~/nishios && git pull && npm install && npm run dev
 ```
 
 Abra http://localhost:5173.
@@ -23,7 +27,7 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
 
 ## O que tem
 
-- **Início**: a rotina de hoje, as tarefas que vencem hoje ou estão atrasadas e os compromissos que pedem atenção.
+- **Início**: a rotina de hoje, as tarefas que vencem hoje ou estão atrasadas, os compromissos que pedem atenção e as pessoas para procurar ou parabenizar.
 - **Tarefas** (fase 2): visão em lista ou em quadro, com situação (a fazer, em andamento, concluída), prioridade, prazo e lista.
   - "Adicionar tarefa" direto em cada grupo: digite e aperte Enter.
   - No quadro, arraste os cartões entre as colunas.
@@ -35,6 +39,13 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
   - Cada compromisso tem período (dias, semanas, meses ou anos), última vez feita, próxima data calculada e antecedência do aviso.
   - "Marcar como feito" registra a data no histórico e recalcula a próxima.
   - Painel lateral com o ciclo, as anotações e o histórico. Criar, editar e excluir, com "Desfazer".
+- **Bens e desejos**:
+  - Meus bens: agrupados por categoria, com valor de compra, data, garantia (avisa quando está acabando) e onde fica. O topo mostra o total.
+  - Lista de desejos: preço, prioridade, data pretendida e link. "Comprei" registra a compra e move o item para os bens.
+- **Pessoas** (CRM pessoal): família, amigos, trabalho e networking.
+  - Cada pessoa tem a frequência com que você quer manter contato; a lista mostra quem está na hora de procurar.
+  - "Registrar contato" anota quando e como vocês se falaram. Painel lateral com dados, anotações e histórico.
+  - Aniversários dos próximos 30 dias no topo.
 - **Avisos**: o sino no topo lista os compromissos atrasados ou chegando a hora.
 - **Design system**: página `/design-system` com todos os tokens e componentes, e o botão para restaurar os dados de exemplo.
 
@@ -59,13 +70,15 @@ src/
     index.css           mapeamento para o Tailwind e estilos base
   lib/                  datas, localStorage, tema
   components/
-    ui/                 componentes base: Button, Badge, Checkbox, Progress, Field, IconPicker,
-                        Dialog, Popover, Segmented, Toast, EmptyState
+    ui/                 componentes base: Button, Badge, Checkbox, Progress, CycleTrack, Avatar,
+                        Field, IconPicker, Dialog, Popover, Segmented, Toast, EmptyState
     shell/              AppShell, Sidebar, Notifications, PageHeader, nav.ts
   modules/
     tarefas/            cada módulo tem seus tipos, regras (logic.ts),
     rotina/             dados (store.tsx, seed.ts) e telas
     compromissos/
+    bens/
+    pessoas/
   pages/                Início e Design system
 ```
 
@@ -82,6 +95,14 @@ Os dados de cada módulo passam todos pelo seu `store.tsx`, que usa `usePersiste
 | Rotina e metas | Painel da tarefa |
 | --- | --- |
 | ![Rotina](docs/screenshots/rotina.png) | ![Tarefa](docs/screenshots/tarefa-painel.png) |
+
+| Bens | Lista de desejos |
+| --- | --- |
+| ![Bens](docs/screenshots/bens.png) | ![Desejos](docs/screenshots/desejos.png) |
+
+| Pessoas | Painel da pessoa |
+| --- | --- |
+| ![Pessoas](docs/screenshots/pessoas.png) | ![Pessoa](docs/screenshots/pessoa-painel.png) |
 
 | Compromissos | Painel do compromisso |
 | --- | --- |

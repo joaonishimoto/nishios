@@ -25,13 +25,13 @@ export const MAIN_NAV: NavItem[] = [
   { label: "Tarefas", icon: CircleCheckBig, to: "/tarefas" },
   { label: "Rotina e metas", icon: Target, to: "/rotina" },
   { label: "Compromissos", icon: CalendarClock, to: "/compromissos" },
+  { label: "Bens e desejos", icon: Package, to: "/bens" },
+  { label: "Pessoas", icon: Users, to: "/pessoas" },
 ];
 
 /** Módulos planejados, na ordem das próximas fases. */
 export const UPCOMING_NAV: NavItem[] = [
   { label: "Finanças", icon: Wallet },
-  { label: "Bens e desejos", icon: Package },
-  { label: "Pessoas", icon: Users },
   { label: "Academia", icon: Dumbbell },
   { label: "Luta", icon: Swords },
   { label: "Pets", icon: PawPrint },

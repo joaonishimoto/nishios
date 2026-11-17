@@ -7,11 +7,13 @@ import { Field, Input, Select, Textarea } from "@/components/ui/Field";
 import { Segmented } from "@/components/ui/Segmented";
 import { useToast } from "@/components/ui/Toast";
 import { PageHeader } from "@/components/shell/PageHeader";
-import { CycleTrack } from "@/modules/compromissos/CycleTrack";
-import type { Derived } from "@/modules/compromissos/logic";
+import { CycleTrack, type CycleStatus } from "@/components/ui/CycleTrack";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Progress } from "@/components/ui/Progress";
 import { useCommitments } from "@/modules/compromissos/store";
+import { useBens } from "@/modules/bens/store";
+import { usePeople } from "@/modules/pessoas/store";
+import { Avatar } from "@/components/ui/Avatar";
 import { useRoutine } from "@/modules/rotina/store";
 import { useTasks } from "@/modules/tarefas/store";
 
@@ -37,15 +39,7 @@ const SHADOWS = ["xs", "sm", "md"];
 const SPACES = [1, 2, 3, 4, 6, 8, 12];
 const TONES: Tone[] = ["neutral", "info", "success", "warning", "danger"];
 
-const track = (status: Derived["status"], progress: number): Derived => ({
-  status,
-  progress,
-  lastDone: null,
-  nextDue: null,
-  daysUntil: null,
-  daysSince: null,
-  cycleDays: null,
-});
+const track = (status: CycleStatus, progress: number) => ({ status, progress });
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -61,6 +55,8 @@ export function DesignSystemPage() {
   const commitments = useCommitments();
   const tasks = useTasks();
   const routine = useRoutine();
+  const bens = useBens();
+  const people = usePeople();
   const [checked, setChecked] = useState(true);
   const [seg, setSeg] = useState("a");
 
@@ -189,7 +185,7 @@ export function DesignSystemPage() {
       <Section title="Trilha do ciclo">
         <p className="max-w-[60ch] text-muted-foreground">
           Mostra quanto do período já passou, da última vez até a próxima. É o elemento que
-          identifica um compromisso recorrente em qualquer tela.
+          identifica tudo que se repete: compromissos e contato com pessoas.
         </p>
         <ul className="mt-4 grid max-w-xl grid-cols-[auto_1fr] items-center gap-x-5 gap-y-3 text-sm">
           <li className="contents"><span>Em dia</span><CycleTrack derived={track("ok", 0.35)} /></li>
@@ -199,13 +195,18 @@ export function DesignSystemPage() {
         </ul>
       </Section>
 
-      <Section title="Check e progresso">
+      <Section title="Check, avatar e progresso">
         <div className="flex max-w-xl flex-col gap-4">
           <div className="flex items-center gap-4">
             <Checkbox checked={checked} onChange={setChecked} label="Exemplo de check" />
             <Checkbox size="lg" checked={checked} onChange={setChecked} label="Exemplo de check grande" />
             <Checkbox size="lg" checked={false} onChange={() => {}} disabled label="Check desativado" />
             <span className="text-sm text-muted-foreground">Tarefas e hábitos usam o mesmo check.</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <Avatar name="João Nishimoto" />
+            <Avatar name="Helena Nishimoto" size="lg" />
+            <span className="text-sm text-muted-foreground">Avatar com as iniciais da pessoa.</span>
           </div>
           <Progress value={0.62} label="Exemplo de progresso" />
           <Progress value={1} done label="Exemplo de progresso concluído" />
@@ -275,6 +276,8 @@ export function DesignSystemPage() {
             commitments.resetToExample();
             tasks.resetToExample();
             routine.resetToExample();
+            bens.resetToExample();
+            people.resetToExample();
             toast({ message: "Dados de exemplo restaurados" });
           }}
         >
