@@ -1,6 +1,6 @@
 # NishiOS
 
-Sistema pessoal de gestão de vida. Já tem o shell do app (barra lateral, topo, tema claro e escuro), o design system e oito módulos: **tarefas**, **rotina e metas**, **compromissos recorrentes**, **treinos**, **bens e desejos**, **pessoas**, **pets** e **skills**.
+Sistema pessoal de gestão de vida. Já tem o shell do app (barra lateral, topo, tema claro e escuro), o design system um **calendário unificado** e oito módulos: **tarefas**, **rotina e metas**, **compromissos recorrentes**, **treinos**, **bens e desejos**, **pessoas**, **pets** e **skills**.
 
 Só frontend: sem login e sem backend. Os dados ficam salvos no `localStorage` do navegador e começam com exemplos.
 
@@ -28,6 +28,13 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
 ## O que tem
 
 - **Início**: a rotina de hoje, as tarefas que vencem hoje ou estão atrasadas, os compromissos que pedem atenção e as pessoas para procurar ou parabenizar.
+- **Calendário**: tudo o que tem data no sistema em um lugar só, em mês, semana ou agenda.
+  - Junta eventos, prazos de tarefas, compromissos (com as próximas vezes já projetadas), treinos, prazos de metas, aniversários, hora de procurar pessoas, vacinas e consultas dos pets, garantias, compras planejadas e o diário de skills.
+  - A forma da etiqueta mostra o estado: preenchida é o que vem pela frente, vazada é o que já aconteceu, vermelha é o que atrasou. O anel em cada dia mostra quanto da rotina foi cumprida.
+  - O painel do dia permite concluir tarefas e marcar hábitos sem sair do calendário, e abre cada item no módulo de origem. Em "hoje" ele lista também o que ficou para trás.
+  - Camadas: ligue e desligue cada origem.
+  - Eventos próprios com hora, vários dias e repetição.
+  - **iPhone**: "Enviar para o iPhone" gera um arquivo `.ics` que o Calendário da Apple importa (aniversários e eventos recorrentes vão com a repetição); "Trazer do iPhone" lê um `.ics` exportado de lá. O formato fica em `src/modules/calendario/ics.ts`; com o app publicado, a mesma função serve uma URL que o iPhone assina.
 - **Tarefas** (fase 2): visão em lista ou em quadro, com situação (a fazer, em andamento, concluída), prioridade, prazo e lista.
   - "Adicionar tarefa" direto em cada grupo: digite e aperte Enter.
   - No quadro, arraste os cartões entre as colunas.
@@ -85,6 +92,7 @@ src/
                         Field, IconPicker, Dialog, Popover, Segmented, Toast, EmptyState
     shell/              AppShell, Sidebar, Notifications, PageHeader, nav.ts
   modules/
+    calendario/         junta todos os módulos (collect.ts) e fala com o iPhone (ics.ts)
     tarefas/            cada módulo tem seus tipos, regras (logic.ts),
     rotina/             dados (store.tsx, seed.ts) e telas
     compromissos/
@@ -105,6 +113,14 @@ Os dados de cada módulo passam todos pelo seu `store.tsx`, que usa `usePersiste
 | Início | Tarefas em quadro |
 | --- | --- |
 | ![Início](docs/screenshots/inicio.png) | ![Quadro](docs/screenshots/tarefas-quadro.png) |
+
+| Calendário | Semana |
+| --- | --- |
+| ![Calendário](docs/screenshots/calendario.png) | ![Semana](docs/screenshots/calendario-semana.png) |
+
+| Calendário do iPhone | No celular |
+| --- | --- |
+| ![iPhone](docs/screenshots/calendario-iphone.png) | ![Celular](docs/screenshots/celular-calendario.png) |
 
 | Rotina e metas | Painel da tarefa |
 | --- | --- |

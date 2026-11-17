@@ -1,5 +1,6 @@
 import {
   CalendarClock,
+  CalendarDays,
   CircleCheckBig,
   Dumbbell,
   GraduationCap,
@@ -21,6 +22,7 @@ export interface NavItem {
 
 export const MAIN_NAV: NavItem[] = [
   { label: "Início", icon: House, to: "/" },
+  { label: "Calendário", icon: CalendarDays, to: "/calendario" },
   { label: "Tarefas", icon: CircleCheckBig, to: "/tarefas" },
   { label: "Rotina e metas", icon: Target, to: "/rotina" },
   { label: "Compromissos", icon: CalendarClock, to: "/compromissos" },
