@@ -114,6 +114,18 @@
   --info-strong: var(--primitive-info-strong);
   --overlay: color-mix(in srgb, var(--primitive-black) 45%, transparent);
 
+  /* ---- Calendário: uma cor por origem, sempre misturada com a superfície ---- */
+  --cal-eventos: var(--primitive-blue-800);
+  --cal-tarefas: #4f7791;
+  --cal-rotina: #6f5a9c;
+  --cal-compromissos: #9a6a1f;
+  --cal-treinos: #3f7650;
+  --cal-pessoas: #a94f6c;
+  --cal-pets: #b4622c;
+  --cal-bens: #2c7c79;
+  --cal-skills: #77762a;
+  --cal-iphone: var(--primitive-neutral-500);
+
   /* ---- Tipografia ---- */
   --font-sans-token: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
   /* Só para o nome da marca; a interface inteira fica em Inter. */
@@ -148,6 +160,8 @@
   --page-padding-x: 2.5rem;
   --page-padding-y: 2rem;
   --page-max-width: 1120px;
+  /* Telas que precisam de largura, como o calendário. */
+  --page-max-width-wide: 1520px;
 
   /* ---- Movimento e camadas ---- */
   --motion-fast: 150ms;
@@ -213,6 +227,17 @@
   --danger-hover: #ec958d;
   --danger-strong: #f19c94;
   --danger-soft: #331b19;
+
+  --cal-eventos: #9bb5da;
+  --cal-tarefas: #86b3cf;
+  --cal-rotina: #b3a0dc;
+  --cal-compromissos: #d6a04f;
+  --cal-treinos: #6fb383;
+  --cal-pessoas: #e08fa9;
+  --cal-pets: #e39a66;
+  --cal-bens: #62bdb8;
+  --cal-skills: #bcba62;
+  --cal-iphone: #9aa0a8;
   --danger-foreground: #240c0a;
   --info: #86a5bd;
   --info-strong: #a9c3d6;

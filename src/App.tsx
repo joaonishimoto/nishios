@@ -1,6 +1,8 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "@/components/shell/AppShell";
 import { ToastProvider } from "@/components/ui/Toast";
+import { CalendarioPage } from "@/modules/calendario/CalendarioPage";
+import { CalendarProvider } from "@/modules/calendario/store";
 import { CompromissosPage } from "@/modules/compromissos/CompromissosPage";
 import { CommitmentsProvider } from "@/modules/compromissos/store";
 import { BensPage } from "@/modules/bens/BensPage";
@@ -32,9 +34,11 @@ export function App() {
           <TreinosProvider>
           <PetsProvider>
           <SkillsProvider>
+          <CalendarProvider>
           <Routes>
             <Route element={<AppShell />}>
               <Route index element={<HomePage />} />
+              <Route path="calendario" element={<CalendarioPage />} />
               <Route path="tarefas" element={<TarefasPage />} />
               <Route path="rotina" element={<RotinaPage />} />
               <Route path="compromissos" element={<CompromissosPage />} />
@@ -47,6 +51,7 @@ export function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>
+          </CalendarProvider>
           </SkillsProvider>
           </PetsProvider>
           </TreinosProvider>
