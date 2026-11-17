@@ -89,12 +89,11 @@ export function seedHome(): Home {
       w("z", 5.7, 4.1, 5.52),
     ],
     // Apartamento vazio: só o que vem com a construção (louças, bancada, box, tanque,
-    // shafts, porta da varanda e muro). Os móveis entram depois, pelo editor.
+    // shafts e muro). Os móveis entram depois, pelo editor.
     pieces: [
       fixed("servico", "Shaft de tubulação", [p(-0.01, 0.29, 0.22, 0.58, 2.6, "parede")]),
       louca("servico", "Tanque", { kind: "tanque", x: 0.24, z: 0.29, w: 0.5, d: 0.45, wall: "n" }),
       louca("cozinha", "Bancada da pia", { kind: "bancada", x: -0.01, z: 2.2, w: 0.6, d: 1.18, wall: "w" }),
-      fixed("varanda", "Porta de vidro", [p(1.7, 1.42, 2.49, 0.06, 2.1, "vidro")]),
       louca("banhosuite", "Pia", { kind: "lavatorio", x: 7.81, z: 2.78, w: 0.66, d: 0.5, wall: "n" }),
       louca("banhosuite", "Vaso", { kind: "vaso", x: 8.6, z: 2.78, w: 0.4, d: 0.64, wall: "n" }),
       louca("banhosuite", "Box", { kind: "box", x: 9.07, z: 2.78, w: 0.8, d: 1.32, wall: "n", glass: ["w"] }),

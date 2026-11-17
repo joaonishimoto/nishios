@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { cn } from "@/lib/cn";
+import { CATS, buildGrid, createCats, regrid, restCats, stepCats, type Cat, type CatInfo, type Grid } from "./cats";
 import { buildFixture } from "./fixtures";
 import { homeBox, pieceTop, roomBox, type Box } from "./logic";
 import { paletteFor, type Palette } from "./palette";
@@ -41,6 +42,9 @@ interface Label {
   active: boolean;
   /** Cota: texto pequeno, sem clique, e some primeiro quando encosta em outra etiqueta. */
   dim?: boolean;
+  /** Gato: nome no 3D e rosto na planta. A etiqueta fica `lift` metros acima de `pos`. */
+  cat?: CatInfo;
+  lift?: number;
   onClick?: () => void;
 }
 
@@ -57,6 +61,9 @@ interface Engine {
   orthoHalf: number;
   anim: number;
   render: () => void;
+  catGroup: THREE.Group;
+  cats: Cat[];
+  grid: Grid | null;
 }
 
 export default function HouseScene(props: HouseSceneProps) {
@@ -65,6 +72,8 @@ export default function HouseScene(props: HouseSceneProps) {
   const engineRef = useRef<Engine | null>(null);
   const labelEls = useRef(new Map<string, HTMLButtonElement>());
   const labelsRef = useRef<Label[]>([]);
+  // Vetores que os gatos atualizam a cada passo; as etiquetas com o nome seguem esses vetores.
+  const catPositions = useRef(CATS.map((c) => new THREE.Vector3(c.start[0], 0, c.start[1])));
   const propsRef = useRef(props);
   propsRef.current = props;
 
@@ -72,7 +81,15 @@ export default function HouseScene(props: HouseSceneProps) {
 
   const labels = useMemo<Label[]>(() => {
     const dimLabels = dims ? roomDims(home.rooms, focusId).map((d) => d.label) : [];
-    return [...nameLabels(), ...dimLabels];
+    const catLabels: Label[] = CATS.map((info, i) => ({
+      id: `g-${info.id}`,
+      text: info.name,
+      pos: catPositions.current[i],
+      lift: mode === "planta" ? 0.5 : 0.62,
+      active: false,
+      cat: info,
+    }));
+    return [...nameLabels(), ...dimLabels, ...catLabels];
   }, [home, mode, focusId, selectedPieceId, dims]);
 
   function nameLabels(): Label[] {
@@ -116,7 +133,8 @@ export default function HouseScene(props: HouseSceneProps) {
 
     const scene = new THREE.Scene();
     const group = new THREE.Group();
-    scene.add(group);
+    const catGroup = new THREE.Group();
+    scene.add(group, catGroup);
     const persp = new THREE.PerspectiveCamera(FOV, 1, 0.1, 200);
     const ortho = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 200);
 
@@ -145,6 +163,9 @@ export default function HouseScene(props: HouseSceneProps) {
       mode: propsRef.current.mode,
       orthoHalf: 5,
       anim: 0,
+      catGroup,
+      cats: [],
+      grid: null,
       render: () => {
         const cam = engine.mode === "planta" ? ortho : persp;
         renderer.render(scene, cam);
@@ -203,12 +224,39 @@ export default function HouseScene(props: HouseSceneProps) {
         renderer.domElement.style.cursor = pick(e) ? "pointer" : "";
       });
     };
+    // Os gatos andam a 30 quadros por segundo, só no 3D, com a casa na tela e a aba aberta.
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let onScreen = true;
+    const io = new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+    });
+    io.observe(host);
+    let catFrame = 0;
+    let last = 0;
+    const tick = (now: number) => {
+      catFrame = requestAnimationFrame(tick);
+      const live = engine.grid && engine.cats.length && engine.mode === "3d" && onScreen && !document.hidden && !reduced.matches;
+      if (!live) {
+        last = now;
+        return;
+      }
+      if (now - last < 33) return;
+      const dt = Math.min(0.1, (now - last) / 1000);
+      last = now;
+      stepCats(engine.cats, engine.grid!, dt);
+      engine.render();
+    };
+    catFrame = requestAnimationFrame(tick);
+
     renderer.domElement.addEventListener("pointerdown", onDown);
     renderer.domElement.addEventListener("pointerup", onUp);
     renderer.domElement.addEventListener("pointermove", onMove);
 
     return () => {
       observer.disconnect();
+      io.disconnect();
+      cancelAnimationFrame(catFrame);
+      clearGroup(catGroup);
       cancelAnimationFrame(engine.anim);
       cancelAnimationFrame(hoverFrame);
       perspControls.dispose();
@@ -231,8 +279,21 @@ export default function HouseScene(props: HouseSceneProps) {
     engine.renderer.shadowMap.enabled = pal.shadows;
     engine.scene.background = new THREE.Color(pal.background);
     buildHouse(engine.group, home, pal, mode, focusId, selectedPieceId, box, dims);
+    // Na planta (e com movimento reduzido) os gatos ficam sentados onde estão.
+    if (mode === "planta" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) restCats(engine.cats);
     engine.render();
   }, [home, mode, dark, focusId, selectedPieceId, box, dims]);
+
+  // A grade de onde os gatos podem andar muda junto com a casa.
+  useEffect(() => {
+    const engine = engineRef.current;
+    if (!engine) return;
+    engine.grid = buildGrid(home);
+    if (engine.cats.length) regrid(engine.cats, engine.grid);
+    else engine.cats = createCats(engine.catGroup, engine.grid, catPositions.current);
+    if (engine.mode === "planta") restCats(engine.cats);
+    engine.render();
+  }, [home]);
 
   // Leva a câmera até a casa inteira ou até o cômodo em foco.
   const homeKey = `${box.minX},${box.maxX},${box.minZ},${box.maxZ}`;
@@ -266,19 +327,25 @@ export default function HouseScene(props: HouseSceneProps) {
               else labelEls.current.delete(l.id);
             }}
             onClick={l.onClick}
-            tabIndex={l.dim ? -1 : undefined}
+            tabIndex={l.dim || l.cat ? -1 : undefined}
             style={{ visibility: "hidden" }}
             className={cn(
               "absolute top-0 left-0 whitespace-nowrap",
-              l.dim
+              l.cat
+                ? mode === "planta"
+                  ? "flex flex-col items-center gap-0.5 text-[11px] leading-none font-semibold text-foreground"
+                  : "rounded-full bg-surface/90 px-1.5 text-[11px] leading-4 font-medium text-foreground shadow-xs"
+                : l.dim
                 ? "rounded-sm bg-surface/85 px-1 text-[11px] leading-4 font-semibold text-primary tabular-nums"
                 : "pointer-events-auto rounded-md border px-2 py-0.5 text-xs font-medium shadow-xs transition-colors duration-(--motion-fast)",
               !l.dim &&
+                !l.cat &&
                 (l.active
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border-strong bg-surface/95 text-foreground hover:border-primary hover:text-primary"),
             )}
           >
+            {l.cat && mode === "planta" && <CatFace cat={l.cat} />}
             {l.text}
           </button>
         ))}
@@ -307,12 +374,14 @@ function placeLabels(
   const v = new THREE.Vector3();
   // A etiqueta ativa entra primeiro; as outras somem quando encostam numa já colocada.
   const placed: { x: number; y: number; w: number; h: number }[] = [];
-  const rank = (l: Label) => (l.active ? 2 : l.dim ? 0 : 1);
+  const rank = (l: Label) => (l.active || l.cat ? 2 : l.dim ? 0 : 1);
   const ordered = [...labels].sort((a, b) => rank(b) - rank(a));
   for (const l of ordered) {
     const el = els.get(l.id);
     if (!el) continue;
-    v.copy(l.pos).project(cam);
+    v.copy(l.pos);
+    v.y += l.lift ?? 0;
+    v.project(cam);
     const x = ((v.x + 1) / 2) * w;
     const y = ((1 - v.y) / 2) * h;
     const lw = el.offsetWidth + 4;
@@ -623,4 +692,37 @@ function roomDims(rooms: Room[], focusId: string | null): RoomDim[] {
     });
   }
   return out;
+}
+
+/** Rosto do gato na planta, com as cores dele. */
+function CatFace({ cat }: { cat: CatInfo }) {
+  const id = `face-${cat.id}`;
+  return (
+    <svg viewBox="0 0 44 40" className="size-10 drop-shadow-sm" aria-hidden>
+      <defs>
+        <clipPath id={id}>
+          <path d="M6 6 L15 14 Q22 11 29 14 L38 6 L38 22 Q38 36 22 36 Q6 36 6 22 Z" />
+        </clipPath>
+      </defs>
+      <path d="M6 6 L15 14 Q22 11 29 14 L38 6 L38 22 Q38 36 22 36 Q6 36 6 22 Z" fill={cat.fur} stroke="#9a948a" strokeWidth="1.2" strokeLinejoin="round" />
+      <g clipPath={`url(#${id})`}>
+        {cat.pattern === "costas" ? (
+          <path d="M0 0 H44 V11 L36 11 L38 6 L30 12 L14 12 L6 6 L8 11 L0 11 Z" fill={cat.patch} />
+        ) : (
+          <>
+            <path d="M24 0 H44 V20 Q36 24 30 18 Q26 12 24 0 Z" fill={cat.patch} />
+            <circle cx="12" cy="31" r="3" fill={cat.patch} />
+          </>
+        )}
+      </g>
+      <path d="M6 6 L15 14 Q22 11 29 14 L38 6 L38 22 Q38 36 22 36 Q6 36 6 22 Z" fill="none" stroke="#9a948a" strokeWidth="1.2" strokeLinejoin="round" />
+      <ellipse cx="15.5" cy="22" rx="2.2" ry="2.8" fill="#2b2b2b" />
+      <ellipse cx="28.5" cy="22" rx="2.2" ry="2.8" fill="#2b2b2b" />
+      <circle cx="16.2" cy="21" r="0.8" fill="#fff" />
+      <circle cx="29.2" cy="21" r="0.8" fill="#fff" />
+      <path d="M20.5 27 L23.5 27 L22 28.8 Z" fill="#e8a3a3" />
+      <path d="M22 28.8 Q20 31 18.5 30 M22 28.8 Q24 31 25.5 30" fill="none" stroke="#6b655c" strokeWidth="0.8" strokeLinecap="round" />
+      <path d="M4 26 L13 27 M4 30 L13 28.5 M40 26 L31 27 M40 30 L31 28.5" stroke="#8a847a" strokeWidth="0.6" strokeLinecap="round" />
+    </svg>
+  );
 }
