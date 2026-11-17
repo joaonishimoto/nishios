@@ -6,7 +6,7 @@
 /** Retângulo no chão: [x, z, largura, profundidade]. */
 export type Rect = [x: number, z: number, w: number, d: number];
 
-export type FloorKind = "madeira" | "piso" | "grama";
+export type FloorKind = "madeira" | "piso" | "grama" | "deck" | "pedra";
 
 export interface Room {
   id: string;
@@ -17,6 +17,8 @@ export interface Room {
   label: [number, number];
   floor: FloorKind;
   outdoor?: boolean;
+  /** Área externa fechada com tela: os gatos podem andar por ela. */
+  catio?: boolean;
   /** Sugestões de melhoria escritas para este cômodo. */
   tips?: string[];
 }
@@ -64,7 +66,11 @@ export type Material =
   | "tapete"
   | "pedra"
   /** Alvenaria fora das paredes retas, como o shaft de tubulação: usa a cor e a altura das paredes. */
-  | "parede";
+  | "parede"
+  /** Tela de proteção para gatos, quase transparente. */
+  | "tela"
+  /** Telhado translúcido (policarbonato ou vidro) e pergolado: fica acima de tudo. */
+  | "cobertura";
 
 /** Um bloco de um móvel, em coordenadas da casa. */
 export interface Part {
@@ -76,6 +82,8 @@ export interface Part {
   /** Altura da base; 0 = no chão. */
   y?: number;
   m: Material;
+  /** Cor própria no 3D (a planta usa a cor do material). */
+  c?: string;
 }
 
 export interface Piece {

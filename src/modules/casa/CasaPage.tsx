@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Lightbulb, Link2, Ruler, Unlink } from "lucide-react";
+import { ArrowLeft, Lightbulb, Link2, Ruler, Sofa, Unlink } from "lucide-react";
 import { Badge, type Tone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Segmented } from "@/components/ui/Segmented";
@@ -14,8 +14,9 @@ import { useBens } from "@/modules/bens/store";
 import type { Asset } from "@/modules/bens/types";
 import { LinkAssetDialog } from "./LinkAssetDialog";
 import { indoorArea, roomSize, suggestions, summarize } from "./logic";
+import { PROPOSALS, withProposal, type Proposal } from "./proposals";
 import { useCasa } from "./store";
-import type { Piece, Room, ViewMode } from "./types";
+import type { Home, Piece, Room, ViewMode } from "./types";
 
 // O three.js só é baixado quando a página Casa abre.
 const HouseScene = lazy(() => import("./HouseScene"));
@@ -37,7 +38,7 @@ function useIsDark() {
 }
 
 export function CasaPage() {
-  const { home, linkPiece } = useCasa();
+  const { home: real, linkPiece } = useCasa();
   const { assets, updateAsset } = useBens();
   const toast = useToast();
   const dark = useIsDark();
@@ -50,6 +51,9 @@ export function CasaPage() {
     params.get("vista") === "planta" || (params.get("vista") !== "3d" && window.innerWidth < 768)
       ? "planta"
       : "3d";
+  // Uma proposta de móveis é só para ver: troca a área externa e os móveis, sem mexer na casa salva.
+  const proposal = PROPOSALS.find((p) => p.id === params.get("proposta")) ?? null;
+  const home = useMemo(() => withProposal(real, proposal), [real, proposal]);
   const focus = home.rooms.find((r) => r.id === params.get("comodo")) ?? null;
   const dims = params.get("cotas") === "1";
 
@@ -98,7 +102,29 @@ export function CasaPage() {
         title="Casa"
         description={`${home.name} térreo com ${area.format(indoorArea(home))} m² de área interna, ${plural(whole.pieces.length, "móvel", "móveis")} e ${money(whole.value)} em bens ligados à planta.`}
         action={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Segmented<string>
+              label="Móveis"
+              value={proposal?.id ?? "vazia"}
+              onChange={(v) => {
+                setSelectedPieceId(null);
+                setParams(
+                  (prev) => {
+                    const next = new URLSearchParams(prev);
+                    if (v === "vazia") next.delete("proposta");
+                    else next.set("proposta", v);
+                    // O cômodo pode não existir na outra proposta (a área externa muda).
+                    next.delete("comodo");
+                    return next;
+                  },
+                  { replace: true },
+                );
+              }}
+              options={[
+                { value: "vazia", label: "Vazia" },
+                ...PROPOSALS.map((p) => ({ value: p.id, label: p.id.toUpperCase() })),
+              ]}
+            />
             <Button
               variant="outline"
               size="sm"
@@ -169,11 +195,13 @@ export function CasaPage() {
               assets={assets}
               selectedPieceId={selectedPieceId}
               onSelectPiece={(id) => setSelectedPieceId((cur) => (cur === id ? null : id))}
+              home={home}
+              proposal={proposal}
               onLink={setLinking}
               onUnlink={unlink}
             />
           ) : (
-            <HomePanel onPickRoom={focusRoom} />
+            <HomePanel home={home} proposal={proposal} onPickRoom={focusRoom} />
           )}
         </aside>
       </div>
@@ -243,14 +271,21 @@ function Stat({ value, label }: { value: string; label: string }) {
   );
 }
 
-function HomePanel({ onPickRoom }: { onPickRoom: (id: string) => void }) {
-  const { home } = useCasa();
+function HomePanel({
+  home,
+  proposal,
+  onPickRoom,
+}: {
+  home: Home;
+  proposal: Proposal | null;
+  onPickRoom: (id: string) => void;
+}) {
   const { assets } = useBens();
   const whole = summarize(home, assets);
   const rooms = home.rooms.filter((r) => r.id !== "circ");
 
   return (
-    <>
+    <div className="flex-1 overflow-y-auto">
       <div className="border-b border-border p-4">
         <h2 className="text-xl font-semibold tracking-tight">{home.name}</h2>
         <p className="text-sm text-muted-foreground">
@@ -262,7 +297,21 @@ function HomePanel({ onPickRoom }: { onPickRoom: (id: string) => void }) {
           <Stat value={money(Math.round(whole.value))} label="em bens" />
         </div>
       </div>
-      <ul className="flex-1 overflow-y-auto p-2">
+      {proposal && (
+        <div className="border-b border-border p-4">
+          <h3 className="flex items-center gap-1.5 font-medium">
+            <Sofa className="size-4 text-primary" />
+            Proposta {proposal.id.toUpperCase()}: {proposal.name}
+          </h3>
+          <p className="mt-1 text-sm text-muted-foreground">{proposal.tagline}</p>
+          <ul className="mt-2 flex list-disc flex-col gap-1 pl-5 text-sm">
+            {proposal.highlights.map((h) => (
+              <li key={h}>{h}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <ul className="p-2 lg:flex-1 lg:overflow-y-auto">
         {rooms.map((room) => {
           const s = summarize(home, assets, room);
           return (
@@ -285,7 +334,7 @@ function HomePanel({ onPickRoom }: { onPickRoom: (id: string) => void }) {
           );
         })}
       </ul>
-    </>
+    </div>
   );
 }
 
@@ -294,6 +343,8 @@ function RoomPanel({
   assets,
   selectedPieceId,
   onSelectPiece,
+  home,
+  proposal,
   onLink,
   onUnlink,
 }: {
@@ -301,12 +352,13 @@ function RoomPanel({
   assets: Asset[];
   selectedPieceId: string | null;
   onSelectPiece: (id: string) => void;
+  home: Home;
+  proposal: Proposal | null;
   onLink: (piece: Piece) => void;
   onUnlink: (piece: Piece) => void;
 }) {
-  const { home } = useCasa();
   const s = summarize(home, assets, room);
-  const tips = suggestions(room, s);
+  const tips = proposal ? (proposal.notes[room.id] ?? []) : suggestions(room, s);
   const assetOf = (piece: Piece) => s.linked.find((l) => l.piece.id === piece.id)?.asset;
 
   return (
@@ -352,7 +404,7 @@ function RoomPanel({
                     </span>
                     {asset && <span className="text-sm font-medium tabular-nums">{money(asset.value)}</span>}
                   </button>
-                  {selected && (
+                  {selected && !proposal && (
                     <div className="flex flex-wrap items-center gap-1.5 px-2 pb-2.5 pl-13">
                       {w && <Badge tone={WARRANTY_TONE[w.state]}>Garantia: {w.label.toLowerCase()}</Badge>}
                       {asset ? (
@@ -386,7 +438,7 @@ function RoomPanel({
           </ul>
         )}
 
-        {s.outsidePlan.length > 0 && (
+        {s.outsidePlan.length > 0 && !proposal && (
           <div className="border-t border-border px-4 py-3">
             <h3 className="text-sm font-medium">Em Bens, mas fora da planta</h3>
             <p className="text-sm text-muted-foreground">
@@ -400,7 +452,7 @@ function RoomPanel({
           <div className="flex flex-col gap-2 border-t border-border p-4">
             <h3 className="flex items-center gap-1.5 text-sm font-medium">
               <Lightbulb className="size-4 text-warning" />
-              Sugestões
+              {proposal ? `Por que assim (proposta ${proposal.id.toUpperCase()})` : "Sugestões"}
             </h3>
             {tips.map((tip) => (
               <p key={tip} className="rounded-md bg-warning-soft px-3 py-2 text-sm text-warning-strong">

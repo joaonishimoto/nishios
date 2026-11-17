@@ -621,20 +621,29 @@ function buildHouse(
       continue;
     }
     for (const part of piece.parts) {
-      const y = part.y ?? 0;
-      const glass = part.m === "vidro";
+      let y = part.y ?? 0;
       let h = part.h;
+      const glass = part.m === "vidro";
+      const screen = part.m === "tela";
+      const roof = part.m === "cobertura";
       const masonry = part.m === "parede";
-      if (masonry) h = wallH;
+      // O que fica no alto (pergolado, cobertura, a partir de 2 m) desce para logo acima das
+      // paredes cortadas, e some com um cômodo em foco para não tampar a vista.
+      if (y >= 2) {
+        if (focusId) continue;
+        y = (mode === "planta" ? WALL_PLAN + 0.04 : WALL_3D + 0.08) + (y - 2.4) * 0.5;
+      } else if (masonry) h = wallH;
+      else if (screen) h = Math.max(0.02, Math.min(y + h, mode === "planta" ? WALL_PLAN : focusId ? WALL_FOCUS + 0.3 : WALL_3D + 0.2) - y);
       else if (y === 0 && !glass) h = Math.min(h, cap);
       if (glass && mode === "planta") h = Math.min(h, WALL_PLAN);
       if (glass && focusId) h = Math.min(h, WALL_FOCUS + 0.2);
-      const opacity = glass ? 0.4 : dim && mode === "3d" ? 0.3 : 1;
+      const see = glass ? 0.4 : screen ? 0.22 : roof ? 0.32 : dim && mode === "3d" ? 0.3 : 1;
+      const color = mode === "3d" && part.c ? part.c : pal.material[part.m];
       const mesh = addBox(
         part.x, y, part.z, part.w, h, part.d,
-        masonry ? wallMat : material(pal.material[part.m], opacity),
+        masonry ? wallMat : material(color, see),
         { roomId: piece.roomId, pieceId: piece.fixed ? undefined : piece.id, dimmed: dim && mode === "3d" },
-        !glass && part.m !== "tapete" && !dim,
+        !glass && !screen && !roof && part.m !== "tapete" && !dim,
       );
       if (selected) {
         const edges = new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry), lineMat);

@@ -120,7 +120,8 @@ export interface Grid {
 }
 
 export function buildGrid(home: Home): Grid {
-  const rects = home.rooms.filter((r) => !r.outdoor).flatMap((r) => r.rects);
+  // Cômodos internos e áreas externas teladas.
+  const rects = home.rooms.filter((r) => !r.outdoor || r.catio).flatMap((r) => r.rects);
   const minX = Math.min(...rects.map(([x]) => x)) - 0.1;
   const minZ = Math.min(...rects.map(([, z]) => z)) - 0.1;
   const maxX = Math.max(...rects.map(([x, , w]) => x + w)) + 0.1;
@@ -147,8 +148,11 @@ export function buildGrid(home: Home): Grid {
     seg(start, wall.to);
   }
   for (const piece of home.pieces) {
-    if (piece.roomId === "externa") continue;
-    for (const p of piece.parts) blocks.push([p.x - 0.08, p.z - 0.08, p.x + p.w + 0.08, p.z + p.d + 0.08]);
+    for (const p of piece.parts) {
+      // O que fica no alto (prateleiras, cobertura) não atrapalha quem anda no chão.
+      if ((p.y ?? 0) >= 0.5 || p.m === "tapete") continue;
+      blocks.push([p.x - 0.08, p.z - 0.08, p.x + p.w + 0.08, p.z + p.d + 0.08]);
+    }
   }
 
   const inRoom = (x: number, z: number) =>

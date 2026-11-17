@@ -37,6 +37,8 @@ const realMaterials: Record<Material, string> = {
   tapete: "#e9d9c3",
   pedra: "#ded9d0",
   parede: "#f6f1e7",
+  tela: "#9aa3a8",
+  cobertura: "#dfe9ee",
 };
 
 const planMaterials: Record<Material, string> = {
@@ -50,6 +52,8 @@ const planMaterials: Record<Material, string> = {
   tapete: "#f2efe6",
   pedra: "#d3ccba",
   parede: "#1e3d66",
+  tela: "#8fa3bd",
+  cobertura: "#c3d2e5",
 };
 
 const PALETTES: Record<ViewMode, Record<"light" | "dark", Palette>> = {
@@ -58,7 +62,7 @@ const PALETTES: Record<ViewMode, Record<"light" | "dark", Palette>> = {
       background: "#eef1ec",
       wall: "#f6f1e7",
       wallTop: "#e0d8c8",
-      floor: { madeira: "#d9b78e", piso: "#e8e2d6", grama: "#a9c99a" },
+      floor: { madeira: "#d9b78e", piso: "#e8e2d6", grama: "#a9c99a", deck: "#b98c5e", pedra: "#cfcac0" },
       focusFloor: null,
       material: realMaterials,
       highlight: "#1e3d66",
@@ -75,7 +79,7 @@ const PALETTES: Record<ViewMode, Record<"light" | "dark", Palette>> = {
       background: "#15191c",
       wall: "#d8d2c6",
       wallTop: "#b9b1a2",
-      floor: { madeira: "#b8946c", piso: "#c9c3b7", grama: "#7fa274" },
+      floor: { madeira: "#b8946c", piso: "#c9c3b7", grama: "#7fa274", deck: "#9c7650", pedra: "#b3aea4" },
       focusFloor: null,
       material: realMaterials,
       highlight: "#9bb5da",
@@ -94,7 +98,7 @@ const PALETTES: Record<ViewMode, Record<"light" | "dark", Palette>> = {
       background: "#faf9f5",
       wall: "#1e3d66",
       wallTop: "#1e3d66",
-      floor: { madeira: "#ffffff", piso: "#ffffff", grama: "#dcebdc" },
+      floor: { madeira: "#ffffff", piso: "#ffffff", grama: "#dcebdc", deck: "#efe4d2", pedra: "#ecebe6" },
       focusFloor: "#dfe7f1",
       material: planMaterials,
       highlight: "#1e3d66",
@@ -111,7 +115,7 @@ const PALETTES: Record<ViewMode, Record<"light" | "dark", Palette>> = {
       background: "#111418",
       wall: "#9bb5da",
       wallTop: "#9bb5da",
-      floor: { madeira: "#1d2127", piso: "#1d2127", grama: "#1f3326" },
+      floor: { madeira: "#1d2127", piso: "#1d2127", grama: "#1f3326", deck: "#2e2a24", pedra: "#272a2e" },
       focusFloor: "#213350",
       material: {
         madeira: "#3a3f47",
@@ -124,6 +128,8 @@ const PALETTES: Record<ViewMode, Record<"light" | "dark", Palette>> = {
         tapete: "#2a2f37",
         pedra: "#5c6370",
         parede: "#9bb5da",
+        tela: "#5f7088",
+        cobertura: "#2f4a6e",
       },
       highlight: "#9bb5da",
       windowSill: "#2a3a52",
