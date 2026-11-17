@@ -75,6 +75,7 @@ export function seedHome(): Home {
     // Apartamento vazio: só o que vem com a construção (louças, bancada, box, tanque,
     // porta da varanda e muro). Os móveis entram depois, pelo editor.
     pieces: [
+      fixed("servico", "Shaft de tubulação", [p(0, 0.27, 0.2, 0.65, 2.6, "parede")]),
       fixed("servico", "Tanque", [p(0.2, 0.32, 0.42, 0.45, 0.88, "branco")]),
       fixed("cozinha", "Bancada da pia", [p(0.02, 2.22, 0.6, 1.18, 0.88, "branco"), p(0, 2.2, 0.64, 1.22, 0.04, "pedra", 0.88)]),
       fixed("varanda", "Porta de vidro", [p(1.64, 1.38, 2.64, 0.06, 2.1, "vidro")]),

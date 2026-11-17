@@ -489,13 +489,15 @@ function buildHouse(
       const y = part.y ?? 0;
       const glass = part.m === "vidro";
       let h = part.h;
-      if (y === 0 && !glass) h = Math.min(h, cap);
+      const masonry = part.m === "parede";
+      if (masonry) h = wallH;
+      else if (y === 0 && !glass) h = Math.min(h, cap);
       if (glass && mode === "planta") h = Math.min(h, WALL_PLAN);
       if (glass && focusId) h = Math.min(h, WALL_FOCUS + 0.2);
       const opacity = glass ? 0.4 : dim && mode === "3d" ? 0.3 : 1;
       const mesh = addBox(
         part.x, y, part.z, part.w, h, part.d,
-        material(pal.material[part.m], opacity),
+        masonry ? wallMat : material(pal.material[part.m], opacity),
         { roomId: piece.roomId, pieceId: piece.fixed ? undefined : piece.id, dimmed: dim && mode === "3d" },
         !glass && part.m !== "tapete" && !dim,
       );
