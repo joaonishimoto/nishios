@@ -239,7 +239,7 @@ function Content({
             {draft.exercises.map((x, i) => (
               <div
                 key={i}
-                className="grid grid-cols-[1fr_1fr_1fr_1.75rem] items-center gap-2 max-sm:pb-2 sm:grid-cols-[minmax(0,1fr)_3.5rem_3.5rem_4.5rem_1.75rem]"
+                className="grid grid-cols-[1fr_1fr_1fr_1.75rem] items-end gap-2 max-sm:pb-2 sm:items-center sm:grid-cols-[minmax(0,1fr)_3.5rem_3.5rem_4.5rem_1.75rem]"
               >
                 <Input
                   aria-label={`Exercício ${i + 1}`}
@@ -251,12 +251,14 @@ function Content({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="size-7 sm:order-last"
+                  className="size-7 max-sm:mb-1 sm:order-last"
                   aria-label={`Remover o exercício ${i + 1}`}
                   onClick={() => set("exercises", draft.exercises.filter((_, j) => j !== i))}
                 >
                   <X />
                 </Button>
+                <label className="flex flex-col gap-0.5">
+                  <span aria-hidden className="text-xs text-muted-foreground sm:hidden">Séries</span>
                 <Input
                   aria-label={`Séries do exercício ${i + 1}`}
                   type="number"
@@ -267,6 +269,9 @@ function Content({
                   value={x.sets || ""}
                   onChange={(e) => setExercise(i, { sets: Number(e.target.value) })}
                 />
+                </label>
+                <label className="flex flex-col gap-0.5">
+                  <span aria-hidden className="text-xs text-muted-foreground sm:hidden">Reps</span>
                 <Input
                   aria-label={`Repetições do exercício ${i + 1}`}
                   type="number"
@@ -277,6 +282,9 @@ function Content({
                   value={x.reps || ""}
                   onChange={(e) => setExercise(i, { reps: Number(e.target.value) })}
                 />
+                </label>
+                <label className="flex flex-col gap-0.5">
+                  <span aria-hidden className="text-xs text-muted-foreground sm:hidden">Carga (kg)</span>
                 <Input
                   aria-label={`Carga do exercício ${i + 1}, em kg`}
                   type="number"
@@ -288,6 +296,7 @@ function Content({
                   value={x.weight || ""}
                   onChange={(e) => setExercise(i, { weight: Number(e.target.value) })}
                 />
+                </label>
               </div>
             ))}
             <div className="flex flex-wrap gap-2">
