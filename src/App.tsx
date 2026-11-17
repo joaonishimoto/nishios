@@ -7,8 +7,12 @@ import { BensPage } from "@/modules/bens/BensPage";
 import { BensProvider } from "@/modules/bens/store";
 import { PessoasPage } from "@/modules/pessoas/PessoasPage";
 import { PeopleProvider } from "@/modules/pessoas/store";
+import { PetsPage } from "@/modules/pets/PetsPage";
+import { PetsProvider } from "@/modules/pets/store";
 import { RotinaPage } from "@/modules/rotina/RotinaPage";
 import { RoutineProvider } from "@/modules/rotina/store";
+import { SkillsPage } from "@/modules/skills/SkillsPage";
+import { SkillsProvider } from "@/modules/skills/store";
 import { TasksProvider } from "@/modules/tarefas/store";
 import { TarefasPage } from "@/modules/tarefas/TarefasPage";
 import { TreinosProvider } from "@/modules/treinos/store";
@@ -26,6 +30,8 @@ export function App() {
           <BensProvider>
           <PeopleProvider>
           <TreinosProvider>
+          <PetsProvider>
+          <SkillsProvider>
           <Routes>
             <Route element={<AppShell />}>
               <Route index element={<HomePage />} />
@@ -35,10 +41,14 @@ export function App() {
               <Route path="treinos" element={<TreinosPage />} />
               <Route path="bens" element={<BensPage />} />
               <Route path="pessoas" element={<PessoasPage />} />
+              <Route path="pets" element={<PetsPage />} />
+              <Route path="skills" element={<SkillsPage />} />
               <Route path="design-system" element={<DesignSystemPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>
+          </SkillsProvider>
+          </PetsProvider>
           </TreinosProvider>
           </PeopleProvider>
           </BensProvider>

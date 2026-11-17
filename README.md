@@ -1,6 +1,6 @@
 # NishiOS
 
-Sistema pessoal de gestão de vida. Já tem o shell do app (barra lateral, topo, tema claro e escuro), o design system e seis módulos: **tarefas**, **rotina e metas**, **compromissos recorrentes**, **treinos**, **bens e desejos** e **pessoas**.
+Sistema pessoal de gestão de vida. Já tem o shell do app (barra lateral, topo, tema claro e escuro), o design system e oito módulos: **tarefas**, **rotina e metas**, **compromissos recorrentes**, **treinos**, **bens e desejos**, **pessoas**, **pets** e **skills**.
 
 Só frontend: sem login e sem backend. Os dados ficam salvos no `localStorage` do navegador e começam com exemplos.
 
@@ -51,6 +51,12 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
   - Cada pessoa tem a frequência com que você quer manter contato; a lista mostra quem está na hora de procurar.
   - "Registrar contato" anota quando e como vocês se falaram. Painel lateral com dados, anotações e histórico.
   - Aniversários dos próximos 30 dias no topo.
+- **Pets**: um cartão por pet, com o que ele precisa agora.
+  - Vacinas e cuidados (vermífugo, antipulgas...) com a frequência de cada um; a trilha mostra quanto falta e "Marcar como feito" recalcula a próxima data.
+  - Saúde: consultas, exames, cirurgias e problemas de saúde, com "Em tratamento" ou "Resolvido".
+  - Peso: histórico com a variação entre uma pesagem e outra.
+- **Skills**: hard e soft skills em um quadro de três colunas (quero aprender, aprendendo, já sei). Arraste para mudar de coluna.
+  - Painel lateral com nível de 0 a 5, plano de estudo (passos e links, com progresso) e diário de aprendizado.
 - **Avisos**: o sino no topo lista os compromissos atrasados ou chegando a hora.
 - **Design system**: página `/design-system` com todos os tokens e componentes, e o botão para restaurar os dados de exemplo.
 
@@ -75,7 +81,7 @@ src/
     index.css           mapeamento para o Tailwind e estilos base
   lib/                  datas, localStorage, tema
   components/
-    ui/                 componentes base: Button, Badge, Checkbox, Progress, CycleTrack, Avatar,
+    ui/                 componentes base: Button, Badge, Checkbox, Progress, CycleTrack, LevelDots, Avatar,
                         Field, IconPicker, Dialog, Popover, Segmented, Toast, EmptyState
     shell/              AppShell, Sidebar, Notifications, PageHeader, nav.ts
   modules/
@@ -85,10 +91,12 @@ src/
     treinos/
     bens/
     pessoas/
+    pets/
+    skills/
   pages/                Início e Design system
 ```
 
-Cada módulo futuro (finanças, pets...) entra como uma pasta em `src/modules/`, uma rota em `src/App.tsx` e uma linha em `src/components/shell/nav.ts`.
+Cada módulo futuro (finanças...) entra como uma pasta em `src/modules/`, uma rota em `src/App.tsx` e uma linha em `src/components/shell/nav.ts`.
 
 Os dados de cada módulo passam todos pelo seu `store.tsx`, que usa `usePersistentState` (`src/lib/storage.ts`). Quando chegar a hora do Supabase, são esses os arquivos que mudam; as telas continuam iguais.
 
@@ -109,6 +117,10 @@ Os dados de cada módulo passam todos pelo seu `store.tsx`, que usa `usePersiste
 | Corrida por dentro | Registrar treino |
 | --- | --- |
 | ![Corrida](docs/screenshots/treinos-corrida.png) | ![Registrar treino](docs/screenshots/treino-novo.png) |
+
+| Pets | Skills |
+| --- | --- |
+| ![Pets](docs/screenshots/pets.png) | ![Skills](docs/screenshots/skills.png) |
 
 | Bens | Lista de desejos |
 | --- | --- |
