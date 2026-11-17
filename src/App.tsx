@@ -7,6 +7,8 @@ import { CompromissosPage } from "@/modules/compromissos/CompromissosPage";
 import { CommitmentsProvider } from "@/modules/compromissos/store";
 import { BensPage } from "@/modules/bens/BensPage";
 import { BensProvider } from "@/modules/bens/store";
+import { CasaPage } from "@/modules/casa/CasaPage";
+import { CasaProvider } from "@/modules/casa/store";
 import { PessoasPage } from "@/modules/pessoas/PessoasPage";
 import { PeopleProvider } from "@/modules/pessoas/store";
 import { PetsPage } from "@/modules/pets/PetsPage";
@@ -34,6 +36,7 @@ export function App() {
           <CorpoProvider>
           <RoutineProvider>
           <BensProvider>
+          <CasaProvider>
           <PeopleProvider>
           <PetsProvider>
           <SkillsProvider>
@@ -48,6 +51,7 @@ export function App() {
               <Route path="treinos" element={<TreinosPage />} />
               <Route path="corpo" element={<CorpoPage />} />
               <Route path="bens" element={<BensPage />} />
+              <Route path="casa" element={<CasaPage />} />
               <Route path="pessoas" element={<PessoasPage />} />
               <Route path="pets" element={<PetsPage />} />
               <Route path="skills" element={<SkillsPage />} />
@@ -59,6 +63,7 @@ export function App() {
           </SkillsProvider>
           </PetsProvider>
           </PeopleProvider>
+          </CasaProvider>
           </BensProvider>
           </RoutineProvider>
           </CorpoProvider>

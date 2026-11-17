@@ -13,10 +13,15 @@ export function AssetForm({
   open,
   onOpenChange,
   asset,
+  initial,
+  onCreated,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   asset?: Asset;
+  /** Valores iniciais de um bem novo, como quando ele nasce de um móvel da Casa. */
+  initial?: Partial<AssetDraft>;
+  onCreated?: (asset: Asset) => void;
 }) {
   return (
     <Dialog
@@ -25,12 +30,28 @@ export function AssetForm({
       title={asset ? "Editar bem" : "Novo bem"}
       description={asset ? undefined : "Algo que você tem e quer acompanhar: valor, compra e garantia."}
     >
-      <Content key={asset?.id ?? "novo"} asset={asset} onClose={() => onOpenChange(false)} />
+      <Content
+        key={asset?.id ?? "novo"}
+        asset={asset}
+        initial={initial}
+        onCreated={onCreated}
+        onClose={() => onOpenChange(false)}
+      />
     </Dialog>
   );
 }
 
-function Content({ asset, onClose }: { asset?: Asset; onClose: () => void }) {
+function Content({
+  asset,
+  initial,
+  onCreated,
+  onClose,
+}: {
+  asset?: Asset;
+  initial?: Partial<AssetDraft>;
+  onCreated?: (asset: Asset) => void;
+  onClose: () => void;
+}) {
   const { createAsset, updateAsset, removeAsset, restoreAsset } = useBens();
   const toast = useToast();
   const [draft, setDraft] = useState<AssetDraft>({
@@ -42,6 +63,7 @@ function Content({ asset, onClose }: { asset?: Asset; onClose: () => void }) {
     warrantyUntil: asset?.warrantyUntil ?? "",
     location: asset?.location ?? "",
     notes: asset?.notes ?? "",
+    ...(asset ? {} : initial),
   });
   const [tried, setTried] = useState(false);
   const set = <K extends keyof AssetDraft>(key: K, value: AssetDraft[K]) =>
@@ -67,7 +89,7 @@ function Content({ asset, onClose }: { asset?: Asset; onClose: () => void }) {
       updateAsset(asset.id, clean);
       toast({ message: "Alterações salvas" });
     } else {
-      createAsset(clean);
+      onCreated?.(createAsset(clean));
       toast({ message: `${clean.name} foi adicionado aos seus bens` });
     }
     onClose();

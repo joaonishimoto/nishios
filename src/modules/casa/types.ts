@@ -1,0 +1,80 @@
+/**
+ * A casa é descrita em metros, vista de cima: x cresce para a direita e z para baixo
+ * (o mesmo sentido de quem lê a planta). A altura é y.
+ */
+
+/** Retângulo no chão: [x, z, largura, profundidade]. */
+export type Rect = [x: number, z: number, w: number, d: number];
+
+export type FloorKind = "madeira" | "piso" | "grama";
+
+export interface Room {
+  id: string;
+  name: string;
+  /** Um ou mais retângulos: cômodos em L são dois retângulos. */
+  rects: Rect[];
+  /** Onde fica a etiqueta do cômodo, em [x, z]. */
+  label: [number, number];
+  floor: FloorKind;
+  outdoor?: boolean;
+  /** Sugestões de melhoria escritas para este cômodo. */
+  tips?: string[];
+}
+
+/**
+ * Parede reta. "x" corre na horizontal da planta (z fixo em `at`), "z" corre na vertical
+ * (x fixo em `at`). `gaps` são as portas e passagens, de `from` a `to`.
+ */
+export interface Wall {
+  axis: "x" | "z";
+  at: number;
+  from: number;
+  to: number;
+  gaps?: [number, number][];
+}
+
+export type Material =
+  | "madeira"
+  | "branco"
+  | "tecido"
+  | "escuro"
+  | "metal"
+  | "planta"
+  | "vidro"
+  | "tapete"
+  | "pedra";
+
+/** Um bloco de um móvel, em coordenadas da casa. */
+export interface Part {
+  x: number;
+  z: number;
+  w: number;
+  d: number;
+  h: number;
+  /** Altura da base; 0 = no chão. */
+  y?: number;
+  m: Material;
+}
+
+export interface Piece {
+  id: string;
+  roomId: string;
+  name: string;
+  icon: string;
+  /** Categoria usada ao criar o bem a partir da planta. */
+  category: string;
+  parts: Part[];
+  /** Bem de "Bens e desejos" que este móvel representa. */
+  assetId?: string;
+  /** Parte da construção (muro, porta de vidro): aparece no 3D mas não na lista de móveis. */
+  fixed?: boolean;
+}
+
+export interface Home {
+  name: string;
+  rooms: Room[];
+  walls: Wall[];
+  pieces: Piece[];
+}
+
+export type ViewMode = "3d" | "planta";
