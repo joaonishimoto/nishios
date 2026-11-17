@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Lightbulb, Link2, Unlink } from "lucide-react";
+import { ArrowLeft, Lightbulb, Link2, Ruler, Unlink } from "lucide-react";
 import { Badge, type Tone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Segmented } from "@/components/ui/Segmented";
@@ -51,6 +51,7 @@ export function CasaPage() {
       ? "planta"
       : "3d";
   const focus = home.rooms.find((r) => r.id === params.get("comodo")) ?? null;
+  const dims = params.get("cotas") === "1";
 
   const setParam = (key: string, value: string | null) =>
     setParams(
@@ -97,15 +98,27 @@ export function CasaPage() {
         title="Casa"
         description={`${home.name} térreo com ${area.format(indoorArea(home))} m² de área interna, ${plural(whole.pieces.length, "móvel", "móveis")} e ${money(whole.value)} em bens ligados à planta.`}
         action={
-          <Segmented<ViewMode>
-            label="Vista"
-            value={mode}
-            onChange={(v) => setParam("vista", v)}
-            options={[
-              { value: "3d", label: "3D" },
-              { value: "planta", label: "Planta" },
-            ]}
-          />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              aria-pressed={dims}
+              onClick={() => setParam("cotas", dims ? null : "1")}
+              className={cn("h-8", dims && "border-primary text-primary hover:border-primary hover:text-primary")}
+            >
+              <Ruler />
+              Cotas
+            </Button>
+            <Segmented<ViewMode>
+              label="Vista"
+              value={mode}
+              onChange={(v) => setParam("vista", v)}
+              options={[
+                { value: "3d", label: "3D" },
+                { value: "planta", label: "Planta" },
+              ]}
+            />
+          </div>
         }
       />
 
@@ -135,6 +148,7 @@ export function CasaPage() {
               dark={dark}
               focusId={focus?.id ?? null}
               selectedPieceId={selectedPieceId}
+              dims={dims}
               onPickRoom={(id) => focusRoom(id)}
               onPickPiece={(id) => setSelectedPieceId((cur) => (cur === id ? null : id))}
             />

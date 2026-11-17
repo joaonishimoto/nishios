@@ -13,6 +13,12 @@ export interface Palette {
   focusFloor: string | null;
   material: Record<Material, string>;
   highlight: string;
+  /** Peitoril da janela na planta (o vão aparece claro, como no desenho). */
+  windowSill: string;
+  /** Fundo das cubas e assento do vaso, armário sob a pia e frisos. */
+  basin: string;
+  cabinet: string;
+  seam: string;
   shadows: boolean;
   /** Material com luz e sombra (3D) ou chapado (planta). */
   shading: "standard" | "flat";
@@ -56,6 +62,10 @@ const PALETTES: Record<ViewMode, Record<"light" | "dark", Palette>> = {
       focusFloor: null,
       material: realMaterials,
       highlight: "#1e3d66",
+      windowSill: "#f6f1e7",
+      basin: "#e4e6e8",
+      cabinet: "#f3efe7",
+      seam: "#9a958c",
       shadows: true,
       shading: "standard",
       hemisphere: 1.5,
@@ -69,6 +79,10 @@ const PALETTES: Record<ViewMode, Record<"light" | "dark", Palette>> = {
       focusFloor: null,
       material: realMaterials,
       highlight: "#9bb5da",
+      windowSill: "#d8d2c6",
+      basin: "#cfd2d6",
+      cabinet: "#e6e0d4",
+      seam: "#6f6a61",
       shadows: true,
       shading: "standard",
       hemisphere: 1.1,
@@ -84,6 +98,10 @@ const PALETTES: Record<ViewMode, Record<"light" | "dark", Palette>> = {
       focusFloor: "#dfe7f1",
       material: planMaterials,
       highlight: "#1e3d66",
+      windowSill: "#eef2f7",
+      basin: "#cfd5dc",
+      cabinet: "#ece8de",
+      seam: "#b9b3a6",
       shadows: true,
       shading: "flat",
       hemisphere: 1.9,
@@ -108,6 +126,10 @@ const PALETTES: Record<ViewMode, Record<"light" | "dark", Palette>> = {
         parede: "#9bb5da",
       },
       highlight: "#9bb5da",
+      windowSill: "#2a3a52",
+      basin: "#3a414b",
+      cabinet: "#3a3f47",
+      seam: "#2a2f37",
       shadows: true,
       shading: "flat",
       hemisphere: 1.6,

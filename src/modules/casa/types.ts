@@ -22,8 +22,9 @@ export interface Room {
 }
 
 /**
- * Parede reta. "x" corre na horizontal da planta (z fixo em `at`), "z" corre na vertical
- * (x fixo em `at`). `gaps` são as portas e passagens, de `from` a `to`.
+ * Parede reta, pelo eixo dela. "x" corre na horizontal da planta (z fixo em `at`), "z" corre
+ * na vertical (x fixo em `at`). `gaps` são as portas e passagens e `windows` as janelas,
+ * de `from` a `to`.
  */
 export interface Wall {
   axis: "x" | "z";
@@ -31,7 +32,26 @@ export interface Wall {
   from: number;
   to: number;
   gaps?: [number, number][];
+  windows?: [number, number][];
 }
+
+/** Louças e bancadas que vêm com o apartamento, desenhadas com forma própria. */
+export type FixtureKind = "vaso" | "lavatorio" | "box" | "tanque" | "bancada";
+
+export interface Fixture {
+  kind: FixtureKind;
+  /** Área ocupada no chão. */
+  x: number;
+  z: number;
+  w: number;
+  d: number;
+  /** Parede em que a peça encosta: n é o topo da planta, s a base, w a esquerda, e a direita. */
+  wall: Side;
+  /** Box: lados com vidro. */
+  glass?: Side[];
+}
+
+export type Side = "n" | "s" | "e" | "w";
 
 export type Material =
   | "madeira"
@@ -70,6 +90,8 @@ export interface Piece {
   assetId?: string;
   /** Parte da construção (muro, porta de vidro): aparece no 3D mas não na lista de móveis. */
   fixed?: boolean;
+  /** Louça desenhada com forma própria; quando existe, `parts` é só a área ocupada. */
+  fixture?: Fixture;
 }
 
 export interface Home {
