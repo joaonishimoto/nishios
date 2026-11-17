@@ -10,11 +10,12 @@ import { toISO, today } from "@/lib/dates";
 import { latest } from "@/modules/corpo/logic";
 import { useCorpo } from "@/modules/corpo/store";
 import { MEASURES, type MeasureId } from "@/modules/corpo/types";
+import { useSkills } from "@/modules/skills/store";
 import { LISTS } from "@/modules/tarefas/types";
 import { useTreinos } from "@/modules/treinos/store";
 import { TRAINING_METRICS } from "./linked";
 import { useRoutine } from "./store";
-import { ROUTINE_ICONS, type Goal, type GoalDraft, type GoalLink, type TrainingMetric } from "./types";
+import { ROUTINE_ICONS, type Goal, type GoalDraft, type GoalLink, type SkillMetric, type TrainingMetric } from "./types";
 
 type SourceKind = "manual" | GoalLink["kind"];
 
@@ -26,6 +27,8 @@ const SOURCES: [SourceKind, string][] = [
   ["medida", "Medida do corpo"],
   ["habito", "Hábito cumprido"],
   ["tarefas", "Tarefas concluídas"],
+  ["skill", "Uma skill"],
+  ["skills", "Skills aprendidas"],
 ];
 
 export function GoalForm({
@@ -53,6 +56,7 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
   const { habits, createGoal, updateGoal, removeGoal, restoreGoal } = useRoutine();
   const { modalities } = useTreinos();
   const { entries } = useCorpo();
+  const { skills } = useSkills();
   const toast = useToast();
   const yearStart = toISO(startOfYear(today()));
   const [draft, setDraft] = useState<GoalDraft>({
@@ -89,6 +93,18 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
           return { ...d, link: { kind: "gordura" }, unit: "%" };
         case "medida":
           return { ...d, link: { kind: "medida", measure: "cintura" }, unit: "cm" };
+        case "skill": {
+          const skill = skills.find((s) => s.status === "learning") ?? skills[0];
+          return {
+            ...d,
+            link: { kind: "skill", skillId: skill?.id ?? "", metric: "materiais" },
+            unit: "materiais",
+            target: d.target || skill?.resources.length || 0,
+            start: undefined,
+          };
+        }
+        case "skills":
+          return { ...d, link: { kind: "skills" }, unit: "skills", start: undefined };
       }
     });
   }
@@ -240,6 +256,42 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
           </Field>
         )}
 
+        {draft.link?.kind === "skill" && (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Skill" hint={skills.length === 0 ? "Cadastre uma skill primeiro." : undefined}>
+              {(id) => (
+                <Select
+                  id={id}
+                  value={draft.link?.kind === "skill" ? draft.link.skillId : ""}
+                  onChange={(e) => draft.link?.kind === "skill" && setLink({ ...draft.link, skillId: e.target.value })}
+                >
+                  {skills.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            </Field>
+            <Field label="O que contar">
+              {(id) => (
+                <Select
+                  id={id}
+                  value={draft.link?.kind === "skill" ? draft.link.metric : "materiais"}
+                  onChange={(e) => {
+                    if (draft.link?.kind !== "skill") return;
+                    const metric = e.target.value as SkillMetric;
+                    setDraft((d) => ({ ...d, link: { ...draft.link, metric } as GoalLink, unit: metric === "nivel" ? "de nível" : "materiais" }));
+                  }}
+                >
+                  <option value="materiais">Materiais concluídos</option>
+                  <option value="nivel">Nível (0 a 5)</option>
+                </Select>
+              )}
+            </Field>
+          </div>
+        )}
+
         {draft.link?.kind === "medida" && (
           <Field label="Medida">
             {(id) => (
@@ -285,7 +337,7 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
                 />
               )}
             </Field>
-          ) : (
+          ) : kind === "skill" || kind === "skills" ? null : (
           <Field label="Onde está hoje">
             {(id) => (
               <Input

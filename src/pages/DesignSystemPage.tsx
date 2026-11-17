@@ -10,17 +10,7 @@ import { PageHeader } from "@/components/shell/PageHeader";
 import { CycleTrack, type CycleStatus } from "@/components/ui/CycleTrack";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Progress } from "@/components/ui/Progress";
-import { useCommitments } from "@/modules/compromissos/store";
-import { useBens } from "@/modules/bens/store";
-import { usePeople } from "@/modules/pessoas/store";
 import { Avatar } from "@/components/ui/Avatar";
-import { useCalendar } from "@/modules/calendario/store";
-import { useCorpo } from "@/modules/corpo/store";
-import { usePets } from "@/modules/pets/store";
-import { useSkills } from "@/modules/skills/store";
-import { useTreinos } from "@/modules/treinos/store";
-import { useRoutine } from "@/modules/rotina/store";
-import { useTasks } from "@/modules/tarefas/store";
 
 const COLORS: { group: string; tokens: string[] }[] = [
   { group: "Base", tokens: ["background", "surface", "surface-muted", "surface-hover", "surface-selected", "border", "border-strong"] },
@@ -57,16 +47,6 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 
 export function DesignSystemPage() {
   const toast = useToast();
-  const commitments = useCommitments();
-  const tasks = useTasks();
-  const routine = useRoutine();
-  const bens = useBens();
-  const people = usePeople();
-  const treinos = useTreinos();
-  const pets = usePets();
-  const skills = useSkills();
-  const calendar = useCalendar();
-  const corpo = useCorpo();
   const [checked, setChecked] = useState(true);
   const [seg, setSeg] = useState("a");
 
@@ -274,31 +254,6 @@ export function DesignSystemPage() {
         </div>
       </Section>
 
-      <Section title="Dados de exemplo">
-        <p className="max-w-[60ch] text-muted-foreground">
-          Nesta fase os dados ficam salvos só neste navegador. Você pode voltar aos dados de
-          exemplo quando quiser; o que você cadastrou será substituído.
-        </p>
-        <Button
-          variant="outline"
-          className="mt-3"
-          onClick={() => {
-            commitments.resetToExample();
-            tasks.resetToExample();
-            routine.resetToExample();
-            bens.resetToExample();
-            people.resetToExample();
-            treinos.resetToExample();
-            pets.resetToExample();
-            skills.resetToExample();
-            calendar.resetToExample();
-            corpo.resetToExample();
-            toast({ message: "Dados de exemplo restaurados" });
-          }}
-        >
-          Restaurar dados de exemplo
-        </Button>
-      </Section>
     </div>
   );
 }

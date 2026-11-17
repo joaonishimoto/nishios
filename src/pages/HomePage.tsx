@@ -3,7 +3,6 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ArrowRight } from "lucide-react";
 import { Dot } from "@/components/ui/Badge";
-import { UPCOMING_NAV } from "@/components/shell/nav";
 import { CycleTrack } from "@/components/ui/CycleTrack";
 import { MarkDone } from "@/modules/compromissos/MarkDone";
 import { derive, dueLabel, shortDate, STATUS_META, today } from "@/modules/compromissos/logic";
@@ -24,7 +23,13 @@ import { Progress } from "@/components/ui/Progress";
 import { cn } from "@/lib/cn";
 import { toISO } from "@/lib/dates";
 import { plural } from "@/lib/format";
-import { isDone, isScheduled } from "@/modules/rotina/logic";
+import { change, formatDelta, formatValue } from "@/modules/corpo/logic";
+import { useCorpo } from "@/modules/corpo/store";
+import { petHeadline } from "@/modules/pets/logic";
+import { usePets } from "@/modules/pets/store";
+import { goalAmountLabel, goalDone, goalProgress, isDone, isScheduled } from "@/modules/rotina/logic";
+import { daysAgoLabel, inCurrentWeek, newestFirst } from "@/modules/treinos/logic";
+import { useTreinos } from "@/modules/treinos/store";
 import { ItemRow } from "@/modules/calendario/CalendarBits";
 import { useCalendarItems } from "@/modules/calendario/useCalendarItems";
 import { useRoutine } from "@/modules/rotina/store";
@@ -85,6 +90,18 @@ export function HomePage() {
     .filter((p) => needsContact(p, now))
     .sort((a, b) => byContactUrgency(a, b, now))
     .slice(0, 4);
+  const { goals } = useRoutine();
+  // As mais perto de fechar primeiro: é onde um empurrão hoje faz diferença.
+  const openGoals = goals
+    .filter((g) => !goalDone(g))
+    .sort((a, b) => goalProgress(b) - goalProgress(a))
+    .slice(0, 4);
+  const { entries } = useCorpo();
+  const weight = change(entries, "peso");
+  const { sessions } = useTreinos();
+  const weekSessions = sessions.filter((x) => inCurrentWeek(x, now)).length;
+  const lastSession = [...sessions].sort(newestFirst)[0];
+  const { pets } = usePets();
   const dateLine = format(now, "EEEE, d 'de' MMMM", { locale: ptBR });
 
   return (
@@ -195,6 +212,86 @@ export function HomePage() {
         </section>
       </div>
 
+      {openGoals.length > 0 && (
+        <section>
+          <SectionHeader title="Metas em andamento" to="/rotina" linkLabel="Ver todas" />
+          <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {openGoals.map((g) => (
+              <li key={g.id} className="relative rounded-lg border border-border bg-surface p-4 transition-colors duration-(--motion-fast) hover:border-border-strong">
+                <div className="flex items-start gap-2.5">
+                  <span className="text-xl leading-none">{g.icon}</span>
+                  <Link to="/rotina" className="min-w-0 flex-1 truncate font-medium after:absolute after:inset-0">
+                    {g.name}
+                  </Link>
+                  <span className="font-semibold tabular-nums">{Math.round(goalProgress(g) * 100)}%</span>
+                </div>
+                <Progress value={goalProgress(g)} label={`Progresso de ${g.name}`} className="mt-3 h-1.5" />
+                <p className="mt-2 truncate text-sm text-muted-foreground">{goalAmountLabel(g)}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <div className="grid gap-x-8 gap-y-10 lg:grid-cols-2">
+        <section>
+          <SectionHeader title="Corpo e treinos" to="/corpo" linkLabel="Abrir corpo" />
+          <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
+            <li className="border-b border-border">
+              <Link to="/corpo" className="flex items-center gap-3 px-3 py-2.5 hover:bg-surface-hover">
+                <span className="min-w-0 flex-1 truncate font-medium">Peso</span>
+                {weight ? (
+                  <>
+                    {weight.recent !== null && Math.abs(weight.recent) >= 0.05 && (
+                      <span className="shrink-0 text-sm text-muted-foreground">{formatDelta(weight.recent, "peso")} desde a última</span>
+                    )}
+                    <span className="shrink-0 font-semibold tabular-nums">{formatValue(weight.last.value, "peso")}</span>
+                  </>
+                ) : (
+                  <span className="shrink-0 text-sm text-muted-foreground">Registre a primeira pesagem</span>
+                )}
+              </Link>
+            </li>
+            <li>
+              <Link to="/treinos" className="flex items-center gap-3 px-3 py-2.5 hover:bg-surface-hover">
+                <span className="min-w-0 flex-1 truncate font-medium">Treinos nesta semana</span>
+                {lastSession && (
+                  <span className="shrink-0 text-sm text-muted-foreground">Último {daysAgoLabel(lastSession.date, now).toLowerCase()}</span>
+                )}
+                <span className="shrink-0 font-semibold tabular-nums">{weekSessions}</span>
+              </Link>
+            </li>
+          </ul>
+        </section>
+
+        {pets.length > 0 && (
+          <section>
+            <SectionHeader title="Pets" to="/pets" linkLabel="Abrir pets" />
+            <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
+              {pets.map((pet) => {
+                const head = petHeadline(pet, now);
+                return (
+                  <li key={pet.id} className="border-b border-border last:border-b-0">
+                    <Link to={`/pets?p=${pet.id}`} className="flex items-center gap-3 px-3 py-2.5 hover:bg-surface-hover">
+                      <span className="text-xl leading-none">{pet.icon}</span>
+                      <span className="min-w-0 flex-1 truncate font-medium">{pet.name}</span>
+                      <span
+                        className={cn(
+                          "min-w-0 truncate text-sm",
+                          head.tone === "danger" ? "text-danger-strong" : head.tone === "warning" ? "text-warning-strong" : "text-muted-foreground",
+                        )}
+                      >
+                        {head.text}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
+      </div>
+
       <section>
         <SectionHeader
           title={
@@ -282,24 +379,6 @@ export function HomePage() {
         </section>
       )}
 
-      <section>
-        <h2 className="text-xl font-semibold tracking-tight">O que vem nas próximas fases</h2>
-        <p className="mt-1 max-w-[60ch] text-muted-foreground">
-          Esta é a fundação do NishiOS. Os outros módulos entram aos poucos, usando o mesmo design
-          system.
-        </p>
-        <ul className="mt-4 flex flex-wrap gap-2">
-          {UPCOMING_NAV.map(({ label, icon: Icon }) => (
-            <li
-              key={label}
-              className="inline-flex h-8 items-center gap-2 rounded-md border border-dashed border-border-strong px-2.5 text-sm text-muted-foreground"
-            >
-              <Icon className="size-3.5" />
-              {label}
-            </li>
-          ))}
-        </ul>
-      </section>
     </div>
   );
 }

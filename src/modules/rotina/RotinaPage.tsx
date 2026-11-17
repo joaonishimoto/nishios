@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/Progress";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { cn } from "@/lib/cn";
 import { toISO, today } from "@/lib/dates";
+import { useSkills } from "@/modules/skills/store";
 import { useTreinos } from "@/modules/treinos/store";
 import { GoalForm } from "./GoalForm";
 import { linkLabel, linkRoute } from "./linked";
@@ -310,6 +311,7 @@ function HabitRow({
 function GoalCard({ goal, onEdit }: { goal: Goal; onEdit: () => void }) {
   const { habits } = useRoutine();
   const { modalities } = useTreinos();
+  const { skills } = useSkills();
   const done = goalDone(goal);
   const progress = goalProgress(goal);
   const deadline = deadlineLabel(goal);
@@ -360,7 +362,7 @@ function GoalCard({ goal, onEdit }: { goal: Goal; onEdit: () => void }) {
       {goal.link && (
         <p className="mt-2 flex items-center gap-1.5 border-t border-border pt-2 text-sm text-muted-foreground">
           <Link2 className="size-3.5 shrink-0" aria-hidden />
-          <span className="min-w-0 truncate">{linkLabel(goal.link, { modalities, habits })}</span>
+          <span className="min-w-0 truncate">{linkLabel(goal.link, { modalities, habits, skills })}</span>
         </p>
       )}
     </li>

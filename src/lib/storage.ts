@@ -7,11 +7,16 @@ import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 export function usePersistentState<T>(
   key: string,
   initial: () => T,
+  /** Ajusta o que já estava salvo, para quando o formato ou o exemplo muda. */
+  migrate?: (stored: T) => T,
 ): [T, Dispatch<SetStateAction<T>>] {
   const [state, setState] = useState<T>(() => {
     try {
       const raw = localStorage.getItem(key);
-      if (raw) return JSON.parse(raw) as T;
+      if (raw) {
+        const stored = JSON.parse(raw) as T;
+        return migrate ? migrate(stored) : stored;
+      }
     } catch {
       /* dado corrompido ou sem armazenamento: usa o valor inicial */
     }

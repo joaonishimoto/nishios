@@ -1,12 +1,13 @@
 import { useState, type FormEvent } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Check, Pencil, Plus, Scale } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { Check, Pencil, Plus, Scale, Sofa } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { CycleTrack } from "@/components/ui/CycleTrack";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Field, Input } from "@/components/ui/Field";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover";
+import { LineChart } from "@/components/ui/LineChart";
 import { useToast } from "@/components/ui/Toast";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { cn } from "@/lib/cn";
@@ -25,6 +26,7 @@ import {
   petHeadline,
 } from "./logic";
 import { CareForm, HealthForm, PetForm } from "./PetForms";
+import { PETS_IN_HOUSE } from "./seed";
 import { newId, usePets } from "./store";
 import type { Care, HealthRecord, Pet } from "./types";
 
@@ -157,10 +159,21 @@ function PetDetail({ pet, onEdit }: { pet: Pet; onEdit: () => void }) {
               <p className="text-muted-foreground">{facts.join(", ")}</p>
             </div>
           </div>
-          <Button variant="outline" size="sm" className="h-8" onClick={onEdit}>
-            <Pencil />
-            Editar pet
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            {PETS_IN_HOUSE.includes(pet.id) && (
+              <Link
+                to="/casa"
+                className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium text-primary hover:bg-surface-hover"
+              >
+                <Sofa className="size-4" aria-hidden />
+                Ver andando pela casa
+              </Link>
+            )}
+            <Button variant="outline" size="sm" className="h-8" onClick={onEdit}>
+              <Pencil />
+              Editar pet
+            </Button>
+          </div>
         </div>
         {pet.notes && <p className="mt-4 max-w-[70ch] whitespace-pre-line">{pet.notes}</p>}
         {pet.birthday && (
@@ -426,6 +439,16 @@ function WeightSection({ pet }: { pet: Pet }) {
           Registre o peso depois de cada consulta para acompanhar se está subindo ou caindo.
         </p>
       ) : (
+        <>
+        {weights.length > 1 && (
+          <div className="mt-3 rounded-lg border border-border bg-surface p-3">
+            <LineChart
+              points={[...weights].reverse().map((w) => ({ date: w.date, value: w.kg }))}
+              label={`Peso de ${pet.name} ao longo do tempo`}
+              format={formatKg}
+            />
+          </div>
+        )}
         <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
           {weights.map((w, i) => {
             const prev = weights[i + 1];
@@ -447,6 +470,7 @@ function WeightSection({ pet }: { pet: Pet }) {
             );
           })}
         </ul>
+        </>
       )}
     </section>
   );
