@@ -3,8 +3,8 @@ import { usePersistentState } from "@/lib/storage";
 import { seedHome } from "./seed";
 import type { Home } from "./types";
 
-// v5: planta remedida pelas cotas, com janelas, portas, shafts e louças com forma.
-const KEY = "nishios:casa:v5";
+// v7: box dos banheiros de parede a parede, com um vidro na frente.
+const KEY = "nishios:casa:v7";
 
 interface Store {
   home: Home;
