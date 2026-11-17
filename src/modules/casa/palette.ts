@@ -30,6 +30,7 @@ const realMaterials: Record<Material, string> = {
   vidro: "#bfe0ea",
   tapete: "#e9d9c3",
   pedra: "#ded9d0",
+  parede: "#f6f1e7",
 };
 
 const planMaterials: Record<Material, string> = {
@@ -42,6 +43,7 @@ const planMaterials: Record<Material, string> = {
   vidro: "#dfe7f1",
   tapete: "#f2efe6",
   pedra: "#d3ccba",
+  parede: "#1e3d66",
 };
 
 const PALETTES: Record<ViewMode, Record<"light" | "dark", Palette>> = {
@@ -103,6 +105,7 @@ const PALETTES: Record<ViewMode, Record<"light" | "dark", Palette>> = {
         vidro: "#2a3a52",
         tapete: "#2a2f37",
         pedra: "#5c6370",
+        parede: "#9bb5da",
       },
       highlight: "#9bb5da",
       shadows: true,

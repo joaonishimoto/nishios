@@ -42,7 +42,9 @@ export type Material =
   | "planta"
   | "vidro"
   | "tapete"
-  | "pedra";
+  | "pedra"
+  /** Alvenaria fora das paredes retas, como o shaft de tubulação: usa a cor e a altura das paredes. */
+  | "parede";
 
 /** Um bloco de um móvel, em coordenadas da casa. */
 export interface Part {
