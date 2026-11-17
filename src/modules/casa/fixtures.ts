@@ -155,9 +155,8 @@ function buildShower(f: Fixture, mats: FixtureMaterials, opts: FixtureOptions, a
     if (side === "e") panel(false, f.x + f.w - t / 2);
   }
 
-  // Chuveiro: cano na parede e ducha redonda. Some quando as paredes estão baixas (foco).
-  const top = Math.min(2.05, opts.maxHeight + 0.05);
-  if (top < 1.2) return;
+  // Chuveiro: cano na parede e ducha redonda. Com as paredes baixas (foco), fica a 1,5 m.
+  const top = Math.max(1.5, Math.min(2.05, opts.maxHeight + 0.05));
   const inset = 0.03;
   const [hx, hz, dx, dz] = {
     n: [cx, f.z + inset, 0, 1],

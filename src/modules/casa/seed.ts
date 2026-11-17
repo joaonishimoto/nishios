@@ -97,11 +97,11 @@ export function seedHome(): Home {
       fixed("varanda", "Porta de vidro", [p(1.7, 1.42, 2.49, 0.06, 2.1, "vidro")]),
       louca("banhosuite", "Pia", { kind: "lavatorio", x: 7.81, z: 2.78, w: 0.66, d: 0.5, wall: "n" }),
       louca("banhosuite", "Vaso", { kind: "vaso", x: 8.6, z: 2.78, w: 0.4, d: 0.64, wall: "n" }),
-      louca("banhosuite", "Box", { kind: "box", x: 9.07, z: 2.78, w: 0.8, d: 0.86, wall: "e", glass: ["w", "s"] }),
+      louca("banhosuite", "Box", { kind: "box", x: 9.07, z: 2.78, w: 0.8, d: 1.32, wall: "e", glass: ["w"] }),
       louca("banho", "Pia", { kind: "lavatorio", x: 5.75, z: 4.92, w: 0.64, d: 0.5, wall: "s" }),
       louca("banho", "Vaso", { kind: "vaso", x: 6.56, z: 4.78, w: 0.4, d: 0.64, wall: "s" }),
       fixed("banho", "Shaft de tubulação", [p(7.63, 5.18, 0.27, 0.24, 2.6, "parede")]),
-      louca("banho", "Box", { kind: "box", x: 7.11, z: 4.3, w: 0.79, d: 1.12, wall: "s", glass: ["n", "w"] }),
+      louca("banho", "Box", { kind: "box", x: 7.11, z: 4.2, w: 0.79, d: 1.22, wall: "e", glass: ["w"] }),
       fixed("externa", "Muro", [
         p(-0.16, -1.66, 10.18, 0.1, 0.6, "pedra"), p(-0.16, -1.66, 0.1, 1.55, 0.6, "pedra"), p(9.92, -1.66, 0.1, 1.55, 0.6, "pedra"),
       ]),

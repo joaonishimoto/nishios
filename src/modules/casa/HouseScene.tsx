@@ -534,7 +534,8 @@ function buildHouse(
           stone: material(pal.material.pedra, fade, 0.55),
           cabinet: material(pal.cabinet, fade, 0.7),
           seam: material(pal.seam, fade),
-          metal: material(pal.material.metal, fade, 0.3, 0.5),
+          // Na planta, metais escuros para o chuveiro e as torneiras aparecerem vistos de cima.
+          metal: material(mode === "planta" ? pal.material.escuro : pal.material.metal, fade, 0.3, 0.5),
           glass: material(pal.material.vidro, 0.35, 0.1),
         },
         {
