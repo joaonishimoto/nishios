@@ -14,6 +14,8 @@ import { useCommitments } from "@/modules/compromissos/store";
 import { useBens } from "@/modules/bens/store";
 import { usePeople } from "@/modules/pessoas/store";
 import { Avatar } from "@/components/ui/Avatar";
+import { usePets } from "@/modules/pets/store";
+import { useSkills } from "@/modules/skills/store";
 import { useTreinos } from "@/modules/treinos/store";
 import { useRoutine } from "@/modules/rotina/store";
 import { useTasks } from "@/modules/tarefas/store";
@@ -59,6 +61,8 @@ export function DesignSystemPage() {
   const bens = useBens();
   const people = usePeople();
   const treinos = useTreinos();
+  const pets = usePets();
+  const skills = useSkills();
   const [checked, setChecked] = useState(true);
   const [seg, setSeg] = useState("a");
 
@@ -281,6 +285,8 @@ export function DesignSystemPage() {
             bens.resetToExample();
             people.resetToExample();
             treinos.resetToExample();
+            pets.resetToExample();
+            skills.resetToExample();
             toast({ message: "Dados de exemplo restaurados" });
           }}
         >
