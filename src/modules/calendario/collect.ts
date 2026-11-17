@@ -25,6 +25,7 @@ export interface Everything {
   goals: Goal[];
   modalities: Modality[];
   sessions: Session[];
+  plannedSessions: Session[];
   entries: Entry[];
   assets: Asset[];
   wishes: Wish[];
@@ -53,6 +54,11 @@ export function collect(data: Everything, from: string, to: string, now: Date): 
   /* Eventos próprios e do iPhone */
   for (const e of data.events) {
     const days = spanDays(e);
+    const who = (e.personIds ?? []).flatMap((id) => {
+      const p = data.people.find((x) => x.id === id);
+      return p ? [p.name.split(" ")[0]] : [];
+    });
+    const withWho = who.length ? `Com ${who.length > 1 ? `${who.slice(0, -1).join(", ")} e ${who.at(-1)}` : who[0]}` : undefined;
     for (const o of occurrences(e, from, to)) {
       const timed = !e.allDay && e.start && o.dayIndex === 0;
       items.push({
@@ -63,7 +69,7 @@ export function collect(data: Everything, from: string, to: string, now: Date): 
         time: timed ? e.start : undefined,
         endTime: timed ? e.end : undefined,
         state: "planned",
-        note: days > 1 ? `Dia ${o.dayIndex + 1} de ${days}` : undefined,
+        note: [days > 1 ? `Dia ${o.dayIndex + 1} de ${days}` : undefined, withWho].filter(Boolean).join(". ") || undefined,
         location: e.location || undefined,
         eventId: e.id,
         series:
@@ -110,6 +116,11 @@ export function collect(data: Everything, from: string, to: string, now: Date): 
 
   /* Treinos registrados */
   const modality = new Map(data.modalities.map((m) => [m.id, m]));
+  for (const s of data.plannedSessions) {
+    const m = modality.get(s.modalityId);
+    if (!m) continue;
+    push({ key: `ses-${s.id}`, source: "treinos", date: s.date, title: `${m.name} planejado`, icon: m.icon, state: planned(s.date), note: sessionSummary(s, m), to: `/treinos?m=${m.id}` });
+  }
   for (const s of data.sessions) {
     const m = modality.get(s.modalityId);
     if (!m) continue;

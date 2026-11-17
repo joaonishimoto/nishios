@@ -2,6 +2,10 @@ import { useState, type FormEvent } from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
+import { Link } from "react-router-dom";
+import { cn } from "@/lib/cn";
+import { derive, dueLabel } from "@/modules/compromissos/logic";
+import { useCommitments } from "@/modules/compromissos/store";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
 import { IconPicker } from "@/components/ui/IconPicker";
 import { useToast } from "@/components/ui/Toast";
@@ -54,6 +58,7 @@ function Content({
 }) {
   const { createAsset, updateAsset, removeAsset, restoreAsset } = useBens();
   const toast = useToast();
+  const linked = useCommitments().commitments.filter((c) => asset && c.assetId === asset.id);
   const [draft, setDraft] = useState<AssetDraft>({
     name: asset?.name ?? "",
     icon: asset?.icon ?? "📦",
@@ -181,6 +186,36 @@ function Content({
             />
           )}
         </Field>
+        {linked.length > 0 && (
+          <section>
+            <h3 className="text-sm font-medium">Manutenção</h3>
+            <ul className="mt-1.5 overflow-hidden rounded-lg border border-border">
+              {linked.map((c) => {
+                const d = derive(c);
+                return (
+                  <li key={c.id} className="border-b border-border last:border-b-0">
+                    <Link
+                      to={`/compromissos?c=${c.id}`}
+                      className="flex items-center justify-between gap-3 px-3 py-2 hover:bg-surface-hover"
+                    >
+                      <span className="min-w-0 truncate">
+                        {c.icon} {c.name}
+                      </span>
+                      <span
+                        className={cn(
+                          "shrink-0 text-sm",
+                          d.status === "overdue" ? "text-danger-strong" : d.status === "soon" ? "text-warning-strong" : "text-muted-foreground",
+                        )}
+                      >
+                        {dueLabel(d)}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
       </DialogBody>
       <DialogFooter>
         {asset && (

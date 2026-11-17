@@ -128,7 +128,7 @@ export function HomePage() {
         )}
       </section>
 
-      <div className="grid gap-x-8 gap-y-10 lg:grid-cols-2">
+      <div className="grid gap-x-8 gap-y-10 lg:grid-cols-2 [&>section]:min-w-0">
         <section>
           <SectionHeader
             title={
@@ -217,7 +217,7 @@ export function HomePage() {
           <SectionHeader title="Metas em andamento" to="/rotina" linkLabel="Ver todas" />
           <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {openGoals.map((g) => (
-              <li key={g.id} className="relative rounded-lg border border-border bg-surface p-4 transition-colors duration-(--motion-fast) hover:border-border-strong">
+              <li key={g.id} className="relative min-w-0 rounded-lg border border-border bg-surface p-4 transition-colors duration-(--motion-fast) hover:border-border-strong">
                 <div className="flex items-start gap-2.5">
                   <span className="text-xl leading-none">{g.icon}</span>
                   <Link to="/rotina" className="min-w-0 flex-1 truncate font-medium after:absolute after:inset-0">
@@ -233,17 +233,17 @@ export function HomePage() {
         </section>
       )}
 
-      <div className="grid gap-x-8 gap-y-10 lg:grid-cols-2">
-        <section>
+      <div className="grid gap-x-8 gap-y-10 lg:grid-cols-2 [&>section]:min-w-0">
+        <section className="min-w-0">
           <SectionHeader title="Corpo e treinos" to="/corpo" linkLabel="Abrir corpo" />
           <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
             <li className="border-b border-border">
               <Link to="/corpo" className="flex items-center gap-3 px-3 py-2.5 hover:bg-surface-hover">
-                <span className="min-w-0 flex-1 truncate font-medium">Peso</span>
+                <span className="flex-1 font-medium">Peso</span>
                 {weight ? (
                   <>
                     {weight.recent !== null && Math.abs(weight.recent) >= 0.05 && (
-                      <span className="shrink-0 text-sm text-muted-foreground">{formatDelta(weight.recent, "peso")} desde a última</span>
+                      <span className="min-w-0 truncate text-sm text-muted-foreground">{formatDelta(weight.recent, "peso")} desde a última</span>
                     )}
                     <span className="shrink-0 font-semibold tabular-nums">{formatValue(weight.last.value, "peso")}</span>
                   </>
@@ -254,9 +254,9 @@ export function HomePage() {
             </li>
             <li>
               <Link to="/treinos" className="flex items-center gap-3 px-3 py-2.5 hover:bg-surface-hover">
-                <span className="min-w-0 flex-1 truncate font-medium">Treinos nesta semana</span>
+                <span className="flex-1 font-medium whitespace-nowrap">Treinos nesta semana</span>
                 {lastSession && (
-                  <span className="shrink-0 text-sm text-muted-foreground">Último {daysAgoLabel(lastSession.date, now).toLowerCase()}</span>
+                  <span className="min-w-0 truncate text-sm text-muted-foreground">Último {daysAgoLabel(lastSession.date, now).toLowerCase()}</span>
                 )}
                 <span className="shrink-0 font-semibold tabular-nums">{weekSessions}</span>
               </Link>
@@ -265,7 +265,7 @@ export function HomePage() {
         </section>
 
         {pets.length > 0 && (
-          <section>
+          <section className="min-w-0">
             <SectionHeader title="Pets" to="/pets" linkLabel="Abrir pets" />
             <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
               {pets.map((pet) => {
@@ -274,7 +274,7 @@ export function HomePage() {
                   <li key={pet.id} className="border-b border-border last:border-b-0">
                     <Link to={`/pets?p=${pet.id}`} className="flex items-center gap-3 px-3 py-2.5 hover:bg-surface-hover">
                       <span className="text-xl leading-none">{pet.icon}</span>
-                      <span className="min-w-0 flex-1 truncate font-medium">{pet.name}</span>
+                      <span className="flex-1 font-medium">{pet.name}</span>
                       <span
                         className={cn(
                           "min-w-0 truncate text-sm",

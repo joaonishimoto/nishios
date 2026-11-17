@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Pencil, Trash2, X } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge, Dot } from "@/components/ui/Badge";
@@ -6,7 +7,9 @@ import { Button } from "@/components/ui/Button";
 import { CycleTrack } from "@/components/ui/CycleTrack";
 import { Dialog, DialogBody } from "@/components/ui/Dialog";
 import { useToast } from "@/components/ui/Toast";
-import { formatDate, shortDate } from "@/lib/dates";
+import { formatDate, shortDate, today } from "@/lib/dates";
+import { useCalendar } from "@/modules/calendario/store";
+import { upcomingWith } from "./linked";
 import { LogContact } from "./LogContact";
 import {
   birthday,
@@ -38,6 +41,8 @@ export function PersonPanel({ person, onClose }: { person: Person | undefined; o
 function PanelContent({ person: p, onClose }: { person: Person; onClose: () => void }) {
   const { remove, restore, removeInteraction, addInteraction } = usePeople();
   const toast = useToast();
+  const { events } = useCalendar();
+  const upcoming = upcomingWith(p.id, events, today());
   const [editing, setEditing] = useState(false);
   const c = contact(p);
   const meta = CONTACT_META[c.status];
@@ -133,6 +138,25 @@ function PanelContent({ person: p, onClose }: { person: Person; onClose: () => v
           )}
         </dl>
 
+        {upcoming.length > 0 && (
+          <section>
+            <h3 className="font-semibold">Próximos eventos juntos</h3>
+            <ul className="mt-2 flex flex-col">
+              {upcoming.map(({ event, date }) => (
+                <li key={`${event.id}-${date}`} className="border-b border-border last:border-b-0">
+                  <Link to={`/calendario?dia=${date}`} className="flex items-baseline justify-between gap-3 py-2 hover:text-primary">
+                    <span className="min-w-0 truncate">{event.title}</span>
+                    <span className="shrink-0 text-sm text-muted-foreground">
+                      {shortDate(date)}
+                      {!event.allDay && event.start && `, ${event.start}`}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         <section>
           <h3 className="font-semibold">Histórico de contatos</h3>
           {p.interactions.length === 0 ? (
@@ -154,6 +178,11 @@ function PanelContent({ person: p, onClose }: { person: Person; onClose: () => v
                     </p>
                     {i.note && <p className="text-sm text-muted-foreground">{i.note}</p>}
                   </div>
+                  {i.eventId ? (
+                    <Link to={`/calendario?dia=${i.date}`} className="shrink-0 pt-0.5 text-sm text-primary hover:underline">
+                      Do calendário
+                    </Link>
+                  ) : (
                   <Button
                     variant="ghost"
                     size="icon"
@@ -169,6 +198,7 @@ function PanelContent({ person: p, onClose }: { person: Person; onClose: () => v
                   >
                     <X />
                   </Button>
+                  )}
                 </li>
               ))}
             </ol>

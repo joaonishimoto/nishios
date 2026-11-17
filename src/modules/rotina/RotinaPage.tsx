@@ -317,7 +317,7 @@ function GoalCard({ goal, onEdit }: { goal: Goal; onEdit: () => void }) {
   const deadline = deadlineLabel(goal);
 
   return (
-    <li className="relative flex flex-col rounded-lg border border-border bg-surface p-4 transition-colors duration-(--motion-fast) hover:border-border-strong">
+    <li className="relative flex min-w-0 flex-col rounded-lg border border-border bg-surface p-4 transition-colors duration-(--motion-fast) hover:border-border-strong">
       <div className="flex items-start gap-3">
         <span className="text-xl leading-none">{goal.icon}</span>
         <div className="min-w-0 flex-1">

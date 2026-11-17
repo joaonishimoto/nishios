@@ -11,6 +11,8 @@ export interface Commitment {
   /** Quantos dias antes do vencimento ele passa a aparecer como "próximo". */
   warnDays: number;
   notes: string;
+  /** Bem a que o compromisso se refere (a revisão é do carro, a limpeza é do ar-condicionado). */
+  assetId?: string;
   /** Datas em que foi feito, no formato yyyy-MM-dd, da mais recente para a mais antiga. */
   history: string[];
 }

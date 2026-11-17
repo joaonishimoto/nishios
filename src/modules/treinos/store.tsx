@@ -1,4 +1,5 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { toISO, today } from "@/lib/dates";
 import { usePersistentState } from "@/lib/storage";
 import { seedModalities, seedSessions } from "./seed";
 import type { Modality, ModalityDraft, Session, SessionDraft } from "./types";
@@ -8,7 +9,12 @@ const SESSIONS_KEY = "nishios:treinos:sessoes:v1";
 
 interface Store {
   modalities: Modality[];
+  /** Só os treinos feitos: é o que as contas, as metas e os hábitos enxergam. */
   sessions: Session[];
+  /** Treinos planejados, do mais próximo para o mais distante. */
+  planned: Session[];
+  /** Passa um treino planejado para feito. */
+  completeSession: (id: string) => void;
   createModality: (draft: ModalityDraft) => Modality;
   updateModality: (id: string, draft: ModalityDraft) => void;
   /** Exclui a modalidade junto com os treinos dela. */
@@ -25,12 +31,22 @@ const Ctx = createContext<Store | null>(null);
 
 export function TreinosProvider({ children }: { children: ReactNode }) {
   const [modalities, setModalities] = usePersistentState<Modality[]>(MODALITIES_KEY, seedModalities);
-  const [sessions, setSessions] = usePersistentState<Session[]>(SESSIONS_KEY, seedSessions);
+  const [all, setSessions] = usePersistentState<Session[]>(SESSIONS_KEY, seedSessions);
+  const sessions = useMemo(() => all.filter((s) => !s.planned), [all]);
+  const planned = useMemo(() => all.filter((s) => s.planned).sort((a, b) => a.date.localeCompare(b.date)), [all]);
 
   const store = useMemo<Store>(
     () => ({
       modalities,
       sessions,
+      planned,
+      completeSession(id) {
+        const todayISO = toISO(today());
+        // Feito antes do dia marcado vale como feito hoje.
+        setSessions((list) =>
+          list.map((s) => (s.id === id ? { ...s, planned: false, date: s.date > todayISO ? todayISO : s.date } : s)),
+        );
+      },
       createModality(draft) {
         const modality = { ...draft, id: crypto.randomUUID() };
         setModalities((list) => [...list, modality]);
@@ -67,7 +83,7 @@ export function TreinosProvider({ children }: { children: ReactNode }) {
         setSessions(seedSessions());
       },
     }),
-    [modalities, sessions, setModalities, setSessions],
+    [modalities, sessions, planned, setModalities, setSessions],
   );
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;

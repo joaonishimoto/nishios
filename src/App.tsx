@@ -31,6 +31,7 @@ export function App() {
   return (
     <BrowserRouter>
       <ToastProvider>
+        <CalendarProvider>
         <CommitmentsProvider>
           <TasksProvider>
           <TreinosProvider>
@@ -41,7 +42,6 @@ export function App() {
           <CasaProvider>
           <PeopleProvider>
           <PetsProvider>
-          <CalendarProvider>
           <Routes>
             <Route element={<AppShell />}>
               <Route index element={<HomePage />} />
@@ -61,7 +61,6 @@ export function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>
-          </CalendarProvider>
           </PetsProvider>
           </PeopleProvider>
           </CasaProvider>
@@ -72,6 +71,7 @@ export function App() {
           </TreinosProvider>
           </TasksProvider>
         </CommitmentsProvider>
+        </CalendarProvider>
       </ToastProvider>
     </BrowserRouter>
   );

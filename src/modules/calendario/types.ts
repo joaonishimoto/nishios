@@ -33,6 +33,8 @@ export interface CalEvent {
   /** Último dia da repetição; vazio = sem fim. */
   until: string;
   origin: "nishios" | "iphone";
+  /** Pessoas que estão no evento (ids de Pessoas). */
+  personIds?: string[];
 }
 
 export type EventDraft = Omit<CalEvent, "id" | "origin">;

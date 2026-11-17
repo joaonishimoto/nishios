@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/Button";
 import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
 import { useToast } from "@/components/ui/Toast";
+import { cn } from "@/lib/cn";
+import { usePeople } from "@/modules/pessoas/store";
 import { REPEAT_LABELS } from "./events";
 import { useCalendar } from "./store";
 import type { CalEvent, EventDraft, Repeat } from "./types";
@@ -30,6 +32,7 @@ export function EventForm({
 function Content({ event, defaultDate, onClose }: { event?: CalEvent; defaultDate: string; onClose: () => void }) {
   const { create, update, remove, restore } = useCalendar();
   const toast = useToast();
+  const people = [...usePeople().people].sort((a, b) => a.name.localeCompare(b.name));
   const [draft, setDraft] = useState<EventDraft>(
     event ?? {
       title: "",
@@ -146,6 +149,36 @@ function Content({ event, defaultDate, onClose }: { event?: CalEvent; defaultDat
             </Field>
           )}
         </div>
+
+        {people.length > 0 && (
+          <fieldset>
+            <legend className="text-sm font-medium">Com quem</legend>
+            <p className="text-sm text-muted-foreground">Depois que acontece, o evento conta como contato com a pessoa.</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {people.map((p) => {
+                const on = (draft.personIds ?? []).includes(p.id);
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() =>
+                      set("personIds", on ? (draft.personIds ?? []).filter((x) => x !== p.id) : [...(draft.personIds ?? []), p.id])
+                    }
+                    className={cn(
+                      "h-7 rounded-full border px-2.5 text-sm transition-colors duration-(--motion-fast)",
+                      on
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-input bg-surface text-foreground hover:border-input-hover",
+                    )}
+                  >
+                    {p.name}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+        )}
 
         <Field label="Local">
           {(id) => (

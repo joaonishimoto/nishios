@@ -8,6 +8,8 @@ export interface Interaction {
   date: string;
   type: InteractionType;
   note: string;
+  /** Presente quando o contato veio de um evento do calendário; não é salvo com a pessoa. */
+  eventId?: string;
 }
 
 export interface Person {

@@ -43,6 +43,8 @@ export interface Session {
   rounds: number;
   style: string;
   exercises: Exercise[];
+  /** Treino marcado para um dia que ainda não chegou; não entra nas contas até ser feito. */
+  planned?: boolean;
 }
 
 export type SessionDraft = Omit<Session, "id">;

@@ -1,5 +1,7 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { usePersistentState } from "@/lib/storage";
+import { useCalendar } from "@/modules/calendario/store";
+import { withEventContacts } from "./linked";
 import { seedPeople } from "./seed";
 import type { Interaction, Person, PersonDraft } from "./types";
 
@@ -23,7 +25,10 @@ const newestFirst = (list: Interaction[]) =>
   [...list].sort((a, b) => b.date.localeCompare(a.date));
 
 export function PeopleProvider({ children }: { children: ReactNode }) {
-  const [people, setPeople] = usePersistentState<Person[]>(KEY, seedPeople);
+  const [rawPeople, setPeople] = usePersistentState<Person[]>(KEY, seedPeople);
+  const { events } = useCalendar();
+  // Na tela, os eventos do calendário já aparecem como contatos; no que é salvo, não.
+  const people = useMemo(() => withEventContacts(rawPeople, events, new Date()), [rawPeople, events]);
 
   const store = useMemo<Store>(() => {
     const patch = (id: string, fn: (p: Person) => Person) =>
@@ -49,7 +54,8 @@ export function PeopleProvider({ children }: { children: ReactNode }) {
         setPeople((list) => list.filter((p) => p.id !== id));
       },
       restore(person) {
-        setPeople((list) => (list.some((p) => p.id === person.id) ? list : [...list, person]));
+        const saved = { ...person, interactions: person.interactions.filter((i) => !i.eventId) };
+        setPeople((list) => (list.some((p) => p.id === person.id) ? list : [...list, saved]));
       },
       logInteraction(id, interaction) {
         const created = { ...interaction, id: crypto.randomUUID() };

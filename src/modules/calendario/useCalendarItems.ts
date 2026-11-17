@@ -20,15 +20,15 @@ export function useEverything(): Everything {
   const { tasks } = useTasks();
   const { commitments } = useCommitments();
   const { goals } = useRoutine();
-  const { modalities, sessions } = useTreinos();
+  const { modalities, sessions, planned: plannedSessions } = useTreinos();
   const { entries } = useCorpo();
   const { assets, wishes } = useBens();
   const { people } = usePeople();
   const { pets } = usePets();
   const { skills } = useSkills();
   return useMemo(
-    () => ({ events, tasks, commitments, goals, modalities, sessions, entries, assets, wishes, people, pets, skills }),
-    [events, tasks, commitments, goals, modalities, sessions, entries, assets, wishes, people, pets, skills],
+    () => ({ events, tasks, commitments, goals, modalities, sessions, plannedSessions, entries, assets, wishes, people, pets, skills }),
+    [events, tasks, commitments, goals, modalities, sessions, plannedSessions, entries, assets, wishes, people, pets, skills],
   );
 }
 

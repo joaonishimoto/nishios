@@ -54,6 +54,7 @@ export function seedCommitments(): Commitment[] {
       intervalUnit: "years",
       warnDays: 30,
       notes: "Ou a cada 10.000 km, o que vier primeiro.",
+      assetId: "a11",
       history: ago({ months: 11, days: 12 }),
     },
     {
