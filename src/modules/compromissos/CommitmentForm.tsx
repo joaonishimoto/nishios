@@ -4,6 +4,7 @@ import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
 import { IconPicker } from "@/components/ui/IconPicker";
 import { useToast } from "@/components/ui/Toast";
+import { useBens } from "@/modules/bens/store";
 import { toISO, today, unitLabel } from "./logic";
 import { useCommitments } from "./store";
 import { CATEGORIES, ICONS, type Commitment, type CommitmentDraft, type IntervalUnit } from "./types";
@@ -19,6 +20,7 @@ function initial(c?: Commitment): CommitmentDraft {
     intervalUnit: c?.intervalUnit ?? "days",
     warnDays: c?.warnDays ?? 7,
     notes: c?.notes ?? "",
+    assetId: c?.assetId,
     lastDone: c?.history[0] ?? "",
   };
 }
@@ -53,6 +55,7 @@ export function CommitmentForm({
 function FormContent({ commitment, onClose }: { commitment?: Commitment; onClose: () => void }) {
   const { create, update } = useCommitments();
   const toast = useToast();
+  const assets = [...useBens().assets].sort((a, b) => a.name.localeCompare(b.name));
   const [draft, setDraft] = useState<CommitmentDraft>(() => initial(commitment));
   const [triedSubmit, setTriedSubmit] = useState(false);
   const set = <K extends keyof CommitmentDraft>(key: K, value: CommitmentDraft[K]) =>
@@ -158,6 +161,21 @@ function FormContent({ commitment, onClose }: { commitment?: Commitment; onClose
             )}
           </Field>
         </div>
+
+        {assets.length > 0 && (
+          <Field label="É a manutenção de um bem?" hint="Opcional. O compromisso passa a aparecer junto do bem.">
+            {(id) => (
+              <Select id={id} value={draft.assetId ?? ""} onChange={(e) => set("assetId", e.target.value || undefined)}>
+                <option value="">Nenhum</option>
+                {assets.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.icon} {a.name}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+        )}
 
         <Field label="Anotações">
           {(id) => (

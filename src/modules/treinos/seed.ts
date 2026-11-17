@@ -85,5 +85,11 @@ export function seedSessions(): Session[] {
   swim(33, 800, 24);
   gym(34, pernas(0), 64);
 
-  return sessions;
+  // Para a frente: treinos planejados, que aparecem no calendário até serem feitos.
+  run(-1, 8, 48, "Ritmo leve.");
+  gym(-2, peito(3), 60);
+  fight(-4, "Muay thai", 5, 60);
+
+  const todayISO = toISO(now);
+  return sessions.map((s) => (s.date > todayISO ? { ...s, planned: true } : s));
 }

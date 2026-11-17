@@ -1,6 +1,7 @@
 import { latest } from "@/modules/corpo/logic";
 import type { Entry } from "@/modules/corpo/types";
 import { MEASURE } from "@/modules/corpo/types";
+import type { Skill } from "@/modules/skills/types";
 import type { Task } from "@/modules/tarefas/types";
 import type { Modality, Session } from "@/modules/treinos/types";
 import type { Goal, GoalLink, Habit, TrainingMetric } from "./types";
@@ -11,6 +12,7 @@ export interface LinkData {
   modalities: Modality[];
   entries: Entry[];
   tasks: Task[];
+  skills: Skill[];
   /** Hábitos já com os dias automáticos, para metas que contam hábito. */
   habits: Habit[];
 }
@@ -52,11 +54,18 @@ export function linkedValue(link: GoalLink, data: LinkData): number {
       return latest(data.entries, "gordura")?.value ?? 0;
     case "medida":
       return latest(data.entries, link.measure)?.value ?? 0;
+    case "skill": {
+      const skill = data.skills.find((s) => s.id === link.skillId);
+      if (!skill) return 0;
+      return link.metric === "nivel" ? skill.level : skill.resources.filter((r) => r.done).length;
+    }
+    case "skills":
+      return data.skills.filter((s) => s.status === "learned").length;
   }
 }
 
 /** Frase curta que diz de onde o número vem, para o cartão da meta. */
-export function linkLabel(link: GoalLink, data: Pick<LinkData, "modalities" | "habits">): string {
+export function linkLabel(link: GoalLink, data: Pick<LinkData, "modalities" | "habits" | "skills">): string {
   switch (link.kind) {
     case "treinos": {
       const m = data.modalities.find((x) => x.id === link.modalityId);
@@ -74,6 +83,13 @@ export function linkLabel(link: GoalLink, data: Pick<LinkData, "modalities" | "h
       return "Atualiza sozinha com a gordura registrada em Corpo";
     case "medida":
       return `Atualiza sozinha com a medida de ${MEASURE[link.measure].label.toLowerCase()} em Corpo`;
+    case "skill": {
+      const skill = data.skills.find((x) => x.id === link.skillId);
+      const what = link.metric === "nivel" ? "o nível" : "os materiais concluídos";
+      return `Atualiza sozinha com ${what} de ${skill ? skill.name : "uma skill"}`;
+    }
+    case "skills":
+      return "Atualiza sozinha com as skills que você marca como aprendidas";
   }
 }
 
@@ -82,6 +98,8 @@ export function linkRoute(link: GoalLink): string {
   if (link.kind === "treinos") return link.modalityId ? `/treinos?m=${link.modalityId}` : "/treinos";
   if (link.kind === "tarefas") return "/tarefas";
   if (link.kind === "habito") return "/rotina";
+  if (link.kind === "skill") return `/skills?s=${link.skillId}`;
+  if (link.kind === "skills") return "/skills";
   return "/corpo";
 }
 

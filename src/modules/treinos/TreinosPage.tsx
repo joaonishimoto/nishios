@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ArrowUp, Pencil, Plus } from "lucide-react";
+import { ArrowUp, Check, Pencil, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { useToast } from "@/components/ui/Toast";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { cn } from "@/lib/cn";
 import { formatDate, shortDate, toISO, today } from "@/lib/dates";
@@ -32,7 +33,8 @@ const WEEKDAY_SHORT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const PAGE = 12;
 
 export function TreinosPage() {
-  const { modalities, sessions } = useTreinos();
+  const { modalities, sessions, planned, completeSession, updateSession } = useTreinos();
+  const toast = useToast();
   const [params, setParams] = useSearchParams();
   const [sessionForm, setSessionForm] = useState<{ open: boolean; session?: Session }>({ open: false });
   const [modalityForm, setModalityForm] = useState<{ open: boolean; modality?: Modality }>({ open: false });
@@ -114,7 +116,17 @@ export function TreinosPage() {
                           </span>
                         );
                       })}
-                      {daySessions.length === 0 && day <= now && (
+                      {planned
+                        .filter((s) => s.date === iso)
+                        .map((s) => {
+                          const m = byId.get(s.modalityId);
+                          return (
+                            <span key={s.id} title={`${m?.name ?? "Treino"} planejado`} role="img" aria-label={`${m?.name ?? "Treino"} planejado`} className="opacity-40 grayscale">
+                              {m?.icon ?? "•"}
+                            </span>
+                          );
+                        })}
+                      {daySessions.length === 0 && day <= now && !planned.some((s) => s.date === iso) && (
                         <span className="text-sm text-border-strong">
                           <span aria-hidden>–</span>
                           <span className="sr-only">Sem treino</span>
@@ -126,6 +138,55 @@ export function TreinosPage() {
               })}
             </ol>
           </section>
+
+          {planned.length > 0 && (
+            <section>
+              <h2 className="text-xl font-semibold tracking-tight">Planejados</h2>
+              <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
+                {planned.map((s) => {
+                  const m = byId.get(s.modalityId);
+                  if (!m) return null;
+                  const late = s.date < toISO(now);
+                  return (
+                    <li
+                      key={s.id}
+                      className="relative flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-border px-3 py-2.5 transition-colors duration-(--motion-fast) last:border-b-0 hover:bg-surface-hover"
+                    >
+                      <span className="text-xl leading-none">{m.icon}</span>
+                      <div className="min-w-0 flex-1 basis-40">
+                        <button
+                          type="button"
+                          onClick={() => setSessionForm({ open: true, session: s })}
+                          className="block max-w-full truncate text-left font-medium after:absolute after:inset-0"
+                        >
+                          {m.name}
+                        </button>
+                        <p className="truncate text-sm text-muted-foreground">{sessionSummary(s, m)}</p>
+                      </div>
+                      <span className={cn("text-sm", late ? "text-danger-strong" : "text-muted-foreground")}>
+                        {late ? `Era ${shortDate(s.date).toLowerCase()}` : shortDate(s.date)}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="relative z-10 h-8"
+                        onClick={() => {
+                          completeSession(s.id);
+                          toast({
+                            message: `Treino de ${m.name.toLowerCase()} marcado como feito`,
+                            action: { label: "Desfazer", onClick: () => updateSession(s.id, s) },
+                          });
+                        }}
+                      >
+                        <Check />
+                        Marcar como feito
+                      </Button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
 
           <section>
             <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">

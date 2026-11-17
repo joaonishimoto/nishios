@@ -14,7 +14,7 @@ export function seedTasks(): Task[] {
     { ...base, id: "t2", title: "Revisar o módulo 4 do curso de inglês", status: "doing", priority: "normal", list: "Estudos", due: inDays(2) },
     { ...base, id: "t3", title: "Pagar o IPVA", status: "todo", priority: "high", list: "Pessoal", due: ago(1) },
     { ...base, id: "t4", title: "Marcar a revisão do carro", status: "todo", priority: "high", list: "Pessoal", due: inDays(3) },
-    { ...base, id: "t5", title: "Comprar ração da Mel", status: "todo", priority: "normal", list: "Casa", due: inDays(0) },
+    { ...base, id: "t5", title: "Comprar ração da Maki e do Gojo", status: "todo", priority: "normal", list: "Casa", due: inDays(0) },
     { ...base, id: "t6", title: "Organizar os recibos para o imposto de renda", status: "todo", priority: "normal", list: "Pessoal", due: inDays(12) },
     { ...base, id: "t7", title: "Trocar a lâmpada da varanda", status: "todo", priority: "low", list: "Casa", due: "" },
     { ...base, id: "t8", title: "Ligar para o Rafa sobre a viagem de janeiro", status: "todo", priority: "low", list: "Pessoal", due: inDays(6) },

@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { usePersistentState } from "@/lib/storage";
-import { seedPets } from "./seed";
+import { migratePets, seedPets } from "./seed";
 import type { Care, HealthRecord, Pet, PetDraft, Weight } from "./types";
 
 const KEY = "nishios:pets:v1";
@@ -26,7 +26,7 @@ const Ctx = createContext<Store | null>(null);
 export const newId = () => crypto.randomUUID();
 
 export function PetsProvider({ children }: { children: ReactNode }) {
-  const [pets, setPets] = usePersistentState<Pet[]>(KEY, seedPets);
+  const [pets, setPets] = usePersistentState<Pet[]>(KEY, seedPets, migratePets);
 
   const store = useMemo<Store>(() => {
     const patch = (id: string, fn: (p: Pet) => Pet) =>

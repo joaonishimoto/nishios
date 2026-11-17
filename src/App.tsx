@@ -23,6 +23,7 @@ import { TreinosProvider } from "@/modules/treinos/store";
 import { TreinosPage } from "@/modules/treinos/TreinosPage";
 import { CorpoPage } from "@/modules/corpo/CorpoPage";
 import { CorpoProvider } from "@/modules/corpo/store";
+import { DadosPage } from "@/pages/DadosPage";
 import { DesignSystemPage } from "@/pages/DesignSystemPage";
 import { HomePage } from "@/pages/HomePage";
 
@@ -30,17 +31,17 @@ export function App() {
   return (
     <BrowserRouter>
       <ToastProvider>
+        <CalendarProvider>
         <CommitmentsProvider>
           <TasksProvider>
           <TreinosProvider>
           <CorpoProvider>
+          <SkillsProvider>
           <RoutineProvider>
           <BensProvider>
           <CasaProvider>
           <PeopleProvider>
           <PetsProvider>
-          <SkillsProvider>
-          <CalendarProvider>
           <Routes>
             <Route element={<AppShell />}>
               <Route index element={<HomePage />} />
@@ -55,21 +56,22 @@ export function App() {
               <Route path="pessoas" element={<PessoasPage />} />
               <Route path="pets" element={<PetsPage />} />
               <Route path="skills" element={<SkillsPage />} />
+              <Route path="dados" element={<DadosPage />} />
               <Route path="design-system" element={<DesignSystemPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>
-          </CalendarProvider>
-          </SkillsProvider>
           </PetsProvider>
           </PeopleProvider>
           </CasaProvider>
           </BensProvider>
           </RoutineProvider>
+          </SkillsProvider>
           </CorpoProvider>
           </TreinosProvider>
           </TasksProvider>
         </CommitmentsProvider>
+        </CalendarProvider>
       </ToastProvider>
     </BrowserRouter>
   );

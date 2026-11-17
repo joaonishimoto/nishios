@@ -27,7 +27,7 @@ export function SessionForm({
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      title={session ? "Editar treino" : "Registrar treino"}
+      title={session?.planned ? "Treino planejado" : session ? "Editar treino" : "Registrar treino"}
       className="max-w-xl"
     >
       <Content
@@ -62,7 +62,10 @@ function Content({
     rounds: session?.rounds ?? 0,
     style: session?.style ?? "",
     exercises: session?.exercises ?? [],
+    planned: session?.planned,
   }));
+  /** Data para a frente = treino planejado. Chegou o dia e você salvou = feito. */
+  const future = draft.date > toISO(today());
   const set = <K extends keyof SessionDraft>(key: K, value: SessionDraft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
 
@@ -95,13 +98,14 @@ function Content({
               .filter((x) => x.name.trim())
               .map((x) => ({ ...x, name: x.name.trim() }))
           : [],
+      planned: future,
     };
     if (session) {
       updateSession(session.id, clean);
-      toast({ message: "Alterações salvas" });
+      toast({ message: session.planned && !future ? "Treino marcado como feito" : "Alterações salvas" });
     } else {
       createSession(clean);
-      toast({ message: `Treino de ${modality.name.toLowerCase()} registrado` });
+      toast({ message: `Treino de ${modality.name.toLowerCase()} ${future ? "planejado" : "registrado"}` });
     }
     onClose();
   }
@@ -124,12 +128,11 @@ function Content({
               </Select>
             )}
           </Field>
-          <Field label="Data">
+          <Field label="Data" hint={future ? "Dia que ainda não chegou: fica como treino planejado." : undefined}>
             {(id) => (
               <Input
                 id={id}
                 type="date"
-                max={toISO(today())}
                 value={draft.date}
                 required
                 onChange={(e) => set("date", e.target.value)}
@@ -355,7 +358,9 @@ function Content({
         <Button variant="ghost" onClick={onClose}>
           Cancelar
         </Button>
-        <Button type="submit">{session ? "Salvar alterações" : "Registrar treino"}</Button>
+        <Button type="submit">
+          {future ? (session ? "Salvar plano" : "Planejar treino") : session?.planned ? "Marcar como feito" : session ? "Salvar alterações" : "Registrar treino"}
+        </Button>
       </DialogFooter>
     </form>
   );

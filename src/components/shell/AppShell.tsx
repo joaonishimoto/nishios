@@ -2,16 +2,18 @@ import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { cn } from "@/lib/cn";
 import * as RadixDialog from "@radix-ui/react-dialog";
-import { Menu, Moon, Sun } from "lucide-react";
+import { Menu, Moon, Search, Sun } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useTheme } from "@/lib/theme";
 import { MAIN_NAV } from "./nav";
+import { CommandPalette, SHORTCUT } from "./CommandPalette";
 import { Notifications } from "./Notifications";
 import { Sidebar } from "./Sidebar";
 
 const TITLES: Record<string, string> = {
   ...Object.fromEntries(MAIN_NAV.map((n) => [n.to, n.label])),
   "/design-system": "Design system",
+  "/dados": "Dados e backup",
 };
 
 /** Páginas que usam a largura toda da janela. */
@@ -21,6 +23,7 @@ export function AppShell() {
   const { theme, toggle } = useTheme();
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const title = TITLES[pathname] ?? "NishiOS";
 
   useEffect(() => {
@@ -29,6 +32,7 @@ export function AppShell() {
 
   return (
     <div className="flex h-dvh">
+      <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} />
       <div className="hidden md:block">
         <Sidebar />
       </div>
@@ -60,6 +64,18 @@ export function AppShell() {
           </Button>
           <p className="truncate text-muted-foreground">{title}</p>
           <div className="ml-auto flex items-center gap-0.5">
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              className="mr-1 hidden h-8 w-56 items-center gap-2 rounded-md border border-input bg-surface px-2.5 text-sm text-muted-foreground transition-colors duration-(--motion-fast) hover:border-input-hover sm:flex"
+            >
+              <Search className="size-4 shrink-0" aria-hidden />
+              <span className="flex-1 text-left">Buscar</span>
+              <kbd className="font-sans text-xs">{SHORTCUT}</kbd>
+            </button>
+            <Button variant="ghost" size="icon" className="sm:hidden" aria-label="Buscar" onClick={() => setSearchOpen(true)}>
+              <Search />
+            </Button>
             <Notifications />
             <Button
               variant="ghost"

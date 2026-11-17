@@ -1,3 +1,5 @@
+import { derive, dueLabel } from "@/modules/compromissos/logic";
+import { useCommitments } from "@/modules/compromissos/store";
 import { useMemo, useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ExternalLink, Plus, Search, ShoppingBag } from "lucide-react";
@@ -232,6 +234,11 @@ function IconTile({ icon }: { icon: string }) {
 
 function AssetRow({ asset: a, onOpen }: { asset: Asset; onOpen: () => void }) {
   const w = warranty(a);
+  // Manutenção ligada ao bem que já pede atenção aparece na própria linha.
+  const due = useCommitments()
+    .commitments.filter((c) => c.assetId === a.id)
+    .map((c) => ({ c, d: derive(c) }))
+    .find(({ d }) => d.status === "overdue" || d.status === "soon");
   const warrantyText = w ? (
     <span
       className={cn(
@@ -261,6 +268,12 @@ function AssetRow({ asset: a, onOpen }: { asset: Asset; onOpen: () => void }) {
           </button>
           <p className="truncate text-sm text-muted-foreground">
             {a.location || <span className="md:hidden">{a.purchaseDate && shortDate(a.purchaseDate)}</span>}
+            {due && (
+              <span className={due.d.status === "overdue" ? "text-danger-strong" : "text-warning-strong"}>
+                {a.location ? ", " : ""}
+                {due.c.name.toLowerCase()} {dueLabel(due.d).toLowerCase()}
+              </span>
+            )}
           </p>
         </div>
       </div>

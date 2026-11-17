@@ -31,7 +31,13 @@ export type GoalLink =
   | { kind: "tarefas"; list: string; since: string }
   | { kind: "peso" }
   | { kind: "gordura" }
-  | { kind: "medida"; measure: MeasureId };
+  | { kind: "medida"; measure: MeasureId }
+  /** Uma skill: materiais concluídos do plano de estudo ou o nível em que ela está. */
+  | { kind: "skill"; skillId: string; metric: SkillMetric }
+  /** Quantas skills já estão em "Aprendi". */
+  | { kind: "skills" };
+
+export type SkillMetric = "materiais" | "nivel";
 
 export interface Goal {
   id: string;

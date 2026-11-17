@@ -27,7 +27,16 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
 
 ## O que tem
 
-- **Início**: a rotina de hoje, as tarefas que vencem hoje ou estão atrasadas, os compromissos que pedem atenção e as pessoas para procurar ou parabenizar.
+- **Início**: a agenda e a rotina de hoje, as tarefas que vencem hoje ou estão atrasadas, as metas mais perto de fechar, peso e treinos da semana, os pets, os compromissos que pedem atenção e as pessoas para procurar ou parabenizar.
+- **Busca em tudo** (Cmd+K ou Ctrl+K, ou o campo no topo): acha tarefas, eventos, compromissos, hábitos, metas, pessoas, pets e seus cuidados, skills, bens, desejos, modalidades e cômodos, sem ligar para acento. O que você digitar também vira tarefa, evento de hoje ou skill com um Enter.
+- **Dados e backup**: baixa um arquivo com tudo o que está salvo, restaura de um arquivo (mostrando antes o que tem dentro), começa do zero ou volta aos dados de exemplo.
+- **Ligações entre módulos**: o que é registrado em um lugar aparece nos outros.
+  - Metas se atualizam sozinhas com treinos, peso e medidas, hábitos, tarefas concluídas e skills (materiais concluídos, nível ou número de skills aprendidas).
+  - Hábitos podem se marcar sozinhos nos dias de treino.
+  - Eventos têm "Com quem": depois que acontecem, contam como contato com a pessoa, e a ficha dela mostra os próximos eventos juntos.
+  - Treinos podem ser planejados para a frente: aparecem no calendário e viram treino feito com um toque.
+  - Compromissos podem ser a manutenção de um bem (a revisão é do carro): o bem mostra quando ela vence.
+  - Maki e Gojo, os gatos que andam pela Casa em 3D, têm a ficha deles em Pets.
 - **Calendário**: tudo o que tem data no sistema em um lugar só, em mês, semana ou agenda.
   - Junta eventos, prazos de tarefas, compromissos (com as próximas vezes já projetadas), treinos, prazos de metas, aniversários, hora de procurar pessoas, vacinas e consultas dos pets, garantias, compras planejadas e o diário de skills.
   - A forma da etiqueta mostra o estado: preenchida é o que vem pela frente, vazada é o que já aconteceu, vermelha é o que atrasou. O anel em cada dia mostra quanto da rotina foi cumprida.
@@ -131,6 +140,10 @@ Os dados de cada módulo passam todos pelo seu `store.tsx`, que usa `usePersiste
 | Início | Tarefas em quadro |
 | --- | --- |
 | ![Início](docs/screenshots/inicio.png) | ![Quadro](docs/screenshots/tarefas-quadro.png) |
+
+| Busca em tudo | Dados e backup |
+| --- | --- |
+| ![Busca](docs/screenshots/busca.png) | ![Backup](docs/screenshots/dados.png) |
 
 | Calendário | Semana |
 | --- | --- |

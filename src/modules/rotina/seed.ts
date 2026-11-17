@@ -1,5 +1,6 @@
 import { endOfYear, startOfMonth, startOfYear, sub } from "date-fns";
 import { toISO, today } from "@/lib/dates";
+import { seedSkills } from "@/modules/skills/seed";
 import type { Goal, Habit } from "./types";
 
 const EVERY_DAY = [0, 1, 2, 3, 4, 5, 6];
@@ -45,6 +46,7 @@ export function seedGoals(): Goal[] {
   const now = today();
   const yearEnd = toISO(endOfYear(now));
   const monthStart = toISO(startOfMonth(now));
+  const english = seedSkills().find((s) => s.name === "Inglês para reuniões");
   return [
     { id: "g1", name: "Ler 24 livros no ano", icon: "📚", unit: "livros", target: 24, current: 19, deadline: yearEnd, notes: "" },
     { id: "g2", name: "Juntar a reserva de emergência", icon: "💰", unit: "reais", target: 30000, current: 18500, deadline: "", notes: "Seis meses de custo de vida." },
@@ -53,5 +55,9 @@ export function seedGoals(): Goal[] {
     { id: "g5", name: "Chegar a 78 kg", icon: "⚖️", unit: "kg", target: 78, current: 0, start: 84.2, deadline: yearEnd, notes: "Sem pressa: meio quilo por mês já serve.", link: { kind: "peso" } },
     { id: "g6", name: "Treinar 150 vezes no ano", icon: "🏋️", unit: "treinos", target: 150, current: 0, deadline: yearEnd, notes: "", link: { kind: "treinos", modalityId: "", metric: "sessions", since: toISO(startOfYear(now)) } },
     { id: "g4", name: "Concluir o curso de inglês B2", icon: "🎯", unit: "módulos", target: 12, current: 12, deadline: "", notes: "" },
+    // Ligada a uma skill: anda conforme os materiais do plano de estudo são concluídos.
+    ...(english
+      ? [{ id: "g7", name: "Terminar o plano de inglês para reuniões", icon: "🗣️", unit: "materiais", target: english.resources.length, current: 0, deadline: "", notes: "", link: { kind: "skill" as const, skillId: english.id, metric: "materiais" as const } }]
+      : []),
   ];
 }

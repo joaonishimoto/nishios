@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useBens } from "@/modules/bens/store";
 import { Pencil, Trash2, X } from "lucide-react";
 import { Badge, Dot } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -44,6 +46,7 @@ export function CommitmentPanel({
 function PanelContent({ commitment: c, onClose }: { commitment: Commitment; onClose: () => void }) {
   const { remove, restore, removeDone, markDone } = useCommitments();
   const toast = useToast();
+  const asset = useBens().assets.find((a) => a.id === c.assetId);
   const [editing, setEditing] = useState(false);
   const d = derive(c);
   const meta = STATUS_META[d.status];
@@ -107,6 +110,16 @@ function PanelContent({ commitment: c, onClose }: { commitment: Commitment; onCl
               ? "Só no dia do vencimento"
               : `${humanizeDays(c.warnDays)} antes do vencimento`}
           </dd>
+          {asset && (
+            <>
+              <dt className="text-muted-foreground">Bem</dt>
+              <dd>
+                <Link to="/bens" className="text-primary hover:underline">
+                  {asset.icon} {asset.name}
+                </Link>
+              </dd>
+            </>
+          )}
           {c.notes && (
             <>
               <dt className="text-muted-foreground">Anotações</dt>
