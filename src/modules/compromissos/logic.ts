@@ -1,17 +1,9 @@
-import { add, differenceInCalendarDays, format, parseISO, startOfDay } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { add, differenceInCalendarDays, parseISO } from "date-fns";
+import { today } from "@/lib/dates";
 import type { Commitment, IntervalUnit, Status } from "./types";
 import type { Tone } from "@/components/ui/Badge";
 
-export const ISO = "yyyy-MM-dd";
-
-export function today(): Date {
-  return startOfDay(new Date());
-}
-
-export function toISO(date: Date): string {
-  return format(date, ISO);
-}
+export { formatDate, shortDate, toISO, today } from "@/lib/dates";
 
 export interface Derived {
   status: Status;
@@ -121,15 +113,4 @@ export function dueLabel(d: Derived): string {
   if (d.daysUntil === 1) return "Vence amanhã";
   if (d.daysUntil < 0) return `Atrasado há ${humanizeDays(d.daysUntil)}`;
   return `Em ${humanizeDays(d.daysUntil)}`;
-}
-
-export function formatDate(date: Date | string, pattern = "d 'de' MMM 'de' yyyy"): string {
-  const d = typeof date === "string" ? parseISO(date) : date;
-  return format(d, pattern, { locale: ptBR });
-}
-
-/** Data curta: omite o ano quando é o ano atual. */
-export function shortDate(date: Date | string, now: Date = today()): string {
-  const d = typeof date === "string" ? parseISO(date) : date;
-  return formatDate(d, d.getFullYear() === now.getFullYear() ? "d 'de' MMM" : "d MMM yyyy");
 }

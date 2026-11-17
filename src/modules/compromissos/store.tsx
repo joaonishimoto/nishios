@@ -1,18 +1,9 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, type ReactNode } from "react";
+import { usePersistentState } from "@/lib/storage";
 import { seedCommitments } from "./seed";
 import type { Commitment, CommitmentDraft } from "./types";
 
 const KEY = "nishios:compromissos:v1";
-
-function load(): Commitment[] {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (raw) return JSON.parse(raw) as Commitment[];
-  } catch {
-    /* dado corrompido ou sem armazenamento: volta para o exemplo */
-  }
-  return seedCommitments();
-}
 
 const sortDesc = (dates: string[]) => [...new Set(dates)].sort().reverse();
 
@@ -35,19 +26,11 @@ interface Store {
 const Ctx = createContext<Store | null>(null);
 
 export function CommitmentsProvider({ children }: { children: ReactNode }) {
-  const [commitments, setCommitments] = useState<Commitment[]>(load);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(commitments));
-    } catch {
-      /* sem armazenamento: os dados valem só para esta visita */
-    }
-  }, [commitments]);
+  const [commitments, setCommitments] = usePersistentState<Commitment[]>(KEY, seedCommitments);
 
   const patch = useCallback((id: string, fn: (c: Commitment) => Commitment) => {
     setCommitments((list) => list.map((c) => (c.id === id ? fn(c) : c)));
-  }, []);
+  }, [setCommitments]);
 
   const store = useMemo<Store>(
     () => ({
@@ -89,7 +72,7 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
         setCommitments(seedCommitments());
       },
     }),
-    [commitments, patch],
+    [commitments, patch, setCommitments],
   );
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;

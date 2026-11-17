@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
-import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from "@/components/ui/Popover";
+import { IconPicker } from "@/components/ui/IconPicker";
 import { useToast } from "@/components/ui/Toast";
 import { toISO, today, unitLabel } from "./logic";
 import { useCommitments } from "./store";
@@ -81,35 +81,7 @@ function FormContent({ commitment, onClose }: { commitment?: Commitment; onClose
     <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col" noValidate>
       <DialogBody className="flex flex-col gap-4">
         <div className="flex items-start gap-3">
-          <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">Ícone</span>
-            <Popover>
-              <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  aria-label={`Ícone atual: ${draft.icon}. Trocar ícone`}
-                  className="flex size-9 items-center justify-center rounded-md border border-input bg-input-background text-lg hover:border-input-hover hover:bg-surface-hover"
-                >
-                  {draft.icon}
-                </button>
-              </PopoverTrigger>
-              <PopoverContent align="start" className="grid w-auto grid-cols-8 gap-0.5 p-2">
-                {ICONS.map((icon) => (
-                  <PopoverClose asChild key={icon}>
-                    <button
-                      type="button"
-                      aria-label={`Usar ${icon}`}
-                      onClick={() => set("icon", icon)}
-                      className="flex size-8 items-center justify-center rounded-sm text-lg hover:bg-surface-hover aria-pressed:bg-surface-selected"
-                      aria-pressed={icon === draft.icon}
-                    >
-                      {icon}
-                    </button>
-                  </PopoverClose>
-                ))}
-              </PopoverContent>
-            </Popover>
-          </div>
+          <IconPicker icons={ICONS} value={draft.icon} onChange={(icon) => set("icon", icon)} />
           <Field label="Nome" className="flex-1" error={triedSubmit ? nameError : undefined}>
             {(id) => (
               <Input

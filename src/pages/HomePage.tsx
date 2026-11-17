@@ -6,9 +6,32 @@ import { Dot } from "@/components/ui/Badge";
 import { UPCOMING_NAV } from "@/components/shell/nav";
 import { CycleTrack } from "@/modules/compromissos/CycleTrack";
 import { MarkDone } from "@/modules/compromissos/MarkDone";
-import { byUrgency, derive, dueLabel, shortDate, STATUS_META, today } from "@/modules/compromissos/logic";
-import { useCommitments } from "@/modules/compromissos/store";
+import { derive, dueLabel, shortDate, STATUS_META, today } from "@/modules/compromissos/logic";
 import { useAttention } from "@/modules/compromissos/useAttention";
+import { Checkbox } from "@/components/ui/Checkbox";
+import { Progress } from "@/components/ui/Progress";
+import { cn } from "@/lib/cn";
+import { toISO } from "@/lib/dates";
+import { isDone, isScheduled } from "@/modules/rotina/logic";
+import { useRoutine } from "@/modules/rotina/store";
+import { byPriority, needsAttention } from "@/modules/tarefas/logic";
+import { useTasks } from "@/modules/tarefas/store";
+import { DueLabel, TaskCheck } from "@/modules/tarefas/TaskBits";
+
+function SectionHeader({ title, to, linkLabel }: { title: string; to: string; linkLabel: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-4">
+      <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
+      <Link
+        to={to}
+        className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary hover:underline"
+      >
+        {linkLabel}
+        <ArrowRight className="size-3.5" />
+      </Link>
+    </div>
+  );
+}
 
 function greeting() {
   const h = new Date().getHours();
@@ -16,13 +39,13 @@ function greeting() {
 }
 
 export function HomePage() {
-  const { commitments } = useCommitments();
   const attention = useAttention();
   const now = today();
-  const upcoming = commitments
-    .filter((c) => derive(c).status === "ok")
-    .sort((a, b) => byUrgency(a, b))
-    .slice(0, 3);
+  const { habits, toggleHabit } = useRoutine();
+  const { tasks } = useTasks();
+  const dueHabits = habits.filter((h) => isScheduled(h, now));
+  const doneHabits = dueHabits.filter((h) => isDone(h, now)).length;
+  const todayTasks = tasks.filter((t) => needsAttention(t, now)).sort(byPriority);
   const dateLine = format(now, "EEEE, d 'de' MMMM", { locale: ptBR });
 
   return (
@@ -32,23 +55,102 @@ export function HomePage() {
         <h1 className="mt-1 text-2xl font-semibold tracking-tight">{greeting()}, João</h1>
       </header>
 
+      <div className="grid gap-x-8 gap-y-10 lg:grid-cols-2">
+        <section>
+          <SectionHeader
+            title={
+              dueHabits.length === 0
+                ? "Rotina de hoje"
+                : `Rotina de hoje: ${doneHabits} de ${dueHabits.length}`
+            }
+            to="/rotina"
+            linkLabel="Ver a semana"
+          />
+          {dueHabits.length === 0 ? (
+            <p className="mt-2 text-muted-foreground">Nenhum hábito previsto para hoje.</p>
+          ) : (
+            <>
+              <Progress
+                value={doneHabits / dueHabits.length}
+                done={doneHabits === dueHabits.length}
+                label="Hábitos feitos hoje"
+                className="mt-3 h-1.5"
+              />
+              <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
+                {dueHabits.map((h) => {
+                  const done = isDone(h, now);
+                  return (
+                    <li
+                      key={h.id}
+                      className="flex items-center gap-3 border-b border-border px-3 py-2 last:border-b-0"
+                    >
+                      <Checkbox
+                        checked={done}
+                        onChange={() => toggleHabit(h.id, toISO(now))}
+                        label={h.name}
+                      />
+                      <span className="text-lg leading-none">{h.icon}</span>
+                      <span className={cn("truncate", done && "text-muted-foreground line-through")}>
+                        {h.name}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
+        </section>
+
+        <section>
+          <SectionHeader
+            title={
+              todayTasks.length === 0
+                ? "Tarefas para hoje"
+                : todayTasks.length === 1
+                  ? "1 tarefa para hoje"
+                  : `${todayTasks.length} tarefas para hoje`
+            }
+            to="/tarefas"
+            linkLabel="Ver todas"
+          />
+          {todayTasks.length === 0 ? (
+            <p className="mt-2 text-muted-foreground">
+              Nenhuma tarefa vence hoje e nada está atrasado.
+            </p>
+          ) : (
+            <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
+              {todayTasks.map((t) => (
+                <li
+                  key={t.id}
+                  className="relative flex items-center gap-3 border-b border-border px-3 py-2 last:border-b-0 hover:bg-surface-hover"
+                >
+                  <TaskCheck task={t} />
+                  <Link
+                    to={`/tarefas?t=${t.id}`}
+                    className="min-w-0 flex-1 truncate font-medium after:absolute after:inset-0"
+                  >
+                    {t.title}
+                  </Link>
+                  <DueLabel task={t} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
+
       <section>
-        <div className="flex items-baseline justify-between gap-4">
-          <h2 className="text-xl font-semibold tracking-tight">
-            {attention.length === 0
-              ? "Nada pedindo atenção"
+        <SectionHeader
+          title={
+            attention.length === 0
+              ? "Nenhum compromisso pedindo atenção"
               : attention.length === 1
                 ? "1 compromisso pede atenção"
-                : `${attention.length} compromissos pedem atenção`}
-          </h2>
-          <Link
-            to="/compromissos"
-            className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary hover:underline"
-          >
-            Ver todos
-            <ArrowRight className="size-3.5" />
-          </Link>
-        </div>
+                : `${attention.length} compromissos pedem atenção`
+          }
+          to="/compromissos"
+          linkLabel="Ver todos"
+        />
 
         {attention.length === 0 ? (
           <p className="mt-2 text-muted-foreground">
@@ -99,34 +201,6 @@ export function HomePage() {
           </ul>
         )}
       </section>
-
-      {upcoming.length > 0 && (
-        <section>
-          <h2 className="text-xl font-semibold tracking-tight">Depois disso</h2>
-          <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
-            {upcoming.map((c) => {
-              const d = derive(c);
-              return (
-                <li key={c.id} className="border-b border-border last:border-b-0">
-                  <Link
-                    to={`/compromissos?c=${c.id}`}
-                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-hover"
-                  >
-                    <span className="text-lg">{c.icon}</span>
-                    <span className="min-w-0 flex-1 truncate font-medium">{c.name}</span>
-                    <span className="hidden w-32 sm:block">
-                      <CycleTrack derived={d} />
-                    </span>
-                    <span className="w-28 shrink-0 text-right text-sm text-muted-foreground">
-                      {dueLabel(d)}
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      )}
 
       <section>
         <h2 className="text-xl font-semibold tracking-tight">O que vem nas próximas fases</h2>

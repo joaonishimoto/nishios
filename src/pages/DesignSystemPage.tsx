@@ -9,7 +9,11 @@ import { useToast } from "@/components/ui/Toast";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { CycleTrack } from "@/modules/compromissos/CycleTrack";
 import type { Derived } from "@/modules/compromissos/logic";
+import { Checkbox } from "@/components/ui/Checkbox";
+import { Progress } from "@/components/ui/Progress";
 import { useCommitments } from "@/modules/compromissos/store";
+import { useRoutine } from "@/modules/rotina/store";
+import { useTasks } from "@/modules/tarefas/store";
 
 const COLORS: { group: string; tokens: string[] }[] = [
   { group: "Base", tokens: ["background", "surface", "surface-muted", "surface-hover", "surface-selected", "border", "border-strong"] },
@@ -54,7 +58,10 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 
 export function DesignSystemPage() {
   const toast = useToast();
-  const { resetToExample } = useCommitments();
+  const commitments = useCommitments();
+  const tasks = useTasks();
+  const routine = useRoutine();
+  const [checked, setChecked] = useState(true);
   const [seg, setSeg] = useState("a");
 
   return (
@@ -192,6 +199,19 @@ export function DesignSystemPage() {
         </ul>
       </Section>
 
+      <Section title="Check e progresso">
+        <div className="flex max-w-xl flex-col gap-4">
+          <div className="flex items-center gap-4">
+            <Checkbox checked={checked} onChange={setChecked} label="Exemplo de check" />
+            <Checkbox size="lg" checked={checked} onChange={setChecked} label="Exemplo de check grande" />
+            <Checkbox size="lg" checked={false} onChange={() => {}} disabled label="Check desativado" />
+            <span className="text-sm text-muted-foreground">Tarefas e hábitos usam o mesmo check.</span>
+          </div>
+          <Progress value={0.62} label="Exemplo de progresso" />
+          <Progress value={1} done label="Exemplo de progresso concluído" />
+        </div>
+      </Section>
+
       <Section title="Campos">
         <div className="grid max-w-2xl gap-4 sm:grid-cols-2">
           <Field label="Texto" hint="Uma dica curta fica aqui.">
@@ -245,14 +265,16 @@ export function DesignSystemPage() {
 
       <Section title="Dados de exemplo">
         <p className="max-w-[60ch] text-muted-foreground">
-          Nesta fase os dados ficam salvos só neste navegador. Você pode voltar aos compromissos de
+          Nesta fase os dados ficam salvos só neste navegador. Você pode voltar aos dados de
           exemplo quando quiser; o que você cadastrou será substituído.
         </p>
         <Button
           variant="outline"
           className="mt-3"
           onClick={() => {
-            resetToExample();
+            commitments.resetToExample();
+            tasks.resetToExample();
+            routine.resetToExample();
             toast({ message: "Dados de exemplo restaurados" });
           }}
         >

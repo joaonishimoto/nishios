@@ -1,7 +1,10 @@
 import { NavLink } from "react-router-dom";
 import { Palette } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { today } from "@/lib/dates";
 import { useAttention } from "@/modules/compromissos/useAttention";
+import { needsAttention } from "@/modules/tarefas/logic";
+import { useTasks } from "@/modules/tarefas/store";
 import { MAIN_NAV, UPCOMING_NAV } from "./nav";
 
 const item =
@@ -9,6 +12,13 @@ const item =
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const attention = useAttention();
+  const { tasks } = useTasks();
+  const now = today();
+  /** Contador ao lado de cada item: o que pede atenção naquele módulo. */
+  const counts: Record<string, number> = {
+    "/compromissos": attention.length,
+    "/tarefas": tasks.filter((t) => needsAttention(t, now)).length,
+  };
 
   return (
     <nav
@@ -46,12 +56,12 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
               >
                 <Icon className="size-4 shrink-0" />
                 <span className="truncate">{label}</span>
-                {to === "/compromissos" && attention.length > 0 && (
+                {counts[to!] > 0 && (
                   <span
                     className="ml-auto text-sm text-sidebar-muted tabular-nums"
-                    aria-label={`${attention.length} pedem atenção`}
+                    aria-label={`${counts[to!]} pedem atenção`}
                   >
-                    {attention.length}
+                    {counts[to!]}
                   </span>
                 )}
               </NavLink>
