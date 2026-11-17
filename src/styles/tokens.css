@@ -1,0 +1,236 @@
+/*
+ * NishiOS Design System — tokens
+ *
+ * Três camadas, da mais crua à mais específica:
+ *   1. Primitivas  (--primitive-*): a paleta em si. Nunca usadas direto em componentes.
+ *   2. Semânticas  (--background, --primary, --danger...): o papel de cada cor na interface.
+ *   3. Tema Tailwind (theme.css): expõe as semânticas como classes (bg-surface, text-muted...).
+ *
+ * Para mudar o visual do app inteiro, edite só este arquivo.
+ * Paleta e fontes herdadas do NishiStack: creme quase branco + Azul Nishi (#1E3D66).
+ */
+
+:root {
+  /* ---- Primitivas ---- */
+  --primitive-cream-25: #fdfcfa;
+  --primitive-cream-50: #faf9f5;
+  --primitive-cream-75: #f5f2ea;
+  --primitive-cream-100: #f2efe6;
+  --primitive-cream-150: #ebe7dc;
+  --primitive-cream-200: #e3ded0;
+  --primitive-cream-300: #d3ccba;
+  --primitive-cream-400: #b8af9b;
+
+  --primitive-blue-50: #eff3f8;
+  --primitive-blue-100: #dfe7f1;
+  --primitive-blue-200: #c3d2e5;
+  --primitive-blue-500: #4d6d98;
+  --primitive-blue-600: #335684;
+  --primitive-blue-700: #284a77;
+  --primitive-blue-800: #1e3d66;
+  --primitive-blue-900: #172f50;
+  --primitive-blue-950: #11243d;
+
+  --primitive-black: #000000;
+  --primitive-neutral-0: #ffffff;
+  --primitive-neutral-100: #f3f3f2;
+  --primitive-neutral-200: #e3e4e6;
+  --primitive-neutral-400: #9fa4ab;
+  --primitive-neutral-500: #6f7580;
+  --primitive-neutral-600: #59606b;
+  --primitive-neutral-700: #3f4652;
+  --primitive-neutral-900: #1d2430;
+
+  --primitive-success: #3f7650;
+  --primitive-success-strong: #2f5e3e;
+  --primitive-success-soft: #e6efe6;
+  --primitive-warning: #976822;
+  --primitive-warning-strong: #7a521a;
+  --primitive-warning-soft: #f5ecd9;
+  --primitive-danger: #b74e45;
+  --primitive-danger-hover: #9a3f37;
+  --primitive-danger-strong: #983b33;
+  --primitive-danger-soft: #f7e6e2;
+  --primitive-info: #52738a;
+  --primitive-info-strong: #3c596d;
+
+  /* ---- Marca ---- */
+  --brand-navy: #1e3d66;
+  --brand-cream: #faf5eb;
+
+  /* ---- Cor: semânticas ---- */
+  --background: var(--primitive-cream-50);
+  --foreground: var(--primitive-neutral-900);
+
+  --surface: var(--primitive-neutral-0);
+  --surface-raised: var(--primitive-neutral-0);
+  --surface-muted: var(--primitive-cream-100);
+  /* Interação é azul, leitura é creme: hover e seleção nunca usam creme. */
+  --surface-hover: var(--primitive-blue-50);
+  --surface-selected: var(--primitive-blue-100);
+
+  --sidebar-background: var(--primitive-cream-75);
+  --sidebar-foreground: var(--primitive-neutral-700);
+  --sidebar-active: var(--primitive-blue-100);
+  --sidebar-active-foreground: var(--primitive-blue-900);
+  --sidebar-border: var(--primitive-cream-150);
+  --sidebar-muted: var(--primitive-neutral-600);
+  --sidebar-hover: var(--primitive-blue-50);
+
+  --border: var(--primitive-cream-150);
+  --border-strong: var(--primitive-cream-200);
+
+  --input-background: var(--primitive-neutral-0);
+  --input-border: var(--primitive-cream-300);
+  --input-border-hover: var(--primitive-cream-400);
+
+  --primary: var(--primitive-blue-800);
+  --primary-foreground: var(--primitive-neutral-0);
+  --primary-hover: var(--primitive-blue-900);
+  --primary-active: var(--primitive-blue-950);
+
+  --secondary: var(--primitive-blue-100);
+  --secondary-foreground: var(--primitive-blue-900);
+  --secondary-hover: var(--primitive-blue-200);
+
+  --muted: var(--primitive-cream-100);
+  --muted-foreground: var(--primitive-neutral-600);
+  --subtle-foreground: var(--primitive-neutral-500);
+
+  --ring: var(--primitive-blue-600);
+
+  --success: var(--primitive-success);
+  --success-strong: var(--primitive-success-strong);
+  --success-soft: var(--primitive-success-soft);
+  --warning: var(--primitive-warning);
+  --warning-strong: var(--primitive-warning-strong);
+  --warning-soft: var(--primitive-warning-soft);
+  --danger: var(--primitive-danger);
+  --danger-hover: var(--primitive-danger-hover);
+  --danger-strong: var(--primitive-danger-strong);
+  --danger-soft: var(--primitive-danger-soft);
+  --danger-foreground: var(--primitive-neutral-0);
+  --info: var(--primitive-info);
+  --info-strong: var(--primitive-info-strong);
+  --overlay: color-mix(in srgb, var(--primitive-black) 45%, transparent);
+
+  /* ---- Tipografia ---- */
+  --font-sans-token: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
+  /* Só para o nome da marca; a interface inteira fica em Inter. */
+  --font-brand-token: "Space Grotesk", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --text-xs-token: 0.75rem; /* 12 — legendas, contadores */
+  --text-sm-token: 0.8125rem; /* 13 — texto de apoio, tabelas */
+  --text-base-token: 0.875rem; /* 14 — corpo da interface */
+  --text-lg-token: 1rem; /* 16 — destaques */
+  --text-xl-token: 1.25rem; /* 20 — títulos de seção e painéis */
+  --text-2xl-token: 1.75rem; /* 28 — título de página */
+
+  /* ---- Espaçamento: tudo é múltiplo desta unidade (4px) ---- */
+  --space-unit: 0.25rem;
+
+  /* ---- Geometria ---- */
+  --radius-sm-token: 0.25rem;
+  --radius-md-token: 0.375rem;
+  --radius-lg-token: 0.625rem;
+  --radius-xl-token: 0.875rem;
+
+  /* Sombras quase imperceptíveis em repouso; só o que flutua ganha profundidade. */
+  --shadow-xs-token: 0 1px 1px color-mix(in srgb, var(--primitive-neutral-900) 3%, transparent);
+  --shadow-sm-token: 0 1px 2px color-mix(in srgb, var(--primitive-neutral-900) 5%, transparent);
+  --shadow-md-token:
+    0 0 0 1px color-mix(in srgb, var(--primitive-neutral-900) 5%, transparent),
+    0 8px 24px -6px color-mix(in srgb, var(--primitive-neutral-900) 14%, transparent);
+
+  /* ---- Layout ---- */
+  --sidebar-width: 240px;
+  --topbar-height: 48px;
+  --page-padding-x: 2.5rem;
+  --page-padding-y: 2rem;
+  --page-max-width: 1120px;
+
+  /* ---- Movimento e camadas ---- */
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --motion-slow: 320ms;
+  --ease-out: cubic-bezier(0.32, 0.72, 0, 1);
+  --layer-sidebar: 30;
+  --layer-overlay: 40;
+  --layer-dialog: 50;
+  --layer-toast: 60;
+}
+
+/* Modo escuro: grafite neutro para leitura, azul clareado para interação. */
+.dark {
+  color-scheme: dark;
+
+  --background: #111418;
+  --foreground: #ece8de;
+
+  --surface: #171a1f;
+  --surface-raised: #1d2127;
+  --surface-muted: #1f232a;
+  --surface-hover: #1c2736;
+  --surface-selected: #213350;
+
+  --sidebar-background: #14171c;
+  --sidebar-foreground: #c8ccd2;
+  --sidebar-active: #213350;
+  --sidebar-active-foreground: #dfe7f1;
+  --sidebar-border: #23272e;
+  --sidebar-muted: #9aa0a8;
+  --sidebar-hover: #1b2431;
+
+  --border: #262a31;
+  --border-strong: #30353d;
+
+  --input-background: #14171c;
+  --input-border: #3a404a;
+  --input-border-hover: #4a515c;
+
+  --primary: #9bb5da;
+  --primary-foreground: #0f1b2d;
+  --primary-hover: #afc4e2;
+  --primary-active: #c3d3ea;
+
+  --secondary: #213350;
+  --secondary-foreground: #dfe7f1;
+  --secondary-hover: #2a4064;
+
+  --muted: #1b1e24;
+  --muted-foreground: #a2a7ae;
+  --subtle-foreground: #8b9099;
+
+  --ring: #9bb5da;
+
+  --success: #6fb383;
+  --success-strong: #8acb9d;
+  --success-soft: #1a2a20;
+  --warning: #d6a04f;
+  --warning-strong: #e7bb75;
+  --warning-soft: #2e2413;
+  --danger: #e57d73;
+  --danger-hover: #ec958d;
+  --danger-strong: #f19c94;
+  --danger-soft: #331b19;
+  --danger-foreground: #240c0a;
+  --info: #86a5bd;
+  --info-strong: #a9c3d6;
+  --overlay: color-mix(in srgb, var(--primitive-black) 70%, transparent);
+
+  --brand-navy: #b8cff0;
+  --brand-cream: #1e3d66;
+
+  --shadow-xs-token: 0 1px 1px color-mix(in srgb, var(--primitive-black) 30%, transparent);
+  --shadow-sm-token: 0 1px 2px color-mix(in srgb, var(--primitive-black) 40%, transparent);
+  --shadow-md-token:
+    0 0 0 1px color-mix(in srgb, var(--primitive-neutral-0) 6%, transparent),
+    0 10px 28px -6px color-mix(in srgb, var(--primitive-black) 60%, transparent);
+}
+
+@media (max-width: 767px) {
+  :root {
+    --page-padding-x: 1rem;
+    --page-padding-y: 1.25rem;
+  }
+}
