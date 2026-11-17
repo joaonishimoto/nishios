@@ -1,6 +1,6 @@
 # NishiOS
 
-Sistema pessoal de gestão de vida. Já tem o shell do app (barra lateral, topo, tema claro e escuro), o design system e cinco módulos: **tarefas**, **rotina e metas**, **compromissos recorrentes**, **bens e desejos** e **pessoas**.
+Sistema pessoal de gestão de vida. Já tem o shell do app (barra lateral, topo, tema claro e escuro), o design system e seis módulos: **tarefas**, **rotina e metas**, **compromissos recorrentes**, **treinos**, **bens e desejos** e **pessoas**.
 
 Só frontend: sem login e sem backend. Os dados ficam salvos no `localStorage` do navegador e começam com exemplos.
 
@@ -39,6 +39,11 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
   - Cada compromisso tem período (dias, semanas, meses ou anos), última vez feita, próxima data calculada e antecedência do aviso.
   - "Marcar como feito" registra a data no histórico e recalcula a próxima.
   - Painel lateral com o ciclo, as anotações e o histórico. Criar, editar e excluir, com "Desfazer".
+- **Treinos**: uma área só para toda atividade física, com modalidades dentro (musculação, luta, corrida, caminhada, natação e as que você criar).
+  - Visão geral: a semana com os treinos de cada dia, um cartão por modalidade com o número do mês e o histórico.
+  - Cada modalidade tem um tipo, que define o que se registra: força (exercícios, séries, repetições e carga), luta (estilo e rounds), distância (km ou metros, com ritmo calculado) ou só duração.
+  - Ao abrir uma modalidade aparecem os números dela. Em musculação, a evolução de carga de cada exercício; em corrida e natação, distância, ritmo médio e maior distância.
+  - "Copiar do último treino" preenche os exercícios do treino anterior.
 - **Bens e desejos**:
   - Meus bens: agrupados por categoria, com valor de compra, data, garantia (avisa quando está acabando) e onde fica. O topo mostra o total.
   - Lista de desejos: preço, prioridade, data pretendida e link. "Comprei" registra a compra e move o item para os bens.
@@ -77,6 +82,7 @@ src/
     tarefas/            cada módulo tem seus tipos, regras (logic.ts),
     rotina/             dados (store.tsx, seed.ts) e telas
     compromissos/
+    treinos/
     bens/
     pessoas/
   pages/                Início e Design system
@@ -95,6 +101,14 @@ Os dados de cada módulo passam todos pelo seu `store.tsx`, que usa `usePersiste
 | Rotina e metas | Painel da tarefa |
 | --- | --- |
 | ![Rotina](docs/screenshots/rotina.png) | ![Tarefa](docs/screenshots/tarefa-painel.png) |
+
+| Treinos | Musculação por dentro |
+| --- | --- |
+| ![Treinos](docs/screenshots/treinos.png) | ![Musculação](docs/screenshots/treinos-musculacao.png) |
+
+| Corrida por dentro | Registrar treino |
+| --- | --- |
+| ![Corrida](docs/screenshots/treinos-corrida.png) | ![Registrar treino](docs/screenshots/treino-novo.png) |
 
 | Bens | Lista de desejos |
 | --- | --- |
