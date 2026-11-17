@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { Check, Flame, Plus } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Check, Flame, Link2, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
@@ -10,7 +11,9 @@ import { Progress } from "@/components/ui/Progress";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { cn } from "@/lib/cn";
 import { toISO, today } from "@/lib/dates";
+import { useTreinos } from "@/modules/treinos/store";
 import { GoalForm } from "./GoalForm";
+import { linkLabel, linkRoute } from "./linked";
 import { HabitForm } from "./HabitForm";
 import {
   currentWeek,
@@ -305,6 +308,8 @@ function HabitRow({
 }
 
 function GoalCard({ goal, onEdit }: { goal: Goal; onEdit: () => void }) {
+  const { habits } = useRoutine();
+  const { modalities } = useTreinos();
   const done = goalDone(goal);
   const progress = goalProgress(goal);
   const deadline = deadlineLabel(goal);
@@ -342,8 +347,22 @@ function GoalCard({ goal, onEdit }: { goal: Goal; onEdit: () => void }) {
         >
           {deadline}
         </span>
-        <UpdateProgress goal={goal} />
+        {goal.link ? (
+          goal.link.kind !== "habito" && (
+            <Link to={linkRoute(goal.link)} className="relative z-10 text-sm font-medium text-primary hover:underline">
+              Abrir origem
+            </Link>
+          )
+        ) : (
+          <UpdateProgress goal={goal} />
+        )}
       </div>
+      {goal.link && (
+        <p className="mt-2 flex items-center gap-1.5 border-t border-border pt-2 text-sm text-muted-foreground">
+          <Link2 className="size-3.5 shrink-0" aria-hidden />
+          <span className="min-w-0 truncate">{linkLabel(goal.link, { modalities, habits })}</span>
+        </p>
+      )}
     </li>
   );
 }

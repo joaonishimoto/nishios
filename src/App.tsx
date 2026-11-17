@@ -19,6 +19,8 @@ import { TasksProvider } from "@/modules/tarefas/store";
 import { TarefasPage } from "@/modules/tarefas/TarefasPage";
 import { TreinosProvider } from "@/modules/treinos/store";
 import { TreinosPage } from "@/modules/treinos/TreinosPage";
+import { CorpoPage } from "@/modules/corpo/CorpoPage";
+import { CorpoProvider } from "@/modules/corpo/store";
 import { DesignSystemPage } from "@/pages/DesignSystemPage";
 import { HomePage } from "@/pages/HomePage";
 
@@ -28,10 +30,11 @@ export function App() {
       <ToastProvider>
         <CommitmentsProvider>
           <TasksProvider>
+          <TreinosProvider>
+          <CorpoProvider>
           <RoutineProvider>
           <BensProvider>
           <PeopleProvider>
-          <TreinosProvider>
           <PetsProvider>
           <SkillsProvider>
           <CalendarProvider>
@@ -43,6 +46,7 @@ export function App() {
               <Route path="rotina" element={<RotinaPage />} />
               <Route path="compromissos" element={<CompromissosPage />} />
               <Route path="treinos" element={<TreinosPage />} />
+              <Route path="corpo" element={<CorpoPage />} />
               <Route path="bens" element={<BensPage />} />
               <Route path="pessoas" element={<PessoasPage />} />
               <Route path="pets" element={<PetsPage />} />
@@ -54,10 +58,11 @@ export function App() {
           </CalendarProvider>
           </SkillsProvider>
           </PetsProvider>
-          </TreinosProvider>
           </PeopleProvider>
           </BensProvider>
           </RoutineProvider>
+          </CorpoProvider>
+          </TreinosProvider>
           </TasksProvider>
         </CommitmentsProvider>
       </ToastProvider>

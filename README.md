@@ -1,6 +1,6 @@
 # NishiOS
 
-Sistema pessoal de gestão de vida. Já tem o shell do app (barra lateral, topo, tema claro e escuro), o design system um **calendário unificado** e oito módulos: **tarefas**, **rotina e metas**, **compromissos recorrentes**, **treinos**, **bens e desejos**, **pessoas**, **pets** e **skills**.
+Sistema pessoal de gestão de vida. Já tem o shell do app (barra lateral, topo, tema claro e escuro), o design system um **calendário unificado** e nove módulos: **tarefas**, **rotina e metas**, **compromissos recorrentes**, **treinos**, **corpo**, **bens e desejos**, **pessoas**, **pets** e **skills**.
 
 Só frontend: sem login e sem backend. Os dados ficam salvos no `localStorage` do navegador e começam com exemplos.
 
@@ -51,6 +51,9 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
   - Cada modalidade tem um tipo, que define o que se registra: força (exercícios, séries, repetições e carga), luta (estilo e rounds), distância (km ou metros, com ritmo calculado) ou só duração.
   - Ao abrir uma modalidade aparecem os números dela. Em musculação, a evolução de carga de cada exercício; em corrida e natação, distância, ritmo médio e maior distância.
   - "Copiar do último treino" preenche os exercícios do treino anterior.
+- **Corpo**: peso, gordura corporal e dez medidas, com uma silhueta que mostra o valor atual e a variação de cada uma.
+  - Toque em uma medida (ou no peso) para ver o gráfico de evolução. Se houver uma meta ligada, o alvo aparece como linha no gráfico, com o progresso embaixo.
+  - "Registrar medidas" aceita só o que foi medido no dia. IMC calculado pela altura.
 - **Bens e desejos**:
   - Meus bens: agrupados por categoria, com valor de compra, data, garantia (avisa quando está acabando) e onde fica. O topo mostra o total.
   - Lista de desejos: preço, prioridade, data pretendida e link. "Comprei" registra a compra e move o item para os bens.
@@ -64,7 +67,12 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
   - Peso: histórico com a variação entre uma pesagem e outra.
 - **Skills**: hard e soft skills em um quadro de três colunas (quero aprender, aprendendo, já sei). Arraste para mudar de coluna.
   - Painel lateral com nível de 0 a 5, plano de estudo (passos e links, com progresso) e diário de aprendizado.
-- **Avisos**: o sino no topo lista os compromissos atrasados ou chegando a hora.
+- **Avisos**: o sino no topo lista tudo o que atrasou em qualquer módulo e os compromissos chegando a hora.
+- **Integrações entre módulos**:
+  - Metas que se atualizam sozinhas: escolha de onde vem o número (treinos, peso, gordura, uma medida do corpo, um hábito ou tarefas concluídas). Metas de baixar um número, como peso e cintura, usam um ponto de partida.
+  - Hábitos ligados aos treinos: ficam feitos sozinhos no dia em que o treino é registrado.
+  - O calendário, o sino e a agenda do Início leem a mesma lista (`src/modules/calendario/collect.ts`).
+  - As regras das ligações ficam em `src/modules/rotina/linked.ts`.
 - **Design system**: página `/design-system` com todos os tokens e componentes, e o botão para restaurar os dados de exemplo.
 
 ## Design system
@@ -88,7 +96,7 @@ src/
     index.css           mapeamento para o Tailwind e estilos base
   lib/                  datas, localStorage, tema
   components/
-    ui/                 componentes base: Button, Badge, Checkbox, Progress, CycleTrack, LevelDots, Avatar,
+    ui/                 componentes base: Button, Badge, Checkbox, Progress, CycleTrack, LevelDots, LineChart, Avatar,
                         Field, IconPicker, Dialog, Popover, Segmented, Toast, EmptyState
     shell/              AppShell, Sidebar, Notifications, PageHeader, nav.ts
   modules/
@@ -97,6 +105,7 @@ src/
     rotina/             dados (store.tsx, seed.ts) e telas
     compromissos/
     treinos/
+    corpo/
     bens/
     pessoas/
     pets/
@@ -133,6 +142,10 @@ Os dados de cada módulo passam todos pelo seu `store.tsx`, que usa `usePersiste
 | Corrida por dentro | Registrar treino |
 | --- | --- |
 | ![Corrida](docs/screenshots/treinos-corrida.png) | ![Registrar treino](docs/screenshots/treino-novo.png) |
+
+| Corpo | Metas ligadas |
+| --- | --- |
+| ![Corpo](docs/screenshots/corpo.png) | ![Metas](docs/screenshots/metas-ligadas.png) |
 
 | Pets | Skills |
 | --- | --- |

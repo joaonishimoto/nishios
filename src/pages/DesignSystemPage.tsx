@@ -15,6 +15,7 @@ import { useBens } from "@/modules/bens/store";
 import { usePeople } from "@/modules/pessoas/store";
 import { Avatar } from "@/components/ui/Avatar";
 import { useCalendar } from "@/modules/calendario/store";
+import { useCorpo } from "@/modules/corpo/store";
 import { usePets } from "@/modules/pets/store";
 import { useSkills } from "@/modules/skills/store";
 import { useTreinos } from "@/modules/treinos/store";
@@ -65,6 +66,7 @@ export function DesignSystemPage() {
   const pets = usePets();
   const skills = useSkills();
   const calendar = useCalendar();
+  const corpo = useCorpo();
   const [checked, setChecked] = useState(true);
   const [seg, setSeg] = useState("a");
 
@@ -290,6 +292,7 @@ export function DesignSystemPage() {
             pets.resetToExample();
             skills.resetToExample();
             calendar.resetToExample();
+            corpo.resetToExample();
             toast({ message: "Dados de exemplo restaurados" });
           }}
         >

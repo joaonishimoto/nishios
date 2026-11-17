@@ -4,6 +4,7 @@ export type SourceId =
   | "rotina"
   | "compromissos"
   | "treinos"
+  | "corpo"
   | "pessoas"
   | "pets"
   | "bens"
