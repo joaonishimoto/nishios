@@ -3,8 +3,8 @@ import { usePersistentState } from "@/lib/storage";
 import { seedHome } from "./seed";
 import type { Home } from "./types";
 
-// v7: box dos banheiros de parede a parede, com um vidro na frente.
-const KEY = "nishios:casa:v7";
+// v8: chuveiros na parede certa (suíte no topo, banheiro na parede do shaft).
+const KEY = "nishios:casa:v8";
 
 interface Store {
   home: Home;
