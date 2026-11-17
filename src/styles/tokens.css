@@ -124,6 +124,7 @@
   --cal-pets: #b4622c;
   --cal-bens: #2c7c79;
   --cal-skills: #77762a;
+  --cal-corpo: #8c6248;
   --cal-iphone: var(--primitive-neutral-500);
 
   /* ---- Tipografia ---- */
@@ -237,6 +238,7 @@
   --cal-pets: #e39a66;
   --cal-bens: #62bdb8;
   --cal-skills: #bcba62;
+  --cal-corpo: #cfa58c;
   --cal-iphone: #9aa0a8;
   --danger-foreground: #240c0a;
   --info: #86a5bd;

@@ -47,12 +47,20 @@ export function scheduleLabel(weekdays: number[]): string {
     .join(", ");
 }
 
+/** Meta de baixar um número (peso, cintura): parte de cima e o alvo fica abaixo. */
+export function goalDescends(goal: Goal): boolean {
+  return goal.start !== undefined && goal.start > goal.target;
+}
+
 export function goalProgress(goal: Goal): number {
-  return goal.target > 0 ? Math.min(1, Math.max(0, goal.current / goal.target)) : 0;
+  const start = goal.start ?? 0;
+  if (goal.target === start) return goalDone(goal) ? 1 : 0;
+  return Math.min(1, Math.max(0, (goal.current - start) / (goal.target - start)));
 }
 
 export function goalDone(goal: Goal): boolean {
-  return goal.target > 0 && goal.current >= goal.target;
+  if (!(goal.target > 0)) return false;
+  return goalDescends(goal) ? goal.current > 0 && goal.current <= goal.target : goal.current >= goal.target;
 }
 
 const number = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
@@ -66,6 +74,9 @@ const money = new Intl.NumberFormat("pt-BR", {
 export function goalAmountLabel(goal: Goal): string {
   if (goal.unit.trim().toLowerCase() === "reais") {
     return `${money.format(goal.current)} de ${money.format(goal.target)}`;
+  }
+  if (goal.start !== undefined && goal.start !== 0) {
+    return `${number.format(goal.current)} ${goal.unit} agora, alvo de ${number.format(goal.target)} ${goal.unit}`.trim();
   }
   return `${number.format(goal.current)} de ${number.format(goal.target)} ${goal.unit}`.trim();
 }

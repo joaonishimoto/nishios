@@ -1,5 +1,9 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { usePersistentState } from "@/lib/storage";
+import { useCorpo } from "@/modules/corpo/store";
+import { useTasks } from "@/modules/tarefas/store";
+import { useTreinos } from "@/modules/treinos/store";
+import { resolveGoals, resolveHabits } from "./linked";
 import { seedGoals, seedHabits } from "./seed";
 import type { Goal, GoalDraft, Habit, HabitDraft } from "./types";
 
@@ -7,6 +11,7 @@ const HABITS_KEY = "nishios:rotina:habitos:v1";
 const GOALS_KEY = "nishios:rotina:metas:v1";
 
 interface Store {
+  /** Já com as ligações aplicadas: hábitos marcados pelos treinos e metas com o número calculado. */
   habits: Habit[];
   goals: Goal[];
   /** Marca ou desmarca o hábito em um dia (yyyy-MM-dd). */
@@ -25,8 +30,18 @@ interface Store {
 const Ctx = createContext<Store | null>(null);
 
 export function RoutineProvider({ children }: { children: ReactNode }) {
-  const [habits, setHabits] = usePersistentState<Habit[]>(HABITS_KEY, seedHabits);
-  const [goals, setGoals] = usePersistentState<Goal[]>(GOALS_KEY, seedGoals);
+  const [rawHabits, setHabits] = usePersistentState<Habit[]>(HABITS_KEY, seedHabits);
+  const [rawGoals, setGoals] = usePersistentState<Goal[]>(GOALS_KEY, seedGoals);
+  const { sessions, modalities } = useTreinos();
+  const { entries } = useCorpo();
+  const { tasks } = useTasks();
+
+  // O que é salvo é sempre o dado cru; as ligações são recalculadas a cada mudança nos outros módulos.
+  const habits = useMemo(() => resolveHabits(rawHabits, sessions), [rawHabits, sessions]);
+  const goals = useMemo(
+    () => resolveGoals(rawGoals, { sessions, modalities, entries, tasks, habits }),
+    [rawGoals, sessions, modalities, entries, tasks, habits],
+  );
 
   const store = useMemo<Store>(
     () => ({
@@ -54,7 +69,10 @@ export function RoutineProvider({ children }: { children: ReactNode }) {
         setHabits((list) => list.filter((h) => h.id !== id));
       },
       restoreHabit(habit) {
-        setHabits((list) => (list.some((h) => h.id === habit.id) ? list : [...list, habit]));
+        // Vem da tela já resolvido: tira o que foi calculado antes de salvar.
+        const { autoDates, ...raw } = habit;
+        const saved = { ...raw, log: raw.log.filter((d) => !autoDates?.includes(d)) };
+        setHabits((list) => (list.some((h) => h.id === habit.id) ? list : [...list, saved]));
       },
       createGoal(draft) {
         setGoals((list) => [...list, { ...draft, id: crypto.randomUUID() }]);

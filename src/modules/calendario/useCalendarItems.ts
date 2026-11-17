@@ -1,6 +1,8 @@
 import { useMemo } from "react";
+import { add } from "date-fns";
 import { toISO, today } from "@/lib/dates";
 import { useBens } from "@/modules/bens/store";
+import { useCorpo } from "@/modules/corpo/store";
 import { useCommitments } from "@/modules/compromissos/store";
 import { usePeople } from "@/modules/pessoas/store";
 import { usePets } from "@/modules/pets/store";
@@ -19,13 +21,14 @@ export function useEverything(): Everything {
   const { commitments } = useCommitments();
   const { goals } = useRoutine();
   const { modalities, sessions } = useTreinos();
+  const { entries } = useCorpo();
   const { assets, wishes } = useBens();
   const { people } = usePeople();
   const { pets } = usePets();
   const { skills } = useSkills();
   return useMemo(
-    () => ({ events, tasks, commitments, goals, modalities, sessions, assets, wishes, people, pets, skills }),
-    [events, tasks, commitments, goals, modalities, sessions, assets, wishes, people, pets, skills],
+    () => ({ events, tasks, commitments, goals, modalities, sessions, entries, assets, wishes, people, pets, skills }),
+    [events, tasks, commitments, goals, modalities, sessions, entries, assets, wishes, people, pets, skills],
   );
 }
 
@@ -40,4 +43,15 @@ export function useCalendarItems(from: string, to: string): { items: CalItem[]; 
     // todayISO entra para recalcular quando o dia vira com o app aberto.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, from, to, hidden, todayISO]);
+}
+
+/**
+ * Tudo o que ficou para trás em qualquer módulo, do mais antigo para o mais
+ * novo. É a mesma lista que o painel de hoje e o sino de avisos mostram.
+ */
+export function useOverdue(respectLayers = false): CalItem[] {
+  const now = today();
+  const { items, all } = useCalendarItems(toISO(add(now, { years: -2 })), toISO(add(now, { days: -1 })));
+  const source = respectLayers ? items : all;
+  return useMemo(() => source.filter((i) => i.state === "overdue"), [source]);
 }

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ArrowRight } from "lucide-react";
@@ -23,7 +23,10 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { Progress } from "@/components/ui/Progress";
 import { cn } from "@/lib/cn";
 import { toISO } from "@/lib/dates";
+import { plural } from "@/lib/format";
 import { isDone, isScheduled } from "@/modules/rotina/logic";
+import { ItemRow } from "@/modules/calendario/CalendarBits";
+import { useCalendarItems } from "@/modules/calendario/useCalendarItems";
 import { useRoutine } from "@/modules/rotina/store";
 import { byPriority, needsAttention } from "@/modules/tarefas/logic";
 import { useTasks } from "@/modules/tarefas/store";
@@ -68,6 +71,10 @@ export function HomePage() {
   const attention = useAttention();
   const now = today();
   const { habits, toggleHabit } = useRoutine();
+  const navigate = useNavigate();
+  const todayISO = toISO(now);
+  // Tarefas e treinos já têm o seu lugar na página; aqui entra o resto do dia.
+  const agenda = useCalendarItems(todayISO, todayISO).all.filter((i) => i.source !== "tarefas" && i.state !== "done");
   const { tasks } = useTasks();
   const dueHabits = habits.filter((h) => isScheduled(h, now));
   const doneHabits = dueHabits.filter((h) => isDone(h, now)).length;
@@ -86,6 +93,23 @@ export function HomePage() {
         <p className="text-muted-foreground first-letter:uppercase">{dateLine}</p>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight">{greeting()}, João</h1>
       </header>
+
+      <section>
+        <SectionHeader
+          title={agenda.length === 0 ? "Agenda de hoje" : `Agenda de hoje: ${plural(agenda.length, "item", "itens")}`}
+          to="/calendario"
+          linkLabel="Abrir calendário"
+        />
+        {agenda.length === 0 ? (
+          <p className="mt-2 text-muted-foreground">Nenhum evento, vencimento ou aniversário hoje.</p>
+        ) : (
+          <ul className="mt-3 rounded-lg border border-border bg-surface p-1">
+            {agenda.map((item) => (
+              <ItemRow key={item.key} item={item} onOpenEvent={() => navigate(`/calendario?dia=${todayISO}`)} />
+            ))}
+          </ul>
+        )}
+      </section>
 
       <div className="grid gap-x-8 gap-y-10 lg:grid-cols-2">
         <section>

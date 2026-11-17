@@ -2,11 +2,12 @@ import { useState, type FormEvent } from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
-import { Field, Input } from "@/components/ui/Field";
+import { Field, Input, Select } from "@/components/ui/Field";
 import { IconPicker } from "@/components/ui/IconPicker";
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
 import { WEEK_ORDER, WEEKDAY_LONG, WEEKDAY_SHORT } from "./logic";
+import { useTreinos } from "@/modules/treinos/store";
 import { useRoutine } from "./store";
 import { ROUTINE_ICONS, type Habit, type HabitDraft } from "./types";
 
@@ -38,7 +39,9 @@ function Content({ habit, onClose }: { habit?: Habit; onClose: () => void }) {
     name: habit?.name ?? "",
     icon: habit?.icon ?? "🎯",
     weekdays: habit?.weekdays ?? [0, 1, 2, 3, 4, 5, 6],
+    link: habit?.link,
   });
+  const { modalities } = useTreinos();
   const [tried, setTried] = useState(false);
 
   const nameError = draft.name.trim() ? undefined : "Dê um nome ao hábito.";
@@ -113,6 +116,39 @@ function Content({ habit, onClose }: { habit?: Habit; onClose: () => void }) {
           </div>
           {tried && daysError && <p className="text-sm text-danger-strong">{daysError}</p>}
         </fieldset>
+
+        <Field
+          label="Marcar sozinho"
+          hint={
+            draft.link
+              ? "O hábito fica feito nos dias em que você registrar esse treino."
+              : "Ligue aos treinos para não precisar marcar duas vezes."
+          }
+        >
+          {(id) => (
+            <Select
+              id={id}
+              value={draft.link ? draft.link.modalityId || "qualquer" : "nao"}
+              onChange={(e) =>
+                setDraft((s) => ({
+                  ...s,
+                  link:
+                    e.target.value === "nao"
+                      ? undefined
+                      : { kind: "treinos", modalityId: e.target.value === "qualquer" ? "" : e.target.value },
+                }))
+              }
+            >
+              <option value="nao">Não, eu marco</option>
+              <option value="qualquer">Quando eu registrar qualquer treino</option>
+              {modalities.map((m) => (
+                <option key={m.id} value={m.id}>
+                  Quando eu registrar {m.name.toLowerCase()}
+                </option>
+              ))}
+            </Select>
+          )}
+        </Field>
       </DialogBody>
       <DialogFooter>
         {habit && (

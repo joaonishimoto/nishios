@@ -1,3 +1,5 @@
+import type { MeasureId } from "@/modules/corpo/types";
+
 export interface Habit {
   id: string;
   name: string;
@@ -6,9 +8,30 @@ export interface Habit {
   weekdays: number[];
   /** Dias em que foi feito, em yyyy-MM-dd. */
   log: string[];
+  /**
+   * Ligação com os treinos: o hábito fica feito sozinho nos dias em que houver
+   * treino registrado. `modalityId` vazio = qualquer modalidade.
+   */
+  link?: { kind: "treinos"; modalityId: string };
+  /** Dias marcados pela ligação, calculados na hora (não são salvos). */
+  autoDates?: string[];
 }
 
-export type HabitDraft = Omit<Habit, "id" | "log">;
+export type HabitDraft = Omit<Habit, "id" | "log" | "autoDates">;
+
+export type TrainingMetric = "sessions" | "distance" | "hours" | "rounds";
+
+/**
+ * De onde vem o número de uma meta ligada. Metas de contagem somam o que
+ * aconteceu desde `since`; metas de corpo usam a última medição.
+ */
+export type GoalLink =
+  | { kind: "treinos"; modalityId: string; metric: TrainingMetric; since: string }
+  | { kind: "habito"; habitId: string; since: string }
+  | { kind: "tarefas"; list: string; since: string }
+  | { kind: "peso" }
+  | { kind: "gordura" }
+  | { kind: "medida"; measure: MeasureId };
 
 export interface Goal {
   id: string;
@@ -21,6 +44,10 @@ export interface Goal {
   /** Prazo em yyyy-MM-dd; vazio quando não tem. */
   deadline: string;
   notes: string;
+  /** De onde a meta parte. Sem isso parte do zero. Maior que o alvo = meta de baixar (peso, cintura). */
+  start?: number;
+  /** Quando existe, `current` é calculado a partir de outro módulo. */
+  link?: GoalLink;
 }
 
 export type GoalDraft = Omit<Goal, "id">;

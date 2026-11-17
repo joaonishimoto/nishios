@@ -29,7 +29,7 @@ import { IphoneSync } from "./IphoneSync";
 import { SOURCES } from "./sources";
 import { useCalendar } from "./store";
 import type { CalItem } from "./types";
-import { useCalendarItems } from "./useCalendarItems";
+import { useCalendarItems, useOverdue } from "./useCalendarItems";
 
 type View = "month" | "week" | "agenda";
 
@@ -76,8 +76,7 @@ export function CalendarioPage() {
   const byDate = useMemo(() => groupByDate(items), [items]);
 
   // O que ficou para trás, de qualquer data: aparece no painel de hoje.
-  const past = useCalendarItems(toISO(add(now, { years: -2 })), toISO(add(now, { days: -1 })));
-  const overdue = useMemo(() => past.items.filter((i) => i.state === "overdue"), [past.items]);
+  const overdue = useOverdue(true);
   const todayItems = useCalendarItems(todayISO, todayISO).items;
 
   const showHabits = !hidden.includes("rotina");

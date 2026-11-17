@@ -1,4 +1,4 @@
-import { endOfYear, sub } from "date-fns";
+import { endOfYear, startOfMonth, startOfYear, sub } from "date-fns";
 import { toISO, today } from "@/lib/dates";
 import type { Goal, Habit } from "./types";
 
@@ -33,7 +33,8 @@ export function seedHabits(): Habit[] {
   return [
     { id: "h1", name: "Beber 2 litros de água", icon: "💧", weekdays: EVERY_DAY, log: exampleLog(EVERY_DAY, 12, true, 5) },
     { id: "h2", name: "Ler 20 minutos", icon: "📖", weekdays: EVERY_DAY, log: exampleLog(EVERY_DAY, 4, false, 3) },
-    { id: "h3", name: "Treinar", icon: "🏋️", weekdays: [1, 2, 4, 5], log: exampleLog([1, 2, 4, 5], 7, true, 6) },
+    // Ligado aos treinos: fica feito sozinho nos dias com treino registrado.
+    { id: "h3", name: "Treinar", icon: "🏋️", weekdays: [1, 2, 4, 5], log: [], link: { kind: "treinos", modalityId: "" } },
     { id: "h4", name: "Estudar inglês", icon: "🗣️", weekdays: WEEKDAYS, log: exampleLog(WEEKDAYS, 0, false, 2) },
     { id: "h5", name: "Meditar 10 minutos", icon: "🧘", weekdays: EVERY_DAY, log: exampleLog(EVERY_DAY, 2, true, 2) },
     { id: "h6", name: "Dormir antes das 23h", icon: "🌙", weekdays: [0, 1, 2, 3, 4], log: exampleLog([0, 1, 2, 3, 4], 1, false, 3) },
@@ -41,11 +42,16 @@ export function seedHabits(): Habit[] {
 }
 
 export function seedGoals(): Goal[] {
-  const yearEnd = toISO(endOfYear(today()));
+  const now = today();
+  const yearEnd = toISO(endOfYear(now));
+  const monthStart = toISO(startOfMonth(now));
   return [
     { id: "g1", name: "Ler 24 livros no ano", icon: "📚", unit: "livros", target: 24, current: 19, deadline: yearEnd, notes: "" },
     { id: "g2", name: "Juntar a reserva de emergência", icon: "💰", unit: "reais", target: 30000, current: 18500, deadline: "", notes: "Seis meses de custo de vida." },
-    { id: "g3", name: "Correr 500 km no ano", icon: "🏃", unit: "km", target: 500, current: 412, deadline: yearEnd, notes: "" },
+    // As três abaixo são ligadas: o número vem dos treinos e do corpo.
+    { id: "g3", name: "Correr 40 km no mês", icon: "🏃", unit: "km", target: 40, current: 0, deadline: "", notes: "", link: { kind: "treinos", modalityId: "m-corrida", metric: "distance", since: monthStart } },
+    { id: "g5", name: "Chegar a 78 kg", icon: "⚖️", unit: "kg", target: 78, current: 0, start: 84.2, deadline: yearEnd, notes: "Sem pressa: meio quilo por mês já serve.", link: { kind: "peso" } },
+    { id: "g6", name: "Treinar 150 vezes no ano", icon: "🏋️", unit: "treinos", target: 150, current: 0, deadline: yearEnd, notes: "", link: { kind: "treinos", modalityId: "", metric: "sessions", since: toISO(startOfYear(now)) } },
     { id: "g4", name: "Concluir o curso de inglês B2", icon: "🎯", unit: "módulos", target: 12, current: 12, deadline: "", notes: "" },
   ];
 }

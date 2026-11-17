@@ -1,6 +1,8 @@
 import { add, parseISO } from "date-fns";
 import { toISO } from "@/lib/dates";
 import type { Asset, Wish } from "@/modules/bens/types";
+import { entrySummary, formatValue } from "@/modules/corpo/logic";
+import type { Entry } from "@/modules/corpo/types";
 import { derive } from "@/modules/compromissos/logic";
 import type { Commitment } from "@/modules/compromissos/types";
 import { contact } from "@/modules/pessoas/logic";
@@ -23,6 +25,7 @@ export interface Everything {
   goals: Goal[];
   modalities: Modality[];
   sessions: Session[];
+  entries: Entry[];
   assets: Asset[];
   wishes: Wish[];
   people: Person[];
@@ -111,6 +114,11 @@ export function collect(data: Everything, from: string, to: string, now: Date): 
     const m = modality.get(s.modalityId);
     if (!m) continue;
     push({ key: `ses-${s.id}`, source: "treinos", date: s.date, title: m.name, icon: m.icon, state: "done", note: sessionSummary(s, m), to: `/treinos?m=${m.id}` });
+  }
+
+  /* Corpo: pesagens e medidas registradas */
+  for (const e of data.entries) {
+    push({ key: `corpo-${e.id}`, source: "corpo", date: e.date, title: e.weight > 0 ? `Peso: ${formatValue(e.weight, "peso")}` : "Medidas do corpo", state: "done", note: entrySummary(e), to: "/corpo" });
   }
 
   /* Bens: fim da garantia. Desejos: data pretendida de compra */
