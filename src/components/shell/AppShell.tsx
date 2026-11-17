@@ -15,7 +15,7 @@ const TITLES: Record<string, string> = {
 };
 
 /** Páginas que usam a largura toda da janela. */
-const WIDE = ["/calendario"];
+const WIDE = ["/calendario", "/casa"];
 
 export function AppShell() {
   const { theme, toggle } = useTheme();
