@@ -25,10 +25,10 @@ export function seedHome(): Home {
     name: "Apartamento",
     rooms: [
       {
-        id: "estar", name: "Estar", rects: [[1.64, 3.25, 4.11, 2.31]], label: [2.6, 4.3], floor: "madeira",
+        id: "estar", name: "Estar", rects: [[1.64, 3.05, 4.11, 2.51]], label: [2.6, 4.3], floor: "madeira",
       },
       {
-        id: "jantar", name: "Jantar", rects: [[1.64, 1.42, 2.64, 1.83]], label: [2.5, 1.75], floor: "madeira",
+        id: "jantar", name: "Jantar", rects: [[1.64, 1.42, 2.64, 1.63]], label: [2.5, 1.75], floor: "madeira",
       },
       {
         id: "cozinha", name: "Cozinha", rects: [[0, 1.53, 1.64, 2.66]], label: [0.95, 3.0], floor: "piso",
