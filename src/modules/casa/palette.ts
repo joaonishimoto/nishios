@@ -34,14 +34,14 @@ const realMaterials: Record<Material, string> = {
 
 const planMaterials: Record<Material, string> = {
   madeira: "#e3ded0",
-  branco: "#fdfcfa",
+  branco: "#e3e4e6",
   tecido: "#c3d2e5",
   escuro: "#59606b",
   metal: "#d7dbe0",
   planta: "#8fb89a",
   vidro: "#dfe7f1",
   tapete: "#f2efe6",
-  pedra: "#b8af9b",
+  pedra: "#d3ccba",
 };
 
 const PALETTES: Record<ViewMode, Record<"light" | "dark", Palette>> = {
