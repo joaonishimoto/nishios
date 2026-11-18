@@ -30,13 +30,23 @@ export interface Skill {
   createdAt: string;
 }
 
+/** Em ordem alfabética, para achar rápido na lista. */
 export const CATEGORIES = [
-  "Tecnologia",
-  "Negócios",
-  "Idiomas",
   "Comunicação",
-  "Liderança",
   "Criatividade",
+  "Dados",
+  "Design",
+  "Empreendedorismo",
+  "Esportes",
   "Finanças",
+  "Gestão de projetos",
+  "Idiomas",
+  "Liderança",
+  "Marketing",
+  "Negócios",
   "Pessoal",
+  "Produtividade",
+  "Saúde",
+  "Tecnologia",
+  "Vendas",
 ];

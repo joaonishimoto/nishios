@@ -11,6 +11,7 @@ import { useToast } from "@/components/ui/Toast";
 import { formatDate, shortDate, toISO, today } from "@/lib/dates";
 import { LEVEL_LABELS, resourceProgress, STATUS_META, STATUS_ORDER, TYPE_LABEL } from "./logic";
 import { newId, useSkills } from "./store";
+import { TypeTip } from "./TypeTip";
 import { CATEGORIES, type Skill, type SkillStatus, type SkillType } from "./types";
 
 /** Uma skill recém-criada que fechou sem nome e sem nada preenchido é descartada. */
@@ -111,7 +112,7 @@ function PanelContent({ skill, onClose }: { skill: Skill; onClose: () => void })
               </Select>
             )}
           </Field>
-          <Field label="Tipo">
+          <Field label="Tipo" tip={<TypeTip />}>
             {(id) => (
               <Select id={id} value={skill.type} onChange={(e) => update(skill.id, { type: e.target.value as SkillType })}>
                 <option value="hard">{TYPE_LABEL.hard}</option>

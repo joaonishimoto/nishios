@@ -57,12 +57,15 @@ Textarea.displayName = "Textarea";
 /** Rótulo + controle + ajuda/erro. Passa o id para o filho por função. */
 export function Field({
   label,
+  tip,
   hint,
   error,
   className,
   children,
 }: {
   label: string;
+  /** Ajuda opcional ao lado do rótulo, normalmente um `<InfoTip>`. */
+  tip?: ReactNode;
   hint?: string;
   error?: string;
   className?: string;
@@ -71,9 +74,18 @@ export function Field({
   const id = useId();
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
-      <label htmlFor={id} className="text-sm font-medium text-foreground">
-        {label}
-      </label>
+      {tip ? (
+        <div className="flex h-5 items-center gap-1">
+          <label htmlFor={id} className="text-sm font-medium text-foreground">
+            {label}
+          </label>
+          {tip}
+        </div>
+      ) : (
+        <label htmlFor={id} className="text-sm font-medium text-foreground">
+          {label}
+        </label>
+      )}
       {children(id)}
       {error ? (
         <p className="text-sm text-danger-strong">{error}</p>
