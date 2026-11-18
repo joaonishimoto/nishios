@@ -590,6 +590,7 @@ function extraG(): Extra {
         "Bancada planejada de 60 cm de fundo no L, com cooktop de 4 bocas e armários embaixo e aéreos em cima.",
         "A máquina de lavar fica embaixo da bancada, no canto da janela, com a pedra passando por cima. Dá para usar a bancada normalmente.",
         "A pia saiu da janela e foi para a parede da geladeira, logo antes dela: lavar, cortar e guardar ficam em sequência.",
+        "Lava-louças de 45 cm embutida embaixo da bancada, logo antes da pia, com frente de inox: a água e o esgoto ficam juntos.",
         "Sem tanque: com a máquina dentro de casa, a área externa fica livre.",
       ],
       servicoext: [
@@ -617,6 +618,13 @@ function extraG(): Extra {
         part(1.0, 0.29, 0.6, 0.6, 0.04, "pedra", 0.86, stone),
       ]),
       piece("cozinha", "Máquina de lavar", "🫧", "Eletrodomésticos", washer(R(1.0, 0.29, 0.6, 0.6), "n")),
+      // Lava-louças de 45 cm embutida embaixo da bancada, logo antes da pia: frente de inox,
+      // faixa de comandos em cima e puxador horizontal.
+      piece("cozinha", "Lava-louças", "🍽️", "Eletrodomésticos", [
+        part(0.6, 2.05, 0.012, 0.44, 0.78, "metal", 0.05),
+        part(0.612, 2.07, 0.004, 0.4, 0.05, "escuro", 0.76, "#2b2f35"),
+        part(0.612, 2.12, 0.02, 0.3, 0.02, "metal", 0.68, "#9aa0a6"),
+      ]),
       { ...piece("cozinha", "Pia", "🚰", "Móveis", [part(-0.01, 2.5, 0.61, 0.9, 0.9, "madeira", 0, cab)]), fixture: { kind: "bancada", x: -0.01, z: 2.5, w: 0.61, d: 0.9, wall: "w", colors: { cabinet: cab, stone } } },
       piece("servicoext", "Hidromassagem", "🛁", "Móveis", deckedTub(R(0.02, EXT.z0 + 0.03, 2.43, 1.72), R(0.14, -1.42, 2.0, 1.5))),
       piece("servicoext", "Painel ripado", "🪵", "Obras", [...slatScreen(R(-0.01, EXT.z0, 2.46, 0.03)), ...slatScreen(R(-0.01, EXT.z0, 0.03, 1.75))]),
