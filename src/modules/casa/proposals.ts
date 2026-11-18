@@ -615,48 +615,48 @@ function recolor(base: Proposal, o: { id: string; name: string; tagline: string;
 
 const KEEP_COLORS = ["Hidromassagem", "Espelheira", "Telhado inclinado", "Máquina de lavar", "Painel ripado", "Balcão na mureta"];
 
-/** G2: quente, com madeira clara, terracota no lugar do azul e cozinha verde-sálvia. */
+/** G2: off-white quente, travertino e carvalho claro, com detalhes em greige. */
 function proposalG2(): Proposal {
   return recolor(proposalG(), {
     id: "g2",
-    name: "G em terracota e madeira",
-    tagline: "Madeira clara nos móveis, terracota onde era azul e a cozinha em verde-sálvia com pedra clara.",
+    name: "G em travertino e carvalho",
+    tagline: "Off-white quente nos móveis, greige onde era azul, cozinha fendi com bancada de travertino e madeira de carvalho claro.",
     keep: KEEP_COLORS,
     colors: {
-      "#1e3d66": "#b5553a", // azul Nishi → terracota
-      "#f4f4f1": "#c9a27a", // móveis brancos → madeira clara
-      "#e2e2de": "#a9805a", // pés da mesa
-      "#e4d6c2": "#9fae8f", // armários da cozinha → verde-sálvia
-      "#3b3a38": "#ddd6ca", // pedra escura → pedra clara
-      "#6b5a48": "#7d8a6f",
-      "#1f1f22": "#6b4a33", // mesa e cadeira pretas → nogueira
-      "#2b2b2e": "#4a3426",
-      "#e9e4da": "#efe3cf", // roupa de cama → linho cru
-      "#e2ddd2": "#d4b392", // tapete da sala
-      "#4a443d": "#6b4a33",
+      "#1e3d66": "#9a8f80", // azul Nishi → greige
+      "#f4f4f1": "#e9e2d6", // móveis brancos → off-white quente
+      "#e2e2de": "#b89b78", // pés da mesa → carvalho
+      "#e4d6c2": "#d8cbb8", // armários da cozinha → fendi
+      "#3b3a38": "#d6c7ad", // pedra escura → travertino
+      "#6b5a48": "#a89880",
+      "#1f1f22": "#8a6b4f", // mesa e cadeira pretas → carvalho
+      "#2b2b2e": "#5a4433",
+      "#e9e4da": "#f1ece3", // roupa de cama → linho
+      "#e2ddd2": "#cfc3b1", // tapete da sala → bege
+      "#4a443d": "#6e655a",
+      "#b8bec6": "#c9bfae", // perfil da porta de vidro → champanhe
     },
   });
 }
 
-/** G3: moderna, com preto fosco, verde-oliva no lugar do azul e cozinha grafite. */
+/** G3: carvalho defumado e preto fosco, com mármore claro e detalhes em chumbo. */
 function proposalG3(): Proposal {
   return recolor(proposalG(), {
     id: "g3",
-    name: "G em preto e verde-oliva",
-    tagline: "Preto fosco nos móveis, verde-oliva onde era azul e a cozinha grafite com pedra branca.",
+    name: "G em carvalho defumado e preto",
+    tagline: "Carvalho defumado nos móveis, chumbo onde era azul, cozinha preta fosca com bancada de mármore claro e perfis pretos.",
     keep: KEEP_COLORS,
     colors: {
-      "#1e3d66": "#4f6146", // azul Nishi → verde-oliva
-      "#f4f4f1": "#2a2a2c", // móveis brancos → preto fosco
-      "#e2e2de": "#1c1c1e",
-      "#e4d6c2": "#4b4f54", // armários da cozinha → grafite
-      "#3b3a38": "#ece9e3", // pedra escura → pedra branca
-      "#6b5a48": "#2f3236",
-      "#1f1f22": "#8a6a4c", // mesa e cadeira pretas → madeira média, para não sumir no preto
-      "#2b2b2e": "#5e4633",
-      "#e9e4da": "#d6d3cc", // roupa de cama → cinza claro
-      "#e2ddd2": "#8f8c85", // tapete da sala → cinza
-      "#4a443d": "#1c1c1e",
+      "#1e3d66": "#4f4b46", // azul Nishi → chumbo
+      "#f4f4f1": "#6b5444", // móveis brancos → carvalho defumado
+      "#e2e2de": "#1f1e1d", // pés da mesa → preto
+      "#e4d6c2": "#2e2c2a", // armários da cozinha → preto fosco
+      "#3b3a38": "#e8e4dc", // pedra escura → mármore claro
+      "#6b5a48": "#1a1918",
+      "#e9e4da": "#e6e1d8", // roupa de cama → off-white
+      "#e2ddd2": "#b9b2a6", // tapete da sala → cinza quente
+      "#4a443d": "#2a2826",
+      "#b8bec6": "#2b2b2b", // perfil da porta de vidro → preto
     },
   });
 }
