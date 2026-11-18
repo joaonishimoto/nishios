@@ -83,7 +83,9 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
   - Vacinas e cuidados (vermífugo, antipulgas...) com a frequência de cada um; a trilha mostra quanto falta e "Marcar como feito" recalcula a próxima data.
   - Saúde: consultas, exames, cirurgias e problemas de saúde, com "Em tratamento" ou "Resolvido".
   - Peso: histórico com a variação entre uma pesagem e outra.
-- **Skills**: hard e soft skills em um quadro de três colunas (quero aprender, aprendendo, já sei). Arraste para mudar de coluna.
+- **Skills**: hard e soft skills.
+  - **Visão geral** (a principal): o que você está estudando agora, com o andamento do plano de estudo e o próximo passo para marcar ali mesmo; o que você já sabe, por nível; e a fila do que quer aprender, com "Começar".
+  - **Quadro**: as três colunas (quero aprender, aprendendo, já sei) para arrastar entre elas.
   - Painel lateral com nível de 0 a 5, plano de estudo (passos e links, com progresso) e diário de aprendizado.
 - **Avisos**: o sino no topo lista tudo o que atrasou em qualquer módulo e os compromissos chegando a hora.
 - **Integrações entre módulos**:
@@ -104,6 +106,12 @@ Os tokens têm três camadas:
 3. **Tema Tailwind**: expõe as semânticas como classes (`bg-surface`, `text-muted-foreground`, `rounded-lg`...).
 
 Para mudar o visual do app inteiro, edite só `src/styles/tokens.css`. O modo escuro é o bloco `.dark` no mesmo arquivo.
+
+Regras que valem para toda página, inclusive as novas:
+
+- **Largura inteira**: o `AppShell` coloca toda página na largura da janela, sem faixas vazias nas laterais (`--page-max-width: none`). Uma página nova não precisa fazer nada para ficar assim.
+- **Lista suspensa** (`Select`): própria do design system, no lugar da do navegador. Recebe `<option>` como filhos e devolve `e.target.value`, como um `<select>`. Funciona com setas, Enter e digitando o começo do nome.
+- **Seletor de data** (`DatePicker`): `<Input type="date">` já vira ele. Semana começando na segunda, como o calendário do app; toque no mês para pular de mês ou de ano; "Hoje" e "Limpar" no rodapé; setas andam pelos dias.
 
 ## Estrutura
 
@@ -140,6 +148,10 @@ Os dados de cada módulo passam todos pelo seu `store.tsx`, que usa `usePersiste
 | Início | Tarefas em quadro |
 | --- | --- |
 | ![Início](docs/screenshots/inicio.png) | ![Quadro](docs/screenshots/tarefas-quadro.png) |
+
+| Lista suspensa | Seletor de data |
+| --- | --- |
+| ![Lista suspensa](docs/screenshots/lista-suspensa.png) | ![Seletor de data](docs/screenshots/seletor-data.png) |
 
 | Busca em tudo | Dados e backup |
 | --- | --- |

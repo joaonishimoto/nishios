@@ -12,10 +12,12 @@ import { cn } from "@/lib/cn";
 import { plural } from "@/lib/format";
 import { lastActivity, LEVEL_LABELS, matches, resourceProgress, STATUS_META, STATUS_ORDER } from "./logic";
 import { SkillPanel } from "./SkillPanel";
+import { SkillsOverview } from "./SkillsOverview";
 import { useSkills } from "./store";
 import type { Skill, SkillStatus, SkillType } from "./types";
 
 type Filter = "all" | SkillType;
+type View = "geral" | "quadro";
 
 export function SkillsPage() {
   const { skills, create, update } = useSkills();
@@ -25,8 +27,13 @@ export function SkillsPage() {
   const [dragOver, setDragOver] = useState<SkillStatus | null>(null);
 
   const openSkill = skills.find((s) => s.id === params.get("s"));
+  // A visão geral é a principal; o quadro fica a um clique e é lembrado na URL.
+  const view: View = params.get("vista") === "quadro" ? "quadro" : "geral";
+  const withView = (next: Record<string, string>) => (view === "quadro" ? { ...next, vista: "quadro" } : next);
   const open = (id: string | null) =>
-    setParams(id ? { s: id } : {}, { replace: !id, preventScrollReset: true });
+    setParams(withView(id ? { s: id } : {}), { replace: !id, preventScrollReset: true });
+  const setView = (v: View) =>
+    setParams(v === "quadro" ? { vista: "quadro" } : {}, { replace: true, preventScrollReset: true });
 
   const columns = useMemo(() => {
     const visible = skills.filter((s) => matches(s, filter, query));
@@ -70,6 +77,15 @@ export function SkillsPage() {
       />
 
       <div className="mt-6 flex flex-wrap items-center gap-2">
+        <Segmented<View>
+          label="Visualização"
+          value={view}
+          onChange={setView}
+          options={[
+            { value: "geral", label: "Visão geral" },
+            { value: "quadro", label: "Quadro" },
+          ]}
+        />
         <Segmented<Filter>
           label="Tipo de skill"
           value={filter}
@@ -100,7 +116,7 @@ export function SkillsPage() {
         {skills.length === 0 ? (
           <EmptyState
             title="Nenhuma skill ainda"
-            description="Comece listando o que você quer aprender. Depois é só arrastar conforme avança."
+            description="Comece listando o que você quer aprender. Quando começar a estudar, monte o plano com cursos, livros e vídeos."
             action={
               <Button onClick={() => add("want")}>
                 <Plus />
@@ -123,6 +139,12 @@ export function SkillsPage() {
                 Limpar filtros
               </Button>
             }
+          />
+        ) : view === "geral" ? (
+          <SkillsOverview
+            skills={skills.filter((s) => matches(s, filter, query))}
+            onOpen={open}
+            onAdd={add}
           />
         ) : (
           <div className="grid gap-4 md:grid-cols-3">
