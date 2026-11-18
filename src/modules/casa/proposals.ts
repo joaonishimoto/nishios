@@ -158,11 +158,13 @@ function desk(r: Rect, back: Side, top: string): Part[] {
   ];
 }
 
-function officeChair(x: number, z: number, color: string): Part[] {
+function officeChair(x: number, z: number, color: string, back: Side = "s"): Part[] {
+  // Assento de 50 cm com o encosto do lado `back`: a pessoa fica virada para o lado oposto.
+  const { at } = placer(R(x, z, 0.5, 0.5), back);
   return [
     part(x + 0.22, z + 0.22, 0.06, 0.06, 0.45, "metal"),
     part(x, z, 0.5, 0.5, 0.06, "tecido", 0.45, color),
-    part(x, z + 0.42, 0.5, 0.08, 0.5, "tecido", 0.5, color),
+    at(0, 0, 0.5, 0.08, 0.5, "tecido", 0.5, color),
   ];
 }
 
@@ -437,7 +439,7 @@ function proposalB(): Proposal {
       piece("suite", "Nicho na janela (gatos)", "🐈", "Pets", windowPerch(R(9.5, 0.85, 0.36, 0.9), "#9aa0a6")),
       // Escritório e hóspedes
       piece("quarto", "Mesa de trabalho", "💻", "Móveis", desk(R(4.29, 0.35, 0.65, 1.5), "w", walnut)),
-      piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(5.0, 0.85, "#2f3338")),
+      piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(5.0, 0.85, "#2f3338", "e")),
       piece("quarto", "Sofá-cama", "🛋️", "Móveis", sofa(R(5.79, 0.3, 0.9, 1.9), "e", grey, 2)),
       piece("quarto", "Nicho na janela (gatos)", "🐈", "Pets", windowPerch(R(5.2, -0.01, 0.6, 0.32), "#9aa0a6")),
       piece("quarto", "Prateleira", "📚", "Móveis", bookshelf(R(4.29, 2.0, 0.32, 0.9), "w", walnut, 1.6)),
@@ -652,7 +654,6 @@ function suiteJoao(wood: string, duvet: string): Piece[] {
       part(9.43, 2.26, 0.44, 0.42, 0.85, "branco", 0, "#eef0f1"),
       part(9.45, 2.24, 0.03, 0.03, 0.3, "escuro", 0.45),
     ]),
-    piece("suite", "Rede de janela (gatos)", "🐈", "Pets", windowPerch(R(9.5, 0.85, 0.36, 0.9), "#d8cfc2")),
   ];
 }
 
@@ -781,7 +782,7 @@ function proposalE(): Proposal {
       piece("quarto", "Cama de casal", "🛏️", "Móveis", bed(R(4.29, 1.09, 1.38, 1.88), "s", cream, walnut)),
       piece("quarto", "Criado-mudo", "🛋️", "Móveis", nightstand(R(4.29, 0.64, 0.42, 0.42), "w", walnut)),
       piece("quarto", "Mesa de trabalho", "💻", "Móveis", desk(R(6.14, 0.3, 0.55, 1.4), "e", walnut)),
-      piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(5.58, 0.5, "#2f3338")),
+      piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(5.58, 0.5, "#2f3338", "w")),
       piece("quarto", "Nicho na janela (gatos)", "🐈", "Pets", windowPerch(R(4.95, -0.01, 0.8, 0.3), "#9aa0a6")),
       // Suíte
       ...suiteJoao(walnut, "#cfd3d6"),
@@ -857,7 +858,7 @@ function proposalF(): Proposal {
       piece("quarto", "Criado-mudo", "🛋️", "Móveis", nightstand(R(4.36, -0.01, 0.4, 0.4), "n", ash)),
       piece("quarto", "Criado-mudo", "🛋️", "Móveis", nightstand(R(6.22, -0.01, 0.4, 0.4), "n", ash)),
       piece("quarto", "Mesa de trabalho", "💻", "Móveis", desk(R(4.29, 1.95, 0.6, 1.0), "w", ash)),
-      piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(4.95, 2.2, "#c9bfb2")),
+      piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(4.95, 2.2, "#c9bfb2", "e")),
       piece("quarto", "Prateleiras dos gatos", "🐈", "Pets", catShelves([[6.44, 1.3, 0.6], [6.44, 1.9, 0.95], [6.44, 2.45, 1.25]], "e", ash)),
       piece("quarto", "Caixa de areia", "🐈", "Pets", litterBox(6.1, 2.0, "e")),
       // Suíte
@@ -925,8 +926,8 @@ function proposalJ(): Proposal {
       varanda: ["Porta de vidro de correr de ponta a ponta entre o jantar e a varanda."],
       estar: [
         "Mesa de 1,40 × 0,80 m: 70 cm por pessoa nas laterais, que é o confortável, e 80 cm nas pontas.",
-        "Ela fica mais para o lado do jantar: as cadeiras de cima podem recuar para lá, e atrás das cadeiras de baixo sobram 60 cm para passar da porta de entrada para os quartos.",
-        "Da ponta perto do banheiro até a parede sobra 1,2 m, que é o caminho para a circulação dos quartos.",
+        "Ela fica no meio do estar, longe do sofá e da cozinha: entre a cozinha e a ponta da mesa sobram 80 cm livres, e a entrada fica desimpedida.",
+        "Da mesa até a parede de baixo ficam 62 cm, o suficiente para sentar. O caminho da entrada para os quartos passa por cima da mesa, com uns 50 cm, e pela ponta do lado do banheiro, com 70 cm.",
       ],
       cozinha: [
         "Bancada planejada de 60 cm de fundo, do canto do shaft até a geladeira (2,5 m), com cooktop de 4 bocas e armários embaixo e aéreos em cima.",
@@ -955,11 +956,11 @@ function proposalJ(): Proposal {
         part(-0.01, 1.92, 0.35, 1.48, 0.7, "madeira", 1.5, "#e4d6c2"),
       ]),
       piece("cozinha", "Geladeira", "🧊", "Eletrodomésticos", fridge(R(-0.01, 3.42, 0.7, 0.66), "w")),
-      piece("estar", "Mesa de 6 lugares", "🍽️", "Móveis", table(R(2.6, 3.55, 1.4, 0.8), wood)),
+      piece("estar", "Mesa de 6 lugares", "🍽️", "Móveis", table(R(3.0, 4.0, 1.4, 0.8), wood)),
       piece("estar", "Cadeiras", "🪑", "Móveis", [
-        ...chair(2.78, 3.08, "n", "#7d8a7a"), ...chair(3.38, 3.08, "n", "#7d8a7a"),
-        ...chair(2.78, 4.38, "s", "#7d8a7a"), ...chair(3.38, 4.38, "s", "#7d8a7a"),
-        ...chair(2.13, 3.73, "w", "#7d8a7a"), ...chair(4.03, 3.73, "e", "#7d8a7a"),
+        ...chair(3.18, 3.53, "n", "#7d8a7a"), ...chair(3.78, 3.53, "n", "#7d8a7a"),
+        ...chair(3.18, 4.83, "s", "#7d8a7a"), ...chair(3.78, 4.83, "s", "#7d8a7a"),
+        ...chair(2.53, 4.18, "w", "#7d8a7a"), ...chair(4.43, 4.18, "e", "#7d8a7a"),
       ]),
       piece("jantar", "Sofá 2 lugares", "🛋️", "Móveis", sofa(R(1.7, 1.55, 0.9, 1.7), "w", "#a8774a", 2)),
       piece("jantar", "Rack e TV", "📺", "Eletrônicos", rackTv(R(3.82, 1.6, 0.4, 1.45), "e", wood)),
@@ -970,7 +971,7 @@ function proposalJ(): Proposal {
       ]),
       piece("quarto", "Cama de solteiro", "🛏️", "Móveis", bed(R(4.29, -0.01, 1.88, 0.88), "w", "#d8cdb8", wood)),
       piece("quarto", "Mesa com computador", "💻", "Móveis", desk(R(4.29, 1.65, 0.6, 1.3), "w", wood)),
-      piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(4.95, 2.05, "#3e4a52")),
+      piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(4.95, 2.05, "#3e4a52", "e")),
     ],
   };
 }
