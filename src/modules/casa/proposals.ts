@@ -746,7 +746,8 @@ function proposalG4(): Proposal {
     piece("estar", "Pendentes da mesa", "💡", "Móveis", [...pendant(3.3, 4.27, 1.6), ...pendant(3.85, 4.27, 1.6)]),
     piece("estar", "Espelho grande", "🪞", "Móveis", full([part(3.0, 5.4, 1.4, 0.02, 1.1, "vidro", 0.9, "#d7e6ea"), part(2.98, 5.41, 1.44, 0.01, 1.14, "metal", 0.88)])),
     piece("jantar", "Tapete do sofá", "🟦", "Móveis", rug(R(2.65, 1.7, 1.1, 1.4), linen)),
-    piece("jantar", "Almofadas", "🛋️", "Móveis", [part(1.92, 1.7, 0.12, 0.38, 0.34, "tecido", 0.44, linen), part(1.92, 2.82, 0.12, 0.38, 0.34, "tecido", 0.44, linen)]),
+    // Almofadas apoiadas no assento, na frente do encosto (que termina em x 2,04), longe dos braços.
+    piece("jantar", "Almofadas", "🛋️", "Móveis", [part(2.05, 1.78, 0.13, 0.4, 0.34, "tecido", 0.445, linen), part(2.05, 2.62, 0.13, 0.4, 0.34, "tecido", 0.445, linen)]),
     // Cozinha
     piece("cozinha", "Aéreo da geladeira", "🗄️", "Móveis", full([part(-0.01, 3.42, 0.66, 0.66, 0.45, "madeira", 1.92, "#e4d6c2")])),
     piece("cozinha", "Passadeira", "🟦", "Móveis", rug(R(0.75, 1.1, 0.55, 1.3), nishi)),

@@ -146,7 +146,7 @@ export function CasaPage() {
         title="Casa"
         description={`${home.name} térreo com ${area.format(indoorArea(home))} m² de área interna, ${plural(whole.pieces.length, "móvel", "móveis")} e ${money(whole.value)} em bens ligados à planta.`}
         action={
-          <div className="flex flex-wrap items-center justify-end gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2 select-none">
             <Segmented<string>
               label="Móveis"
               value={proposal?.id ?? "vazia"}
@@ -204,7 +204,7 @@ export function CasaPage() {
         }
       />
 
-      <div className="mt-6 flex flex-wrap gap-1.5" role="group" aria-label="Cômodos">
+      <div className="mt-6 flex flex-wrap gap-1.5 select-none" role="group" aria-label="Cômodos">
         <RoomChip active={!focus} onClick={() => focusRoom(null)}>
           {focus && <ArrowLeft className="size-3.5" />}
           Casa inteira
@@ -217,7 +217,7 @@ export function CasaPage() {
       </div>
 
       <div className="mt-3 grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="relative h-[56vh] min-h-[340px] overflow-hidden rounded-lg border border-border bg-surface lg:h-[min(70vh,680px)]">
+        <div className="relative h-[56vh] min-h-[340px] select-none overflow-hidden rounded-lg border border-border bg-surface lg:h-[min(70vh,680px)]">
           <Suspense
             fallback={
               <p className="grid size-full place-items-center text-muted-foreground">Montando a casa…</p>
