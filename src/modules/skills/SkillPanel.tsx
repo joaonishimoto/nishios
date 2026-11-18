@@ -13,14 +13,24 @@ import { LEVEL_LABELS, resourceProgress, STATUS_META, STATUS_ORDER, TYPE_LABEL }
 import { newId, useSkills } from "./store";
 import { CATEGORIES, type Skill, type SkillStatus, type SkillType } from "./types";
 
+/** Uma skill recém-criada que fechou sem nome e sem nada preenchido é descartada. */
+function isBlank(skill: Skill) {
+  return !skill.name.trim() && !skill.notes.trim() && skill.resources.length === 0 && skill.log.length === 0;
+}
+
 /** Painel lateral da skill. Cada campo salva na hora. */
 export function SkillPanel({ skill, onClose }: { skill: Skill | undefined; onClose: () => void }) {
+  const { remove } = useSkills();
+  function close() {
+    if (skill && isBlank(skill)) remove(skill.id);
+    onClose();
+  }
   return (
     <Dialog
       variant="sheet"
       open={!!skill}
-      onOpenChange={(o) => !o && onClose()}
-      title={skill?.name || "Skill"}
+      onOpenChange={(o) => !o && close()}
+      title={skill?.name || "Nova skill"}
       hideTitle
     >
       {skill && <PanelContent skill={skill} onClose={onClose} />}
@@ -60,14 +70,30 @@ function PanelContent({ skill, onClose }: { skill: Skill; onClose: () => void })
   return (
     <>
       <DialogBody className="flex flex-col gap-6 pt-12">
-        <textarea
-          aria-label="Nome da skill"
-          value={skill.name}
-          rows={1}
-          placeholder="Sem nome"
-          onChange={(e) => update(skill.id, { name: e.target.value.replace(/\n/g, "") })}
-          className="field-sizing-content min-w-0 resize-none bg-transparent text-xl font-semibold tracking-tight placeholder:text-subtle-foreground focus:outline-none"
-        />
+        <div className="-mx-2 flex flex-col gap-1">
+          <textarea
+            aria-label="Nome da skill"
+            value={skill.name}
+            rows={1}
+            maxLength={120}
+            placeholder="Ex.: Inglês para reuniões"
+            // Skill nova abre com o cursor no nome.
+            autoFocus={!skill.name}
+            onChange={(e) => update(skill.id, { name: e.target.value.replace(/\n/g, "") })}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                e.currentTarget.blur();
+              }
+            }}
+            className="field-sizing-content min-h-10 min-w-0 resize-none rounded-md bg-transparent px-2 py-1 text-xl font-semibold tracking-tight transition-colors duration-(--motion-fast) placeholder:text-subtle-foreground hover:bg-surface-hover focus:bg-surface-hover focus:outline-none"
+          />
+          {!skill.name.trim() && (
+            <p className="px-2 text-sm text-muted-foreground">
+              Se fechar sem nome e sem preencher nada, a skill é descartada.
+            </p>
+          )}
+        </div>
 
         <div className="grid grid-cols-2 gap-4">
           <Field label="Situação">
@@ -229,16 +255,16 @@ function PanelContent({ skill, onClose }: { skill: Skill; onClose: () => void })
           )}
         </section>
 
-        <p className="text-sm text-muted-foreground">
-          Adicionada em {formatDate(skill.createdAt.slice(0, 10))}. As alterações são salvas na hora.
-        </p>
       </DialogBody>
 
-      <div className="flex items-center border-t border-border px-6 py-3">
+      <div className="flex items-center gap-3 border-t border-border px-6 py-3">
+        <p className="min-w-0 text-sm text-muted-foreground">
+          Adicionada em {formatDate(skill.createdAt.slice(0, 10))}
+        </p>
         <Button
           variant="ghost"
           size="sm"
-          className="ml-auto h-8 hover:bg-danger-soft hover:text-danger-strong"
+          className="ml-auto h-8 shrink-0 hover:bg-danger-soft hover:text-danger-strong"
           onClick={() => {
             remove(skill.id);
             onClose();
