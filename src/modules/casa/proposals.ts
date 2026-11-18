@@ -884,10 +884,11 @@ function proposalJ(): Proposal {
   return {
     id: "j",
     name: "Do João",
-    tagline: "Montada com os seus desenhos, um cômodo de cada vez. Por enquanto: a suíte e o quarto.",
+    tagline: "Montada com os seus desenhos, um cômodo de cada vez. Por enquanto: a suíte, o quarto e o jantar.",
     highlights: [
       "Suíte: cama viúva no topo, guarda-roupa de correr na parede do lado, painel suspenso com TV na parede do banheiro e frigobar no canto.",
       "Quarto: cama de solteiro no fundo, embaixo da janela, e a mesa com o computador no canto perto da porta.",
+      "Jantar vira sala de TV: sofá de 2 lugares na parede da cozinha, TV com móvel na parede do quarto e porta de vidro de correr fechando a varanda.",
       "O resto da casa continua vazio até você desenhar.",
     ],
     notes: {
@@ -899,10 +900,23 @@ function proposalJ(): Proposal {
         "Cama de solteiro (88 × 188 cm) deitada ao longo da parede da janela, com a cabeceira na parede do estar.",
         "Mesa de 1,30 m com 60 cm de fundo no canto oposto, e o meio do quarto livre até a porta.",
       ],
+      jantar: [
+        "Sofá de 2 lugares (1,70 × 0,90 m) com o encosto na parede da cozinha, de frente para a TV a 1,6 m: bom para uma TV de até 50\".",
+        "O sofá tampa parte da abertura da cozinha; a passagem para o estar fica com uns 85 cm, entre o sofá e a parede de baixo.",
+        "Entre o sofá e o móvel da TV sobra 1,2 m para chegar à porta de vidro.",
+      ],
+      varanda: ["Porta de vidro de correr de ponta a ponta entre o jantar e a varanda."],
     },
     outdoor: [garden("externa", "Área externa", [[-0.11, -1.56, 10.08, 1.45], [-0.11, -0.11, 1.76, 0.3], [1.65, -0.11, 2.54, 0.51]], "grama", [7.2, -0.85], false)],
     pieces: [
       ...suiteJoao(wood, "#c9d4c5"),
+      piece("jantar", "Sofá 2 lugares", "🛋️", "Móveis", sofa(R(1.7, 1.55, 0.9, 1.7), "w", "#a8774a", 2)),
+      piece("jantar", "Rack e TV", "📺", "Eletrônicos", rackTv(R(3.82, 1.6, 0.4, 1.45), "e", wood)),
+      piece("varanda", "Porta de vidro", "🪟", "Outros", [
+        part(1.7, 1.42, 2.49, 0.04, 2.1, "vidro"),
+        part(1.7, 1.42, 2.49, 0.05, 0.03, "metal"),
+        part(2.95, 1.42, 0.04, 0.05, 2.1, "metal"),
+      ]),
       piece("quarto", "Cama de solteiro", "🛏️", "Móveis", bed(R(4.29, -0.01, 1.88, 0.88), "w", "#d8cdb8", wood)),
       piece("quarto", "Mesa com computador", "💻", "Móveis", desk(R(4.29, 1.65, 0.6, 1.3), "w", wood)),
       piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(4.95, 2.05, "#3e4a52")),

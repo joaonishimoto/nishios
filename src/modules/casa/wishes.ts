@@ -14,6 +14,7 @@ const PRICES: [RegExp, number][] = [
   [/^cama de solteiro/i, 1100],
   [/^mesa com computador/i, 900],
   [/^frigobar/i, 1300],
+  [/^porta de vidro/i, 3500],
   [/^painel e tv/i, 3800],
   [/^cama com bicama/i, 1600],
   [/^cama retrátil/i, 4500],
