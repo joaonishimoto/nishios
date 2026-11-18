@@ -21,15 +21,34 @@ import { ASSET_CATEGORIES, type Asset, type Wish } from "./types";
 import { WishForm } from "./WishForm";
 
 type Tab = "bens" | "desejos";
-type GroupBy = "category" | "brand" | "store";
+type GroupBy = "category" | "brand" | "store" | "none";
+type SortBy = "value" | "recent" | "oldest";
 
 const GROUP_BY: { value: GroupBy; label: string; empty: string }[] = [
   { value: "category", label: "Por categoria", empty: "Sem categoria" },
   { value: "brand", label: "Por marca", empty: "Sem marca" },
   { value: "store", label: "Por loja", empty: "Sem loja" },
+  { value: "none", label: "Sem grupos", empty: "Todos os bens" },
 ];
 
+const SORT_BY: { value: SortBy; label: string }[] = [
+  { value: "value", label: "Mais caros" },
+  { value: "recent", label: "Compra mais recente" },
+  { value: "oldest", label: "Compra mais antiga" },
+];
+
+/** Por data da compra; os bens sem data ficam no fim, do mais caro ao mais barato. */
+function sorter(by: SortBy): (a: Asset, b: Asset) => number {
+  if (by === "value") return byValue;
+  const dir = by === "recent" ? -1 : 1;
+  return (a, b) => {
+    if (!a.purchaseDate || !b.purchaseDate) return Number(!a.purchaseDate) - Number(!b.purchaseDate) || byValue(a, b);
+    return dir * a.purchaseDate.localeCompare(b.purchaseDate) || byValue(a, b);
+  };
+}
+
 function groupKey(a: Asset, by: GroupBy): string {
+  if (by === "none") return "";
   const v = by === "category" ? a.category : by === "brand" ? a.brand : a.store;
   return v?.trim() ?? "";
 }
@@ -44,6 +63,7 @@ export function BensPage() {
   const [category, setCategory] = useState("all");
   const [query, setQuery] = useState("");
   const [groupBy, setGroupBy] = useState<GroupBy>("category");
+  const [sortBy, setSortBy] = useState<SortBy>("value");
   const [assetForm, setAssetForm] = useState<{ open: boolean; asset?: Asset }>({ open: false });
   const [wishForm, setWishForm] = useState<{ open: boolean; wish?: Wish }>({ open: false });
 
@@ -69,14 +89,14 @@ export function BensPage() {
       .map((k) => ({
         category: k || empty,
         unnamed: !k,
-        items: visible.filter((a) => groupKey(a, groupBy) === k).sort(byValue),
+        items: visible.filter((a) => groupKey(a, groupBy) === k).sort(sorter(sortBy)),
       }))
       .filter((g) => g.items.length > 0);
-    if (groupBy !== "category") {
+    if (groupBy === "brand" || groupBy === "store") {
       list.sort((x, y) => Number(x.unnamed) - Number(y.unnamed) || total(y.items) - total(x.items) || x.category.localeCompare(y.category, "pt-BR"));
     }
     return list;
-  }, [assets, categories, category, query, groupBy]);
+  }, [assets, categories, category, query, groupBy, sortBy]);
 
   const sortedWishes = useMemo(() => [...wishes].sort(byWishPriority), [wishes]);
   const wishTotal = wishes.reduce((sum, w) => sum + w.price, 0);
@@ -120,13 +140,25 @@ export function BensPage() {
           <div className="ml-auto flex w-full flex-wrap gap-2 sm:w-auto sm:flex-nowrap">
             <Select
               aria-label="Agrupar bens"
-              className="sm:w-40"
+              className="sm:w-36"
               value={groupBy}
               onChange={(e) => setGroupBy(e.target.value as GroupBy)}
             >
               {GROUP_BY.map((g) => (
                 <option key={g.value} value={g.value}>
                   {g.label}
+                </option>
+              ))}
+            </Select>
+            <Select
+              aria-label="Ordenar bens"
+              className="sm:w-48"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortBy)}
+            >
+              {SORT_BY.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
                 </option>
               ))}
             </Select>
@@ -303,10 +335,16 @@ function AssetRow({ asset: a, onOpen }: { asset: Asset; onOpen: () => void }) {
             {a.name}
           </button>
           <p className="truncate text-sm text-muted-foreground">
-            {detail || <span className="md:hidden">{a.purchaseDate && shortDate(a.purchaseDate)}</span>}
+            {detail}
+            {a.purchaseDate && (
+              <span className="md:hidden">
+                {detail ? " · " : ""}
+                {shortDate(a.purchaseDate)}
+              </span>
+            )}
             {due && (
               <span className={due.d.status === "overdue" ? "text-danger-strong" : "text-warning-strong"}>
-                {detail ? ", " : ""}
+                {detail ? ", " : a.purchaseDate ? <span className="md:hidden">, </span> : ""}
                 {due.c.name.toLowerCase()} {dueLabel(due.d).toLowerCase()}
               </span>
             )}
