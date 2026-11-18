@@ -77,9 +77,11 @@ function nightstand(r: Rect, back: Side, wood = "#9a6b45"): Part[] {
 
 function wardrobe(r: Rect, back: Side, color = "#efe9df"): Part[] {
   const { W, D, at } = placer(r, back);
-  const out = [at(0, 0, W, D, 2.1, "branco", 0, color)];
+  // Caixa um pouco mais escura e portas na frente, com uma fresta entre elas.
+  const out = [at(0, 0, W, D - 0.02, 2.1, "branco", 0, "#b9b2a7")];
   const doors = Math.max(2, Math.round(W / 0.5));
-  for (let i = 1; i < doors; i++) out.push(at((W / doors) * i - 0.004, D, 0.008, 0.006, 2.0, "escuro", 0.05, "#8a8278"));
+  const dw = W / doors;
+  for (let i = 0; i < doors; i++) out.push(at(i * dw + 0.005, D - 0.022, dw - 0.01, 0.022, 2.1, "branco", 0, color));
   return out;
 }
 
@@ -551,7 +553,330 @@ function lyingLounger(x: number, z: number, fabric: string): Part[] {
   return lounger(x, z, fabric).map((p) => ({ ...p, x: x + (p.z - z), z: z + (p.x - x), w: p.d, d: p.w }));
 }
 
-export const PROPOSALS: Proposal[] = [proposalA(), proposalB(), proposalC()];
+// ---------- Peças das propostas D, E e F ----------
+
+function sideboard(r: Rect, back: Side, color: string, height = 0.8): Part[] {
+  const { W, D, at } = placer(r, back);
+  return [at(0, 0, W, D, height, "madeira", 0, color), at(0.02, D - 0.01, W - 0.04, 0.012, 0.02, "escuro", height - 0.12)];
+}
+
+function floorLamp(x: number, z: number): Part[] {
+  return [part(x - 0.1, z - 0.1, 0.25, 0.25, 0.03, "escuro"), part(x, z, 0.04, 0.04, 1.2, "metal"), part(x - 0.14, z - 0.14, 0.32, 0.32, 0.04, "branco", 1.2, "#f3ead8")];
+}
+
+/** Banco de alvenaria com encosto e almofadas, encostado no muro. */
+function builtinBench(r: Rect, back: Side, wood: string, cushion: string): Part[] {
+  const { W, D, at } = placer(r, back);
+  return [
+    at(0, 0, W, D, 0.4, "madeira", 0, wood),
+    at(0, 0, W, 0.1, 0.8, "madeira", 0, wood),
+    at(0.03, 0.1, W - 0.06, D - 0.12, 0.08, "tecido", 0.4, cushion),
+    at(0.05, 0.1, W - 0.1, 0.12, 0.3, "tecido", 0.48, cushion),
+  ];
+}
+
+function hotTub(r: Rect): Part[] {
+  return [part(r.x, r.z, r.w, r.d, 0.75, "madeira", 0, "#7a5a40"), part(r.x + 0.07, r.z + 0.07, r.w - 0.14, r.d - 0.14, 0.02, "vidro", 0.72, "#7fb7cc")];
+}
+
+function exerciseBike(x: number, z: number): Part[] {
+  return [
+    part(x, z, 1.0, 0.45, 0.06, "escuro", 0, "#2f3338"),
+    part(x + 0.25, z + 0.18, 0.08, 0.1, 0.7, "escuro", 0.06, "#2f3338"),
+    part(x + 0.15, z + 0.13, 0.28, 0.2, 0.06, "escuro", 0.76, "#1c1f24"),
+    part(x + 0.72, z + 0.18, 0.08, 0.1, 0.95, "metal", 0.06),
+    part(x + 0.65, z + 0.02, 0.15, 0.41, 0.04, "metal", 1.0),
+    part(x + 0.5, z + 0.19, 0.2, 0.07, 0.35, "escuro", 0.12, "#1c1f24"),
+  ];
+}
+
+function weightRack(r: Rect, back: Side): Part[] {
+  const { W, D, at } = placer(r, back);
+  const out = [at(0, 0, W, D, 0.04, "metal", 0.35), at(0, 0, W, D, 0.04, "metal", 0.75), at(0, 0, 0.04, D, 0.8, "metal"), at(W - 0.04, 0, 0.04, D, 0.8, "metal")];
+  for (let i = 0; i < 4; i++) out.push(at(0.08 + i * (W - 0.16) / 4, 0.05, 0.12, D - 0.1, 0.1, "escuro", 0.39, "#2f3338"));
+  return out;
+}
+
+function counter(r: Rect, top: string, base: string): Part[] {
+  return [part(r.x, r.z, r.w, r.d, 1.0, "madeira", 0, base), part(r.x - 0.02, r.z - 0.02, r.w + 0.04, r.d + 0.12, 0.04, "pedra", 1.0, top)];
+}
+
+function catTunnel(x: number, z: number, along = true): Part[] {
+  return [part(x, z, along ? 1.0 : 0.3, along ? 0.3 : 1.0, 0.28, "tecido", 0, "#9aa29b")];
+}
+
+function verticalGarden(x: number, z: number, w: number): Part[] {
+  return [part(x, z, w, 0.06, 1.0, "madeira", 0.6, "#8d6748"), part(x + 0.05, z + 0.05, w - 0.1, 0.12, 0.9, "planta", 0.65)];
+}
+
+function kitchenBasics(wood: string): Piece[] {
+  return [
+    piece("cozinha", "Fogão", "🍳", "Eletrodomésticos", stove(R(-0.01, 1.62, 0.6, 0.56), "w")),
+    piece("cozinha", "Geladeira", "🧊", "Eletrodomésticos", fridge(R(-0.01, 3.42, 0.7, 0.66), "w")),
+    piece("servico", "Máquina de lavar", "🫧", "Eletrodomésticos", washer(R(-0.01, 0.96, 0.6, 0.56), "w")),
+    piece("servico", "Armário alto", "🗄️", "Móveis", tallCabinet(R(1.25, 0.29, 0.35, 0.85), "e", wood)),
+    piece("servico", "Caixa de areia", "🐈", "Pets", litterBox(0.65, 1.02)),
+  ];
+}
+
+/** A área externa dividida em quatro: atrás do serviço, na frente da varanda, atrás do quarto e atrás da suíte. */
+function outdoorZones(
+  names: [string, string][],
+  floors: [FloorKind, FloorKind, FloorKind, FloorKind],
+): Room[] {
+  const rects: Room["rects"][] = [
+    [[-0.11, -1.56, 1.76, 1.45], [-0.11, -0.11, 1.76, 0.3]],
+    [[1.65, -1.56, 2.54, 1.45], [1.65, -0.11, 2.54, 0.51]],
+    [[4.19, -1.56, 2.55, 1.45]],
+    [[6.74, -1.56, 3.23, 1.45]],
+  ];
+  const labels: [number, number][] = [[0.75, -0.6], [2.9, -0.35], [5.45, -0.35], [8.3, -0.35]];
+  return names.map(([id, name], i) => garden(id, name, rects[i], floors[i], labels[i]));
+}
+
+/** Passagem livre da varanda para a área externa, conferida em todas as propostas. */
+const PASSAGEM = "Fica uma passagem livre de quase 1 m da varanda para a área externa.";
+
+function proposalD(): Proposal {
+  seq = 300;
+  const oak = "#b98a5c";
+  const sage = "#8da28a";
+  return {
+    id: "d",
+    name: "Cozinha à mesa",
+    tagline: "A mesa de jantar vira a extensão da cozinha, o sofá divide a sala e o quintal ganha quatro usos.",
+    highlights: [
+      "Jantar: mesa comprida encostada na abertura da cozinha, com banco do lado de dentro. O espaço do jantar vira canto de leitura.",
+      "Estar: sofá solto no meio, de costas para o jantar, olhando a TV na parede de baixo.",
+      "Escritório: cama de solteiro com bicama e mesa de trabalho embaixo da janela.",
+      "Área externa telada em quatro partes: lavanderia e varal, deck com pergolado, horta e um spa com ofurô atrás da suíte.",
+    ],
+    notes: {
+      jantar: ["A mesa comprida serve de bancada extra para a cozinha.", "Poltrona, luminária e estante fazem do resto do jantar um canto de leitura.", PASSAGEM],
+      cozinha: ["O banco fica do lado da cozinha e deixa 75 cm de corredor para quem cozinha."],
+      estar: ["Sofá solto com as costas para o jantar: divide os ambientes sem parede.", "TV na parede de baixo, longe da janela, sem reflexo.", "Prateleiras na parede do quarto e torre no canto para os gatos."],
+      varanda: ["Uma poltrona e uma planta, e o resto livre para passar.", PASSAGEM],
+      quarto: ["Cama de solteiro com bicama: vira duas camas quando vierem visitas.", "Mesa embaixo da janela, com luz natural de lado na tela."],
+      suite: ["Cama de casal no topo, guarda-roupa na parede da porta e rede para os gatos na janela."],
+      lavanderia: ["Varal e armário de jardinagem atrás do serviço, e a segunda caixa de areia, ventilada."],
+      deck: ["Pergolado com mesa para quatro na saída da varanda."],
+      horta: ["Canteiros e horta vertical no muro, de frente para a janela do escritório."],
+      spa: ["Ofurô de madeira e duas poltronas atrás da suíte, com cobertura para usar com chuva."],
+    },
+    outdoor: outdoorZones([["lavanderia", "Lavanderia"], ["deck", "Deck"], ["horta", "Horta"], ["spa", "Spa"]], ["pedra", "deck", "grama", "deck"]),
+    pieces: [
+      // Cozinha e jantar
+      ...kitchenBasics(oak),
+      piece("cozinha", "Banco", "🪑", "Móveis", [part(1.3, 2.15, 0.36, 1.4, 0.45, "madeira", 0, oak)]),
+      piece("cozinha", "Comedouro e fonte", "🐈", "Pets", feeder(0.85, 3.82)),
+      piece("jantar", "Mesa comprida", "🍽️", "Móveis", table(R(1.8, 2.05, 0.85, 1.6), oak)),
+      piece("jantar", "Cadeiras", "🪑", "Móveis", [
+        ...chair(2.7, 2.15, "e", sage), ...chair(2.7, 2.65, "e", sage), ...chair(2.7, 3.15, "e", sage),
+        ...chair(2.0, 1.58, "n", sage), ...chair(2.0, 3.68, "s", sage),
+      ]),
+      piece("jantar", "Poltrona de leitura", "🪑", "Móveis", armchair(R(3.38, 1.5, 0.78, 0.78), "e", "#c9a97e")),
+      piece("jantar", "Luminária", "💡", "Decoração", floorLamp(3.2, 1.6)),
+      piece("jantar", "Estante baixa", "📚", "Móveis", bookshelf(R(3.87, 2.35, 0.32, 0.7), "e", oak, 1.1)),
+      // Estar
+      piece("estar", "Sofá 3 lugares", "🛋️", "Móveis", sofa(R(2.75, 3.5, 2.2, 0.92), "n", sage)),
+      piece("estar", "Mesa de centro", "☕", "Móveis", coffeeTable(R(3.4, 4.5, 0.9, 0.42), oak)),
+      piece("estar", "Rack e TV", "📺", "Eletrônicos", rackTv(R(3.1, 5.05, 1.5, 0.37), "s", oak)),
+      piece("estar", "Tapete", "🟫", "Decoração", rug(R(2.7, 3.4, 2.3, 1.6), "#e6dccb")),
+      piece("estar", "Sapateira", "👟", "Móveis", sideboard(R(1.72, 5.1, 0.8, 0.32), "s", oak, 0.9)),
+      piece("estar", "Prateleiras dos gatos", "🐈", "Pets", catShelves([[4.35, 3.07, 0.55], [4.85, 3.07, 0.9], [5.25, 3.07, 1.2]], "n", oak)),
+      piece("estar", "Torre para gatos", "🐈", "Pets", catTree(5.1, 4.88, 1.5)),
+      // Varanda
+      piece("varanda", "Poltrona", "🪑", "Móveis", armchair(R(3.35, 0.5, 0.75, 0.75), "s", "#d7c6a5")),
+      piece("varanda", "Planta", "🪴", "Decoração", plant(1.8, 0.5, 0.45)),
+      // Escritório e hóspedes
+      piece("quarto", "Cama com bicama", "🛏️", "Móveis", [...bed(R(4.29, 1.05, 0.9, 1.9), "s", "#c9d4c5", oak), part(4.33, 1.1, 0.82, 1.8, 0.2, "madeira", 0.04, "#8a6343")]),
+      piece("quarto", "Criado-mudo", "🛋️", "Móveis", nightstand(R(4.29, 0.6, 0.42, 0.4), "w", oak)),
+      piece("quarto", "Mesa de trabalho", "💻", "Móveis", desk(R(4.9, -0.01, 1.6, 0.6), "n", oak)),
+      piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(5.45, 0.66, "#3e4a52")),
+      piece("quarto", "Prateleiras dos gatos", "🐈", "Pets", catShelves([[6.44, 1.0, 0.9], [6.44, 1.6, 1.2]], "e", oak)),
+      piece("quarto", "Tapete", "🟫", "Decoração", rug(R(5.3, 1.2, 1.2, 1.4), "#d9cbb5")),
+      // Suíte
+      piece("suite", "Cama de casal", "🛏️", "Móveis", bed(R(7.81, -0.01, 1.58, 2.0), "n", "#d8cdb8", oak)),
+      piece("suite", "Criado-mudo", "🛋️", "Móveis", nightstand(R(7.36, -0.01, 0.42, 0.4), "n", oak)),
+      piece("suite", "Criado-mudo", "🛋️", "Móveis", nightstand(R(9.42, -0.01, 0.42, 0.4), "n", oak)),
+      piece("suite", "Guarda-roupa", "🚪", "Móveis", wardrobe(R(6.79, -0.01, 0.55, 2.0), "w")),
+      piece("suite", "Rede de janela (gatos)", "🐈", "Pets", windowPerch(R(9.5, 1.0, 0.36, 0.6), "#d8cfc2")),
+      // Área externa
+      piece("lavanderia", "Armário de jardinagem", "🧰", "Móveis", tallCabinet(R(-0.06, -1.56, 1.0, 0.5), "n", "#8d6748")),
+      piece("lavanderia", "Varal", "👕", "Outros", clothesline(R(0.0, -0.65, 1.55, 0.1))),
+      piece("lavanderia", "Caixa de areia", "🐈", "Pets", litterBox(1.05, -1.5)),
+      piece("deck", "Pergolado", "🌿", "Outros", pergola(R(1.7, -1.52, 2.45, 1.4), "#8d6748")),
+      piece("deck", "Mesa e cadeiras", "🍽️", "Móveis", [...table(R(2.4, -1.35, 1.0, 0.7), "#8d6748"), ...chair(1.92, -1.22, "w", "#8d6748"), ...chair(3.45, -1.22, "e", "#8d6748")]),
+      piece("horta", "Canteiros", "🥬", "Outros", [...raisedBed(R(4.35, -1.5, 1.05, 0.5)), ...raisedBed(R(5.55, -1.5, 1.05, 0.5))]),
+      piece("horta", "Horta vertical", "🌱", "Outros", verticalGarden(4.3, -1.56, 2.35)),
+      piece("spa", "Ofurô", "🛁", "Outros", hotTub(R(6.95, -1.45, 1.3, 1.3))),
+      piece("spa", "Poltronas", "🪑", "Móveis", [...armchair(R(8.6, -1.5, 0.7, 0.7), "n", "#e8e0d4"), ...armchair(R(9.25, -1.5, 0.7, 0.7), "n", "#e8e0d4")]),
+      piece("spa", "Cobertura", "🏠", "Outros", roof(R(6.74, -1.56, 3.23, 1.45))),
+      piece("spa", "Tela de proteção", "🕸️", "Pets", catNet()),
+    ],
+  };
+}
+
+function proposalE(): Proposal {
+  seq = 400;
+  const walnut = "#7a5236";
+  const ink = "#3f4a57";
+  const cream = "#e7ddcc";
+  return {
+    id: "e",
+    name: "Cinema e academia",
+    tagline: "Sala de cinema virada para a parede do banheiro, jantar com vista para o jardim e quintal coberto com academia.",
+    highlights: [
+      "Estar: sofá em L de frente para a TV na parede do banheiro, como uma salinha de cinema.",
+      "Jantar: a mesa vai para perto da varanda, para comer olhando o quintal.",
+      "Escritório: cama de casal no canto e mesa de trabalho na parede do lado.",
+      "Área externa toda coberta e telada: academia, churrasqueira com bancada alta, lounge com banco no muro e um parquinho dos gatos.",
+    ],
+    notes: {
+      estar: ["A TV fica na única parede cheia da sala, a do banheiro, e o sofá em L abraça a mesa de centro.", "Atrás do sofá fica um hall livre para a porta de entrada.", "Prateleiras na parede de baixo, em escada, para os gatos."],
+      jantar: ["Mesa no limite com a varanda: o jantar ganha a luz e a vista do quintal.", PASSAGEM],
+      varanda: ["A varanda fica livre do lado do quarto para passar para o quintal.", PASSAGEM],
+      quarto: ["Cama de casal encostada no canto, com a cabeceira na parede do estar.", "Mesa na parede do lado e nicho na janela para os gatos."],
+      suite: ["Cama encostada na parede do banheiro, guarda-roupa inteiro na parede da porta e TV no topo."],
+      academia: ["Bicicleta, colchonete e halteres atrás do serviço, longe dos quartos."],
+      gourmet: ["Churrasqueira no muro e bancada alta com banquetas, de frente para a varanda."],
+      lounge: ["Banco de alvenaria com almofadas ao longo do muro, na frente da janela do escritório."],
+      parquinho: ["Torre, túnel, prateleiras no muro e a segunda caixa de areia, tudo coberto."],
+    },
+    floors: { varanda: "deck" },
+    outdoor: outdoorZones([["academia", "Academia"], ["gourmet", "Gourmet"], ["lounge", "Lounge"], ["parquinho", "Parquinho"]], ["pedra", "deck", "deck", "grama"]),
+    pieces: [
+      ...kitchenBasics(cream),
+      piece("cozinha", "Comedouro e fonte", "🐈", "Pets", feeder(0.85, 3.82)),
+      // Jantar perto da varanda
+      piece("jantar", "Mesa de jantar", "🍽️", "Móveis", table(R(2.0, 1.1, 1.4, 0.8), walnut)),
+      piece("jantar", "Cadeiras", "🪑", "Móveis", [
+        ...chair(2.15, 0.62, "n", ink), ...chair(2.75, 0.62, "n", ink),
+        ...chair(2.15, 1.94, "s", ink), ...chair(2.75, 1.94, "s", ink),
+      ]),
+      piece("jantar", "Aparador", "🗄️", "Móveis", sideboard(R(1.72, 2.55, 1.1, 0.4), "s", walnut)),
+      piece("jantar", "Planta", "🪴", "Decoração", plant(3.75, 2.55, 0.45)),
+      // Estar: cinema
+      piece("estar", "Sofá em L", "🛋️", "Móveis", [...sofa(R(2.85, 3.62, 0.92, 1.8), "w", ink, 2), ...sofa(R(3.77, 4.55, 0.9, 0.87), "s", ink, 1)]),
+      piece("estar", "Mesa de centro", "☕", "Móveis", coffeeTable(R(3.95, 3.75, 0.7, 0.6), walnut)),
+      piece("estar", "Rack e TV", "📺", "Eletrônicos", rackTv(R(5.25, 4.2, 0.4, 1.22), "e", walnut)),
+      piece("estar", "Tapete", "🟫", "Decoração", rug(R(3.6, 3.5, 1.6, 1.85), "#c9c0b2")),
+      piece("estar", "Prateleiras dos gatos", "🐈", "Pets", catShelves([[1.8, 5.17, 0.5], [2.3, 5.17, 0.85], [2.0, 5.17, 1.2]], "s", walnut)),
+      // Varanda
+      piece("varanda", "Plantas", "🪴", "Decoração", [...plant(3.75, 0.5, 0.45), ...plant(1.75, 0.5, 0.4)]),
+      // Escritório e hóspedes
+      piece("quarto", "Cama de casal", "🛏️", "Móveis", bed(R(4.29, 1.09, 1.38, 1.88), "s", cream, walnut)),
+      piece("quarto", "Criado-mudo", "🛋️", "Móveis", nightstand(R(4.29, 0.64, 0.42, 0.42), "w", walnut)),
+      piece("quarto", "Mesa de trabalho", "💻", "Móveis", desk(R(6.14, 0.3, 0.55, 1.4), "e", walnut)),
+      piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(5.58, 0.5, "#2f3338")),
+      piece("quarto", "Nicho na janela (gatos)", "🐈", "Pets", windowPerch(R(4.95, -0.01, 0.8, 0.3), "#9aa0a6")),
+      // Suíte
+      piece("suite", "Cama de casal", "🛏️", "Móveis", bed(R(7.9, 0.68, 1.58, 2.0), "s", "#cfd3d6", walnut)),
+      piece("suite", "Criado-mudo", "🛋️", "Móveis", nightstand(R(7.45, 2.26, 0.42, 0.42), "s", walnut)),
+      piece("suite", "Criado-mudo", "🛋️", "Móveis", nightstand(R(9.45, 2.26, 0.42, 0.42), "s", walnut)),
+      piece("suite", "Guarda-roupa", "🚪", "Móveis", wardrobe(R(6.79, -0.01, 0.55, 2.0), "w", "#d9d6d1")),
+      piece("suite", "Rack e TV", "📺", "Eletrônicos", rackTv(R(8.1, -0.01, 1.2, 0.4), "n", walnut)),
+      piece("suite", "Rede de janela (gatos)", "🐈", "Pets", windowPerch(R(9.5, 0.85, 0.36, 0.9), "#9aa0a6")),
+      // Área externa
+      piece("academia", "Cobertura", "🏠", "Outros", roof(R(-0.11, -1.56, 10.08, 1.45))),
+      piece("academia", "Bicicleta", "🚲", "Esporte", exerciseBike(-0.05, -1.5)),
+      piece("academia", "Halteres", "🏋️", "Esporte", weightRack(R(1.1, -1.56, 0.5, 0.35), "n")),
+      piece("academia", "Colchonete", "🧘", "Esporte", rug(R(-0.05, -0.8, 1.65, 0.6), "#5f7f8f")),
+      piece("gourmet", "Churrasqueira", "🔥", "Outros", bbq(R(1.7, -1.56, 1.5, 0.6))),
+      piece("gourmet", "Bancada alta", "🍺", "Móveis", [...counter(R(3.3, -1.5, 0.82, 0.45), "#e8e3da", walnut), ...stool(3.35, -0.88, ink), ...stool(3.75, -0.88, ink)]),
+      piece("lounge", "Banco no muro", "🛋️", "Móveis", builtinBench(R(4.3, -1.56, 2.35, 0.55), "n", "#b7aea2", "#d9cdb8")),
+      piece("lounge", "Mesa de centro", "☕", "Móveis", coffeeTable(R(5.1, -0.8, 0.8, 0.45), walnut)),
+      piece("parquinho", "Torre para gatos", "🐈", "Pets", catTree(7.0, -1.5, 1.7, "#9aa0a6")),
+      piece("parquinho", "Túnel", "🐈", "Pets", catTunnel(7.7, -0.7)),
+      piece("parquinho", "Prateleiras no muro", "🐈", "Pets", catShelves([[7.8, -1.6, 0.5], [8.4, -1.6, 0.85], [9.0, -1.6, 1.2]], "n", walnut)),
+      piece("parquinho", "Caixa de areia", "🐈", "Pets", litterBox(9.3, -0.65, "s")),
+      piece("parquinho", "Grama de gato", "🌱", "Pets", plant(9.35, -1.5, 0.45, "#8fa38c")),
+      piece("parquinho", "Tela de proteção", "🕸️", "Pets", catNet()),
+    ],
+  };
+}
+
+function proposalF(): Proposal {
+  seq = 500;
+  const ash = "#cdb593";
+  const terracotta = "#c47d5a";
+  const linen = "#ece4d6";
+  return {
+    id: "f",
+    name: "Sala no jardim",
+    tagline: "A sala troca de lugar com o jantar: o sofá fica olhando o quintal e a mesa de 6 vai para o estar.",
+    highlights: [
+      "Jantar vira sala de estar: sofá de dois lugares de frente para a varanda e o jardim.",
+      "Estar vira sala de jantar com mesa de 6 e aparador. Sem TV na sala; ela fica na suíte.",
+      "Escritório: cama de casal embaixo da janela e mesa na parede da porta.",
+      "Área externa telada: horta e varal, mesa com banco no muro sob cobertura, rede, e um catio coberto atrás da suíte.",
+    ],
+    notes: {
+      jantar: ["O sofá fica de costas para a sala e de frente para o quintal, com espaço dos dois lados para passar.", PASSAGEM],
+      estar: ["A sala maior recebe a mesa de 6, que é o que mais ocupa espaço.", "Aparador na parede do banheiro, longe da passagem para os quartos."],
+      varanda: ["Torre dos gatos na quina e plantas, com o meio livre.", PASSAGEM],
+      quarto: ["Cama de casal com a cabeceira embaixo da janela e mesa perto da porta.", "Prateleiras dos gatos na parede do lado."],
+      suite: ["Cama com a cabeceira na janela, guarda-roupa no topo e TV na parede da porta."],
+      horta: ["Canteiros altos e varal atrás do serviço, onde bate menos gente."],
+      patio: ["Banco de alvenaria no muro e mesa para quatro, com cobertura para usar com chuva."],
+      rede: ["Rede e plantas na frente da janela do escritório."],
+      catio: ["Coberto, com torre, túnel, cama e a terceira caixa de areia (uma por gato e mais uma)."],
+    },
+    floors: { varanda: "pedra" },
+    outdoor: outdoorZones([["horta", "Horta"], ["patio", "Pátio"], ["rede", "Rede"], ["catio", "Catio"]], ["grama", "pedra", "grama", "deck"]),
+    pieces: [
+      ...kitchenBasics(linen),
+      piece("cozinha", "Comedouro e fonte", "🐈", "Pets", feeder(0.85, 3.82)),
+      // Jantar vira estar
+      piece("jantar", "Sofá 2 lugares", "🛋️", "Móveis", sofa(R(2.55, 2.12, 1.6, 0.9), "s", terracotta, 2)),
+      piece("jantar", "Pufe", "🪑", "Móveis", [part(2.95, 1.55, 0.8, 0.45, 0.4, "tecido", 0, linen)]),
+      piece("jantar", "Tapete", "🟫", "Decoração", rug(R(2.4, 1.45, 1.9, 1.6), "#e2d3bd")),
+      piece("jantar", "Luminária", "💡", "Decoração", floorLamp(4.0, 2.85)),
+      // Estar vira jantar
+      piece("estar", "Mesa de 6 lugares", "🍽️", "Móveis", table(R(2.65, 3.9, 1.7, 0.85), ash)),
+      piece("estar", "Cadeiras", "🪑", "Móveis", [
+        ...chair(2.8, 3.44, "n", ash), ...chair(3.3, 3.44, "n", ash), ...chair(3.8, 3.44, "n", ash),
+        ...chair(2.8, 4.78, "s", ash), ...chair(3.3, 4.78, "s", ash), ...chair(3.8, 4.78, "s", ash),
+      ]),
+      piece("estar", "Aparador", "🗄️", "Móveis", sideboard(R(5.25, 4.25, 0.4, 1.15), "e", ash)),
+      piece("estar", "Planta", "🪴", "Decoração", plant(1.8, 5.0, 0.4)),
+      piece("estar", "Prateleiras dos gatos", "🐈", "Pets", catShelves([[4.4, 3.07, 0.5], [4.9, 3.07, 0.85], [5.3, 3.07, 1.2]], "n", ash)),
+      // Varanda
+      piece("varanda", "Torre para gatos", "🐈", "Pets", catTree(3.65, 0.9, 1.5, "#d6cfc6")),
+      piece("varanda", "Plantas", "🪴", "Decoração", [...plant(1.75, 0.5, 0.45), ...plant(3.75, 0.45, 0.4)]),
+      // Escritório e hóspedes
+      piece("quarto", "Cama de casal", "🛏️", "Móveis", bed(R(4.8, -0.01, 1.38, 1.88), "n", linen, ash)),
+      piece("quarto", "Criado-mudo", "🛋️", "Móveis", nightstand(R(4.36, -0.01, 0.4, 0.4), "n", ash)),
+      piece("quarto", "Criado-mudo", "🛋️", "Móveis", nightstand(R(6.22, -0.01, 0.4, 0.4), "n", ash)),
+      piece("quarto", "Mesa de trabalho", "💻", "Móveis", desk(R(4.29, 1.95, 0.6, 1.0), "w", ash)),
+      piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(4.95, 2.2, "#c9bfb2")),
+      piece("quarto", "Prateleiras dos gatos", "🐈", "Pets", catShelves([[6.44, 1.3, 0.6], [6.44, 1.9, 0.95], [6.44, 2.45, 1.25]], "e", ash)),
+      piece("quarto", "Caixa de areia", "🐈", "Pets", litterBox(6.1, 2.0, "e")),
+      // Suíte
+      piece("suite", "Cama de casal", "🛏️", "Móveis", bed(R(7.87, 0.55, 2.0, 1.58), "e", "#e9dcd2", ash)),
+      piece("suite", "Criado-mudo", "🛋️", "Móveis", nightstand(R(9.45, 0.12, 0.42, 0.4), "e", ash)),
+      piece("suite", "Criado-mudo", "🛋️", "Móveis", nightstand(R(9.45, 2.16, 0.42, 0.4), "e", ash)),
+      piece("suite", "Guarda-roupa", "🚪", "Móveis", wardrobe(R(7.3, -0.01, 2.0, 0.56), "n", "#f3eee6")),
+      piece("suite", "Rack e TV", "📺", "Eletrônicos", rackTv(R(6.79, 0.7, 0.4, 1.3), "w", ash)),
+      // Área externa
+      piece("horta", "Canteiros", "🥬", "Outros", [...raisedBed(R(-0.05, -1.5, 0.8, 0.5)), ...raisedBed(R(0.85, -1.5, 0.75, 0.5))]),
+      piece("horta", "Varal", "👕", "Outros", clothesline(R(0.0, -0.5, 1.55, 0.1))),
+      piece("patio", "Cobertura", "🏠", "Outros", roof(R(1.65, -1.56, 2.54, 1.45))),
+      piece("patio", "Banco no muro", "🛋️", "Móveis", builtinBench(R(1.75, -1.56, 2.35, 0.5), "n", "#cfc6b8", terracotta)),
+      piece("patio", "Mesa e cadeiras", "🍽️", "Móveis", [...table(R(2.15, -1.0, 1.2, 0.6), ash), ...chair(2.3, -0.35, "s", ash), ...chair(2.85, -0.35, "s", ash)]),
+      piece("rede", "Rede", "🌿", "Outros", hammock(R(4.4, -0.75, 2.1, 0.1), terracotta)),
+      piece("rede", "Plantas", "🪴", "Decoração", [...plant(4.35, -1.5, 0.5), ...plant(6.2, -1.5, 0.5)]),
+      piece("catio", "Cobertura do catio", "🏠", "Outros", roof(R(6.74, -1.56, 3.23, 1.45))),
+      piece("catio", "Torre para gatos", "🐈", "Pets", catTree(6.95, -1.5, 1.7, "#d6cfc6")),
+      piece("catio", "Túnel", "🐈", "Pets", catTunnel(7.6, -0.7)),
+      piece("catio", "Cama dos gatos", "🐈", "Pets", catBed(8.9, -1.5, terracotta)),
+      piece("catio", "Caixa de areia", "🐈", "Pets", litterBox(9.3, -0.65, "s")),
+      piece("catio", "Tela de proteção", "🕸️", "Pets", catNet()),
+    ],
+  };
+}
+
+export const PROPOSALS: Proposal[] = [proposalA(), proposalB(), proposalC(), proposalD(), proposalE(), proposalF()];
 
 /** A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam). */
 export function withProposal(home: Home, proposal: Proposal | null): Home {
