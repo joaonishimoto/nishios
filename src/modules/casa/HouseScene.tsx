@@ -634,7 +634,9 @@ function buildHouse(
         y = (mode === "planta" ? WALL_PLAN + 0.04 : WALL_3D + 0.08) + (y - 2.4) * 0.5;
       } else if (masonry) h = wallH;
       else if (screen) h = Math.max(0.02, Math.min(y + h, mode === "planta" ? WALL_PLAN : focusId ? WALL_FOCUS + 0.3 : WALL_3D + 0.2) - y);
-      else if (y === 0 && !glass) h = Math.min(h, cap);
+      // Tudo o que é baixo é cortado na mesma altura, mesmo o que começa acima do chão
+      // (puxadores, TV, prateleiras), para nada atravessar o corte.
+      else if (!glass) h = Math.max(Math.min(y + h, cap) - y, Math.min(h, 0.04));
       if (glass && mode === "planta") h = Math.min(h, WALL_PLAN);
       if (glass && focusId) h = Math.min(h, WALL_FOCUS + 0.2);
       const see = glass ? 0.4 : screen ? 0.22 : roof ? 0.32 : dim && mode === "3d" ? 0.3 : 1;
