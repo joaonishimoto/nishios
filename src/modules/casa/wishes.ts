@@ -10,6 +10,9 @@ import type { Piece } from "./types";
 // Preço médio de cada unidade, em reais, pelo começo do nome da peça.
 const PRICES: [RegExp, number][] = [
   [/^cama de casal/i, 2500],
+  [/^cama viúva/i, 1900],
+  [/^frigobar/i, 1300],
+  [/^painel e tv/i, 3800],
   [/^cama com bicama/i, 1600],
   [/^cama retrátil/i, 4500],
   [/^criado-mudo/i, 400],
