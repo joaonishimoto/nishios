@@ -11,7 +11,7 @@ import { shortDate } from "@/lib/dates";
 import { deadlineLabel, goalDone, goalProgress } from "@/modules/rotina/logic";
 import { useRoutine } from "@/modules/rotina/store";
 import { EntryForm } from "./EntryForm";
-import { bmi, change, entrySummary, formatDelta, formatValue, metricLabel, num, series } from "./logic";
+import { bmi, change, idealWeight, entrySummary, formatDelta, formatValue, metricLabel, num, series } from "./logic";
 import { Silhouette } from "./Silhouette";
 import { useCorpo } from "./store";
 import type { Entry, Metric } from "./types";
@@ -29,10 +29,14 @@ export function CorpoPage() {
   const fat = change(entries, "gordura");
   const index = weight ? bmi(weight.last.value, profile.height) : null;
   const points = series(entries, metric);
+  const ideal = metric === "peso" ? idealWeight(profile.height) : null;
   const selected = change(entries, metric);
+  // Quanto o último peso está fora da faixa: positivo acima, negativo abaixo, zero dentro.
+  const current = selected?.last.value ?? 0;
+  const idealGap = ideal ? Math.max(0, current - ideal.to) - Math.max(0, ideal.from - current) : 0;
   const history = [...entries].sort((a, b) => b.date.localeCompare(a.date));
 
-  // Metas ligadas ao que está no gráfico: viram a linha de alvo e o cartão de progresso.
+  // Metas ligadas ao que está no gráfico: viram a linha de alvo (fora do peso, que mostra a faixa ideal) e o cartão de progresso.
   const linked = goals.filter((g) =>
     metric === "peso" ? g.link?.kind === "peso" : metric === "gordura" ? g.link?.kind === "gordura" : g.link?.kind === "medida" && g.link.measure === metric,
   );
@@ -125,8 +129,19 @@ export function CorpoPage() {
                       points={points}
                       label={`Evolução de ${metricLabel(metric).toLowerCase()}: de ${formatValue(points[0].value, metric)} para ${formatValue(points.at(-1)!.value, metric)}`}
                       format={(v) => formatValue(v, metric)}
-                      target={goal && !goalDone(goal) ? { value: goal.target, label: `Meta: ${formatValue(goal.target, metric)}` } : undefined}
+                      target={!ideal && goal && !goalDone(goal) ? { value: goal.target, label: `Meta: ${formatValue(goal.target, metric)}` } : undefined}
+                      band={ideal ? { ...ideal, label: `Peso ideal: ${num(ideal.from)} a ${num(ideal.to)} kg` } : undefined}
                     />
+                    {ideal && selected && (
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        Faixa de IMC normal (18,5 a 24,9) para {(profile.height / 100).toFixed(2).replace(".", ",")} m.{" "}
+                        {Math.abs(idealGap) < 0.05
+                          ? "Você está dentro dela."
+                          : idealGap > 0
+                            ? `Faltam ${formatValue(idealGap, "peso")} para entrar nela.`
+                            : `Faltam ${formatValue(-idealGap, "peso")} para chegar nela.`}
+                      </p>
+                    )}
                   </div>
                 )}
 

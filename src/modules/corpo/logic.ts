@@ -82,6 +82,13 @@ export function bmi(weight: number, heightCm: number): Bmi | null {
   return { value, label };
 }
 
+/** Faixa de peso com IMC normal (18,5 a 24,9) para a altura. */
+export function idealWeight(heightCm: number): { from: number; to: number } | null {
+  if (!(heightCm > 0)) return null;
+  const m2 = (heightCm / 100) ** 2;
+  return { from: Math.round(18.5 * m2 * 10) / 10, to: Math.round(24.9 * m2 * 10) / 10 };
+}
+
 export const MEASURE_IDS = Object.keys(MEASURE) as MeasureId[];
 
 /** Resumo de um dia de medição, para a lista do histórico. */
