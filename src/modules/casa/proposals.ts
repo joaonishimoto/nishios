@@ -223,8 +223,8 @@ const garden = (id: string, name: string, rects: Room["rects"], floor: FloorKind
 
 /**
  * Suíte da J: janela no meio da parede de cima, cama com a cabeceira na parede do lado
- * de fora, painel com TV na frente dela, guarda-roupa na parede do banheiro e o frigobar
- * ao lado do painel.
+ * de fora, painel com TV na frente dela e guarda-roupa na parede do banheiro. O frigobar
+ * saiu por enquanto.
  */
 function suiteJ(frame: string, duvet: string, accent: string): Piece[] {
   return [
@@ -234,10 +234,6 @@ function suiteJ(frame: string, duvet: string, accent: string): Piece[] {
       part(6.79, 0.17, 0.28, 1.25, 0.32, "madeira", 0.3, frame),
       part(6.81, 0.22, 0.04, 1.15, 0.66, "escuro", 0.95, "#1c1f24"),
     ])),
-    piece("suite", "Frigobar", "🧊", "Eletrodomésticos", [
-      part(6.79, 1.55, 0.42, 0.44, 0.85, "branco", 0, "#eef0f1"),
-      part(7.21, 1.57, 0.03, 0.03, 0.3, "escuro", 0.45),
-    ]),
   ];
 }
 
@@ -265,7 +261,7 @@ function proposalJ(start = 600): Proposal {
     name: "Do João",
     tagline: "Montada com os seus desenhos, um cômodo de cada vez: suíte, escritório, sala, cozinha e a área de fora com serviço e cobertura.",
     highlights: [
-      "Suíte: janela no meio da parede de cima, cama com a cabeceira na parede do lado, painel com TV na frente, frigobar ao lado e guarda-roupa de correr na parede do banheiro.",
+      "Suíte: janela no meio da parede de cima, cama com a cabeceira na parede do lado, painel com TV na frente e guarda-roupa de correr na parede do banheiro.",
       "Escritório: cama de solteiro no fundo, embaixo da janela, e a mesa preta de 1,70 m com o computador na parede da sala, até o canto da porta.",
       "Cozinha em L, que agora inclui o antigo serviço: bancada de ponta a ponta, pia embaixo da janela, cooktop de 4 bocas e armários em cima e embaixo.",
       "Sala inteira, sem divisão: sofá e TV no lado da varanda, com porta de vidro de correr, e mesa para 6 no meio.",
@@ -274,7 +270,7 @@ function proposalJ(start = 600): Proposal {
     notes: {
       suite: [
         "A janela fica no meio da parede de cima, para a área externa. A cama foi para a parede do lado, com a cabeceira na parede de fora, e a janela fica livre.",
-        "Painel e TV na parede da frente, a uns 90 cm do pé da cama, com o frigobar do lado.",
+        "Painel e TV na parede da frente, a uns 90 cm do pé da cama.",
         "Guarda-roupa de correr na parede do banheiro, com uns 70 cm livres entre ele e a cama.",
       ],
       quarto: [
