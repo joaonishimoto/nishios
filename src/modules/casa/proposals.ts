@@ -648,7 +648,7 @@ function proposalG(): Proposal {
  * trocadas. `colors` troca as cores de uma em uma (de → para); as peças de `keep` ficam como
  * estão (a hidro, as espelheiras, o telhado).
  */
-function recolor(base: Proposal, o: { id: string; name: string; tagline: string; colors: Record<string, string>; keep?: string[] }): Proposal {
+function recolor(base: Proposal, o: { id: string; name: string; tagline: string; colors: Record<string, string>; keep?: string[]; highlights?: string[] }): Proposal {
   const map = new Map(Object.entries(o.colors).map(([from, to]) => [from.toLowerCase(), to]));
   const swap = (c?: string) => (c && map.get(c.toLowerCase())) || c;
   return {
@@ -656,7 +656,7 @@ function recolor(base: Proposal, o: { id: string; name: string; tagline: string;
     id: o.id,
     name: o.name,
     tagline: o.tagline,
-    highlights: [`Mesma casa e mesmos móveis da ${base.id.toUpperCase()}, só com outras cores: ${o.tagline.charAt(0).toLowerCase()}${o.tagline.slice(1)}`],
+    highlights: o.highlights ?? [`Mesma casa e mesmos móveis da ${base.id.toUpperCase()}, só com outras cores: ${o.tagline.charAt(0).toLowerCase()}${o.tagline.slice(1)}`],
     pieces: base.pieces.map((p) =>
       o.keep?.includes(p.name)
         ? p
@@ -717,7 +717,101 @@ function proposalG3(): Proposal {
   });
 }
 
-export const PROPOSALS: Proposal[] = [proposalG(), proposalG2(), proposalG3()];
+/**
+ * G4: a G completa cômodo por cômodo, com o que faltava, sem lotar nem fechar passagem, e
+ * a casa em branco e creme com detalhes azul-marinho. As peças novas usam as cores da G e
+ * passam pela mesma troca de cores.
+ */
+function proposalG4(): Proposal {
+  const g = proposalG();
+  const white = "#f4f4f1", nishi = "#1e3d66", linen = "#e9e4da", oak = "#c9a77c";
+  const curtain = (x: number, w: number) => full([part(x, 0.0, w, 0.04, 2.2, "tecido", 0.05, linen), part(x - 0.05, 0.02, w + 0.1, 0.02, 0.02, "metal", 2.27)]);
+  const pendant = (x: number, z: number, y: number) => full([part(x + 0.12, z + 0.12, 0.01, 0.01, 2.6 - y - 0.18, "escuro", y + 0.18), part(x, z, 0.25, 0.25, 0.18, "escuro", y, nishi)]);
+  const extra: Piece[] = [
+    // Suíte
+    piece("suite", "Cortina blackout", "🪟", "Móveis", curtain(7.72, 1.22)),
+    piece("suite", "Criado-mudo suspenso", "🛏️", "Móveis", full([part(9.45, 1.46, 0.42, 0.38, 0.25, "madeira", 0.42, white)])),
+    piece("suite", "Pendente da cabeceira", "💡", "Móveis", pendant(9.55, 1.5, 1.3)),
+    piece("suite", "Tapete ao lado da cama", "🟦", "Móveis", rug(R(8.0, 1.46, 1.35, 0.6), nishi)),
+    // Escritório
+    piece("quarto", "Cortina blackout", "🪟", "Móveis", curtain(4.87, 1.23)),
+    piece("quarto", "Armário do escritório", "🗄️", "Móveis", full(tallCabinet(R(6.29, 0.95, 0.4, 1.1), "e", white))),
+    piece("quarto", "Prateleiras em cima da mesa", "📚", "Móveis", full([1.2, 1.5, 1.8].map((y) => part(4.29, 1.4, 0.25, 1.4, 0.03, "madeira", y, oak)))),
+    piece("quarto", "Luminária de braço", "💡", "Móveis", full([part(4.31, 2.6, 0.05, 0.05, 0.5, "metal", 0.76), part(4.31, 2.4, 0.3, 0.2, 0.08, "escuro", 1.22, nishi)])),
+    piece("quarto", "Gavetas embaixo da cama", "🗃️", "Móveis", [
+      part(4.55, 0.87, 0.7, 0.02, 0.2, "madeira", 0.06, white), part(5.35, 0.87, 0.7, 0.02, 0.2, "madeira", 0.06, white),
+    ]),
+    piece("quarto", "Tapete do escritório", "🟫", "Móveis", rug(R(5.05, 1.15, 1.15, 0.95), linen)),
+    // Sala
+    piece("estar", "Pendentes da mesa", "💡", "Móveis", [...pendant(3.3, 4.27, 1.6), ...pendant(3.85, 4.27, 1.6)]),
+    piece("estar", "Espelho grande", "🪞", "Móveis", full([part(3.0, 5.4, 1.4, 0.02, 1.1, "vidro", 0.9, "#d7e6ea"), part(2.98, 5.41, 1.44, 0.01, 1.14, "metal", 0.88)])),
+    piece("jantar", "Tapete do sofá", "🟦", "Móveis", rug(R(2.65, 1.7, 1.1, 1.4), linen)),
+    piece("jantar", "Almofadas", "🛋️", "Móveis", [part(1.92, 1.7, 0.12, 0.38, 0.34, "tecido", 0.44, linen), part(1.92, 2.82, 0.12, 0.38, 0.34, "tecido", 0.44, linen)]),
+    // Cozinha
+    piece("cozinha", "Aéreo da geladeira", "🗄️", "Móveis", full([part(-0.01, 3.42, 0.66, 0.66, 0.45, "madeira", 1.92, "#e4d6c2")])),
+    piece("cozinha", "Passadeira", "🟦", "Móveis", rug(R(0.75, 1.1, 0.55, 1.3), nishi)),
+    // Banheiros
+    piece("banho", "Armário do vaso", "🗄️", "Móveis", full([part(6.5, 5.2, 0.52, 0.22, 0.6, "branco", 1.3, white)])),
+    piece("banho", "Nicho no box", "🧴", "Móveis", full([part(7.3, 5.4, 0.4, 0.02, 0.3, "escuro", 1.1, "#c9c4ba")])),
+    piece("banhosuite", "Armário do vaso", "🗄️", "Móveis", full([part(8.54, 2.78, 0.52, 0.22, 0.6, "branco", 1.3, white)])),
+    piece("banhosuite", "Nicho no box", "🧴", "Móveis", full([part(9.3, 2.78, 0.4, 0.02, 0.3, "escuro", 1.1, "#c9c4ba")])),
+    // Varanda
+    piece("varanda", "Passarela dos gatos", "🐈", "Pets", full([[1.38, 1.3], [1.78, 1.6], [1.38, 1.9]].map(([z, y]) => part(1.7, z, 0.25, 0.4, 0.04, "madeira", y, oak)))),
+    piece("varanda", "Planta em vaso", "🪴", "Plantas", plant(3.72, 0.5, 0.4, 1.3)),
+  ];
+  const withExtras: Proposal = {
+    ...g,
+    pieces: [...g.pieces, ...extra],
+    notes: addNotes(g.notes, {
+      suite: [
+        "Cortina blackout na janela atrás da cama, criado-mudo suspenso com pendente do lado da cabeceira e um tapete azul-marinho na saída da cama.",
+      ],
+      quarto: [
+        "Armário alto na parede da suíte, longe da porta, prateleiras em cima da mesa a partir de 1,20 m, luminária de braço e gavetas embaixo da cama.",
+        "Cortina blackout na janela e um tapete no meio, deixando a porta abrir livre.",
+      ],
+      estar: ["Dois pendentes azul-marinho em cima da mesa de 6 e um espelho de 1,40 m atrás dela, que deixa a sala parecer maior."],
+      jantar: ["Tapete entre o sofá e a TV, sem mesa de centro, para não fechar o caminho de 1,2 m até a porta de vidro. Almofadas creme no sofá azul-marinho."],
+      cozinha: ["Aéreo em cima da geladeira e uma passadeira azul-marinho no corredor da bancada."],
+      banho: ["Armário em cima do vaso e nicho dentro do box."],
+      banhosuite: ["Armário em cima do vaso e nicho dentro do box."],
+      varanda: ["Prateleiras na parede da cozinha, subindo do armário dos gatos, e uma planta grande no canto, longe da passagem para fora."],
+    }),
+  };
+  return recolor(withExtras, {
+    id: "g4",
+    name: "G completa, em branco, creme e azul-marinho",
+    tagline: "A G completa cômodo por cômodo, sem lotar: móveis em creme, cozinha creme com pedra clara e detalhes azul-marinho no sofá, nas cabeceiras, nos tapetes e nos pendentes.",
+    keep: KEEP_COLORS,
+    highlights: [
+      ...g.highlights,
+      "Cômodo por cômodo, o que faltava: cortinas blackout, criado-mudo e pendente na suíte; armário, prateleiras, luminária e gavetas no escritório; pendentes e espelho na sala; aéreo na geladeira; armários e nichos nos banheiros; passarela dos gatos na varanda.",
+      "Cores: móveis e cozinha em creme, pedra clara, e azul-marinho no sofá, nas cabeceiras, nos tapetes, na mesa do escritório e nos pendentes.",
+    ],
+    colors: {
+      "#1e3d66": "#1b2a4a", // azul Nishi → azul-marinho
+      "#f4f4f1": "#f1ebdf", // móveis brancos → creme claro
+      "#e4d6c2": "#ece3d1", // armários da cozinha → creme
+      "#3b3a38": "#e6e0d4", // pedra escura → pedra clara
+      "#6b5a48": "#b9ad98",
+      "#1f1f22": "#1b2a4a", // mesa e cadeira pretas → azul-marinho
+      "#2b2b2e": "#16223b",
+      "#e9e4da": "#f3eee4", // roupa de cama e cortinas → off-white
+      "#e2ddd2": "#e8dfcc", // tapete da mesa → creme
+      "#c9a77c": "#d8c3a2", // prateleiras → carvalho claro
+      "#4a443d": "#16223b",
+    },
+  });
+}
+
+/** Junta as notas: soma as listas dos cômodos que aparecem nas duas. */
+function addNotes(base: Record<string, string[]>, more: Record<string, string[]>): Record<string, string[]> {
+  const out = { ...base };
+  for (const [room, list] of Object.entries(more)) out[room] = [...(out[room] ?? []), ...list];
+  return out;
+}
+
+export const PROPOSALS: Proposal[] = [proposalG(), proposalG2(), proposalG3(), proposalG4()];
 
 /**
  * A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam).
