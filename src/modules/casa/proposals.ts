@@ -191,6 +191,30 @@ function slopedRoof(r: Rect, steps = 6): Part[] {
   return out;
 }
 
+/**
+ * Porta de vidro de correr com duas folhas em trilhos paralelos: a folha de fora fica fixa
+ * do lado esquerdo e a de dentro corre por cima dela. Perfil de alumínio grafite, vidro
+ * inteiro com travessas finas, trilho no chão e puxador vertical na folha que corre.
+ * Tudo abaixo de 2 m para o 3D não jogar o alto da porta para cima das paredes.
+ */
+function slidingDoor(x0: number, x1: number, z: number, frame = "#2f3338"): Part[] {
+  const H = 2.08, P = 0.045, RAIL = 0.07, D = 0.035, overlap = 0.08;
+  const leafW = (x1 - x0 + overlap) / 2;
+  const leaf = (x: number, lz: number): Part[] => [
+    part(x + P, lz + 0.01, leafW - 2 * P, 0.012, H - 2 * RAIL, "vidro", RAIL),
+    part(x, lz, P, D, H, "metal", 0, frame),
+    part(x + leafW - P, lz, P, D, H, "metal", 0, frame),
+    part(x, lz, leafW, D, RAIL, "metal", 0, frame),
+    part(x, lz, leafW, D, RAIL, "metal", H - RAIL - 0.01, frame),
+  ];
+  return full([
+    part(x0, z - 0.05, x1 - x0, 0.1, 0.015, "metal", 0, frame),
+    ...leaf(x0, z - 0.045),
+    ...leaf(x1 - leafW, z + 0.01),
+    part(x1 - leafW + 0.06, z + 0.045, 0.025, 0.03, 0.45, "metal", 0.85, frame),
+  ]);
+}
+
 // ---------- Propostas ----------
 
 const garden = (id: string, name: string, rects: Room["rects"], floor: FloorKind, label: [number, number], catio = true): Room => ({
@@ -343,11 +367,7 @@ function proposalJ(start = 600): Proposal {
         part(1.4, 2.17, 0.32, 1.08, 0.04, "pedra", 1.0, "#3b3a38"),
       ]),
       piece("jantar", "Rack e TV", "📺", "Eletrônicos", full(rackTv(R(3.82, 1.6, 0.4, 1.45), "e", white))),
-      piece("varanda", "Porta de vidro", "🪟", "Outros", [
-        part(1.7, 1.42, 2.49, 0.04, 2.1, "vidro"),
-        part(1.7, 1.42, 2.49, 0.05, 0.03, "metal"),
-        part(2.95, 1.42, 0.04, 0.05, 2.1, "metal"),
-      ]),
+      piece("varanda", "Porta de vidro", "🪟", "Outros", slidingDoor(1.7, 4.19, 1.44)),
       piece("quarto", "Cama de solteiro", "🛏️", "Móveis", bed(R(4.29, -0.01, 1.88, 0.88), "w", "#e9e4da", white, nishi, nishi)),
       piece("quarto", "Mesa com computador", "💻", "Móveis", desk(R(4.29, 1.27, 0.6, 1.7), "w", "#1f1f22", "#2b2b2e")),
       piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(4.95, 1.87, "#1f1f22", "e")),
