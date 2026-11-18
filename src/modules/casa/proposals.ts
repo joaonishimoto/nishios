@@ -896,7 +896,6 @@ function plannedCounter(r: Rect, front: Side, cabinet: string, top: string): Par
 
 function proposalJ(): Proposal {
   seq = 600;
-  const wood = "#b98a5c";
   // Azul Nishi como detalhe: cadeiras, cabeceiras, fronhas e almofadas do sofá. Mesas brancas e chão branco.
   const nishi = "#1e3d66";
   const white = "#f4f4f1";
@@ -946,7 +945,7 @@ function proposalJ(): Proposal {
     floors: Object.fromEntries(["estar", "jantar", "cozinha", "servico", "varanda", "quarto", "suite", "banhosuite", "circ", "banho"].map((id) => [id, "branco" as FloorKind])),
     outdoor: [garden("externa", "Área externa", [[-0.11, -1.56, 10.08, 1.45], [-0.11, -0.11, 1.76, 0.3], [1.65, -0.11, 2.54, 0.51]], "grama", [7.2, -0.85], false)],
     pieces: [
-      ...suiteJoao(wood, "#e9e4da", nishi, nishi),
+      ...suiteJoao(white, "#e9e4da", nishi, nishi),
       piece("cozinha", "Bancada planejada", "🗄️", "Móveis", [
         ...plannedCounter(R(-0.01, 0.89, 0.61, 2.51), "e", "#e4d6c2", "#3b3a38"),
         ...plannedCounter(R(0.22, 0.29, 0.53, 0.6), "s", "#e4d6c2", "#3b3a38"),
@@ -968,13 +967,13 @@ function proposalJ(): Proposal {
         ...seatJ(2.53, 4.18, "w"), ...seatJ(4.43, 4.18, "e"),
       ]),
       piece("jantar", "Sofá 2 lugares", "🛋️", "Móveis", sofa(R(1.7, 1.55, 0.9, 1.7), "w", "#d9d2c4", 2, nishi)),
-      piece("jantar", "Rack e TV", "📺", "Eletrônicos", rackTv(R(3.82, 1.6, 0.4, 1.45), "e", wood)),
+      piece("jantar", "Rack e TV", "📺", "Eletrônicos", rackTv(R(3.82, 1.6, 0.4, 1.45), "e", nishi)),
       piece("varanda", "Porta de vidro", "🪟", "Outros", [
         part(1.7, 1.42, 2.49, 0.04, 2.1, "vidro"),
         part(1.7, 1.42, 2.49, 0.05, 0.03, "metal"),
         part(2.95, 1.42, 0.04, 0.05, 2.1, "metal"),
       ]),
-      piece("quarto", "Cama de solteiro", "🛏️", "Móveis", bed(R(4.29, -0.01, 1.88, 0.88), "w", "#e9e4da", wood, nishi, nishi)),
+      piece("quarto", "Cama de solteiro", "🛏️", "Móveis", bed(R(4.29, -0.01, 1.88, 0.88), "w", "#e9e4da", white, nishi, nishi)),
       piece("quarto", "Mesa com computador", "💻", "Móveis", desk(R(4.29, 1.65, 0.6, 1.3), "w", white, "#e2e2de")),
       piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(4.95, 2.05, nishi, "e")),
     ],
