@@ -149,6 +149,9 @@ function officeChair(x: number, z: number, color: string, back: Side = "s"): Par
   const { at } = placer(R(x, z, 0.5, 0.5), back);
   return [
     part(x + 0.22, z + 0.22, 0.06, 0.06, 0.45, "metal"),
+    // Base de rodízios em cruz.
+    part(x + 0.04, z + 0.23, 0.42, 0.04, 0.05, "escuro", 0.02, "#2b2b2e"),
+    part(x + 0.23, z + 0.04, 0.04, 0.42, 0.05, "escuro", 0.02, "#2b2b2e"),
     part(x, z, 0.5, 0.5, 0.06, "tecido", 0.45, color),
     at(0, 0, 0.5, 0.08, 0.5, "tecido", 0.5, color),
   ];
@@ -156,12 +159,24 @@ function officeChair(x: number, z: number, color: string, back: Side = "s"): Par
 
 function fridge(r: Rect, back: Side): Part[] {
   const { W, D, at } = placer(r, back);
-  return [at(0, 0, W, D, 1.85, "metal", 0, "#d9dcdf"), at(W - 0.08, D, 0.03, 0.03, 0.6, "escuro", 0.9)];
+  // Duas portas (freezer embaixo), com a fresta entre elas e um puxador vertical em cada.
+  return [
+    at(0, 0, W, D, 1.85, "metal", 0, "#d9dcdf"),
+    at(0.01, D, W - 0.02, 0.004, 0.008, "escuro", 0.68, "#9aa0a6"),
+    at(W - 0.08, D, 0.03, 0.03, 0.75, "escuro", 0.86),
+    at(W - 0.08, D, 0.03, 0.03, 0.35, "escuro", 0.25),
+  ];
 }
 
 function washer(r: Rect, back: Side): Part[] {
   const { W, D, at } = placer(r, back);
-  return [at(0, 0, W, D, 0.85, "branco", 0, "#f4f4f2"), at(W / 2 - 0.15, D, 0.3, 0.01, 0.3, "vidro", 0.35)];
+  // Painel de comandos escuro em cima e a porta redonda (anel cinza com o vidro no meio).
+  return [
+    at(0, 0, W, D, 0.85, "branco", 0, "#f4f4f2"),
+    at(0.04, D, W - 0.08, 0.006, 0.1, "escuro", 0.72, "#2b2f35"),
+    at(W / 2 - 0.19, D, 0.38, 0.008, 0.38, "metal", 0.21, "#b9bec4"),
+    at(W / 2 - 0.15, D + 0.004, 0.3, 0.01, 0.3, "vidro", 0.25),
+  ];
 }
 
 function tallCabinet(r: Rect, back: Side, color = "#efe9df"): Part[] {
@@ -382,11 +397,39 @@ function rug(r: Rect, color: string): Part[] {
   return [part(r.x, r.z, r.w, r.d, 0.012, "tapete", 0, color)];
 }
 
-function bbq(r: Rect): Part[] {
+/**
+ * Churrasqueira de alvenaria encostada no muro (`r.z` é o lado do muro), no mesmo
+ * acabamento da bancada do lado: corpo branco com portas, tampo de pedra em volta de uma
+ * grelha rebaixada, gaveta do carvão na frente e coifa de inox com a chaminé até o telhado.
+ * Poucas caixas, para o 3D continuar leve.
+ */
+function bbq(r: Rect, body = "#f4f4f1", stone = "#3b3a38"): Part[] {
+  const top = 0.86, rim = 0.08, back = 0.1;
+  const gx = r.x + rim, gz = r.z + back, gw = r.w - 2 * rim, gd = r.d - back - rim;
+  const front = r.z + r.d;
+  const bars: Part[] = [];
+  for (let i = 1; i <= 7; i++) bars.push(part(gx + (gw / 8) * i - 0.006, gz, 0.012, gd, 0.012, "metal", top - 0.03));
   return [
-    part(r.x, r.z, r.w, r.d, 0.85, "pedra", 0, "#8a8178"),
-    part(r.x + 0.08, r.z + 0.06, r.w - 0.16, r.d - 0.12, 0.03, "escuro", 0.85, "#2a2a2c"),
-    part(r.x + r.w / 2 - 0.15, r.z, 0.3, 0.3, 0.35, "pedra", 0.88, "#8a8178"),
+    part(r.x, r.z, r.w, r.d, top, "madeira", 0, body),
+    // Tampo de pedra em volta da grelha e a grelha rebaixada, com o braseiro escuro embaixo.
+    part(r.x, r.z, r.w, back, 0.04, "pedra", top, stone),
+    part(r.x, front - rim, r.w, rim, 0.04, "pedra", top, stone),
+    part(r.x, gz, rim, gd, 0.04, "pedra", top, stone),
+    part(r.x + r.w - rim, gz, rim, gd, 0.04, "pedra", top, stone),
+    part(gx, gz, gw, gd, 0.02, "escuro", top - 0.08, "#1c1c1e"),
+    ...bars,
+    // Gaveta do carvão em cima e duas portas embaixo, com puxadores de inox.
+    part(r.x + 0.06, front, r.w - 0.12, 0.006, 0.006, "escuro", 0.62, "#6b5a48"),
+    part(r.x + r.w / 2 - 0.003, front, 0.006, 0.006, 0.56, "escuro", 0.06, "#6b5a48"),
+    part(r.x + r.w / 2 - 0.1, front, 0.2, 0.015, 0.015, "metal", 0.72),
+    part(r.x + r.w / 2 - 0.08, front, 0.015, 0.015, 0.2, "metal", 0.3),
+    part(r.x + r.w / 2 + 0.065, front, 0.015, 0.015, 0.2, "metal", 0.3),
+    // Coifa de inox em degrau e a chaminé subindo até o telhado.
+    ...full([
+      part(r.x + 0.02, r.z, r.w - 0.04, r.d - 0.05, 0.08, "metal", 1.6),
+      part(r.x + 0.12, r.z, r.w - 0.24, r.d - 0.2, 0.18, "metal", 1.68),
+      part(r.x + r.w / 2 - 0.11, r.z, 0.22, 0.2, 0.74, "metal", 1.86),
+    ]),
   ];
 }
 
@@ -578,7 +621,12 @@ function extraG(): Extra {
       piece("servicoext", "Hidromassagem", "🛁", "Móveis", deckedTub(R(0.02, EXT.z0 + 0.03, 2.43, 1.72), R(0.14, -1.42, 2.0, 1.5))),
       piece("servicoext", "Painel ripado", "🪵", "Obras", [...slatScreen(R(-0.01, EXT.z0, 2.46, 0.03)), ...slatScreen(R(-0.01, EXT.z0, 0.03, 1.75))]),
       piece("coberta", "Churrasqueira", "🔥", "Móveis", bbq(R(2.85, EXT.z0, 0.9, 0.55))),
-      piece("coberta", "Bancada de apoio", "🗄️", "Móveis", [part(3.8, EXT.z0, 0.95, 0.55, 0.86, "madeira", 0, "#f4f4f1"), part(3.8, EXT.z0, 0.95, 0.55, 0.04, "pedra", 0.86, stone)]),
+      // Bancada com portas e uma cuba pequena com torneira, para lavar o que vai para a grelha.
+      piece("coberta", "Bancada de apoio", "🗄️", "Móveis", [
+        ...plannedCounter(R(3.8, EXT.z0, 0.95, 0.55), "s", "#f4f4f1", stone),
+        part(4.3, EXT.z0 + 0.1, 0.38, 0.32, 0.012, "escuro", 0.895, "#2a2a2c"),
+        ...full([part(4.47, EXT.z0 + 0.03, 0.03, 0.03, 0.3, "metal", 0.9), part(4.47, EXT.z0 + 0.03, 0.03, 0.14, 0.03, "metal", 1.17)]),
+      ]),
     ],
   };
 }
