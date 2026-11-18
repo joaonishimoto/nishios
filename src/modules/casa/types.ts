@@ -6,7 +6,7 @@
 /** Retângulo no chão: [x, z, largura, profundidade]. */
 export type Rect = [x: number, z: number, w: number, d: number];
 
-export type FloorKind = "madeira" | "piso" | "grama" | "deck" | "pedra";
+export type FloorKind = "madeira" | "piso" | "grama" | "deck" | "pedra" | "branco";
 
 export interface Room {
   id: string;

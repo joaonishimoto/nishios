@@ -56,11 +56,11 @@ function placer(r: Rect, back: Side) {
 
 const R = (x: number, z: number, w: number, d: number): Rect => ({ x, z, w, d });
 
-function bed(r: Rect, back: Side, duvet: string, frame = "#9a6b45", pillow?: string): Part[] {
+function bed(r: Rect, back: Side, duvet: string, frame = "#9a6b45", pillow?: string, headboard = frame): Part[] {
   const { W, D, at } = placer(r, back);
   return [
     at(0, 0, W, D, 0.28, "madeira", 0, frame),
-    at(0, 0, W, 0.07, 1.0, "madeira", 0, frame),
+    at(0, 0, W, 0.07, 1.0, headboard === frame ? "madeira" : "tecido", 0, headboard),
     at(0.04, 0.08, W - 0.08, D - 0.12, 0.2, "branco", 0.28),
     at(0.02, 0.62, W - 0.04, D - 0.66, 0.05, "tecido", 0.48, duvet),
     at(0.1, 0.14, W / 2 - 0.15, 0.36, 0.1, pillow ? "tecido" : "branco", 0.48, pillow),
@@ -148,12 +148,12 @@ function rackTv(r: Rect, back: Side, wood: string): Part[] {
   ];
 }
 
-function desk(r: Rect, back: Side, top: string): Part[] {
+function desk(r: Rect, back: Side, top: string, legs = "#3d3833"): Part[] {
   const { W, D, at } = placer(r, back);
   return [
     at(0, 0, W, D, 0.03, "madeira", 0.72, top),
-    at(0.02, 0.02, 0.04, D - 0.04, 0.72, "escuro", 0, "#3d3833"),
-    at(W - 0.06, 0.02, 0.04, D - 0.04, 0.72, "escuro", 0, "#3d3833"),
+    at(0.02, 0.02, 0.04, D - 0.04, 0.72, "escuro", 0, legs),
+    at(W - 0.06, 0.02, 0.04, D - 0.04, 0.72, "escuro", 0, legs),
     at(W / 2 - 0.3, 0.05, 0.6, 0.04, 0.38, "escuro", 0.76, "#1c1f24"),
   ];
 }
@@ -642,9 +642,9 @@ function outdoorZones(
 const PASSAGEM = "Fica uma passagem livre de quase 1 m da varanda para a área externa.";
 
 /** A suíte como o João desenhou: cama viúva no topo, guarda-roupa na parede do lado, painel com TV e frigobar. */
-function suiteJoao(wood: string, duvet: string, pillow?: string): Piece[] {
+function suiteJoao(wood: string, duvet: string, pillow?: string, headboard = wood): Piece[] {
   return [
-    piece("suite", "Cama viúva", "🛏️", "Móveis", bed(R(7.95, -0.01, 1.28, 1.88), "n", duvet, wood, pillow)),
+    piece("suite", "Cama viúva", "🛏️", "Móveis", bed(R(7.95, -0.01, 1.28, 1.88), "n", duvet, wood, pillow, headboard)),
     piece("suite", "Guarda-roupa de correr", "🚪", "Móveis", wardrobe(R(6.79, -0.01, 0.55, 1.89), "w")),
     piece("suite", "Painel e TV", "📺", "Eletrônicos", [
       part(7.97, 2.4, 1.25, 0.28, 0.32, "madeira", 0.3, wood),
@@ -897,9 +897,10 @@ function plannedCounter(r: Rect, front: Side, cabinet: string, top: string): Par
 function proposalJ(): Proposal {
   seq = 600;
   const wood = "#b98a5c";
-  // Azul Nishi como detalhe: fronhas, assentos das cadeiras e almofadas do sofá.
+  // Azul Nishi como detalhe: cadeiras, cabeceiras, fronhas e almofadas do sofá. Mesas brancas e chão branco.
   const nishi = "#1e3d66";
-  const seatJ = (x: number, z: number, back: Side) => chair(x, z, back, wood, 0.44, nishi);
+  const white = "#f4f4f1";
+  const seatJ = (x: number, z: number, back: Side) => chair(x, z, back, nishi, 0.44, nishi);
   return {
     id: "j",
     name: "Do João",
@@ -942,9 +943,10 @@ function proposalJ(): Proposal {
       ],
     },
     remove: ["cozinha:Bancada da pia", "servico:Tanque"],
+    floors: Object.fromEntries(["estar", "jantar", "cozinha", "servico", "varanda", "quarto", "suite", "banhosuite", "circ", "banho"].map((id) => [id, "branco" as FloorKind])),
     outdoor: [garden("externa", "Área externa", [[-0.11, -1.56, 10.08, 1.45], [-0.11, -0.11, 1.76, 0.3], [1.65, -0.11, 2.54, 0.51]], "grama", [7.2, -0.85], false)],
     pieces: [
-      ...suiteJoao(wood, "#e9e4da", nishi),
+      ...suiteJoao(wood, "#e9e4da", nishi, nishi),
       piece("cozinha", "Bancada planejada", "🗄️", "Móveis", [
         ...plannedCounter(R(-0.01, 0.89, 0.61, 2.51), "e", "#e4d6c2", "#3b3a38"),
         ...plannedCounter(R(0.22, 0.29, 0.53, 0.6), "s", "#e4d6c2", "#3b3a38"),
@@ -959,7 +961,7 @@ function proposalJ(): Proposal {
         part(-0.01, 1.92, 0.35, 1.48, 0.7, "madeira", 1.5, "#e4d6c2"),
       ]),
       piece("cozinha", "Geladeira", "🧊", "Eletrodomésticos", fridge(R(-0.01, 3.42, 0.7, 0.66), "w")),
-      piece("estar", "Mesa de 6 lugares", "🍽️", "Móveis", table(R(3.0, 4.0, 1.4, 0.8), wood)),
+      piece("estar", "Mesa de 6 lugares", "🍽️", "Móveis", table(R(3.0, 4.0, 1.4, 0.8), white, "#e2e2de")),
       piece("estar", "Cadeiras", "🪑", "Móveis", [
         ...seatJ(3.18, 3.53, "n"), ...seatJ(3.78, 3.53, "n"),
         ...seatJ(3.18, 4.83, "s"), ...seatJ(3.78, 4.83, "s"),
@@ -972,8 +974,8 @@ function proposalJ(): Proposal {
         part(1.7, 1.42, 2.49, 0.05, 0.03, "metal"),
         part(2.95, 1.42, 0.04, 0.05, 2.1, "metal"),
       ]),
-      piece("quarto", "Cama de solteiro", "🛏️", "Móveis", bed(R(4.29, -0.01, 1.88, 0.88), "w", "#e9e4da", wood, nishi)),
-      piece("quarto", "Mesa com computador", "💻", "Móveis", desk(R(4.29, 1.65, 0.6, 1.3), "w", wood)),
+      piece("quarto", "Cama de solteiro", "🛏️", "Móveis", bed(R(4.29, -0.01, 1.88, 0.88), "w", "#e9e4da", wood, nishi, nishi)),
+      piece("quarto", "Mesa com computador", "💻", "Móveis", desk(R(4.29, 1.65, 0.6, 1.3), "w", white, "#e2e2de")),
       piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(4.95, 2.05, nishi, "e")),
     ],
   };
