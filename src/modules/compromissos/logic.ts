@@ -18,7 +18,45 @@ export interface Derived {
   progress: number;
 }
 
+/** Compromisso pontual: acontece uma vez, numa data marcada, e não se repete. */
+export const isOneOff = (c: Pick<Commitment, "repeats">): boolean => c.repeats === false;
+
+/** Quantos dias antes da data a trilha de um compromisso pontual começa a encher. */
+const ONE_OFF_WINDOW = 30;
+
+function deriveOneOff(c: Commitment, now: Date): Derived {
+  if (c.history.length > 0) {
+    const lastDone = parseISO(c.history[0]);
+    return {
+      status: "done",
+      lastDone,
+      nextDue: null,
+      daysUntil: null,
+      daysSince: differenceInCalendarDays(now, lastDone),
+      cycleDays: null,
+      progress: 1,
+    };
+  }
+  if (!c.date) {
+    return { status: "never", lastDone: null, nextDue: null, daysUntil: null, daysSince: null, cycleDays: null, progress: 0 };
+  }
+  const nextDue = parseISO(c.date);
+  const daysUntil = differenceInCalendarDays(nextDue, now);
+  const window = Math.max(ONE_OFF_WINDOW, c.warnDays);
+  const status: Status = daysUntil < 0 ? "overdue" : daysUntil <= c.warnDays ? "soon" : "ok";
+  return {
+    status,
+    lastDone: null,
+    nextDue,
+    daysUntil,
+    daysSince: null,
+    cycleDays: null,
+    progress: Math.min(1, Math.max(0, 1 - daysUntil / window)),
+  };
+}
+
 export function derive(c: Commitment, now: Date = today()): Derived {
+  if (isOneOff(c)) return deriveOneOff(c, now);
   if (c.history.length === 0) {
     return {
       status: "never",
@@ -47,13 +85,14 @@ export function derive(c: Commitment, now: Date = today()): Derived {
   };
 }
 
-export const STATUS_ORDER: Status[] = ["overdue", "soon", "never", "ok"];
+export const STATUS_ORDER: Status[] = ["overdue", "soon", "never", "ok", "done"];
 
 export const STATUS_META: Record<Status, { label: string; group: string; tone: Tone }> = {
   overdue: { label: "Atrasado", group: "Atrasados", tone: "danger" },
   soon: { label: "Próximo", group: "Chegando a hora", tone: "warning" },
   never: { label: "Sem registro", group: "Sem registro", tone: "neutral" },
   ok: { label: "Em dia", group: "Em dia", tone: "success" },
+  done: { label: "Concluído", group: "Concluídos", tone: "neutral" },
 };
 
 /** Ordena pelo que pede atenção primeiro. */
@@ -78,7 +117,8 @@ export function unitLabel(unit: IntervalUnit, value: number): string {
   return UNIT_LABELS[unit][value === 1 ? 0 : 1];
 }
 
-export function periodLabel(c: Pick<Commitment, "intervalValue" | "intervalUnit">): string {
+export function periodLabel(c: Pick<Commitment, "intervalValue" | "intervalUnit" | "repeats">): string {
+  if (isOneOff(c)) return "Não repete";
   if (c.intervalValue === 1) return UNIT_LABELS[c.intervalUnit][2];
   return `A cada ${c.intervalValue} ${unitLabel(c.intervalUnit, c.intervalValue)}`;
 }
@@ -108,6 +148,7 @@ export function sinceLabel(daysSince: number | null): string {
 }
 
 export function dueLabel(d: Derived): string {
+  if (d.status === "done") return "Concluído";
   if (d.daysUntil === null) return "Marque a primeira vez";
   if (d.daysUntil === 0) return "Vence hoje";
   if (d.daysUntil === 1) return "Vence amanhã";

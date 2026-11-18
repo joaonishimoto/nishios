@@ -9,7 +9,8 @@ const sortDesc = (dates: string[]) => [...new Set(dates)].sort().reverse();
 
 function fromDraft(draft: CommitmentDraft): Omit<Commitment, "id" | "history"> {
   const { lastDone: _lastDone, ...rest } = draft;
-  return rest;
+  // A data marcada só faz sentido no compromisso pontual.
+  return rest.repeats === false ? rest : { ...rest, date: undefined };
 }
 
 interface Store {
@@ -39,7 +40,7 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
         const created: Commitment = {
           ...fromDraft(draft),
           id: crypto.randomUUID(),
-          history: draft.lastDone ? [draft.lastDone] : [],
+          history: draft.repeats !== false && draft.lastDone ? [draft.lastDone] : [],
         };
         setCommitments((list) => [...list, created]);
         return created;
@@ -49,7 +50,10 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
           ...c,
           ...fromDraft(draft),
           // O campo "última vez" do formulário substitui só o registro mais recente.
-          history: draft.lastDone
+          // No pontual esse campo não aparece, então o histórico fica como está.
+          history: draft.repeats === false
+            ? c.history
+            : draft.lastDone
             ? sortDesc([draft.lastDone, ...c.history.slice(1)])
             : c.history.slice(1),
         }));

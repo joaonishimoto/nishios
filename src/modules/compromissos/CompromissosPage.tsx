@@ -16,6 +16,7 @@ import {
   byUrgency,
   derive,
   dueLabel,
+  isOneOff,
   periodLabel,
   shortDate,
   sinceLabel,
@@ -46,7 +47,7 @@ export function CompromissosPage() {
     setParams(id ? { c: id } : {}, { replace: !id, preventScrollReset: true });
 
   const counts = useMemo(() => {
-    const n: Record<Status, number> = { overdue: 0, soon: 0, ok: 0, never: 0 };
+    const n: Record<Status, number> = { overdue: 0, soon: 0, ok: 0, never: 0, done: 0 };
     for (const c of commitments) n[derive(c).status]++;
     return n;
   }, [commitments]);
@@ -80,7 +81,7 @@ export function CompromissosPage() {
     <>
       <PageHeader
         title="Compromissos"
-        description="O que se repete de tempos em tempos: quando foi a última vez e quando é a próxima."
+        description="O que se repete de tempos em tempos e o que é pontual: quando foi a última vez e quando é a próxima."
         action={
           <Button onClick={() => setCreating(true)}>
             <Plus />
@@ -99,6 +100,9 @@ export function CompromissosPage() {
             { value: "overdue", label: "Atrasados", count: counts.overdue },
             { value: "soon", label: "Próximos", count: counts.soon },
             { value: "ok", label: "Em dia", count: counts.ok },
+            ...(counts.done > 0
+              ? [{ value: "done" as const, label: "Concluídos", count: counts.done }]
+              : []),
           ]}
         />
         <div className="ml-auto flex w-full gap-2 sm:w-auto">
@@ -252,7 +256,7 @@ function Row({ commitment: c, onOpen }: { commitment: Commitment; onOpen: () => 
       </div>
 
       <div className="hidden text-sm md:block">
-        <p>{sinceLabel(d.daysSince)}</p>
+        <p>{isOneOff(c) && !d.lastDone ? "—" : sinceLabel(d.daysSince)}</p>
         {d.lastDone && <p className="text-muted-foreground">{shortDate(d.lastDone)}</p>}
       </div>
 
@@ -267,7 +271,7 @@ function Row({ commitment: c, onOpen }: { commitment: Commitment; onOpen: () => 
       </div>
 
       <div className="relative z-10 flex md:w-[9.5rem] md:justify-end">
-        <MarkDone commitment={c} />
+        {d.status !== "done" && <MarkDone commitment={c} />}
       </div>
     </li>
   );

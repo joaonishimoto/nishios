@@ -98,7 +98,9 @@ export function collect(data: Everything, from: string, to: string, now: Date): 
     }
     const next = derive(c, now).nextDue;
     if (!next) continue;
-    for (let n = 0; n < MAX_PROJECTIONS; n++) {
+    // O pontual tem só a data marcada, sem projeções.
+    const projections = c.repeats === false ? 1 : MAX_PROJECTIONS;
+    for (let n = 0; n < projections; n++) {
       const date = toISO(add(next, { [c.intervalUnit]: c.intervalValue * n }));
       if (date > to) break;
       // Só o vencimento real pode estar atrasado; as projeções são sempre futuras.
