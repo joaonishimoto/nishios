@@ -56,15 +56,15 @@ function placer(r: Rect, back: Side) {
 
 const R = (x: number, z: number, w: number, d: number): Rect => ({ x, z, w, d });
 
-function bed(r: Rect, back: Side, duvet: string, frame = "#9a6b45"): Part[] {
+function bed(r: Rect, back: Side, duvet: string, frame = "#9a6b45", pillow?: string): Part[] {
   const { W, D, at } = placer(r, back);
   return [
     at(0, 0, W, D, 0.28, "madeira", 0, frame),
     at(0, 0, W, 0.07, 1.0, "madeira", 0, frame),
     at(0.04, 0.08, W - 0.08, D - 0.12, 0.2, "branco", 0.28),
     at(0.02, 0.62, W - 0.04, D - 0.66, 0.05, "tecido", 0.48, duvet),
-    at(0.1, 0.14, W / 2 - 0.15, 0.36, 0.1, "branco", 0.48),
-    at(W / 2 + 0.05, 0.14, W / 2 - 0.15, 0.36, 0.1, "branco", 0.48),
+    at(0.1, 0.14, W / 2 - 0.15, 0.36, 0.1, pillow ? "tecido" : "branco", 0.48, pillow),
+    at(W / 2 + 0.05, 0.14, W / 2 - 0.15, 0.36, 0.1, pillow ? "tecido" : "branco", 0.48, pillow),
   ];
 }
 
@@ -87,7 +87,7 @@ function wardrobe(r: Rect, back: Side, color = "#efe9df"): Part[] {
   return out;
 }
 
-function sofa(r: Rect, back: Side, fabric: string, seats = 3): Part[] {
+function sofa(r: Rect, back: Side, fabric: string, seats = 3, cushion = fabric): Part[] {
   const { W, D, at } = placer(r, back);
   const arm = 0.16;
   const out = [
@@ -98,7 +98,7 @@ function sofa(r: Rect, back: Side, fabric: string, seats = 3): Part[] {
   ];
   const seatW = (W - 2 * arm) / seats;
   for (let i = 0; i < seats; i++) out.push(at(arm + i * seatW + 0.01, 0.2, seatW - 0.02, D - 0.22, 0.16, "tecido", 0.28, fabric));
-  for (let i = 0; i < seats; i++) out.push(at(arm + i * seatW + 0.03, 0.2, seatW - 0.06, 0.14, 0.38, "tecido", 0.44, fabric));
+  for (let i = 0; i < seats; i++) out.push(at(arm + i * seatW + 0.03, 0.2, seatW - 0.06, 0.14, 0.38, "tecido", 0.44, cushion));
   return out;
 }
 
@@ -113,11 +113,11 @@ function table(r: Rect, top: string, legs = "#3d3833", height = 0.75): Part[] {
   ];
 }
 
-/** Cadeira de 44 cm com o encosto do lado `back`. */
-function chair(x: number, z: number, back: Side, color: string, size = 0.44): Part[] {
+/** Cadeira de 44 cm com o encosto do lado `back`; `seat` põe um assento estofado nessa cor. */
+function chair(x: number, z: number, back: Side, color: string, size = 0.44, seat?: string): Part[] {
   const { W, at } = placer(R(x, z, size, size), back);
   return [
-    at(0, 0, W, size, 0.04, "madeira", 0.44, color),
+    seat ? at(0.02, 0.04, W - 0.04, size - 0.06, 0.05, "tecido", 0.44, seat) : at(0, 0, W, size, 0.04, "madeira", 0.44, color),
     at(0, 0, W, 0.04, 0.42, "madeira", 0.48, color),
     at(0.03, 0.03, 0.035, 0.035, 0.44, "escuro", 0, "#3d3833"),
     at(W - 0.065, 0.03, 0.035, 0.035, 0.44, "escuro", 0, "#3d3833"),
@@ -642,9 +642,9 @@ function outdoorZones(
 const PASSAGEM = "Fica uma passagem livre de quase 1 m da varanda para a área externa.";
 
 /** A suíte como o João desenhou: cama viúva no topo, guarda-roupa na parede do lado, painel com TV e frigobar. */
-function suiteJoao(wood: string, duvet: string): Piece[] {
+function suiteJoao(wood: string, duvet: string, pillow?: string): Piece[] {
   return [
-    piece("suite", "Cama viúva", "🛏️", "Móveis", bed(R(7.95, -0.01, 1.28, 1.88), "n", duvet, wood)),
+    piece("suite", "Cama viúva", "🛏️", "Móveis", bed(R(7.95, -0.01, 1.28, 1.88), "n", duvet, wood, pillow)),
     piece("suite", "Guarda-roupa de correr", "🚪", "Móveis", wardrobe(R(6.79, -0.01, 0.55, 1.89), "w")),
     piece("suite", "Painel e TV", "📺", "Eletrônicos", [
       part(7.97, 2.4, 1.25, 0.28, 0.32, "madeira", 0.3, wood),
@@ -897,6 +897,9 @@ function plannedCounter(r: Rect, front: Side, cabinet: string, top: string): Par
 function proposalJ(): Proposal {
   seq = 600;
   const wood = "#b98a5c";
+  // Azul Nishi como detalhe: fronhas, assentos das cadeiras e almofadas do sofá.
+  const nishi = "#1e3d66";
+  const seatJ = (x: number, z: number, back: Side) => chair(x, z, back, wood, 0.44, nishi);
   return {
     id: "j",
     name: "Do João",
@@ -941,7 +944,7 @@ function proposalJ(): Proposal {
     remove: ["cozinha:Bancada da pia", "servico:Tanque"],
     outdoor: [garden("externa", "Área externa", [[-0.11, -1.56, 10.08, 1.45], [-0.11, -0.11, 1.76, 0.3], [1.65, -0.11, 2.54, 0.51]], "grama", [7.2, -0.85], false)],
     pieces: [
-      ...suiteJoao(wood, "#c9d4c5"),
+      ...suiteJoao(wood, "#e9e4da", nishi),
       piece("cozinha", "Bancada planejada", "🗄️", "Móveis", [
         ...plannedCounter(R(-0.01, 0.89, 0.61, 2.51), "e", "#e4d6c2", "#3b3a38"),
         ...plannedCounter(R(0.22, 0.29, 0.53, 0.6), "s", "#e4d6c2", "#3b3a38"),
@@ -958,20 +961,20 @@ function proposalJ(): Proposal {
       piece("cozinha", "Geladeira", "🧊", "Eletrodomésticos", fridge(R(-0.01, 3.42, 0.7, 0.66), "w")),
       piece("estar", "Mesa de 6 lugares", "🍽️", "Móveis", table(R(3.0, 4.0, 1.4, 0.8), wood)),
       piece("estar", "Cadeiras", "🪑", "Móveis", [
-        ...chair(3.18, 3.53, "n", "#7d8a7a"), ...chair(3.78, 3.53, "n", "#7d8a7a"),
-        ...chair(3.18, 4.83, "s", "#7d8a7a"), ...chair(3.78, 4.83, "s", "#7d8a7a"),
-        ...chair(2.53, 4.18, "w", "#7d8a7a"), ...chair(4.43, 4.18, "e", "#7d8a7a"),
+        ...seatJ(3.18, 3.53, "n"), ...seatJ(3.78, 3.53, "n"),
+        ...seatJ(3.18, 4.83, "s"), ...seatJ(3.78, 4.83, "s"),
+        ...seatJ(2.53, 4.18, "w"), ...seatJ(4.43, 4.18, "e"),
       ]),
-      piece("jantar", "Sofá 2 lugares", "🛋️", "Móveis", sofa(R(1.7, 1.55, 0.9, 1.7), "w", "#a8774a", 2)),
+      piece("jantar", "Sofá 2 lugares", "🛋️", "Móveis", sofa(R(1.7, 1.55, 0.9, 1.7), "w", "#d9d2c4", 2, nishi)),
       piece("jantar", "Rack e TV", "📺", "Eletrônicos", rackTv(R(3.82, 1.6, 0.4, 1.45), "e", wood)),
       piece("varanda", "Porta de vidro", "🪟", "Outros", [
         part(1.7, 1.42, 2.49, 0.04, 2.1, "vidro"),
         part(1.7, 1.42, 2.49, 0.05, 0.03, "metal"),
         part(2.95, 1.42, 0.04, 0.05, 2.1, "metal"),
       ]),
-      piece("quarto", "Cama de solteiro", "🛏️", "Móveis", bed(R(4.29, -0.01, 1.88, 0.88), "w", "#d8cdb8", wood)),
+      piece("quarto", "Cama de solteiro", "🛏️", "Móveis", bed(R(4.29, -0.01, 1.88, 0.88), "w", "#e9e4da", wood, nishi)),
       piece("quarto", "Mesa com computador", "💻", "Móveis", desk(R(4.29, 1.65, 0.6, 1.3), "w", wood)),
-      piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(4.95, 2.05, "#3e4a52", "e")),
+      piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(4.95, 2.05, nishi, "e")),
     ],
   };
 }
