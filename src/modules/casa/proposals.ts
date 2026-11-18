@@ -757,7 +757,6 @@ function proposalG4(): Proposal {
     piece("banhosuite", "Armário do vaso", "🗄️", "Móveis", full([part(8.54, 2.78, 0.52, 0.22, 0.6, "branco", 1.3, white)])),
     piece("banhosuite", "Nicho no box", "🧴", "Móveis", full([part(9.3, 2.78, 0.4, 0.02, 0.3, "escuro", 1.1, "#c9c4ba")])),
     // Varanda
-    piece("varanda", "Passarela dos gatos", "🐈", "Pets", full([[1.38, 1.3], [1.78, 1.6], [1.38, 1.9]].map(([z, y]) => part(1.7, z, 0.25, 0.4, 0.04, "madeira", y, oak)))),
     piece("varanda", "Planta em vaso", "🪴", "Plantas", plant(3.72, 0.5, 0.4, 1.3)),
   ];
   const withExtras: Proposal = {
@@ -776,7 +775,7 @@ function proposalG4(): Proposal {
       cozinha: ["Aéreo em cima da geladeira e uma passadeira azul-marinho no corredor da bancada."],
       banho: ["Armário em cima do vaso e nicho dentro do box."],
       banhosuite: ["Armário em cima do vaso e nicho dentro do box."],
-      varanda: ["Prateleiras na parede da cozinha, subindo do armário dos gatos, e uma planta grande no canto, longe da passagem para fora."],
+      varanda: ["Uma planta grande no canto, longe da passagem para fora."],
     }),
   };
   return recolor(withExtras, {
@@ -786,7 +785,7 @@ function proposalG4(): Proposal {
     keep: KEEP_COLORS,
     highlights: [
       ...g.highlights,
-      "Cômodo por cômodo, o que faltava: cortinas blackout, criado-mudo e pendente na suíte; armário, prateleiras, luminária e gavetas no escritório; pendentes e espelho na sala; aéreo na geladeira; armários e nichos nos banheiros; passarela dos gatos na varanda.",
+      "Cômodo por cômodo, o que faltava: cortinas blackout, criado-mudo e pendente na suíte; armário, prateleiras, luminária e gavetas no escritório; pendentes e espelho na sala; aéreo na geladeira; armários e nichos nos banheiros; planta na varanda.",
       "Cores: móveis e cozinha em creme, pedra clara, e azul-marinho no sofá, nas cabeceiras, nos tapetes, na mesa do escritório e nos pendentes.",
     ],
     colors: {
