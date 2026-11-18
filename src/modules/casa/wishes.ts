@@ -48,6 +48,7 @@ const PRICES: [RegExp, number][] = [
   [/^fogão/i, 1500],
   [/^geladeira/i, 3500],
   [/^máquina de lavar/i, 2500],
+  [/^lava-louças/i, 3200],
   [/^aéreo/i, 900],
   [/^gavetas/i, 600],
   [/^criado-mudo/i, 400],
