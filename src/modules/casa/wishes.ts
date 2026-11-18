@@ -11,6 +11,8 @@ import type { Piece } from "./types";
 const PRICES: [RegExp, number][] = [
   [/^cama de casal/i, 2500],
   [/^cama viúva/i, 1900],
+  [/^cama de solteiro/i, 1100],
+  [/^mesa com computador/i, 900],
   [/^frigobar/i, 1300],
   [/^painel e tv/i, 3800],
   [/^cama com bicama/i, 1600],

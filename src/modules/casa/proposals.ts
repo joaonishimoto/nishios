@@ -878,7 +878,39 @@ function proposalF(): Proposal {
   };
 }
 
-export const PROPOSALS: Proposal[] = [proposalA(), proposalB(), proposalC(), proposalD(), proposalE(), proposalF()];
+function proposalJ(): Proposal {
+  seq = 600;
+  const wood = "#b98a5c";
+  return {
+    id: "j",
+    name: "Do João",
+    tagline: "Montada com os seus desenhos, um cômodo de cada vez. Por enquanto: a suíte e o quarto.",
+    highlights: [
+      "Suíte: cama viúva no topo, guarda-roupa de correr na parede do lado, painel suspenso com TV na parede do banheiro e frigobar no canto.",
+      "Quarto: cama de solteiro no fundo, embaixo da janela, e a mesa com o computador no canto perto da porta.",
+      "O resto da casa continua vazio até você desenhar.",
+    ],
+    notes: {
+      suite: [
+        "A cama ficou um pouco mais para a janela para sobrar 60 cm na frente do guarda-roupa.",
+        "Do pé da cama até o painel sobram uns 50 cm; por isso o painel é suspenso e raso.",
+      ],
+      quarto: [
+        "Cama de solteiro (88 × 188 cm) deitada ao longo da parede da janela, com a cabeceira na parede do estar.",
+        "Mesa de 1,30 m com 60 cm de fundo no canto oposto, e o meio do quarto livre até a porta.",
+      ],
+    },
+    outdoor: [garden("externa", "Área externa", [[-0.11, -1.56, 10.08, 1.45], [-0.11, -0.11, 1.76, 0.3], [1.65, -0.11, 2.54, 0.51]], "grama", [7.2, -0.85], false)],
+    pieces: [
+      ...suiteJoao(wood, "#c9d4c5"),
+      piece("quarto", "Cama de solteiro", "🛏️", "Móveis", bed(R(4.29, -0.01, 1.88, 0.88), "w", "#d8cdb8", wood)),
+      piece("quarto", "Mesa com computador", "💻", "Móveis", desk(R(4.29, 1.65, 0.6, 1.3), "w", wood)),
+      piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(4.95, 2.05, "#3e4a52")),
+    ],
+  };
+}
+
+export const PROPOSALS: Proposal[] = [proposalA(), proposalB(), proposalC(), proposalD(), proposalE(), proposalF(), proposalJ()];
 
 /** A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam). */
 export function withProposal(home: Home, proposal: Proposal | null): Home {
