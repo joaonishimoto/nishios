@@ -88,6 +88,14 @@ export function seedHome(): Home {
       w("z", 7.76, 2.68, 4.2, [[3.32, 4.03]]),
       w("z", 5.7, 4.1, 5.52),
     ],
+    // Portas de abrir, todas abertas a 90° encostadas na parede mais próxima.
+    doors: [
+      { axis: "z", at: 1.65, a: 4.42, b: 5.32, hinge: "b", into: 1 }, // entrada, para o estar
+      { axis: "x", at: 3.02, a: 5.81, b: 6.69, hinge: "b", into: -1 }, // quarto
+      { axis: "z", at: 6.74, a: 3.23, b: 4.04, hinge: "b", into: 1 }, // suíte
+      { axis: "z", at: 7.76, a: 3.32, b: 4.03, hinge: "b", into: 1 }, // banheiro da suíte
+      { axis: "x", at: 4.15, a: 5.82, b: 6.52, hinge: "a", into: 1 }, // banheiro
+    ],
     // Apartamento vazio: só o que vem com a construção (louças, bancada, box, tanque,
     // shafts e muro). Os móveis entram depois, pelo editor.
     pieces: [

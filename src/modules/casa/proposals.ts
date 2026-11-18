@@ -191,10 +191,6 @@ function slopedRoof(r: Rect, steps = 6): Part[] {
   return out;
 }
 
-function clothesline(r: Rect): Part[] {
-  return [part(r.x, r.z, 0.06, 0.06, 1.8, "metal"), part(r.x + r.w - 0.06, r.z, 0.06, 0.06, 1.8, "metal"), part(r.x, r.z, r.w, 0.02, 0.02, "metal", 1.75)];
-}
-
 // ---------- Propostas ----------
 
 const garden = (id: string, name: string, rects: Room["rects"], floor: FloorKind, label: [number, number], catio = true): Room => ({
@@ -236,10 +232,10 @@ function plannedCounter(r: Rect, front: Side, cabinet: string, top: string): Par
 
 function proposalJ(): Proposal {
   seq = 600;
-  // Azul Nishi como detalhe: cadeiras, cabeceiras, fronhas e almofadas do sofá. Mesas brancas e chão branco.
+  // Azul Nishi como detalhe: sofá, cabeceiras e fronhas. Mesas, cadeiras da mesa, rack e chão brancos.
   const nishi = "#1e3d66";
   const white = "#f4f4f1";
-  const seatJ = (x: number, z: number, back: Side) => chair(x, z, back, nishi, 0.44, nishi);
+  const seatJ = (x: number, z: number, back: Side) => chair(x, z, back, white, 0.44, white);
   return {
     id: "j",
     name: "Do João",
@@ -249,7 +245,7 @@ function proposalJ(): Proposal {
       "Escritório: cama de solteiro no fundo, embaixo da janela, e a mesa preta de 1,70 m com o computador na parede da sala, até o canto da porta.",
       "Cozinha em L, que agora inclui o antigo serviço: bancada de ponta a ponta, pia embaixo da janela, cooktop de 4 bocas e armários em cima e embaixo.",
       "Sala inteira, sem divisão: sofá e TV no lado da varanda, com porta de vidro de correr, e mesa para 6 no meio.",
-      "Área de fora: serviço no canto da cozinha (máquina, tanque, armário e varal) e cobertura da parede da esquerda até perto da janela do escritório, para os gatos ficarem no seco.",
+      "Área de fora: serviço no canto da cozinha (máquina, tanque e armário) e cobertura da parede da esquerda até perto da janela do escritório, para os gatos ficarem no seco.",
     ],
     notes: {
       suite: [
@@ -266,6 +262,7 @@ function proposalJ(): Proposal {
         "Sofá de 2 lugares (1,70 × 0,90 m) com o encosto na parede da cozinha, de frente para a TV a 1,6 m: bom para uma TV de até 50\".",
         "O sofá tampa parte da abertura da cozinha; a passagem para o estar fica com uns 85 cm, entre o sofá e a parede de baixo.",
         "Entre o sofá e o móvel da TV sobra 1,2 m para chegar à porta de vidro.",
+        "Atrás do sofá, na abertura da cozinha, uma mureta de 1 m (um pouco mais alta que o encosto, de 78 cm) com um balcãozinho de pedra de 32 cm. Ele avança para o lado da cozinha, onde ainda sobram uns 80 cm de passagem.",
         "Mesa de 1,40 × 0,80 m: 70 cm por pessoa nas laterais, que é o confortável, e 80 cm nas pontas.",
         "Ela fica no meio da parte de baixo da sala, longe do sofá e da cozinha: entre a cozinha e a ponta da mesa sobram 80 cm livres, e a entrada fica desimpedida.",
         "Da mesa até a parede de baixo ficam 62 cm, o suficiente para sentar. O caminho da entrada para os quartos passa por cima da mesa, com uns 50 cm, e pela ponta do lado do banheiro, com 70 cm.",
@@ -282,7 +279,7 @@ function proposalJ(): Proposal {
       ],
       servicoext: [
         "Encostado na parede da cozinha, do lado de fora: tanque, máquina de lavar e um armário alto para produtos e vassouras.",
-        "Varal de chão na frente, e o telhado protege tudo da chuva.",
+        "O telhado protege tudo da chuva, e a frente fica livre.",
       ],
       coberta: [
         "Telhado da parede do apartamento até o fim da área externa, da parede da esquerda até um pouco antes da janela do escritório. Ele desce para fora e se apoia no muro do fundo, sem pilares: termina passando um pouco por cima do muro, e a água escorre do outro lado.",
@@ -313,7 +310,6 @@ function proposalJ(): Proposal {
       { ...piece("servicoext", "Tanque", "🧺", "Móveis", [part(-0.01, -0.36, 0.55, 0.55, 0.9, "branco")]), fixture: { kind: "tanque", x: -0.01, z: -0.36, w: 0.55, d: 0.55, wall: "s" } },
       piece("servicoext", "Máquina de lavar", "🫧", "Eletrodomésticos", washer(R(0.58, -0.46, 0.6, 0.65), "s")),
       piece("servicoext", "Armário de serviço", "🧹", "Móveis", full(tallCabinet(R(1.22, -0.36, 0.4, 0.55), "s", white))),
-      piece("servicoext", "Varal de chão", "👕", "Móveis", clothesline(R(0.0, -1.3, 1.5, 0.06))),
       piece("coberta", "Telhado inclinado", "🏠", "Obras", slopedRoof(R(-0.11, -1.86, 4.9, 2.05))),
       piece("cozinha", "Bancada planejada", "🗄️", "Móveis", [
         ...plannedCounter(R(-0.01, 0.89, 0.61, 2.51), "e", "#e4d6c2", "#3b3a38"),
@@ -337,8 +333,13 @@ function proposalJ(): Proposal {
         ...seatJ(3.18, 4.83, "s"), ...seatJ(3.78, 4.83, "s"),
         ...seatJ(2.53, 4.18, "w"), ...seatJ(4.43, 4.18, "e"),
       ]),
-      piece("jantar", "Sofá 2 lugares", "🛋️", "Móveis", sofa(R(1.7, 1.55, 0.9, 1.7), "w", "#d9d2c4", 2, nishi)),
-      piece("jantar", "Rack e TV", "📺", "Eletrônicos", full(rackTv(R(3.82, 1.6, 0.4, 1.45), "e", nishi))),
+      piece("jantar", "Sofá 2 lugares", "🛋️", "Móveis", sofa(R(1.7, 1.55, 0.9, 1.7), "w", nishi, 2, nishi)),
+      // Mureta de 1 m na abertura da cozinha, atrás do sofá, com um balcãozinho de pedra em cima.
+      piece("jantar", "Balcão na mureta", "🍸", "Móveis", [
+        part(1.6, 2.17, 0.1, 1.08, 1.0, "branco", 0, "#fbfbf9"),
+        part(1.4, 2.17, 0.32, 1.08, 0.04, "pedra", 1.0, "#3b3a38"),
+      ]),
+      piece("jantar", "Rack e TV", "📺", "Eletrônicos", full(rackTv(R(3.82, 1.6, 0.4, 1.45), "e", white))),
       piece("varanda", "Porta de vidro", "🪟", "Outros", [
         part(1.7, 1.42, 2.49, 0.04, 2.1, "vidro"),
         part(1.7, 1.42, 2.49, 0.05, 0.03, "metal"),
