@@ -671,52 +671,6 @@ function recolor(base: Proposal, o: { id: string; name: string; tagline: string;
 
 const KEEP_COLORS = ["Hidromassagem", "Espelheira", "Telhado inclinado", "Máquina de lavar", "Painel ripado", "Balcão na mureta"];
 
-/** G2: off-white quente, travertino e carvalho claro, com detalhes em greige. */
-function proposalG2(): Proposal {
-  return recolor(proposalG(), {
-    id: "g2",
-    name: "G em travertino e carvalho",
-    tagline: "Off-white quente nos móveis, greige onde era azul, cozinha fendi com bancada de travertino e madeira de carvalho claro.",
-    keep: KEEP_COLORS,
-    colors: {
-      "#1e3d66": "#9a8f80", // azul Nishi → greige
-      "#f4f4f1": "#e9e2d6", // móveis brancos → off-white quente
-      "#e2e2de": "#b89b78", // pés da mesa → carvalho
-      "#e4d6c2": "#d8cbb8", // armários da cozinha → fendi
-      "#3b3a38": "#d6c7ad", // pedra escura → travertino
-      "#6b5a48": "#a89880",
-      "#1f1f22": "#8a6b4f", // mesa e cadeira pretas → carvalho
-      "#2b2b2e": "#5a4433",
-      "#e9e4da": "#f1ece3", // roupa de cama → linho
-      "#e2ddd2": "#cfc3b1", // tapete da sala → bege
-      "#4a443d": "#6e655a",
-      "#b8bec6": "#c9bfae", // perfil da porta de vidro → champanhe
-    },
-  });
-}
-
-/** G3: carvalho defumado e preto fosco, com mármore claro e detalhes em chumbo. */
-function proposalG3(): Proposal {
-  return recolor(proposalG(), {
-    id: "g3",
-    name: "G em carvalho defumado e preto",
-    tagline: "Carvalho defumado nos móveis, chumbo onde era azul, cozinha preta fosca com bancada de mármore claro e perfis pretos.",
-    keep: KEEP_COLORS,
-    colors: {
-      "#1e3d66": "#4f4b46", // azul Nishi → chumbo
-      "#f4f4f1": "#6b5444", // móveis brancos → carvalho defumado
-      "#e2e2de": "#1f1e1d", // pés da mesa → preto
-      "#e4d6c2": "#2e2c2a", // armários da cozinha → preto fosco
-      "#3b3a38": "#e8e4dc", // pedra escura → mármore claro
-      "#6b5a48": "#1a1918",
-      "#e9e4da": "#e6e1d8", // roupa de cama → off-white
-      "#e2ddd2": "#b9b2a6", // tapete da sala → cinza quente
-      "#4a443d": "#2a2826",
-      "#b8bec6": "#2b2b2b", // perfil da porta de vidro → preto
-    },
-  });
-}
-
 /**
  * G4: a G completa cômodo por cômodo, com o que faltava, sem lotar nem fechar passagem, e
  * a casa em branco e creme com detalhes azul-marinho. As peças novas usam as cores da G e
@@ -811,18 +765,25 @@ function addNotes(base: Record<string, string[]>, more: Record<string, string[]>
   return out;
 }
 
-export const PROPOSALS: Proposal[] = [proposalG(), proposalG2(), proposalG3(), proposalG4()];
+/**
+ * Só a vista principal (a G4) aparece, além da Vazia. A Vazia sempre tira as cores da
+ * principal (pisos de dentro e de fora), então muda sozinha se a principal mudar.
+ */
+export const MAIN: Proposal = proposalG4();
+export const PROPOSALS: Proposal[] = [MAIN];
 
 /**
  * A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam).
  * Sem proposta, a planta fica 100% vazia: só paredes e cômodos, sem nem as louças da construção.
  */
 export function withProposal(home: Home, proposal: Proposal | null): Home {
-  // Vazia: sem nenhuma peça, piso todo branco dentro de casa e a área externa em grama.
+  // Vazia: sem nenhuma peça, com os pisos da vista principal (dentro de casa, os mesmos; a
+  // área externa, o piso da área externa da principal).
   if (!proposal) {
+    const outdoorFloor = MAIN.outdoor.find((r) => r.id === "externa")?.floor ?? "grama";
     return {
       ...home,
-      rooms: home.rooms.map((r) => ({ ...r, floor: r.outdoor ? "grama" : "branco" })),
+      rooms: home.rooms.map((r) => ({ ...r, floor: r.outdoor ? outdoorFloor : (MAIN.floors?.[r.id] ?? r.floor) })),
       pieces: home.pieces.filter((p) => !p.fixed),
     };
   }
