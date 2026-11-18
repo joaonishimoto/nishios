@@ -600,8 +600,8 @@ function buildHouse(
         {
           porcelain: material(pal.material.branco, fade, 0.35),
           basin: material(pal.basin, fade, 0.4),
-          stone: material(pal.material.pedra, fade, 0.55),
-          cabinet: material(pal.cabinet, fade, 0.7),
+          stone: material((mode === "3d" && piece.fixture.colors?.stone) || pal.material.pedra, fade, 0.55),
+          cabinet: material((mode === "3d" && piece.fixture.colors?.cabinet) || pal.cabinet, fade, 0.7),
           seam: material(pal.seam, fade),
           // Na planta, metais escuros para o chuveiro e as torneiras aparecerem vistos de cima.
           metal: material(mode === "planta" ? pal.material.escuro : pal.material.metal, fade, 0.3, 0.5),
@@ -636,7 +636,8 @@ function buildHouse(
       else if (screen) h = Math.max(0.02, Math.min(y + h, mode === "planta" ? WALL_PLAN : focusId ? WALL_FOCUS + 0.3 : WALL_3D + 0.2) - y);
       // Tudo o que é baixo é cortado na mesma altura, mesmo o que começa acima do chão
       // (puxadores, TV, prateleiras), para nada atravessar o corte.
-      else if (!glass) h = Math.max(Math.min(y + h, cap) - y, Math.min(h, 0.04));
+      // Com `full`, o 3D mostra a peça inteira (armário planejado, TV).
+      else if (!glass && !(part.full && mode === "3d")) h = Math.max(Math.min(y + h, cap) - y, Math.min(h, 0.04));
       if (glass && mode === "planta") h = Math.min(h, WALL_PLAN);
       if (glass && focusId) h = Math.min(h, WALL_FOCUS + 0.2);
       const see = glass ? 0.4 : screen ? 0.22 : roof ? 0.32 : dim && mode === "3d" ? 0.3 : 1;

@@ -51,6 +51,8 @@ export interface Fixture {
   wall: Side;
   /** Box: lados com vidro. */
   glass?: Side[];
+  /** Cores próprias no 3D, para combinar com os móveis do lado. */
+  colors?: { cabinet?: string; stone?: string };
 }
 
 export type Side = "n" | "s" | "e" | "w";
@@ -84,6 +86,8 @@ export interface Part {
   m: Material;
   /** Cor própria no 3D (a planta usa a cor do material). */
   c?: string;
+  /** Mostra a altura inteira no 3D, sem o corte dos móveis (armários altos, aéreos e TVs). */
+  full?: boolean;
 }
 
 export interface Piece {
