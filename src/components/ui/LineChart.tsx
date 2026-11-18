@@ -88,125 +88,172 @@ export function LineChart({
   const active = hover !== null && geo ? { point: points[hover], ...geo.xy[hover], prev: points[hover - 1] } : null;
   const last = geo?.xy.at(-1);
 
+  const lastLabelY = geo && last ? placeLastLabel(geo, format(points.at(-1)!.value), target && geo.y(target.value)) : 0;
+
   return (
-    <div ref={wrap} className="relative select-none" style={{ height: HEIGHT }}>
-      {geo && (
-        <svg
-          width={width}
-          height={HEIGHT}
-          role="img"
-          aria-label={label}
-          className="touch-pan-y overflow-visible"
-          onPointerMove={(e) => nearest(e.clientX)}
-          onPointerDown={(e) => nearest(e.clientX)}
-          onPointerLeave={() => setHover(null)}
-        >
-          {geo.ticks.map((t) => (
-            <g key={t}>
-              <line x1={PAD.left} x2={width - PAD.right} y1={geo.y(t)} y2={geo.y(t)} className="stroke-border" />
-              <text x={PAD.left - 8} y={geo.y(t)} dy="0.32em" textAnchor="end" className="fill-subtle-foreground text-xs tabular-nums">
-                {format(t).replace(/\s.*$/, "")}
-              </text>
-            </g>
-          ))}
+    <div>
+      <div ref={wrap} className="relative select-none" style={{ height: HEIGHT }}>
+        {geo && (
+          <svg
+            width={width}
+            height={HEIGHT}
+            role="img"
+            aria-label={label}
+            className="touch-pan-y overflow-visible"
+            onPointerMove={(e) => nearest(e.clientX)}
+            onPointerDown={(e) => nearest(e.clientX)}
+            onPointerLeave={() => setHover(null)}
+          >
+            {geo.ticks.map((t) => (
+              <g key={t}>
+                <line x1={PAD.left} x2={width - PAD.right} y1={geo.y(t)} y2={geo.y(t)} className="stroke-border" />
+                <text x={PAD.left - 8} y={geo.y(t)} dy="0.32em" textAnchor="end" className="fill-subtle-foreground text-xs tabular-nums">
+                  {format(t).replace(/\s.*$/, "")}
+                </text>
+              </g>
+            ))}
 
-          {band && (
-            <g>
-              <rect
-                x={PAD.left}
-                width={width - PAD.left - PAD.right}
-                y={geo.y(band.to)}
-                height={Math.max(0, geo.y(band.from) - geo.y(band.to))}
-                className="fill-[color-mix(in_srgb,var(--success)_13%,transparent)]"
-              />
-              <line x1={PAD.left} x2={width - PAD.right} y1={geo.y(band.to)} y2={geo.y(band.to)} className="stroke-[color-mix(in_srgb,var(--success)_45%,transparent)]" />
-              <line x1={PAD.left} x2={width - PAD.right} y1={geo.y(band.from)} y2={geo.y(band.from)} className="stroke-[color-mix(in_srgb,var(--success)_45%,transparent)]" />
-              {/* Embaixo da faixa, para não brigar com a linha da meta, que costuma ficar perto do topo. */}
-              <text x={PAD.left + 8} y={geo.y(band.from) - 7} className="fill-success text-xs">
-                {band.label}
-              </text>
-            </g>
-          )}
+            {band && (
+              <g>
+                <rect
+                  x={PAD.left}
+                  width={width - PAD.left - PAD.right}
+                  y={geo.y(band.to)}
+                  height={Math.max(0, geo.y(band.from) - geo.y(band.to))}
+                  className="fill-[color-mix(in_srgb,var(--success)_13%,transparent)]"
+                />
+                <line x1={PAD.left} x2={width - PAD.right} y1={geo.y(band.to)} y2={geo.y(band.to)} className="stroke-[color-mix(in_srgb,var(--success)_45%,transparent)]" />
+                <line x1={PAD.left} x2={width - PAD.right} y1={geo.y(band.from)} y2={geo.y(band.from)} className="stroke-[color-mix(in_srgb,var(--success)_45%,transparent)]" />
+              </g>
+            )}
 
-          {target && (
-            <g>
-              <line
-                x1={PAD.left}
-                x2={width - PAD.right}
-                y1={geo.y(target.value)}
-                y2={geo.y(target.value)}
-                strokeDasharray="4 4"
-                className={band ? "stroke-foreground" : "stroke-success"}
-                strokeWidth={1.5}
+            {target && (
+              <g>
+                <line
+                  x1={PAD.left}
+                  x2={width - PAD.right}
+                  y1={geo.y(target.value)}
+                  y2={geo.y(target.value)}
+                  strokeDasharray="4 4"
+                  className={band ? "stroke-foreground" : "stroke-success"}
+                  strokeWidth={1.5}
+                />
+              </g>
+            )}
+
+            <text x={geo.xy[0].x} y={HEIGHT - 6} textAnchor={points.length === 1 ? "middle" : "start"} className="fill-subtle-foreground text-xs">
+              {shortDate(points[0].date)}
+            </text>
+            {points.length > 1 && (
+              <text x={last!.x} y={HEIGHT - 6} textAnchor="end" className="fill-subtle-foreground text-xs">
+                {shortDate(points.at(-1)!.date)}
+              </text>
+            )}
+
+            {active && (
+              <line x1={active.x} x2={active.x} y1={PAD.top} y2={HEIGHT - PAD.bottom} className="stroke-border-strong" />
+            )}
+
+            <path d={geo.path} fill="none" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" className="stroke-primary" />
+            {geo.xy.map((p, i) => (
+              <circle
+                key={points[i].date + i}
+                cx={p.x}
+                cy={p.y}
+                r={hover === i ? 5.5 : 4}
+                strokeWidth={2}
+                className="fill-primary stroke-surface"
               />
+            ))}
+
+            {/* Só o ponto mais recente ganha o número escrito; os outros ficam no hover. */}
+            {!active && last && (
               <text
-                x={width - PAD.right}
-                y={geo.y(target.value) + (band ? 15 : -6)}
+                x={Math.min(last.x, width - PAD.right)}
+                y={lastLabelY}
                 textAnchor="end"
-                className={band ? "fill-foreground text-xs font-medium" : "fill-muted-foreground text-xs"}
+                className="fill-foreground text-sm font-semibold tabular-nums"
               >
-                {target.label}
+                {format(points.at(-1)!.value)}
               </text>
-            </g>
+            )}
+          </svg>
+        )}
+
+        {active && (
+          <div
+            role="status"
+            className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-md bg-surface-raised px-2.5 py-1.5 text-sm whitespace-nowrap shadow-md"
+            style={{
+              left: Math.min(Math.max(active.x, 70), Math.max(width - 70, 70)),
+              top: active.y - 12,
+            }}
+          >
+            <p className="font-semibold tabular-nums">{format(active.point.value)}</p>
+            <p className="text-muted-foreground">
+              {shortDate(active.point.date)}
+              {active.prev &&
+                Math.abs(active.point.value - active.prev.value) >= 0.05 &&
+                `, ${active.point.value > active.prev.value ? "+" : "−"}${format(Math.abs(active.point.value - active.prev.value))}`}
+            </p>
+          </div>
+        )}
+      </div>
+      {(target || band) && (
+        <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 pl-11 text-xs text-muted-foreground">
+          {target && (
+            <span className="flex items-center gap-1.5">
+              <svg width="18" height="6" aria-hidden>
+                <line x1="0" x2="18" y1="3" y2="3" strokeDasharray="4 3" strokeWidth={1.5} className={band ? "stroke-foreground" : "stroke-success"} />
+              </svg>
+              {target.label}
+            </span>
           )}
-
-          <text x={geo.xy[0].x} y={HEIGHT - 6} textAnchor={points.length === 1 ? "middle" : "start"} className="fill-subtle-foreground text-xs">
-            {shortDate(points[0].date)}
-          </text>
-          {points.length > 1 && (
-            <text x={last!.x} y={HEIGHT - 6} textAnchor="end" className="fill-subtle-foreground text-xs">
-              {shortDate(points.at(-1)!.date)}
-            </text>
+          {band && (
+            <span className="flex items-center gap-1.5">
+              <span aria-hidden className="size-3 rounded-sm border border-[color-mix(in_srgb,var(--success)_45%,transparent)] bg-[color-mix(in_srgb,var(--success)_13%,transparent)]" />
+              {band.label}
+            </span>
           )}
-
-          {active && (
-            <line x1={active.x} x2={active.x} y1={PAD.top} y2={HEIGHT - PAD.bottom} className="stroke-border-strong" />
-          )}
-
-          <path d={geo.path} fill="none" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" className="stroke-primary" />
-          {geo.xy.map((p, i) => (
-            <circle
-              key={points[i].date + i}
-              cx={p.x}
-              cy={p.y}
-              r={hover === i ? 5.5 : 4}
-              strokeWidth={2}
-              className="fill-primary stroke-surface"
-            />
-          ))}
-
-          {/* Só o ponto mais recente ganha o número escrito; os outros ficam no hover. */}
-          {!active && last && (
-            <text
-              x={Math.min(last.x, width - PAD.right)}
-              y={last.y - 12}
-              textAnchor="end"
-              className="fill-foreground text-sm font-semibold tabular-nums"
-            >
-              {format(points.at(-1)!.value)}
-            </text>
-          )}
-        </svg>
-      )}
-
-      {active && (
-        <div
-          role="status"
-          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-md bg-surface-raised px-2.5 py-1.5 text-sm whitespace-nowrap shadow-md"
-          style={{
-            left: Math.min(Math.max(active.x, 70), Math.max(width - 70, 70)),
-            top: active.y - 12,
-          }}
-        >
-          <p className="font-semibold tabular-nums">{format(active.point.value)}</p>
-          <p className="text-muted-foreground">
-            {shortDate(active.point.date)}
-            {active.prev &&
-              Math.abs(active.point.value - active.prev.value) >= 0.05 &&
-              `, ${active.point.value > active.prev.value ? "+" : "−"}${format(Math.abs(active.point.value - active.prev.value))}`}
-          </p>
         </div>
       )}
     </div>
   );
+}
+
+/**
+ * Altura (linha de base) do número do último ponto: acima ou abaixo dele, o que
+ * não cruzar a linha da meta, a própria linha do gráfico nem a borda.
+ */
+function placeLastLabel(
+  geo: { xy: { x: number; y: number }[] },
+  text: string,
+  targetY: number | undefined,
+): number {
+  const p = geo.xy.at(-1)!;
+  const w = text.length * 8 + 4;
+  const above = p.y - 12;
+  const below = p.y + 24;
+  const cost = (base: number) => {
+    const top = base - 14;
+    const bottom = base + 3;
+    let c = 0;
+    if (top < 2 || bottom > HEIGHT - PAD.bottom) c += 100;
+    if (targetY !== undefined && targetY >= top - 2 && targetY <= bottom + 2) c += 10;
+    // Trechos da linha que passam por baixo do texto (que fica à esquerda do ponto).
+    for (let i = geo.xy.length - 1; i > 0; i--) {
+      const a = geo.xy[i - 1];
+      const b = geo.xy[i];
+      if (b.x < p.x - w) break;
+      for (let t = 0; t <= 1; t += 0.1) {
+        const x = a.x + (b.x - a.x) * t;
+        const y = a.y + (b.y - a.y) * t;
+        if (x >= p.x - w && x <= p.x && y >= top && y <= bottom) {
+          c += 1;
+        }
+      }
+    }
+    return c;
+  };
+  return cost(below) < cost(above) ? below : above;
 }
