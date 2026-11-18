@@ -689,7 +689,21 @@ function buildHouse(
   const doorMat = material(mode === "planta" ? pal.wall : "#f1efe9", 1, 0.6);
   const knobMat = material(pal.material.metal, 1, 0.3, 0.6);
   const swingMat = new THREE.LineBasicMaterial({ color: pal.wall, transparent: true, opacity: 0.55 });
+  const frontMat = material(mode === "planta" ? pal.wall : "#1b2a4a", 1, 0.5);
   for (const door of home.doors ?? []) {
+    // Porta de entrada fechada: folha azul-marinho no meio da parede, com puxador dos dois lados.
+    if (door.main) {
+      const h = mode === "planta" ? WALL_PLAN * 0.9 : Math.min(2.1, wallH);
+      const t = 0.05;
+      if (door.axis === "z") {
+        addBox(door.at - t / 2, 0, door.a + 0.01, t, h, door.b - door.a - 0.02, frontMat, {}, mode === "3d");
+        if (mode === "3d") for (const side of [-1, 1]) addBox(door.at + side * (t / 2) + (side > 0 ? 0 : -0.03), 0.95, door.a + 0.08, 0.03, 0.03, 0.12, knobMat, {}, false);
+      } else {
+        addBox(door.a + 0.01, 0, door.at - t / 2, door.b - door.a - 0.02, h, t, frontMat, {}, mode === "3d");
+        if (mode === "3d") for (const side of [-1, 1]) addBox(door.a + 0.08, 0.95, door.at + side * (t / 2) + (side > 0 ? 0 : -0.03), 0.12, 0.03, 0.03, knobMat, {}, false);
+      }
+      continue;
+    }
     const len = door.b - door.a - 0.02;
     const hinge = door.hinge === "a" ? door.a + 0.01 : door.b - 0.01;
     const away = door.hinge === "a" ? 1 : -1; // da dobradiça para a ponta solta, ao longo da parede
