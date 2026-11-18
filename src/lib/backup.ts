@@ -56,7 +56,7 @@ export function readBackup(): Backup {
   return { app: "nishios", version: 1, exportedAt: new Date().toISOString(), data };
 }
 
-/** Lê um arquivo de backup; devolve uma frase de erro quando não é um. */
+/** Lê um backup (arquivo ou texto colado); devolve uma frase de erro quando não é um. */
 export function parseBackup(text: string): Backup | string {
   let parsed: unknown;
   try {
@@ -64,7 +64,14 @@ export function parseBackup(text: string): Backup | string {
   } catch {
     return "Este arquivo não é um backup do NishiOS.";
   }
-  const b = parsed as Partial<Backup> | null;
+  let b = parsed as Partial<Backup> | null;
+  // Também vale só o miolo: { "nishios:bens:v1": [...] }, sem o envelope do backup.
+  if (b && typeof b === "object" && !Array.isArray(b) && !("app" in b)) {
+    const names = Object.keys(b);
+    if (names.length > 0 && names.every((k) => k.startsWith(PREFIX))) {
+      b = { app: "nishios", version: 1, exportedAt: "", data: b as Record<string, unknown> };
+    }
+  }
   if (!b || b.app !== "nishios" || typeof b.data !== "object" || b.data === null) {
     return "Este arquivo não é um backup do NishiOS.";
   }
