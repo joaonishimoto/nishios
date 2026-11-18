@@ -162,7 +162,11 @@ export function DadosPage() {
     if (!confirm) return;
     if (confirm.kind === "restore") applyBackup(confirm.backup);
     else if (confirm.kind === "example") clearToExample();
-    else clearToEmpty();
+    else {
+      // Sem volta: guarda uma cópia antes de apagar.
+      downloadBackup();
+      clearToEmpty();
+    }
     window.location.assign("/");
   }
 
@@ -234,7 +238,7 @@ export function DadosPage() {
       <Block title="Recomeçar">
         <p className="max-w-[60ch] text-muted-foreground">
           O app vem com dados de exemplo para você ver como cada tela funciona. Quando quiser usar de verdade, comece
-          do zero: as listas ficam vazias e a casa, o tema e as modalidades de treino continuam.
+          do zero: as listas ficam vazias e continuam a casa, o tema, as modalidades de treino e a ficha da Maki e do Gojo.
         </p>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => setConfirm({ kind: "empty" })}>
@@ -274,8 +278,9 @@ export function DadosPage() {
                 </p>
               ) : (
                 <p className="text-muted-foreground">
-                  Tarefas, hábitos, metas, compromissos, eventos, pessoas, treinos, medições, bens, desejos, pets e
-                  skills serão apagados. Baixe um backup antes se quiser guardar.
+                  Tarefas, hábitos, metas, compromissos, eventos, pessoas, treinos, medições, bens, desejos, skills e
+                  os outros pets serão apagados{cloud && ", aqui e na nuvem"}. Da Maki e do Gojo fica só a ficha, e a
+                  casa perde os vínculos com os bens. Um backup do que existe hoje é baixado antes.
                 </p>
               )}
             </DialogBody>
