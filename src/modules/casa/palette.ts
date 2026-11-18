@@ -19,6 +19,8 @@ export interface Palette {
   basin: string;
   cabinet: string;
   seam: string;
+  /** Contorno dos móveis na planta. */
+  outline: string;
   shadows: boolean;
   /** Material com luz e sombra (3D) ou chapado (planta). */
   shading: "standard" | "flat";
@@ -70,6 +72,7 @@ const PALETTES: Record<ViewMode, Record<"light" | "dark", Palette>> = {
       basin: "#e4e6e8",
       cabinet: "#f3efe7",
       seam: "#9a958c",
+      outline: "#6f6a61",
       shadows: true,
       shading: "standard",
       hemisphere: 1.5,
@@ -87,6 +90,7 @@ const PALETTES: Record<ViewMode, Record<"light" | "dark", Palette>> = {
       basin: "#cfd2d6",
       cabinet: "#e6e0d4",
       seam: "#6f6a61",
+      outline: "#6f6a61",
       shadows: true,
       shading: "standard",
       hemisphere: 1.1,
@@ -106,6 +110,7 @@ const PALETTES: Record<ViewMode, Record<"light" | "dark", Palette>> = {
       basin: "#cfd5dc",
       cabinet: "#ece8de",
       seam: "#b9b3a6",
+      outline: "#8a94a3",
       shadows: true,
       shading: "flat",
       hemisphere: 1.9,
@@ -136,6 +141,7 @@ const PALETTES: Record<ViewMode, Record<"light" | "dark", Palette>> = {
       basin: "#3a414b",
       cabinet: "#3a3f47",
       seam: "#2a2f37",
+      outline: "#5f7088",
       shadows: true,
       shading: "flat",
       hemisphere: 1.6,

@@ -4,7 +4,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { cn } from "@/lib/cn";
 import { CATS, buildGrid, createCats, regrid, restCats, stepCats, type Cat, type CatInfo, type Grid } from "./cats";
 import { buildFixture } from "./fixtures";
-import { homeBox, pieceTop, roomBox, type Box } from "./logic";
+import { homeBox, pieceTop, roomArea, roomBox, type Box } from "./logic";
 import { paletteFor, type Palette } from "./palette";
 import type { Home, Room, ViewMode } from "./types";
 import { WALL_DEFAULT, WALL_MIN, WALL_REAL } from "./walls";
@@ -39,6 +39,8 @@ export interface HouseSceneProps {
   selectedPieceId: string | null;
   /** Mostra as cotas (largura e profundidade) dos cômodos. */
   dims?: boolean;
+  /** false esconde os nomes (cômodos, móveis e, no 3D, gatos). As cotas continuam. */
+  names?: boolean;
   /** Altura das paredes no 3D da casa inteira, em metros. */
   wallHeight?: number;
   onPickRoom: (roomId: string) => void;
@@ -56,6 +58,8 @@ interface Label {
   /** Gato: nome no 3D e rosto na planta. A etiqueta fica `lift` metros acima de `pos`. */
   cat?: CatInfo;
   lift?: number;
+  /** Texto menor ao lado do nome, como a área do cômodo na planta. */
+  sub?: string;
   onClick?: () => void;
 }
 
@@ -78,7 +82,7 @@ interface Engine {
 }
 
 export default function HouseScene(props: HouseSceneProps) {
-  const { home, mode, dark, focusId, selectedPieceId, dims = false, className } = props;
+  const { home, mode, dark, focusId, selectedPieceId, dims = false, names = true, className } = props;
   const wall3d = Math.min(WALL_REAL, Math.max(WALL_MIN, props.wallHeight ?? WALL_DEFAULT));
   const hostRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<Engine | null>(null);
@@ -101,8 +105,10 @@ export default function HouseScene(props: HouseSceneProps) {
       active: false,
       cat: info,
     }));
+    // Na planta os gatos só aparecem pelo rosto, então lá o rosto fica e só os nomes somem.
+    if (!names) return mode === "3d" ? dimLabels : [...dimLabels, ...catLabels];
     return [...nameLabels(), ...dimLabels, ...catLabels];
-  }, [home, mode, focusId, selectedPieceId, dims, wall3d]);
+  }, [home, mode, focusId, selectedPieceId, dims, wall3d, names]);
 
   function nameLabels(): Label[] {
     const wall = mode === "planta" ? 0 : wall3d + 0.35;
@@ -113,6 +119,7 @@ export default function HouseScene(props: HouseSceneProps) {
           id: `r-${r.id}`,
           text: r.name,
           pos: new THREE.Vector3(r.label[0], wall, r.label[1]),
+          sub: mode === "planta" ? `${area.format(roomArea(r))} m²` : undefined,
           active: false,
           onClick: () => propsRef.current.onPickRoom(r.id),
         }));
@@ -431,6 +438,7 @@ export default function HouseScene(props: HouseSceneProps) {
           >
             {l.cat && mode === "planta" && <CatFace cat={l.cat} />}
             {l.text}
+            {l.sub && <span className="ml-1 font-normal text-muted-foreground tabular-nums">{l.sub}</span>}
           </button>
         ))}
       </div>
@@ -706,6 +714,15 @@ function buildHouse(
     }
   }
 
+  // Na planta, cada móvel ganha o contorno de cima, como num desenho de arquitetura, e as
+  // coberturas viram só a projeção tracejada, para não tampar o que fica embaixo.
+  const outline: THREE.Vector3[] = [];
+  const roofOutline: THREE.Vector3[] = [];
+  const rectAt = (pts: THREE.Vector3[], x: number, z: number, w: number, d: number, y: number) => {
+    const c = [new THREE.Vector3(x, y, z), new THREE.Vector3(x + w, y, z), new THREE.Vector3(x + w, y, z + d), new THREE.Vector3(x, y, z + d)];
+    for (let i = 0; i < 4; i++) pts.push(c[i], c[(i + 1) % 4]);
+  };
+
   // Móveis
   const cap = mode === "planta" ? FURNITURE_CAP_PLAN : focusId ? FURNITURE_CAP_3D : furnitureCap3d(wall3d);
   const lineMat = new THREE.LineBasicMaterial({ color: pal.highlight });
@@ -739,7 +756,14 @@ function buildHouse(
       group.add(fixture);
       continue;
     }
+    const roofParts = mode === "planta" ? piece.parts.filter((p) => p.m === "cobertura") : [];
+    if (roofParts.length && !focusId) {
+      const x0 = Math.min(...roofParts.map((p) => p.x)), z0 = Math.min(...roofParts.map((p) => p.z));
+      const x1 = Math.max(...roofParts.map((p) => p.x + p.w)), z1 = Math.max(...roofParts.map((p) => p.z + p.d));
+      rectAt(roofOutline, x0, z0, x1 - x0, z1 - z0, WALL_PLAN + 0.06);
+    }
     for (const part of piece.parts) {
+      if (mode === "planta" && part.m === "cobertura") continue;
       let y = part.y ?? 0;
       let h = part.h;
       const glass = part.m === "vidro";
@@ -764,9 +788,11 @@ function buildHouse(
       if (glass && focusId && !part.full) h = Math.min(h, WALL_FOCUS + 0.2);
       const see = glass ? 0.4 : screen ? 0.22 : roof ? 0.32 : dim && mode === "3d" ? 0.3 : 1;
       const color = mode === "3d" && part.c ? part.c : pal.material[part.m];
+      // O muro é parede de verdade: na planta, sai com a cor das paredes.
+      const wallLike = masonry || (mode === "planta" && piece.fixed && part.m === "pedra");
       const mesh = addBox(
         part.x, y, part.z, part.w, h, part.d,
-        masonry ? wallMat : material(color, see),
+        wallLike ? wallMat : material(color, see),
         { roomId: piece.roomId, pieceId: piece.fixed ? undefined : piece.id, dimmed: dim && mode === "3d" },
         !glass && !screen && !roof && part.m !== "tapete" && !dim,
       );
@@ -774,8 +800,21 @@ function buildHouse(
         const edges = new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry), lineMat);
         edges.position.copy(mesh.position);
         group.add(edges);
+      } else if (mode === "planta" && !wallLike && !screen && !(dim && piece.fixed)) {
+        rectAt(outline, part.x, part.z, part.w, part.d, y + h + 0.002);
       }
     }
+  }
+  if (outline.length) {
+    group.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(outline), new THREE.LineBasicMaterial({ color: pal.outline, transparent: true, opacity: 0.7 })));
+  }
+  if (roofOutline.length) {
+    const roofLines = new THREE.LineSegments(
+      new THREE.BufferGeometry().setFromPoints(roofOutline),
+      new THREE.LineDashedMaterial({ color: pal.highlight, dashSize: 0.12, gapSize: 0.08 }),
+    );
+    roofLines.computeLineDistances();
+    group.add(roofLines);
   }
 
   // Cotas: linha com traços nas pontas, de face a face das paredes.
@@ -803,6 +842,7 @@ interface RoomDim {
 }
 
 const cm = (m: number) => String(Math.round(m * 100));
+const area = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
 /** Largura e profundidade de cada retângulo dos cômodos internos, como as cotas da planta. */
 function roomDims(rooms: Room[], focusId: string | null): RoomDim[] {

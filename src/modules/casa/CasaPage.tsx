@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Check, Heart, Lightbulb, Link2, Ruler, Sofa, Unlink } from "lucide-react";
+import { ArrowLeft, Check, Heart, Lightbulb, Link2, Ruler, Sofa, Type, Unlink } from "lucide-react";
 import { Badge, type Tone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Segmented } from "@/components/ui/Segmented";
@@ -70,6 +70,7 @@ export function CasaPage() {
   const home = useMemo(() => withProposal(real, proposal), [real, proposal]);
   const focus = home.rooms.find((r) => r.id === params.get("comodo")) ?? null;
   const dims = params.get("cotas") === "1";
+  const names = params.get("nomes") !== "0";
   // Altura das paredes no 3D: fica guardada neste navegador.
   const [wallHeight, setWallHeight] = useState(readWallHeight);
   const changeWallHeight = (v: number) => {
@@ -178,6 +179,18 @@ export function CasaPage() {
               <Ruler />
               Cotas
             </Button>
+            {(
+              <Button
+                variant="outline"
+                size="sm"
+                aria-pressed={names}
+                onClick={() => setParam("nomes", names ? "0" : null)}
+                className={cn("h-8", names && "border-primary text-primary hover:border-primary hover:text-primary")}
+              >
+                <Type />
+                Nomes
+              </Button>
+            )}
             <Segmented<ViewMode>
               label="Vista"
               value={mode}
@@ -218,6 +231,7 @@ export function CasaPage() {
               focusId={focus?.id ?? null}
               selectedPieceId={selectedPieceId}
               dims={dims}
+              names={names}
               wallHeight={wallHeight}
               onPickRoom={(id) => focusRoom(id)}
               onPickPiece={(id) => setSelectedPieceId((cur) => (cur === id ? null : id))}
