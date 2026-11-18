@@ -13,6 +13,7 @@ import { plural } from "@/lib/format";
 import { lastActivity, LEVEL_LABELS, matches, resourceProgress, STATUS_META, STATUS_ORDER } from "./logic";
 import { SkillPanel } from "./SkillPanel";
 import { SkillsOverview } from "./SkillsOverview";
+import { TypeTip } from "./TypeTip";
 import { useSkills } from "./store";
 import type { Skill, SkillStatus, SkillType } from "./types";
 
@@ -86,6 +87,7 @@ export function SkillsPage() {
             { value: "quadro", label: "Quadro" },
           ]}
         />
+        <div className="flex items-center gap-1">
         <Segmented<Filter>
           label="Tipo de skill"
           value={filter}
@@ -96,6 +98,8 @@ export function SkillsPage() {
             { value: "soft", label: "Soft skills", count: skills.filter((s) => s.type === "soft").length },
           ]}
         />
+          <TypeTip />
+        </div>
         <div className="relative ml-auto w-full sm:w-52">
           <Search
             aria-hidden
