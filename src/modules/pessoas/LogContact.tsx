@@ -61,7 +61,7 @@ export function LogContact({
           <div className="grid grid-cols-2 gap-3">
             <Field label="Quando">
               {(id) => (
-                <Input id={id} type="date" max={max} value={date} required onChange={(e) => setDate(e.target.value)} />
+                <Input placeholder="Escolher a data" id={id} type="date" max={max} value={date} required onChange={(e) => setDate(e.target.value)} />
               )}
             </Field>
             <Field label="Como">
@@ -76,7 +76,7 @@ export function LogContact({
           </div>
           <Field label="Sobre o que falaram">
             {(id) => (
-              <Input id={id} value={note} placeholder="Opcional" onChange={(e) => setNote(e.target.value)} />
+              <Input id={id} value={note} placeholder="Ex.: Combinamos um café no sábado" onChange={(e) => setNote(e.target.value)} />
             )}
           </Field>
           <Button type="submit" size="sm" className="h-8">

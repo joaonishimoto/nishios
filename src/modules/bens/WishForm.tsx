@@ -120,6 +120,7 @@ function Content({ wish, onClose }: { wish?: Wish; onClose: () => void }) {
           <Field label="Comprar até">
             {(id) => (
               <Input
+                placeholder="Sem data definida"
                 id={id}
                 type="date"
                 value={draft.targetDate}

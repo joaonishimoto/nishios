@@ -71,6 +71,7 @@ export function MarkDone({
           <Field label="Quando você fez?">
             {(id) => (
               <Input
+                placeholder="Escolher a data"
                 id={id}
                 type="date"
                 value={date}

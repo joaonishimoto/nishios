@@ -132,6 +132,7 @@ function Content({ person, onClose }: { person?: Person; onClose: () => void }) 
           <Field label="Aniversário">
             {(id) => (
               <Input
+                placeholder="Sem data"
                 id={id}
                 type="date"
                 max={toISO(today())}
@@ -141,11 +142,12 @@ function Content({ person, onClose }: { person?: Person; onClose: () => void }) 
             )}
           </Field>
           <Field label="Cidade">
-            {(id) => <Input id={id} value={draft.city} onChange={(e) => set("city", e.target.value)} />}
+            {(id) => <Input placeholder="Ex.: São Paulo" id={id} value={draft.city} onChange={(e) => set("city", e.target.value)} />}
           </Field>
           <Field label="Telefone">
             {(id) => (
               <Input
+                placeholder="(11) 91234-5678"
                 id={id}
                 type="tel"
                 inputMode="tel"

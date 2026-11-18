@@ -84,7 +84,7 @@ function Content({ entry, onClose }: { entry?: Entry; onClose: () => void }) {
       <DialogBody className="flex flex-col gap-5">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Field label="Quando" className="col-span-2 sm:col-span-1">
-            {(id) => <Input id={id} type="date" max={max} required value={date} onChange={(e) => setDate(e.target.value)} />}
+            {(id) => <Input placeholder="Escolher a data" id={id} type="date" max={max} required value={date} onChange={(e) => setDate(e.target.value)} />}
           </Field>
           <Field label="Peso em kg">
             {(id) => (
@@ -97,7 +97,7 @@ function Content({ entry, onClose }: { entry?: Entry; onClose: () => void }) {
             )}
           </Field>
           <Field label="Altura em cm">
-            {(id) => <Input id={id} inputMode="decimal" value={height} onChange={(e) => setHeightText(e.target.value)} />}
+            {(id) => <Input placeholder="Ex.: 178" id={id} inputMode="decimal" value={height} onChange={(e) => setHeightText(e.target.value)} />}
           </Field>
         </div>
 

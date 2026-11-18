@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { Check, Flame, Link2, Plus } from "lucide-react";
+import { Check, Flame, Link2, Plus, Repeat, Target } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
@@ -70,6 +70,7 @@ export function RotinaPage() {
         {habits.length === 0 ? (
           <div className="mt-4">
             <EmptyState
+              icon={Repeat}
               title="Nenhum hábito ainda"
               description="Comece com um só, pequeno o bastante para fazer todo dia."
               action={
@@ -151,6 +152,7 @@ export function RotinaPage() {
         {goals.length === 0 ? (
           <div className="mt-4">
             <EmptyState
+              icon={Target}
               title="Nenhuma meta ainda"
               description="Uma meta tem um número e, se quiser, um prazo: 24 livros no ano, 500 km corridos."
               action={
@@ -400,6 +402,7 @@ function UpdateProgress({ goal }: { goal: Goal }) {
           <Field label="Onde está agora" hint={`Alvo: ${goal.target} ${goal.unit}`.trim()}>
             {(id) => (
               <Input
+                placeholder="0"
                 id={id}
                 type="number"
                 min={0}

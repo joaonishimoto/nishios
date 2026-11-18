@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { ChartLine as LineChartIcon, Plus, Ruler } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LineChart } from "@/components/ui/LineChart";
@@ -57,6 +57,7 @@ export function CorpoPage() {
 
       {entries.length === 0 ? (
         <EmptyState
+          icon={Ruler}
           title="Nenhuma medição ainda"
           description="Registre o peso e as medidas de hoje. A partir da segunda medição a evolução aparece aqui."
           action={
@@ -111,9 +112,13 @@ export function CorpoPage() {
                   )}
                 </div>
                 {points.length === 0 ? (
-                  <p className="py-10 text-center text-muted-foreground">
-                    Ainda sem medição de {metricLabel(metric).toLowerCase()}. Registre a primeira para começar o gráfico.
-                  </p>
+                  <EmptyState
+                    size="sm"
+                    icon={LineChartIcon}
+                    className="py-10"
+                    title={`Ainda sem medição de ${metricLabel(metric).toLowerCase()}`}
+                    description="Registre a primeira para começar o gráfico."
+                  />
                 ) : (
                   <div className="mt-4">
                     <LineChart

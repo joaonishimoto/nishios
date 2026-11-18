@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ChevronDown, Plus, Search } from "lucide-react";
+import { CalendarClock, ChevronDown, Plus, Search } from "lucide-react";
 import { Dot } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { EmptyState, NoResults } from "@/components/ui/EmptyState";
 import { Input, Select } from "@/components/ui/Field";
 import { Segmented } from "@/components/ui/Segmented";
 import { PageHeader } from "@/components/shell/PageHeader";
@@ -121,7 +121,7 @@ export function CompromissosPage() {
             <Input
               type="search"
               aria-label="Buscar compromisso"
-              placeholder="Buscar"
+              placeholder="Buscar compromissos"
               className="pl-8"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -134,6 +134,7 @@ export function CompromissosPage() {
         {groups.length === 0 ? (
           commitments.length === 0 ? (
             <EmptyState
+              icon={CalendarClock}
               title="Nenhum compromisso ainda"
               description="Comece por algo simples, como o corte de cabelo ou a consulta no dentista."
               action={
@@ -144,26 +145,16 @@ export function CompromissosPage() {
               }
             />
           ) : (
-            <EmptyState
-              title="Nada por aqui"
-              description={
+            <NoResults
+              query={query}
+              onClear={
                 filtering
-                  ? "Nenhum compromisso combina com os filtros escolhidos."
-                  : "Nenhum compromisso para mostrar."
-              }
-              action={
-                filtering && (
-                  <Button
-                    variant="outline"
-                    onClick={() => {
+                  ? () => {
                       setFilter("all");
                       setCategory("all");
                       setQuery("");
-                    }}
-                  >
-                    Limpar filtros
-                  </Button>
-                )
+                    }
+                  : undefined
               }
             />
           )

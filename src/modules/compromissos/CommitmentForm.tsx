@@ -103,6 +103,7 @@ function FormContent({ commitment, onClose }: { commitment?: Commitment; onClose
             {(id) => (
               <div className="flex gap-2">
                 <Input
+                  placeholder="30"
                   id={id}
                   type="number"
                   min={1}
@@ -140,6 +141,7 @@ function FormContent({ commitment, onClose }: { commitment?: Commitment; onClose
           <Field label="Última vez que fez" hint="Deixe em branco se ainda não fez.">
             {(id) => (
               <Input
+                placeholder="Ainda não fez"
                 id={id}
                 type="date"
                 max={toISO(today())}
@@ -151,6 +153,7 @@ function FormContent({ commitment, onClose }: { commitment?: Commitment; onClose
           <Field label="Avisar com antecedência de" hint="Em dias antes do vencimento.">
             {(id) => (
               <Input
+                placeholder="7"
                 id={id}
                 type="number"
                 min={0}

@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CalendarDays, CheckCheck, Repeat } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Dot } from "@/components/ui/Badge";
 import { CycleTrack } from "@/components/ui/CycleTrack";
 import { MarkDone } from "@/modules/compromissos/MarkDone";
@@ -118,7 +119,14 @@ export function HomePage() {
           linkLabel="Abrir calendário"
         />
         {agenda.length === 0 ? (
-          <p className="mt-2 text-muted-foreground">Nenhum evento, vencimento ou aniversário hoje.</p>
+          <EmptyState
+            size="sm"
+            icon={CalendarDays}
+            frame="solid"
+            className="mt-3"
+            title="Dia livre"
+            description="Nenhum evento, vencimento ou aniversário hoje."
+          />
         ) : (
           <ul className="mt-3 rounded-lg border border-border bg-surface p-1">
             {agenda.map((item) => (
@@ -140,7 +148,14 @@ export function HomePage() {
             linkLabel="Ver a semana"
           />
           {dueHabits.length === 0 ? (
-            <p className="mt-2 text-muted-foreground">Nenhum hábito previsto para hoje.</p>
+            <EmptyState
+              size="sm"
+              icon={Repeat}
+              frame="solid"
+              className="mt-3"
+              title="Nenhum hábito previsto para hoje"
+              description="Cada hábito aparece nos dias escolhidos para ele."
+            />
           ) : (
             <>
               <Progress
@@ -187,9 +202,15 @@ export function HomePage() {
             linkLabel="Ver todas"
           />
           {todayTasks.length === 0 ? (
-            <p className="mt-2 text-muted-foreground">
-              Nenhuma tarefa vence hoje e nada está atrasado.
-            </p>
+            <EmptyState
+              size="sm"
+              tone="success"
+              icon={CheckCheck}
+              frame="solid"
+              className="mt-3"
+              title="Nada para hoje"
+              description="Nenhuma tarefa vence hoje e nada está atrasado."
+            />
           ) : (
             <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
               {todayTasks.map((t) => (
@@ -306,9 +327,15 @@ export function HomePage() {
         />
 
         {attention.length === 0 ? (
-          <p className="mt-2 text-muted-foreground">
-            Todos os seus compromissos estão em dia.
-          </p>
+          <EmptyState
+            size="sm"
+            tone="success"
+            icon={CheckCheck}
+            frame="solid"
+            className="mt-3"
+            title="Tudo em dia"
+            description="Todos os seus compromissos estão em dia."
+          />
         ) : (
           <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {attention.map((c) => {

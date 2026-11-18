@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { ChevronDown, Columns3, List, Plus, Search } from "lucide-react";
 import { Dot } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { NoResults } from "@/components/ui/EmptyState";
 import { Input, Select } from "@/components/ui/Field";
 import { Segmented } from "@/components/ui/Segmented";
 import { PageHeader } from "@/components/shell/PageHeader";
@@ -126,7 +126,7 @@ export function TarefasPage() {
             <Input
               type="search"
               aria-label="Buscar tarefa"
-              placeholder="Buscar"
+              placeholder="Buscar tarefas"
               className="pl-8"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -137,20 +137,12 @@ export function TarefasPage() {
 
       <div className="mt-5">
         {nothingFound ? (
-          <EmptyState
-            title="Nada por aqui"
-            description="Nenhuma tarefa combina com os filtros escolhidos."
-            action={
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setList("all");
-                  setQuery("");
-                }}
-              >
-                Limpar filtros
-              </Button>
-            }
+          <NoResults
+            query={query}
+            onClear={() => {
+              setList("all");
+              setQuery("");
+            }}
           />
         ) : view === "list" ? (
           <div className="flex flex-col gap-5">

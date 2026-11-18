@@ -315,6 +315,7 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
             <Field label="Contar a partir de">
               {(id) => (
                 <Input
+                  placeholder="Desde o início"
                   id={id}
                   type="date"
                   value={draft.link && "since" in draft.link ? draft.link.since : ""}
@@ -332,7 +333,7 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
                   step="any"
                   inputMode="decimal"
                   value={draft.start || ""}
-                  placeholder={measuredNow ? String(measuredNow).replace(".", ",") : undefined}
+                  placeholder={measuredNow ? String(measuredNow).replace(".", ",") : "0"}
                   onChange={(e) => set("start", e.target.value === "" ? undefined : Number(e.target.value))}
                 />
               )}
@@ -356,6 +357,7 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
           <Field label="Alvo" error={tried ? targetError : undefined}>
             {(id) => (
               <Input
+                placeholder="Ex.: 24"
                 id={id}
                 type="number"
                 min={0}
@@ -381,6 +383,7 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
         <Field label="Prazo" hint="Deixe em branco se não tiver.">
           {(id) => (
             <Input
+              placeholder="Sem prazo"
               id={id}
               type="date"
               className="sm:w-1/2"

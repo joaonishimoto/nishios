@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Check, Pencil, Plus, Scale, Sofa, X } from "lucide-react";
+import { Check, PawPrint, Pencil, Plus, Scale, Sofa, Stethoscope, Syringe, X } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { CycleTrack } from "@/components/ui/CycleTrack";
@@ -64,6 +64,7 @@ export function PetsPage() {
 
       {pets.length === 0 || !selected ? (
         <EmptyState
+          icon={PawPrint}
           title="Nenhum pet cadastrado"
           description="Adicione seu pet para acompanhar vacinas, consultas, problemas de saúde e peso."
           action={
@@ -196,9 +197,14 @@ function PetDetail({ pet, onEdit }: { pet: Pet; onEdit: () => void }) {
           }
         />
         {cares.length === 0 ? (
-          <p className="mt-3 text-muted-foreground">
-            Cadastre as vacinas, o vermífugo e o antipulgas para o NishiOS avisar quando vencerem.
-          </p>
+          <EmptyState
+            size="sm"
+            icon={Syringe}
+            frame="dashed"
+            className="mt-3"
+            title="Nenhum cuidado cadastrado"
+            description="Cadastre as vacinas, o vermífugo e o antipulgas para o NishiOS avisar quando vencerem."
+          />
         ) : (
           <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
             {cares.map((c) => (
@@ -219,9 +225,14 @@ function PetDetail({ pet, onEdit }: { pet: Pet; onEdit: () => void }) {
           }
         />
         {health.length === 0 ? (
-          <p className="mt-3 text-muted-foreground">
-            Anote consultas, exames e problemas de saúde para ter o histórico na mão quando o veterinário perguntar.
-          </p>
+          <EmptyState
+            size="sm"
+            icon={Stethoscope}
+            frame="dashed"
+            className="mt-3"
+            title="Nenhum registro de saúde"
+            description="Anote consultas, exames e problemas de saúde para ter o histórico na mão quando o veterinário perguntar."
+          />
         ) : (
           <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
             {health.map((h) => (
@@ -355,7 +366,7 @@ function MarkCareDone({ pet, care }: { pet: Pet; care: Care }) {
         <form className="flex flex-col gap-3" onSubmit={submit}>
           <Field label="Quando foi feito">
             {(id) => (
-              <Input id={id} type="date" max={max} value={date} required onChange={(e) => setDate(e.target.value)} />
+              <Input placeholder="Escolher a data" id={id} type="date" max={max} value={date} required onChange={(e) => setDate(e.target.value)} />
             )}
           </Field>
           <Button type="submit" size="sm" className="h-8">
@@ -447,7 +458,7 @@ function WeightSection({ pet }: { pet: Pet }) {
                 </Field>
                 <Field label="Quando">
                   {(id) => (
-                    <Input id={id} type="date" max={max} value={date} required onChange={(e) => setDate(e.target.value)} />
+                    <Input placeholder="Escolher a data" id={id} type="date" max={max} value={date} required onChange={(e) => setDate(e.target.value)} />
                   )}
                 </Field>
               </div>
@@ -460,9 +471,14 @@ function WeightSection({ pet }: { pet: Pet }) {
       </div>
 
       {weights.length === 0 ? (
-        <p className="mt-3 text-muted-foreground">
-          Registre o peso de {pet.name} depois de cada consulta para ver se está subindo ou caindo.
-        </p>
+        <EmptyState
+          size="sm"
+          icon={Scale}
+          frame="dashed"
+          className="mt-3"
+          title="Nenhuma pesagem ainda"
+          description={`Registre o peso de ${pet.name} depois de cada consulta para ver se está subindo ou caindo.`}
+        />
       ) : (
         <>
           {weights.length > 1 && (

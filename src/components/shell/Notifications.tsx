@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Bell } from "lucide-react";
+import { Bell, CheckCheck } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from "@/components/ui/Popover";
 import { cn } from "@/lib/cn";
@@ -80,7 +81,13 @@ export function Notifications() {
           </PopoverClose>
         </div>
         {count === 0 ? (
-          <p className="px-4 py-6 text-center text-muted-foreground">Tudo em dia. Nada atrasado nem chegando a hora.</p>
+          <EmptyState
+            size="sm"
+            tone="success"
+            icon={CheckCheck}
+            title="Tudo em dia"
+            description="Nada atrasado nem chegando a hora."
+          />
         ) : (
           <ul className="max-h-96 overflow-y-auto p-1.5">
             {notices.map((n) => {

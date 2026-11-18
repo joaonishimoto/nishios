@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Pencil, Trash2, X } from "lucide-react";
+import { MessageCircle, Pencil, Trash2, X } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge, Dot } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -160,9 +161,14 @@ function PanelContent({ person: p, onClose }: { person: Person; onClose: () => v
         <section>
           <h3 className="font-semibold">Histórico de contatos</h3>
           {p.interactions.length === 0 ? (
-            <p className="mt-2 text-muted-foreground">
-              Nenhum contato registrado. Quando vocês se falarem, registre aqui.
-            </p>
+            <EmptyState
+              size="sm"
+              icon={MessageCircle}
+              frame="dashed"
+              className="mt-2"
+              title="Nenhum contato registrado"
+              description="Quando vocês se falarem, registre aqui para saber quando procurar de novo."
+            />
           ) : (
             <ol className="mt-2 flex flex-col">
               {p.interactions.map((i, index) => (
