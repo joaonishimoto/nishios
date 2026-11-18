@@ -587,7 +587,81 @@ function proposalG(): Proposal {
   return fromJ(1300, extraG());
 }
 
-export const PROPOSALS: Proposal[] = [proposalG()];
+/**
+ * Outra paleta em cima de uma proposta: mesmos móveis, no mesmo lugar, só com as cores
+ * trocadas. `colors` troca as cores de uma em uma (de → para); as peças de `keep` ficam como
+ * estão (a hidro, as espelheiras, o telhado).
+ */
+function recolor(base: Proposal, o: { id: string; name: string; tagline: string; colors: Record<string, string>; keep?: string[] }): Proposal {
+  const map = new Map(Object.entries(o.colors).map(([from, to]) => [from.toLowerCase(), to]));
+  const swap = (c?: string) => (c && map.get(c.toLowerCase())) || c;
+  return {
+    ...base,
+    id: o.id,
+    name: o.name,
+    tagline: o.tagline,
+    highlights: [`Mesma casa e mesmos móveis da ${base.id.toUpperCase()}, só com outras cores: ${o.tagline.charAt(0).toLowerCase()}${o.tagline.slice(1)}`],
+    pieces: base.pieces.map((p) =>
+      o.keep?.includes(p.name)
+        ? p
+        : {
+            ...p,
+            parts: p.parts.map((part) => ({ ...part, c: swap(part.c) })),
+            fixture: p.fixture?.colors ? { ...p.fixture, colors: { cabinet: swap(p.fixture.colors.cabinet), stone: swap(p.fixture.colors.stone) } } : p.fixture,
+          },
+    ),
+  };
+}
+
+const KEEP_COLORS = ["Hidromassagem", "Espelheira", "Telhado inclinado", "Máquina de lavar", "Painel ripado", "Balcão na mureta"];
+
+/** G2: quente, com madeira clara, terracota no lugar do azul e cozinha verde-sálvia. */
+function proposalG2(): Proposal {
+  return recolor(proposalG(), {
+    id: "g2",
+    name: "G em terracota e madeira",
+    tagline: "Madeira clara nos móveis, terracota onde era azul e a cozinha em verde-sálvia com pedra clara.",
+    keep: KEEP_COLORS,
+    colors: {
+      "#1e3d66": "#b5553a", // azul Nishi → terracota
+      "#f4f4f1": "#c9a27a", // móveis brancos → madeira clara
+      "#e2e2de": "#a9805a", // pés da mesa
+      "#e4d6c2": "#9fae8f", // armários da cozinha → verde-sálvia
+      "#3b3a38": "#ddd6ca", // pedra escura → pedra clara
+      "#6b5a48": "#7d8a6f",
+      "#1f1f22": "#6b4a33", // mesa e cadeira pretas → nogueira
+      "#2b2b2e": "#4a3426",
+      "#e9e4da": "#efe3cf", // roupa de cama → linho cru
+      "#e2ddd2": "#d4b392", // tapete da sala
+      "#4a443d": "#6b4a33",
+    },
+  });
+}
+
+/** G3: moderna, com preto fosco, verde-oliva no lugar do azul e cozinha grafite. */
+function proposalG3(): Proposal {
+  return recolor(proposalG(), {
+    id: "g3",
+    name: "G em preto e verde-oliva",
+    tagline: "Preto fosco nos móveis, verde-oliva onde era azul e a cozinha grafite com pedra branca.",
+    keep: KEEP_COLORS,
+    colors: {
+      "#1e3d66": "#4f6146", // azul Nishi → verde-oliva
+      "#f4f4f1": "#2a2a2c", // móveis brancos → preto fosco
+      "#e2e2de": "#1c1c1e",
+      "#e4d6c2": "#4b4f54", // armários da cozinha → grafite
+      "#3b3a38": "#ece9e3", // pedra escura → pedra branca
+      "#6b5a48": "#2f3236",
+      "#1f1f22": "#8a6a4c", // mesa e cadeira pretas → madeira média, para não sumir no preto
+      "#2b2b2e": "#5e4633",
+      "#e9e4da": "#d6d3cc", // roupa de cama → cinza claro
+      "#e2ddd2": "#8f8c85", // tapete da sala → cinza
+      "#4a443d": "#1c1c1e",
+    },
+  });
+}
+
+export const PROPOSALS: Proposal[] = [proposalG(), proposalG2(), proposalG3()];
 
 /**
  * A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam).
