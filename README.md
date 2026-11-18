@@ -25,7 +25,7 @@ Abra http://localhost:5173.
 
 ### Supabase (login e sincronização)
 
-1. Copie `.env.example` para `.env.local` e preencha `VITE_SUPABASE_PUBLISHABLE_KEY` (Supabase → Project Settings → API Keys).
+1. O `.env` já traz a URL e a publishable key do projeto (são públicas). Para o Google, crie `.env.local` com `VITE_GOOGLE_CLIENT_ID` (veja `.env.example`).
 2. A migration em `supabase/migrations/` cria a tabela `app_state` (uma linha por chave `nishios:...`, com RLS) e a lista `allowed_users`: só os e-mails dela conseguem criar conta. Para liberar um e-mail: `insert into public.allowed_users (email) values ('seu@email.com');` no SQL Editor.
 3. Login: "Entrar com Google" (precisa do provedor Google ligado no Supabase) ou link por e-mail. Em Authentication → URL Configuration, coloque `http://localhost:5173` e o domínio publicado em Redirect URLs.
 
