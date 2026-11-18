@@ -899,12 +899,13 @@ function proposalJ(): Proposal {
   return {
     id: "j",
     name: "Do João",
-    tagline: "Montada com os seus desenhos, um cômodo de cada vez. Por enquanto: a suíte, o quarto, o jantar e a cozinha.",
+    tagline: "Montada com os seus desenhos, um cômodo de cada vez. Por enquanto: a suíte, o quarto, o jantar, a cozinha e o estar.",
     highlights: [
       "Suíte: cama viúva no topo, guarda-roupa de correr na parede do lado, painel suspenso com TV na parede do banheiro e frigobar no canto.",
       "Quarto: cama de solteiro no fundo, embaixo da janela, e a mesa com o computador no canto perto da porta.",
       "Cozinha planejada em L: bancada de ponta a ponta na parede da cozinha e embaixo da janela do serviço, com a pia na janela, cooktop de 4 bocas e armários em cima e embaixo.",
       "Jantar vira sala de TV: sofá de 2 lugares na parede da cozinha, TV com móvel na parede do quarto e porta de vidro de correr fechando a varanda.",
+      "Estar vira sala de jantar: mesa de 1,40 × 0,80 m para 6, dois de cada lado e um em cada ponta.",
       "O resto da casa continua vazio até você desenhar.",
     ],
     notes: {
@@ -922,6 +923,11 @@ function proposalJ(): Proposal {
         "Entre o sofá e o móvel da TV sobra 1,2 m para chegar à porta de vidro.",
       ],
       varanda: ["Porta de vidro de correr de ponta a ponta entre o jantar e a varanda."],
+      estar: [
+        "Mesa de 1,40 × 0,80 m: 70 cm por pessoa nas laterais, que é o confortável, e 80 cm nas pontas.",
+        "Ela fica mais para o lado do jantar: as cadeiras de cima podem recuar para lá, e atrás das cadeiras de baixo sobram 60 cm para passar da porta de entrada para os quartos.",
+        "Da ponta perto do banheiro até a parede sobra 1,2 m, que é o caminho para a circulação dos quartos.",
+      ],
       cozinha: [
         "Bancada planejada de 60 cm de fundo, do canto do shaft até a geladeira (2,5 m), com cooktop de 4 bocas e armários embaixo e aéreos em cima.",
         "Em cima do cooktop fica um vão para a coifa, sem armário.",
@@ -949,6 +955,12 @@ function proposalJ(): Proposal {
         part(-0.01, 1.92, 0.35, 1.48, 0.7, "madeira", 1.5, "#e4d6c2"),
       ]),
       piece("cozinha", "Geladeira", "🧊", "Eletrodomésticos", fridge(R(-0.01, 3.42, 0.7, 0.66), "w")),
+      piece("estar", "Mesa de 6 lugares", "🍽️", "Móveis", table(R(2.6, 3.55, 1.4, 0.8), wood)),
+      piece("estar", "Cadeiras", "🪑", "Móveis", [
+        ...chair(2.78, 3.08, "n", "#7d8a7a"), ...chair(3.38, 3.08, "n", "#7d8a7a"),
+        ...chair(2.78, 4.38, "s", "#7d8a7a"), ...chair(3.38, 4.38, "s", "#7d8a7a"),
+        ...chair(2.13, 3.73, "w", "#7d8a7a"), ...chair(4.03, 3.73, "e", "#7d8a7a"),
+      ]),
       piece("jantar", "Sofá 2 lugares", "🛋️", "Móveis", sofa(R(1.7, 1.55, 0.9, 1.7), "w", "#a8774a", 2)),
       piece("jantar", "Rack e TV", "📺", "Eletrônicos", rackTv(R(3.82, 1.6, 0.4, 1.45), "e", wood)),
       piece("varanda", "Porta de vidro", "🪟", "Outros", [
