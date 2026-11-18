@@ -1,3 +1,4 @@
+import { seedPets } from "@/modules/pets/seed";
 import { markDeleted, markDirty } from "./sync";
 
 /**
@@ -101,10 +102,42 @@ export function clearToExample() {
   markDeleted(gone);
 }
 
-/** Esvazia as listas para começar a usar com dados seus. A casa, o tema e as modalidades de treino ficam. */
+const PETS_KEY = "nishios:pets:v1";
+const CASA_PREFIX = "nishios:casa:";
+/** Maki e Gojo moram na Casa em 3D: continuam em Pets quando se começa do zero. */
+const HOUSE_PETS = new Set(["pet-maki", "pet-gojo"]);
+
+function readJson(key: string): unknown {
+  try {
+    return JSON.parse(localStorage.getItem(key) ?? "null");
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Esvazia as listas para começar a usar com dados seus. Ficam a casa (sem os vínculos com
+ * bens, que são apagados), o tema, as modalidades de treino e os pets da casa, só com a
+ * ficha: vacinas, consultas e pesos saem.
+ */
 export function clearToEmpty() {
+  const saved = readJson(PETS_KEY);
+  const pets: { id?: string }[] = Array.isArray(saved) ? saved : seedPets();
+  const housePets = pets.filter((p) => HOUSE_PETS.has(p?.id ?? "")).map((p) => ({ ...p, cares: [], health: [], weights: [] }));
+
   for (const { key } of COUNTED) localStorage.setItem(key, "[]");
-  markDirty(COUNTED.map((c) => c.key));
+  localStorage.setItem(PETS_KEY, JSON.stringify(housePets));
+
+  const touched = COUNTED.map((c) => c.key);
+  for (const k of keys()) {
+    if (!k.startsWith(CASA_PREFIX)) continue;
+    const home = readJson(k) as { pieces?: { assetId?: string }[] } | null;
+    if (!home || !Array.isArray(home.pieces)) continue;
+    home.pieces = home.pieces.map(({ assetId: _gone, ...piece }) => piece);
+    localStorage.setItem(k, JSON.stringify(home));
+    touched.push(k);
+  }
+  markDirty(touched);
 }
 
 export function downloadBackup(): Backup {
