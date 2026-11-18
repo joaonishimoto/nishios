@@ -121,7 +121,8 @@ export function LineChart({
               />
               <line x1={PAD.left} x2={width - PAD.right} y1={geo.y(band.to)} y2={geo.y(band.to)} className="stroke-[color-mix(in_srgb,var(--success)_45%,transparent)]" />
               <line x1={PAD.left} x2={width - PAD.right} y1={geo.y(band.from)} y2={geo.y(band.from)} className="stroke-[color-mix(in_srgb,var(--success)_45%,transparent)]" />
-              <text x={PAD.left + 8} y={geo.y(band.to) + 15} className="fill-success text-xs">
+              {/* Embaixo da faixa, para não brigar com a linha da meta, que costuma ficar perto do topo. */}
+              <text x={PAD.left + 8} y={geo.y(band.from) - 7} className="fill-success text-xs">
                 {band.label}
               </text>
             </g>
@@ -135,10 +136,15 @@ export function LineChart({
                 y1={geo.y(target.value)}
                 y2={geo.y(target.value)}
                 strokeDasharray="4 4"
-                className="stroke-success"
+                className={band ? "stroke-foreground" : "stroke-success"}
                 strokeWidth={1.5}
               />
-              <text x={width - PAD.right} y={geo.y(target.value) - 6} textAnchor="end" className="fill-muted-foreground text-xs">
+              <text
+                x={width - PAD.right}
+                y={geo.y(target.value) + (band ? 15 : -6)}
+                textAnchor="end"
+                className={band ? "fill-foreground text-xs font-medium" : "fill-muted-foreground text-xs"}
+              >
                 {target.label}
               </text>
             </g>

@@ -36,7 +36,7 @@ export function CorpoPage() {
   const idealGap = ideal ? Math.max(0, current - ideal.to) - Math.max(0, ideal.from - current) : 0;
   const history = [...entries].sort((a, b) => b.date.localeCompare(a.date));
 
-  // Metas ligadas ao que está no gráfico: viram a linha de alvo (fora do peso, que mostra a faixa ideal) e o cartão de progresso.
+  // Metas ligadas ao que está no gráfico: viram a linha de alvo e o cartão de progresso.
   const linked = goals.filter((g) =>
     metric === "peso" ? g.link?.kind === "peso" : metric === "gordura" ? g.link?.kind === "gordura" : g.link?.kind === "medida" && g.link.measure === metric,
   );
@@ -129,7 +129,7 @@ export function CorpoPage() {
                       points={points}
                       label={`Evolução de ${metricLabel(metric).toLowerCase()}: de ${formatValue(points[0].value, metric)} para ${formatValue(points.at(-1)!.value, metric)}`}
                       format={(v) => formatValue(v, metric)}
-                      target={!ideal && goal && !goalDone(goal) ? { value: goal.target, label: `Meta: ${formatValue(goal.target, metric)}` } : undefined}
+                      target={goal && !goalDone(goal) ? { value: goal.target, label: `Meta: ${formatValue(goal.target, metric)}` } : undefined}
                       band={ideal ? { ...ideal, label: `Peso ideal: ${num(ideal.from)} a ${num(ideal.to)} kg` } : undefined}
                     />
                     {ideal && selected && (
