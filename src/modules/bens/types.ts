@@ -15,8 +15,26 @@ export interface Asset {
   brand?: string;
   /** Onde comprou: Amazon, Mercado Livre, uma loja física... */
   store?: string;
+  /** Quantas unidades comprou. Ausente vale 1. */
+  quantity?: number;
+  /** Quantas ainda tem. Ausente vale todas as compradas. */
+  owned?: number;
+  /** O que houve com as que saíram. */
+  goneReason?: GoneReason;
+  /** Quando saíram, em yyyy-MM-dd; vazio quando não se sabe. */
+  goneDate?: string;
   notes: string;
 }
+
+export type GoneReason = "sold" | "donated" | "lost" | "broken" | "other";
+
+export const GONE_REASONS: { value: GoneReason; label: string; past: string }[] = [
+  { value: "sold", label: "Vendi", past: "Vendido" },
+  { value: "donated", label: "Doei ou dei de presente", past: "Doado" },
+  { value: "lost", label: "Perdi ou foi roubado", past: "Perdido" },
+  { value: "broken", label: "Quebrou ou joguei fora", past: "Descartado" },
+  { value: "other", label: "Outro motivo", past: "Saiu" },
+];
 
 export type AssetDraft = Omit<Asset, "id">;
 

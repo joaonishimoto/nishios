@@ -11,7 +11,8 @@ import { IconPicker } from "@/components/ui/IconPicker";
 import { useToast } from "@/components/ui/Toast";
 import { toISO, today } from "@/lib/dates";
 import { useBens } from "./store";
-import { ASSET_CATEGORIES, ASSET_ICONS, type Asset, type AssetDraft } from "./types";
+import { bought, owned } from "./logic";
+import { ASSET_CATEGORIES, ASSET_ICONS, GONE_REASONS, type Asset, type AssetDraft, type GoneReason } from "./types";
 
 export function AssetForm({
   open,
@@ -71,6 +72,10 @@ function Content({
     location: asset?.location ?? "",
     brand: asset?.brand ?? "",
     store: asset?.store ?? "",
+    quantity: asset ? bought(asset) : 1,
+    owned: asset ? owned(asset) : 1,
+    goneReason: asset?.goneReason,
+    goneDate: asset?.goneDate ?? "",
     notes: asset?.notes ?? "",
     ...(asset ? {} : initial),
   });
@@ -80,6 +85,18 @@ function Content({
   const categories = ASSET_CATEGORIES.includes(draft.category)
     ? ASSET_CATEGORIES
     : [...ASSET_CATEGORIES, draft.category];
+
+  const quantity = Math.max(1, Math.round(draft.quantity || 1));
+  const kept = Math.min(quantity, Math.max(0, draft.owned ?? quantity));
+  const someGone = kept < quantity;
+  const setQuantity = (n: number) =>
+    setDraft((d) => {
+      const prev = Math.max(1, Math.round(d.quantity || 1));
+      const next = Math.max(1, Math.round(n || 1));
+      // Se tinha todas, continua com todas; senão mantém quantas tinha, até o novo total.
+      const o = d.owned ?? prev;
+      return { ...d, quantity: next, owned: o >= prev ? next : Math.min(o, next) };
+    });
 
   const nameError = draft.name.trim() ? undefined : "Dê um nome ao bem.";
 
@@ -95,6 +112,10 @@ function Content({
       store: (draft.store ?? "").trim(),
       notes: draft.notes.trim(),
       value: Math.max(0, draft.value || 0),
+      quantity,
+      owned: kept,
+      goneReason: someGone ? (draft.goneReason ?? "other") : undefined,
+      goneDate: someGone ? (draft.goneDate ?? "") : undefined,
     };
     if (asset) {
       updateAsset(asset.id, clean);
@@ -134,7 +155,7 @@ function Content({
               </Select>
             )}
           </Field>
-          <Field label="Valor pago (R$)">
+          <Field label="Valor pago (R$)" hint={quantity > 1 ? "O total, somando todas as unidades." : undefined}>
             {(id) => (
               <Input
                 id={id}
@@ -171,6 +192,72 @@ function Content({
               />
             )}
           </Field>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Quantos comprei">
+            {(id) => (
+              <Input
+                id={id}
+                type="number"
+                min={1}
+                step={1}
+                placeholder="1"
+                inputMode="numeric"
+                value={draft.quantity || ""}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+              />
+            )}
+          </Field>
+          <Field label={quantity > 1 ? "Quantos ainda tenho" : "Ainda tenho?"}>
+            {(id) => (
+              <Select id={id} value={String(kept)} onChange={(e) => set("owned", Number(e.target.value))}>
+                {quantity === 1 ? (
+                  <>
+                    <option value="1">Sim, ainda tenho</option>
+                    <option value="0">Não tenho mais</option>
+                  </>
+                ) : (
+                  Array.from({ length: quantity + 1 }, (_, i) => quantity - i).map((n) => (
+                    <option key={n} value={String(n)}>
+                      {n === quantity ? `Todos os ${n}` : n === 0 ? "Nenhum, não tenho mais" : String(n)}
+                    </option>
+                  ))
+                )}
+              </Select>
+            )}
+          </Field>
+          {someGone && (
+            <>
+              <Field label={kept === 0 ? "O que aconteceu" : "O que houve com os outros"}>
+                {(id) => (
+                  <Select
+                    id={id}
+                    value={draft.goneReason ?? "other"}
+                    onChange={(e) => set("goneReason", e.target.value as GoneReason)}
+                  >
+                    {GONE_REASONS.map((r) => (
+                      <option key={r.value} value={r.value}>
+                        {r.label}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              </Field>
+              <Field label="Quando">
+                {(id) => (
+                  <Input
+                    placeholder="Quando saiu"
+                    id={id}
+                    type="date"
+                    max={toISO(today())}
+                    value={draft.goneDate ?? ""}
+                    onChange={(e) => set("goneDate", e.target.value)}
+                  />
+                )}
+              </Field>
+            </>
+          )}
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
