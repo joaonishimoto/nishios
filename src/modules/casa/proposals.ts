@@ -193,11 +193,11 @@ function slopedRoof(r: Rect, steps = 6): Part[] {
 
 /**
  * Porta de vidro de correr com duas folhas em trilhos paralelos: a folha de fora fica fixa
- * do lado esquerdo e a de dentro corre por cima dela. Perfil de alumínio grafite, vidro
+ * do lado esquerdo e a de dentro corre por cima dela. Perfil de alumínio prata, vidro
  * inteiro com travessas finas, trilho no chão e puxador vertical na folha que corre.
  * Tudo abaixo de 2 m para o 3D não jogar o alto da porta para cima das paredes.
  */
-function slidingDoor(x0: number, x1: number, z: number, frame = "#2f3338"): Part[] {
+function slidingDoor(x0: number, x1: number, z: number, frame = "#b8bec6"): Part[] {
   const H = 2.08, P = 0.045, RAIL = 0.07, D = 0.035, overlap = 0.08;
   const leafW = (x1 - x0 + overlap) / 2;
   const leaf = (x: number, lz: number): Part[] => [
