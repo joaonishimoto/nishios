@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { differenceInCalendarDays } from "date-fns";
-import { Cloud, Download, Eraser, Inbox, LogOut, RefreshCw, RotateCcw, Upload } from "lucide-react";
+import { ClipboardPaste, Cloud, Download, Eraser, Inbox, LogOut, RefreshCw, RotateCcw, Upload } from "lucide-react";
+import { Field, Textarea } from "@/components/ui/Field";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useCloud, useSyncStatus } from "@/components/cloud/CloudGate";
 import { Button } from "@/components/ui/Button";
@@ -148,6 +149,18 @@ export function DadosPage() {
   const input = useRef<HTMLInputElement>(null);
   const [error, setError] = useState("");
   const [confirm, setConfirm] = useState<Confirm | null>(null);
+  const [paste, setPaste] = useState<{ open: boolean; text: string; error: string }>({ open: false, text: "", error: "" });
+
+  function review() {
+    const parsed = parseBackup(paste.text.trim());
+    if (typeof parsed === "string") {
+      setPaste((p) => ({ ...p, error: parsed }));
+      return;
+    }
+    setPaste({ open: false, text: "", error: "" });
+    setError("");
+    setConfirm({ kind: "restore", backup: parsed, fileName: "JSON colado" });
+  }
 
   async function pick(file: File | undefined) {
     if (!file) return;
@@ -215,7 +228,7 @@ export function DadosPage() {
 
       <Block title="Importar ou restaurar de um arquivo">
         <p className="max-w-[60ch] text-muted-foreground">
-          Escolha um backup baixado aqui ou um arquivo de importação. Você pode juntar os itens dele ao que já tem ou
+          Escolha um backup baixado aqui ou um arquivo de importação, ou cole o JSON direto. Você pode juntar os itens dele ao que já tem ou
           substituir tudo o que está salvo neste navegador{cloud && " e na nuvem"}.
         </p>
         <input
@@ -229,10 +242,16 @@ export function DadosPage() {
             e.target.value = "";
           }}
         />
-        <Button variant="outline" onClick={() => input.current?.click()}>
-          <Upload />
-          Escolher arquivo
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => input.current?.click()}>
+            <Upload />
+            Escolher arquivo
+          </Button>
+          <Button variant="outline" onClick={() => setPaste({ open: true, text: "", error: "" })}>
+            <ClipboardPaste />
+            Colar JSON
+          </Button>
+        </div>
         {error && (
           <p role="alert" className="text-sm text-danger-strong">
             {error}
@@ -256,6 +275,45 @@ export function DadosPage() {
           </Button>
         </div>
       </Block>
+
+      <Dialog
+        open={paste.open}
+        onOpenChange={(open) => setPaste((p) => ({ ...p, open }))}
+        title="Colar JSON"
+        description={'Cole um backup do NishiOS ou só as listas, como { "nishios:bens:v1": [...] }. Antes de gravar, você vê o que tem dentro.'}
+      >
+        <form
+          className="flex min-h-0 flex-1 flex-col"
+          onSubmit={(e) => {
+            e.preventDefault();
+            review();
+          }}
+        >
+          <DialogBody>
+            <Field label="JSON" error={paste.error || undefined}>
+              {(id) => (
+                <Textarea
+                  id={id}
+                  autoFocus
+                  spellCheck={false}
+                  className="min-h-56 font-mono text-xs"
+                  placeholder='{ "nishios:bens:v1": [ ... ] }'
+                  value={paste.text}
+                  onChange={(e) => setPaste({ open: true, text: e.target.value, error: "" })}
+                />
+              )}
+            </Field>
+          </DialogBody>
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={() => setPaste((p) => ({ ...p, open: false }))}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={!paste.text.trim()}>
+              Revisar
+            </Button>
+          </DialogFooter>
+        </form>
+      </Dialog>
 
       <Dialog
         open={confirm !== null}
