@@ -4,7 +4,8 @@ import { seedHome } from "./seed";
 import type { Home } from "./types";
 
 // v10: sem o shaft ao lado do chuveiro do banheiro.
-const KEY = "nishios:casa:v10";
+// v11: a janela da suíte fica na parede de cima, para a área externa.
+const KEY = "nishios:casa:v11";
 
 interface Store {
   home: Home;
