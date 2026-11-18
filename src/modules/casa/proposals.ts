@@ -676,7 +676,60 @@ function proposalE(): Proposal {
   });
 }
 
-export const PROPOSALS: Proposal[] = [proposalA(), proposalB(), proposalC(), proposalD(), proposalE(), proposalJ()];
+function proposalF(): Proposal {
+  return fromJ(1200, {
+    id: "f",
+    name: "J com hidro e churrasco",
+    tagline: "A J completa, com hidro e churrasqueira embaixo do telhado, para descansar e fazer churrasco, e a lavanderia coberta no fundo, atrás da suíte.",
+    highlights: [
+      "Área de fora: hidromassagem branca no canto da cozinha e churrasqueira com bancada no muro da área coberta, tudo embaixo do telhado.",
+      "Mesa para quatro logo depois da cobertura, e a lavanderia (tanque, máquina e armário) no fundo, atrás da suíte, com um telhadinho próprio.",
+    ],
+    replaceNotes: ["servicoext", "coberta", "externa"],
+    replaceOutdoorHighlight: true,
+    notes: {
+      ...BATH_NOTES,
+      servicoext: [
+        "Hidromassagem branca de 2,00 × 1,40 m no canto, entre o muro e a parede da cozinha, com o degrau do lado da varanda.",
+        "Fica embaixo do telhado: dá para usar com chuva, e as folhas não caem na água.",
+        "Ripado de madeira no lado de dentro do muro, do chão até 2,50 m, atrás e do lado da hidro.",
+      ],
+      coberta: [
+        "Churrasqueira e bancada de apoio de 1,20 m encostadas no muro, ao lado da hidro: quem está na água fica perto de quem está na grelha.",
+        "Embaixo do telhado, então o churrasco não para com chuva. Sobram uns 90 cm de passagem da varanda até a área externa.",
+        "Os gatos continuam podendo ficar aqui fora sem tomar chuva.",
+      ],
+      externa: [
+        "Mesa para quatro logo depois da cobertura, em frente à janela do escritório, para comer perto da churrasqueira.",
+        "Lavanderia no fundo, atrás da suíte: tanque e máquina no muro do lado, armário alto no muro do fundo. Fica longe da hidro e do churrasco.",
+        "Um telhadinho próprio, da parede da suíte até o muro, cobre a lavanderia. Ela fica depois da janela da suíte, para não tampar a luz.",
+      ],
+    },
+    outdoorChanges: { servicoext: { name: "Hidro", floor: "deck" } },
+    drop: ["servicoext:Tanque", "servicoext:Máquina de lavar", "servicoext:Armário de serviço"],
+    externa: externa("deck"),
+    pieces: () => [
+      ...bathrooms("#1e3d66", "#e9e4da"),
+      ...salaExtras("#e2ddd2"),
+      piece("servicoext", "Hidromassagem", "🛁", "Móveis", hotTub(R(0.02, EXT.z0 + 0.04, 2.0, 1.4))),
+      piece("servicoext", "Painel ripado", "🪵", "Obras", [...slatScreen(R(-0.01, EXT.z0, 2.1, 0.03)), ...slatScreen(R(-0.01, EXT.z0, 0.03, EXT.z1 - EXT.z0))]),
+      piece("coberta", "Churrasqueira", "🔥", "Móveis", bbq(R(2.35, EXT.z0, 0.9, 0.55))),
+      piece("coberta", "Bancada de apoio", "🗄️", "Móveis", [part(3.3, EXT.z0, 1.2, 0.55, 0.86, "madeira", 0, "#f4f4f1"), part(3.3, EXT.z0, 1.2, 0.55, 0.04, "pedra", 0.86, "#3b3a38")]),
+      piece("externa", "Mesa e cadeiras", "🍽️", "Móveis", [
+        ...table(R(5.3, -0.95, 1.2, 0.7), "#f4f4f1", "#2b2b2e"),
+        ...chair(5.45, -1.45, "n", "#1e3d66"), ...chair(6.0, -1.45, "n", "#1e3d66"),
+        ...chair(4.82, -0.82, "w", "#1e3d66"), ...chair(6.54, -0.82, "e", "#1e3d66"),
+      ]),
+      piece("externa", "Plantas em vaso", "🪴", "Plantas", [...plant(7.3, -1.45, 0.38, 1.2), ...plant(7.3, -0.5, 0.36, 1.0)]),
+      { ...piece("externa", "Tanque", "🧺", "Móveis", [part(EXT.x1 - 0.55, EXT.z0, 0.55, 0.55, 0.9, "branco")]), fixture: { kind: "tanque", x: EXT.x1 - 0.55, z: EXT.z0, w: 0.55, d: 0.55, wall: "e" } },
+      piece("externa", "Máquina de lavar", "🫧", "Eletrodomésticos", washer(R(EXT.x1 - 0.65, EXT.z0 + 0.6, 0.65, 0.6), "e")),
+      piece("externa", "Armário de serviço", "🧹", "Móveis", full(tallCabinet(R(8.97, EXT.z0, 0.33, 0.4), "n", "#f4f4f1"))),
+      piece("externa", "Telhado da lavanderia", "🏠", "Obras", slopedRoof(R(8.94, -1.86, EXT.x1 + 0.1 - 8.94, 2.05))),
+    ],
+  });
+}
+
+export const PROPOSALS: Proposal[] = [proposalA(), proposalB(), proposalC(), proposalD(), proposalE(), proposalF(), proposalJ()];
 
 /**
  * A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam).
