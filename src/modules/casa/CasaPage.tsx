@@ -14,7 +14,7 @@ import { useBens } from "@/modules/bens/store";
 import type { Asset, Wish } from "@/modules/bens/types";
 import { LinkAssetDialog } from "./LinkAssetDialog";
 import { indoorArea, roomSize, suggestions, summarize } from "./logic";
-import { PROPOSALS, withProposal, type Proposal } from "./proposals";
+import { MAIN, PROPOSALS, withProposal, type Proposal } from "./proposals";
 import { useCasa } from "./store";
 import type { Home, Piece, Room, ViewMode } from "./types";
 import { WALL_DEFAULT, WALL_MIN, WALL_REAL } from "./walls";
@@ -66,7 +66,8 @@ export function CasaPage() {
       ? "planta"
       : "3d";
   // Uma proposta de móveis é só para ver: troca a área externa e os móveis, sem mexer na casa salva.
-  const proposal = PROPOSALS.find((p) => p.id === params.get("proposta")) ?? null;
+  // A principal é a vista padrão; a Vazia só aparece com ?proposta=vazia.
+  const proposal = params.get("proposta") === "vazia" ? null : (PROPOSALS.find((p) => p.id === params.get("proposta")) ?? MAIN);
   const home = useMemo(() => withProposal(real, proposal), [real, proposal]);
   const focus = home.rooms.find((r) => r.id === params.get("comodo")) ?? null;
   const dims = params.get("cotas") === "1";
@@ -155,7 +156,7 @@ export function CasaPage() {
                 setParams(
                   (prev) => {
                     const next = new URLSearchParams(prev);
-                    if (v === "vazia") next.delete("proposta");
+                    if (v === MAIN.id) next.delete("proposta");
                     else next.set("proposta", v);
                     // O cômodo pode não existir na outra proposta (a área externa muda).
                     next.delete("comodo");
@@ -165,8 +166,9 @@ export function CasaPage() {
                 );
               }}
               options={[
+                { value: MAIN.id, label: "Principal" },
                 { value: "vazia", label: "Vazia" },
-                ...PROPOSALS.map((p) => ({ value: p.id, label: p.id.toUpperCase() })),
+                ...PROPOSALS.filter((p) => p !== MAIN).map((p) => ({ value: p.id, label: p.label ?? p.id.toUpperCase() })),
               ]}
             />
             <Button
@@ -571,7 +573,7 @@ function RoomPanel({
           <div className="flex flex-col gap-2 border-t border-border p-4">
             <h3 className="flex items-center gap-1.5 text-sm font-medium">
               <Lightbulb className="size-4 text-warning" />
-              {proposal ? `Por que assim (proposta ${proposal.id.toUpperCase()})` : "Sugestões"}
+              {proposal ? "Por que assim" : "Sugestões"}
             </h3>
             {tips.map((tip) => (
               <p key={tip} className="rounded-md bg-warning-soft px-3 py-2 text-sm text-warning-strong">
