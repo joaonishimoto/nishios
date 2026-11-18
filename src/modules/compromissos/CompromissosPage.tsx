@@ -104,7 +104,7 @@ export function CompromissosPage() {
         <div className="ml-auto flex w-full gap-2 sm:w-auto">
           <Select
             aria-label="Filtrar por categoria"
-            className="sm:w-44"
+            className="sm:w-52"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >

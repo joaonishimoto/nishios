@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Check, Pencil, Plus, Scale, Sofa } from "lucide-react";
+import { Check, Pencil, Plus, Scale, Sofa, X } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { CycleTrack } from "@/components/ui/CycleTrack";
@@ -104,6 +104,7 @@ const headlineTone = {
 
 function PetCard({ pet, selected, onSelect }: { pet: Pet; selected: boolean; onSelect: () => void }) {
   const headline = petHeadline(pet);
+  const weight = currentWeight(pet);
   return (
     <button
       type="button"
@@ -119,10 +120,11 @@ function PetCard({ pet, selected, onSelect }: { pet: Pet; selected: boolean; onS
       <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-surface-muted text-2xl leading-none">
         {pet.icon}
       </span>
-      <span className="min-w-0">
+      <span className="min-w-0 flex-1">
         <span className="block truncate font-medium">{pet.name}</span>
         <span className={cn("block truncate text-sm", headlineTone[headline.tone])}>{headline.text}</span>
       </span>
+      {weight && <span className="shrink-0 self-start text-sm text-muted-foreground tabular-nums">{formatKg(weight.kg)}</span>}
     </button>
   );
 }
@@ -181,9 +183,11 @@ function PetDetail({ pet, onEdit }: { pet: Pet; onEdit: () => void }) {
         )}
       </section>
 
+      <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
+      <div className="flex min-w-0 flex-col gap-8">
       <section>
         <SectionHead
-          title="Vacinas e cuidados"
+          title={`Vacinas e cuidados de ${pet.name}`}
           action={
             <Button variant="outline" size="sm" className="h-8" onClick={() => setCareForm({ open: true })}>
               <Plus />
@@ -206,7 +210,7 @@ function PetDetail({ pet, onEdit }: { pet: Pet; onEdit: () => void }) {
 
       <section>
         <SectionHead
-          title="Saúde"
+          title={`Saúde de ${pet.name}`}
           action={
             <Button variant="outline" size="sm" className="h-8" onClick={() => setHealthForm({ open: true })}>
               <Plus />
@@ -250,7 +254,9 @@ function PetDetail({ pet, onEdit }: { pet: Pet; onEdit: () => void }) {
         )}
       </section>
 
+      </div>
       <WeightSection pet={pet} />
+      </div>
 
       <CareForm
         open={careForm.open}
@@ -369,7 +375,11 @@ function WeightSection({ pet }: { pet: Pet }) {
   const [date, setDate] = useState(max);
   const [kg, setKg] = useState("");
   const weights = newestFirst(pet.weights);
-  const heaviest = Math.max(...weights.map((w) => w.kg), 0);
+  const [showAll, setShowAll] = useState(false);
+  const latest = weights[0];
+  const previous = weights[1];
+  const diff = latest && previous ? latest.kg - previous.kg : null;
+  const listed = showAll ? weights : weights.slice(0, 5);
 
   function submit(e: FormEvent) {
     e.preventDefault();
@@ -385,91 +395,125 @@ function WeightSection({ pet }: { pet: Pet }) {
   }
 
   return (
-    <section>
-      <SectionHead
-        title="Peso"
-        action={
-          <Popover
-            open={open}
-            onOpenChange={(o) => {
-              setOpen(o);
-              if (o) {
-                setDate(max);
-                setKg("");
-              }
-            }}
-          >
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8">
-                <Scale />
+    <section
+      aria-label={`Peso de ${pet.name}`}
+      className="min-w-0 rounded-lg border border-border bg-surface p-4 sm:p-5 xl:sticky xl:top-0"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="truncate text-lg font-semibold tracking-tight">Peso de {pet.name}</h2>
+          {latest ? (
+            <p className="mt-1 flex flex-wrap items-baseline gap-x-2">
+              <span className="text-2xl font-semibold tabular-nums">{formatKg(latest.kg)}</span>
+              <span className="text-sm text-muted-foreground">
+                em {shortDate(latest.date)}
+                {diff !== null && (Math.abs(diff) < 0.05 ? ", igual à anterior" : `, ${diff > 0 ? "+" : "−"}${formatKg(Math.abs(diff))} desde a anterior`)}
+              </span>
+            </p>
+          ) : (
+            <p className="mt-1 text-sm text-muted-foreground">Nenhuma pesagem ainda.</p>
+          )}
+        </div>
+        <Popover
+          open={open}
+          onOpenChange={(o) => {
+            setOpen(o);
+            if (o) {
+              setDate(max);
+              setKg("");
+            }
+          }}
+        >
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="h-8" aria-label={`Registrar peso de ${pet.name}`}>
+              <Scale />
+              Registrar
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-64" align="end">
+            <form className="flex flex-col gap-3" onSubmit={submit}>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Peso em kg">
+                  {(id) => (
+                    <Input
+                      id={id}
+                      inputMode="decimal"
+                      value={kg}
+                      placeholder="0,0"
+                      required
+                      onChange={(e) => setKg(e.target.value)}
+                    />
+                  )}
+                </Field>
+                <Field label="Quando">
+                  {(id) => (
+                    <Input id={id} type="date" max={max} value={date} required onChange={(e) => setDate(e.target.value)} />
+                  )}
+                </Field>
+              </div>
+              <Button type="submit" size="sm" className="h-8">
                 Registrar peso
               </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-64" align="end">
-              <form className="flex flex-col gap-3" onSubmit={submit}>
-                <div className="grid grid-cols-2 gap-3">
-                  <Field label="Peso em kg">
-                    {(id) => (
-                      <Input
-                        id={id}
-                        inputMode="decimal"
-                        value={kg}
-                        placeholder="0,0"
-                        required
-                        onChange={(e) => setKg(e.target.value)}
-                      />
-                    )}
-                  </Field>
-                  <Field label="Quando">
-                    {(id) => (
-                      <Input id={id} type="date" max={max} value={date} required onChange={(e) => setDate(e.target.value)} />
-                    )}
-                  </Field>
-                </div>
-                <Button type="submit" size="sm" className="h-8">
-                  Registrar peso
-                </Button>
-              </form>
-            </PopoverContent>
-          </Popover>
-        }
-      />
+            </form>
+          </PopoverContent>
+        </Popover>
+      </div>
+
       {weights.length === 0 ? (
         <p className="mt-3 text-muted-foreground">
-          Registre o peso depois de cada consulta para acompanhar se está subindo ou caindo.
+          Registre o peso de {pet.name} depois de cada consulta para ver se está subindo ou caindo.
         </p>
       ) : (
         <>
-        {weights.length > 1 && (
-          <div className="mt-3 rounded-lg border border-border bg-surface p-3">
-            <LineChart
-              points={[...weights].reverse().map((w) => ({ date: w.date, value: w.kg }))}
-              label={`Peso de ${pet.name} ao longo do tempo`}
-              format={formatKg}
-            />
-          </div>
-        )}
-        <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
-          {weights.map((w, i) => {
-            const prev = weights[i + 1];
-            const diff = prev ? w.kg - prev.kg : 0;
-            return (
-              <li key={w.id} className="flex items-center gap-4 border-b border-border px-3 py-2.5 last:border-b-0">
-                <span className="w-20 shrink-0 text-sm text-muted-foreground">{shortDate(w.date)}</span>
-                <span className="w-16 shrink-0 font-medium tabular-nums">{formatKg(w.kg)}</span>
-                <span aria-hidden className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-surface-muted">
-                  <span
-                    className="block h-full rounded-full bg-primary"
-                    style={{ width: `${(w.kg / heaviest) * 100}%` }}
-                  />
-                </span>
-                <span className="w-16 shrink-0 text-right text-sm text-muted-foreground tabular-nums">
-                  {!prev ? "Primeiro" : Math.abs(diff) < 0.05 ? "Igual" : `${diff > 0 ? "+" : "−"}${formatKg(Math.abs(diff))}`}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
+          {weights.length > 1 && (
+            <div className="mt-3">
+              <LineChart
+                points={[...weights].reverse().map((w) => ({ date: w.date, value: w.kg }))}
+                label={`Peso de ${pet.name} ao longo do tempo`}
+                format={formatKg}
+              />
+            </div>
+          )}
+          <ul className="mt-3 border-t border-border">
+            {listed.map((w) => {
+              const i = weights.indexOf(w);
+              const prev = weights[i + 1];
+              const d = prev ? w.kg - prev.kg : 0;
+              return (
+                <li key={w.id} className="group flex items-center gap-3 border-b border-border py-2 last:border-b-0">
+                  <span className="flex-1 text-sm text-muted-foreground">{shortDate(w.date)}</span>
+                  <span className="w-14 text-right text-sm text-muted-foreground tabular-nums">
+                    {!prev ? "" : Math.abs(d) < 0.05 ? "igual" : `${d > 0 ? "+" : "−"}${formatKg(Math.abs(d))}`}
+                  </span>
+                  <span className="w-16 text-right font-medium tabular-nums">{formatKg(w.kg)}</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={`Apagar a pesagem de ${shortDate(w.date)}`}
+                    className="size-7 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                    onClick={() => {
+                      removeItem(pet.id, "weights", w.id);
+                      toast({
+                        message: "Pesagem apagada",
+                        action: { label: "Desfazer", onClick: () => saveItem(pet.id, "weights", w) },
+                      });
+                    }}
+                  >
+                    <X />
+                  </Button>
+                </li>
+              );
+            })}
+          </ul>
+          {weights.length > 5 && (
+            <button
+              type="button"
+              onClick={() => setShowAll((v) => !v)}
+              className="mt-2 text-sm font-medium text-primary hover:underline"
+            >
+              {showAll ? "Mostrar menos" : `Ver as ${weights.length} pesagens`}
+            </button>
+          )}
         </>
       )}
     </section>

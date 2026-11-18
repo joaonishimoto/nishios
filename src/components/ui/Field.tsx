@@ -1,21 +1,35 @@
-import {
-  forwardRef,
-  useId,
-  type InputHTMLAttributes,
-  type ReactNode,
-  type SelectHTMLAttributes,
-  type TextareaHTMLAttributes,
-} from "react";
-import { ChevronDown } from "lucide-react";
+import { forwardRef, useId, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
+import { control } from "./control";
+import { DatePicker } from "./DatePicker";
 
-const control =
-  "w-full rounded-md border border-input bg-input-background px-2.5 text-base text-foreground transition-colors duration-(--motion-fast) placeholder:text-subtle-foreground hover:border-input-hover focus:border-ring focus:outline-2 focus:outline-offset-0 focus:outline-ring/25 disabled:opacity-50";
+// A lista suspensa é a do design system, não a do navegador.
+export { Select } from "./Select";
 
+/**
+ * Campo de texto. Com `type="date"` vira o seletor de data do design system,
+ * com a mesma forma de usar (`value` em yyyy-MM-dd e `e.target.value` no `onChange`).
+ */
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
-  ({ className, ...props }, ref) => (
-    <input ref={ref} className={cn(control, "h-9", className)} {...props} />
-  ),
+  ({ className, ...props }, ref) => {
+    if (props.type === "date") {
+      return (
+        <DatePicker
+          id={props.id}
+          value={props.value === undefined ? undefined : String(props.value)}
+          onChange={props.onChange}
+          min={props.min === undefined ? undefined : String(props.min)}
+          max={props.max === undefined ? undefined : String(props.max)}
+          required={props.required}
+          disabled={props.disabled}
+          placeholder={props.placeholder}
+          aria-label={props["aria-label"]}
+          className={className}
+        />
+      );
+    }
+    return <input ref={ref} className={cn(control, "h-9", className)} {...props} />;
+  },
 );
 Input.displayName = "Input";
 
@@ -27,20 +41,6 @@ export const Textarea = forwardRef<
 ));
 Textarea.displayName = "Textarea";
 
-export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement>>(
-  ({ className, children, ...props }, ref) => (
-    <span className={cn("relative inline-block w-full", className)}>
-      <select ref={ref} className={cn(control, "h-9 appearance-none pr-8")} {...props}>
-        {children}
-      </select>
-      <ChevronDown
-        aria-hidden
-        className="pointer-events-none absolute top-1/2 right-2.5 size-4 -translate-y-1/2 text-subtle-foreground"
-      />
-    </span>
-  ),
-);
-Select.displayName = "Select";
 
 /** Rótulo + controle + ajuda/erro. Passa o id para o filho por função. */
 export function Field({

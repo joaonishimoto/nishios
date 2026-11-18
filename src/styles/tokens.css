@@ -160,9 +160,9 @@
   --topbar-height: 48px;
   --page-padding-x: 2.5rem;
   --page-padding-y: 2rem;
-  --page-max-width: 1120px;
-  /* Telas que precisam de largura, como o calendário. */
-  --page-max-width-wide: 1520px;
+  /* Toda página usa a largura inteira da janela, sem faixas vazias nas laterais.
+     Vale para as páginas que vierem depois: o AppShell aplica a todas. */
+  --page-max-width: none;
 
   /* ---- Movimento e camadas ---- */
   --motion-fast: 150ms;

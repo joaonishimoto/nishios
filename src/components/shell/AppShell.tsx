@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { cn } from "@/lib/cn";
 import * as RadixDialog from "@radix-ui/react-dialog";
 import { Menu, Moon, Search, Sun } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -15,9 +14,6 @@ const TITLES: Record<string, string> = {
   "/design-system": "Design system",
   "/dados": "Dados e backup",
 };
-
-/** Páginas que usam a largura toda da janela. */
-const WIDE = ["/calendario", "/casa"];
 
 export function AppShell() {
   const { theme, toggle } = useTheme();
@@ -89,12 +85,8 @@ export function AppShell() {
         </header>
 
         <main className="flex-1 overflow-y-auto">
-          <div
-            className={cn(
-              "mx-auto w-full px-(--page-padding-x) py-(--page-padding-y)",
-              WIDE.includes(pathname) ? "max-w-(--page-max-width-wide)" : "max-w-(--page-max-width)",
-            )}
-          >
+          {/* Mesma largura para todas as páginas, inclusive as que vierem depois. */}
+          <div className="mx-auto w-full max-w-(--page-max-width) px-(--page-padding-x) py-(--page-padding-y)">
             <Outlet />
           </div>
         </main>
