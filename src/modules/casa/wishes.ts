@@ -17,6 +17,7 @@ const PRICES: [RegExp, number][] = [
   [/^bancada planejada/i, 9000],
   [/^armários aéreos/i, 3000],
   [/^cooktop/i, 900],
+  [/^coifa/i, 1500],
   [/^pia$/i, 800],
   [/^porta de vidro/i, 3500],
   [/^painel e tv/i, 3800],
