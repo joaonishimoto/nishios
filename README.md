@@ -82,7 +82,7 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
 - **Pets**: um cartão por pet, com o que ele precisa agora.
   - Vacinas e cuidados (vermífugo, antipulgas...) com a frequência de cada um; a trilha mostra quanto falta e "Marcar como feito" recalcula a próxima data.
   - Saúde: consultas, exames, cirurgias e problemas de saúde, com "Em tratamento" ou "Resolvido".
-  - Peso: histórico com a variação entre uma pesagem e outra.
+  - Peso de cada pet em um painel ao lado: o peso atual, a variação, o gráfico e a lista de pesagens.
 - **Skills**: hard e soft skills.
   - **Visão geral** (a principal): o que você está estudando agora, com o andamento do plano de estudo e o próximo passo para marcar ali mesmo; o que você já sabe, por nível; e a fila do que quer aprender, com "Começar".
   - **Quadro**: as três colunas (quero aprender, aprendendo, já sei) para arrastar entre elas.
