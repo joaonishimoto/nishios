@@ -16,6 +16,8 @@ export interface Proposal {
   notes: Record<string, string[]>;
   /** A área externa vira estes cômodos. */
   outdoor: Room[];
+  /** Peças da construção que a proposta tira, como "cozinha:Bancada da pia". */
+  remove?: string[];
   /** Pisos trocados (por exemplo, a varanda no mesmo piso da área gourmet). */
   floors?: Record<string, FloorKind>;
   pieces: Piece[];
@@ -878,16 +880,30 @@ function proposalF(): Proposal {
   };
 }
 
+/** Bancada planejada: armário embaixo, tampo de pedra e as frestas das portas na frente. */
+function plannedCounter(r: Rect, front: Side, cabinet: string, top: string): Part[] {
+  const out = [part(r.x, r.z, r.w, r.d, 0.86, "madeira", 0, cabinet), part(r.x, r.z, r.w, r.d, 0.04, "pedra", 0.86, top)];
+  const along = front === "n" || front === "s" ? r.w : r.d;
+  const doors = Math.max(1, Math.round(along / 0.45));
+  for (let i = 1; i < doors; i++) {
+    const t = (along / doors) * i;
+    if (front === "e") out.push(part(r.x + r.w, r.z + t - 0.004, 0.006, 0.008, 0.7, "escuro", 0.1, "#6b5a48"));
+    if (front === "s") out.push(part(r.x + t - 0.004, r.z + r.d, 0.008, 0.006, 0.7, "escuro", 0.1, "#6b5a48"));
+  }
+  return out;
+}
+
 function proposalJ(): Proposal {
   seq = 600;
   const wood = "#b98a5c";
   return {
     id: "j",
     name: "Do João",
-    tagline: "Montada com os seus desenhos, um cômodo de cada vez. Por enquanto: a suíte, o quarto e o jantar.",
+    tagline: "Montada com os seus desenhos, um cômodo de cada vez. Por enquanto: a suíte, o quarto, o jantar e a cozinha.",
     highlights: [
       "Suíte: cama viúva no topo, guarda-roupa de correr na parede do lado, painel suspenso com TV na parede do banheiro e frigobar no canto.",
       "Quarto: cama de solteiro no fundo, embaixo da janela, e a mesa com o computador no canto perto da porta.",
+      "Cozinha planejada em L: bancada de ponta a ponta na parede da cozinha e embaixo da janela do serviço, com a pia na janela, cooktop de 4 bocas e armários em cima e embaixo.",
       "Jantar vira sala de TV: sofá de 2 lugares na parede da cozinha, TV com móvel na parede do quarto e porta de vidro de correr fechando a varanda.",
       "O resto da casa continua vazio até você desenhar.",
     ],
@@ -906,10 +922,33 @@ function proposalJ(): Proposal {
         "Entre o sofá e o móvel da TV sobra 1,2 m para chegar à porta de vidro.",
       ],
       varanda: ["Porta de vidro de correr de ponta a ponta entre o jantar e a varanda."],
+      cozinha: [
+        "Bancada planejada de 60 cm de fundo, do canto do shaft até a geladeira (2,5 m), com cooktop de 4 bocas e armários embaixo e aéreos em cima.",
+        "Em cima do cooktop fica um vão para a coifa, sem armário.",
+      ],
+      servico: [
+        "A pia sai da parede da cozinha e vai para baixo da janela, na ponta do L. Ali só tem armário embaixo, porque a janela ocupa a parede.",
+        "O tanque saiu, porque a bancada passa por cima dele. A máquina de lavar cabe embaixo da bancada, do lado da pia.",
+      ],
     },
+    remove: ["cozinha:Bancada da pia", "servico:Tanque"],
     outdoor: [garden("externa", "Área externa", [[-0.11, -1.56, 10.08, 1.45], [-0.11, -0.11, 1.76, 0.3], [1.65, -0.11, 2.54, 0.51]], "grama", [7.2, -0.85], false)],
     pieces: [
       ...suiteJoao(wood, "#c9d4c5"),
+      piece("cozinha", "Bancada planejada", "🗄️", "Móveis", [
+        ...plannedCounter(R(-0.01, 0.89, 0.61, 2.51), "e", "#e4d6c2", "#3b3a38"),
+        ...plannedCounter(R(0.22, 0.29, 0.53, 0.6), "s", "#e4d6c2", "#3b3a38"),
+      ]),
+      { ...piece("servico", "Pia", "🚰", "Móveis", [part(0.75, 0.29, 0.85, 0.6, 0.9, "branco")]), fixture: { kind: "bancada", x: 0.75, z: 0.29, w: 0.85, d: 0.6, wall: "n" } },
+      piece("cozinha", "Cooktop 4 bocas", "🍳", "Eletrodomésticos", [
+        part(0.06, 1.28, 0.5, 0.58, 0.012, "escuro", 0.9, "#1c1f24"),
+        ...[[0.12, 1.36], [0.36, 1.36], [0.12, 1.62], [0.36, 1.62]].map(([x, z]) => part(x, z, 0.13, 0.13, 0.01, "metal", 0.912)),
+      ]),
+      piece("cozinha", "Armários aéreos", "🗄️", "Móveis", [
+        part(-0.01, 0.89, 0.35, 0.36, 0.7, "madeira", 1.5, "#e4d6c2"),
+        part(-0.01, 1.92, 0.35, 1.48, 0.7, "madeira", 1.5, "#e4d6c2"),
+      ]),
+      piece("cozinha", "Geladeira", "🧊", "Eletrodomésticos", fridge(R(-0.01, 3.42, 0.7, 0.66), "w")),
       piece("jantar", "Sofá 2 lugares", "🛋️", "Móveis", sofa(R(1.7, 1.55, 0.9, 1.7), "w", "#a8774a", 2)),
       piece("jantar", "Rack e TV", "📺", "Eletrônicos", rackTv(R(3.82, 1.6, 0.4, 1.45), "e", wood)),
       piece("varanda", "Porta de vidro", "🪟", "Outros", [
@@ -938,6 +977,9 @@ export function withProposal(home: Home, proposal: Proposal | null): Home {
       ...proposal.outdoor,
     ],
     // Construção que fica (louças, shafts, muro) e a proposta por cima.
-    pieces: [...home.pieces.filter((p) => p.fixed), ...proposal.pieces],
+    pieces: [
+      ...home.pieces.filter((p) => p.fixed && !proposal.remove?.includes(`${p.roomId}:${p.name}`)),
+      ...proposal.pieces,
+    ],
   };
 }
