@@ -15,6 +15,8 @@ import { WALL_DEFAULT, WALL_MIN, WALL_REAL } from "./walls";
  */
 /** Topo das janelas: acima disso a parede continua inteira. */
 const WINDOW_TOP = 2.1;
+/** Topo das portas (a folha tem 2,10 m): acima disso a parede fecha o vão. */
+const DOOR_TOP = 2.1;
 /** Peitoril das janelas, no máximo. */
 const WINDOW_SILL = 1.0;
 const WALL_FOCUS = 0.3;
@@ -680,6 +682,8 @@ function buildHouse(
     for (const cut of cuts) {
       slab(wall.axis, wall.at, start, cut.a, 0, wallH, T, wallMat);
       if (cut.window) windowAt(wall.axis, wall.at, cut.a, cut.b);
+      // Vão de porta: com a parede mais alta que a porta, a parede fecha por cima dela.
+      else if (mode === "3d" && wallH > DOOR_TOP) slab(wall.axis, wall.at, cut.a, cut.b, DOOR_TOP, wallH, T, wallMat);
       start = cut.b;
     }
     slab(wall.axis, wall.at, start, wall.to, 0, wallH, T, wallMat);
