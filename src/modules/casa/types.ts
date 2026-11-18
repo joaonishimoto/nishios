@@ -106,10 +106,24 @@ export interface Piece {
   fixture?: Fixture;
 }
 
+/**
+ * Porta de abrir num vão de parede: a folha gira na ponta `hinge` (a ou b do vão) e abre
+ * para o lado `into` (+1 para o x ou o z maior, -1 para o menor).
+ */
+export interface Door {
+  axis: "x" | "z";
+  at: number;
+  a: number;
+  b: number;
+  hinge: "a" | "b";
+  into: 1 | -1;
+}
+
 export interface Home {
   name: string;
   rooms: Room[];
   walls: Wall[];
+  doors?: Door[];
   pieces: Piece[];
 }
 

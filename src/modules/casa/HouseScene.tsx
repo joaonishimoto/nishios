@@ -587,6 +587,37 @@ function buildHouse(
     slab(wall.axis, wall.at, start, wall.to, 0, wallH, T, wallMat);
   }
 
+  // Portas: folha aberta a 90° a partir da dobradiça e, na planta, o arco de abertura.
+  const doorMat = material(mode === "planta" ? pal.wall : "#f1efe9", 1, 0.6);
+  const knobMat = material(pal.material.metal, 1, 0.3, 0.6);
+  const swingMat = new THREE.LineBasicMaterial({ color: pal.wall, transparent: true, opacity: 0.55 });
+  for (const door of home.doors ?? []) {
+    const len = door.b - door.a - 0.02;
+    const hinge = door.hinge === "a" ? door.a + 0.01 : door.b - 0.01;
+    const away = door.hinge === "a" ? 1 : -1; // da dobradiça para a ponta solta, ao longo da parede
+    const leafH = mode === "planta" ? WALL_PLAN * 0.9 : Math.min(2.1, wallH);
+    const t = 0.04;
+    const face = door.at + door.into * (T / 2);
+    const lo = door.into > 0 ? face : face - len;
+    if (door.axis === "x") {
+      addBox(hinge - (away > 0 ? 0 : t), 0, lo, t, leafH, len, doorMat, {}, mode === "3d");
+      if (mode === "3d") addBox(hinge - (away > 0 ? 0 : t) + (away > 0 ? t : -0.02), 0.95, lo + (door.into > 0 ? len - 0.08 : 0.04), 0.02, 0.03, 0.04, knobMat, {}, false);
+    } else {
+      addBox(lo, 0, hinge - (away > 0 ? 0 : t), len, leafH, t, doorMat, {}, mode === "3d");
+      if (mode === "3d") addBox(lo + (door.into > 0 ? len - 0.08 : 0.04), 0.95, hinge - (away > 0 ? 0 : t) + (away > 0 ? t : -0.02), 0.04, 0.03, 0.02, knobMat, {}, false);
+    }
+    if (mode === "planta") {
+      const pts: THREE.Vector3[] = [];
+      for (let i = 0; i <= 24; i++) {
+        const ang = (i / 24) * (Math.PI / 2);
+        const along = hinge + away * len * Math.sin(ang);
+        const out = face + door.into * len * Math.cos(ang);
+        pts.push(door.axis === "x" ? new THREE.Vector3(along, 0.02, out) : new THREE.Vector3(out, 0.02, along));
+      }
+      group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), swingMat));
+    }
+  }
+
   // Móveis
   const cap = mode === "planta" ? FURNITURE_CAP_PLAN : FURNITURE_CAP_3D;
   const lineMat = new THREE.LineBasicMaterial({ color: pal.highlight });
