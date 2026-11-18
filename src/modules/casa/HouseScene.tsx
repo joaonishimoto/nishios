@@ -732,9 +732,10 @@ function buildHouse(
       const masonry = part.m === "parede";
       // O que fica no alto (pergolado, cobertura, a partir de 2 m) desce para logo acima das
       // paredes cortadas, e some com um cômodo em foco para não tampar a vista.
+      // Com `full`, o 3D da casa inteira mantém a altura real (telhado apoiado no muro).
       if (y >= 2) {
         if (focusId) continue;
-        y = (mode === "planta" ? WALL_PLAN + 0.04 : WALL_3D + 0.08) + (y - 2.4) * 0.5;
+        if (!(part.full && mode === "3d")) y = (mode === "planta" ? WALL_PLAN + 0.04 : WALL_3D + 0.08) + (y - 2.4) * 0.5;
       } else if (masonry) h = wallH;
       else if (screen) h = Math.max(0.02, Math.min(y + h, mode === "planta" ? WALL_PLAN : focusId ? WALL_FOCUS + 0.3 : WALL_3D + 0.2) - y);
       // Tudo o que é baixo é cortado na mesma altura, mesmo o que começa acima do chão

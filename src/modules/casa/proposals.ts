@@ -188,7 +188,7 @@ function slopedRoof(r: Rect, steps = 6): Part[] {
   const out: Part[] = [];
   const sd = r.d / steps;
   for (let i = 0; i < steps; i++) out.push(part(r.x, r.z + r.d - (i + 1) * sd, r.w, sd + 0.01, 0.03, "cobertura", 2.9 - i * 0.05));
-  return out;
+  return full(out);
 }
 
 /**
@@ -488,7 +488,7 @@ function slatScreen(r: Rect, wood = "#8a6447", height = 2.5): Part[] {
   for (let t = 0; t < len - 0.03; t += 0.09) {
     out.push(along ? part(r.x + t, r.z, 0.05, r.d, height, "madeira", 0, wood) : part(r.x, r.z + t, r.w, 0.05, height, "madeira", 0, wood));
   }
-  return out;
+  return full(out);
 }
 
 /** Espelheira em cima da pia, toalheiro e tapete na frente do box, nos dois banheiros. */
@@ -640,7 +640,7 @@ function proposalC(): Proposal {
     pieces: () => [
       ...bathrooms("#1e3d66", "#d9d2c4"),
       ...salaExtras("#e2ddd2"),
-      piece("externa", "Tela de proteção", "🕸️", "Pets", [part(4.79, -1.66, 5.18, 0.03, 0.5, "tela", 2.5), part(9.94, -1.66, 0.03, 1.55, 0.5, "tela", 2.5)]),
+      piece("externa", "Tela de proteção", "🕸️", "Pets", [...full([part(4.79, -1.66, 5.18, 0.03, 0.5, "tela", 2.5), part(9.94, -1.66, 0.03, 1.55, 0.5, "tela", 2.5)])]),
       piece("externa", "Torre para gatos", "🐈", "Pets", catTree(9.3, -1.45)),
       piece("externa", "Caminho dos gatos", "🐾", "Pets", full(catShelves([[7.0, -1.56, 0.8], [7.6, -1.56, 1.1], [8.2, -1.56, 1.4]], "n", "#f4f4f1"))),
       piece("externa", "Grama para gatos", "🌾", "Pets", raisedBed(R(6.0, -1.56, 0.8, 0.4), "#f4f4f1")),
