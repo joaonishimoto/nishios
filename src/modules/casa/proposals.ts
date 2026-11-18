@@ -454,6 +454,14 @@ interface Extra {
   notes: Record<string, string[]>;
   externa: Room;
   pieces: () => Piece[];
+  /** Cômodos de fora da J que mudam de nome ou de piso (por id). */
+  outdoorChanges?: Record<string, Partial<Room>>;
+  /** Peças da J que saem, como "servicoext:Tanque". */
+  drop?: string[];
+  /** Cômodos em que as notas da J são trocadas pelas da `extra`, em vez de somadas. */
+  replaceNotes?: string[];
+  /** Troca os destaques da J que começam com "Área de fora" pelos da `extra`. */
+  replaceOutdoorHighlight?: boolean;
 }
 
 /** Uma proposta que é a J inteira mais o que a `extra` acrescenta. */
@@ -461,16 +469,24 @@ function fromJ(start: number, extra: Extra): Proposal {
   const j = proposalJ(start);
   const pieces = extra.pieces();
   const notes = { ...j.notes };
-  for (const [room, list] of Object.entries(extra.notes)) notes[room] = [...(notes[room] ?? []), ...list];
+  for (const [room, list] of Object.entries(extra.notes)) {
+    notes[room] = extra.replaceNotes?.includes(room) ? list : [...(notes[room] ?? []), ...list];
+  }
   return {
     ...j,
     id: extra.id,
     name: extra.name,
     tagline: extra.tagline,
-    highlights: [...j.highlights, ...extra.highlights],
+    highlights: [
+      ...(extra.replaceOutdoorHighlight ? j.highlights.filter((h) => !h.startsWith("Área de fora")) : j.highlights),
+      ...extra.highlights,
+    ],
     notes,
-    outdoor: [...j.outdoor.filter((r) => r.id !== "externa"), extra.externa],
-    pieces: [...j.pieces, ...pieces],
+    outdoor: [
+      ...j.outdoor.filter((r) => r.id !== "externa").map((r) => ({ ...r, ...extra.outdoorChanges?.[r.id] })),
+      extra.externa,
+    ],
+    pieces: [...j.pieces.filter((p) => !extra.drop?.includes(`${p.roomId}:${p.name}`)), ...pieces],
   };
 }
 
@@ -598,7 +614,49 @@ function proposalD(): Proposal {
   });
 }
 
-export const PROPOSALS: Proposal[] = [proposalA(), proposalB(), proposalC(), proposalD(), proposalJ()];
+function proposalE(): Proposal {
+  return fromJ(1100, {
+    id: "e",
+    name: "J com hidro coberta",
+    tagline: "A J completa, com a hidromassagem embaixo do telhado, no canto onde ficava o serviço.",
+    highlights: [
+      "Área de fora: a hidromassagem branca vai para o canto da cozinha, embaixo do telhado, com ripado no muro e ducha do lado.",
+      "O serviço (tanque, máquina e armário) muda para o muro do fundo da área coberta, ainda embaixo do telhado.",
+    ],
+    replaceNotes: ["servicoext", "coberta"],
+    replaceOutdoorHighlight: true,
+    notes: {
+      ...BATH_NOTES,
+      servicoext: [
+        "Hidromassagem branca de 2,00 × 1,40 m no canto, entre o muro e a parede da cozinha, com o degrau do lado da varanda.",
+        "Fica embaixo do telhado: dá para usar com chuva, e as folhas não caem na água. A janela da cozinha fica de frente para a hidro.",
+        "Ripado de madeira no lado de dentro do muro, do chão até 2,20 m, atrás e do lado da hidro.",
+      ],
+      coberta: [
+        "O serviço vem para cá: tanque, máquina e armário encostados no muro do fundo, embaixo do telhado.",
+        "Ducha entre a hidro e o tanque, e a passagem da varanda até a área externa fica com uns 75 cm.",
+        "Os gatos continuam podendo ficar aqui fora sem tomar chuva.",
+      ],
+      externa: ["Gramado livre com dois vasos grandes, para não pesar do lado da suíte e do escritório."],
+    },
+    outdoorChanges: { servicoext: { name: "Hidro", floor: "deck" } },
+    drop: ["servicoext:Tanque", "servicoext:Máquina de lavar", "servicoext:Armário de serviço"],
+    externa: externa("grama"),
+    pieces: () => [
+      ...bathrooms("#1e3d66", "#e9e4da"),
+      ...salaExtras("#e2ddd2"),
+      piece("servicoext", "Hidromassagem", "🛁", "Móveis", hotTub(R(-0.03, EXT.z0 + 0.04, 2.0, 1.4))),
+      piece("servicoext", "Painel ripado", "🪵", "Obras", [...slatScreen(R(-0.06, EXT.z0, 2.1, 0.03)), ...slatScreen(R(-0.06, EXT.z0, 0.03, EXT.z1 - EXT.z0))]),
+      piece("coberta", "Ducha", "🚿", "Móveis", full([part(2.32, -1.5, 0.3, 0.3, 0.02, "pedra", 0, "#cfc8bc"), part(2.43, -1.45, 0.06, 0.06, 2.1, "metal"), part(2.37, -1.45, 0.2, 0.2, 0.03, "metal", 2.05)])),
+      { ...piece("coberta", "Tanque", "🧺", "Móveis", [part(3.0, -1.53, 0.55, 0.55, 0.9, "branco")]), fixture: { kind: "tanque", x: 3.0, z: -1.53, w: 0.55, d: 0.55, wall: "n" } },
+      piece("coberta", "Máquina de lavar", "🫧", "Eletrodomésticos", washer(R(3.58, -1.53, 0.6, 0.65), "n")),
+      piece("coberta", "Armário de serviço", "🧹", "Móveis", full(tallCabinet(R(4.21, -1.53, 0.55, 0.4), "n", "#f4f4f1"))),
+      piece("externa", "Plantas em vaso", "🪴", "Plantas", [...plant(6.4, -0.55, 0.38, 1.2), ...plant(9.45, -0.6, 0.42, 1.3)]),
+    ],
+  });
+}
+
+export const PROPOSALS: Proposal[] = [proposalA(), proposalB(), proposalC(), proposalD(), proposalE(), proposalJ()];
 
 /**
  * A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam).
