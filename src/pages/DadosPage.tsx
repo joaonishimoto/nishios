@@ -13,6 +13,7 @@ import {
   clearToExample,
   downloadBackup,
   lastBackupAt,
+  mergeBackup,
   parseBackup,
   readBackup,
   summarize,
@@ -159,11 +160,13 @@ export function DadosPage() {
     setConfirm({ kind: "restore", backup: parsed, fileName: file.name });
   }
 
-  /** As três trocas mexem direto no que está salvo; recarregar faz o app inteiro ler de novo. */
-  function run() {
+  /** As trocas mexem direto no que está salvo; recarregar faz o app inteiro ler de novo. */
+  function run(merge = false) {
     if (!confirm) return;
-    if (confirm.kind === "restore") applyBackup(confirm.backup);
-    else if (confirm.kind === "example") clearToExample();
+    if (confirm.kind === "restore") {
+      if (merge) mergeBackup(confirm.backup);
+      else applyBackup(confirm.backup);
+    } else if (confirm.kind === "example") clearToExample();
     else {
       // Sem volta: guarda uma cópia antes de apagar.
       downloadBackup();
@@ -173,7 +176,7 @@ export function DadosPage() {
   }
 
   const titles = {
-    restore: "Restaurar este backup?",
+    restore: "Usar este arquivo?",
     example: "Voltar aos dados de exemplo?",
     empty: "Começar do zero?",
   };
@@ -210,10 +213,10 @@ export function DadosPage() {
         <p className="text-sm text-muted-foreground">{lastLabel(last)}</p>
       </Block>
 
-      <Block title="Restaurar de um arquivo">
+      <Block title="Importar ou restaurar de um arquivo">
         <p className="max-w-[60ch] text-muted-foreground">
-          Escolha um backup baixado aqui. Ele substitui o que está salvo neste navegador{cloud && " e na nuvem"}, então baixe um backup do
-          estado atual antes, se quiser guardar.
+          Escolha um backup baixado aqui ou um arquivo de importação. Você pode juntar os itens dele ao que já tem ou
+          substituir tudo o que está salvo neste navegador{cloud && " e na nuvem"}.
         </p>
         <input
           ref={input}
@@ -270,7 +273,8 @@ export function DadosPage() {
                   </p>
                   <Summary backup={confirm.backup} />
                   <p className="text-muted-foreground">
-                    O que está salvo neste navegador{cloud && " e na nuvem"} será substituído.
+                    Juntar adiciona os itens do arquivo ao que você já tem, e os exemplos dessas listas saem. Substituir
+                    troca tudo o que está salvo neste navegador{cloud && " e na nuvem"} pelo arquivo.
                   </p>
                 </>
               ) : confirm.kind === "example" ? (
@@ -290,9 +294,20 @@ export function DadosPage() {
               <Button variant="ghost" onClick={() => setConfirm(null)}>
                 Cancelar
               </Button>
-              <Button variant={confirm.kind === "restore" ? "primary" : "danger"} onClick={run}>
-                {confirm.kind === "restore" ? "Restaurar backup" : confirm.kind === "example" ? "Voltar aos exemplos" : "Apagar e começar do zero"}
-              </Button>
+              {confirm.kind === "restore" ? (
+                <>
+                  <Button variant="outline" onClick={() => run(false)}>
+                    Substituir tudo
+                  </Button>
+                  <Button variant="primary" onClick={() => run(true)}>
+                    Juntar ao que já tenho
+                  </Button>
+                </>
+              ) : (
+                <Button variant="danger" onClick={() => run()}>
+                  {confirm.kind === "example" ? "Voltar aos exemplos" : "Apagar e começar do zero"}
+                </Button>
+              )}
             </DialogFooter>
           </>
         )}
