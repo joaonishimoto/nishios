@@ -63,6 +63,8 @@ const PRICES: [RegExp, number][] = [
   [/^varal/i, 250],
   [/^pergolado/i, 5000],
   [/^cobertura/i, 6000],
+  [/^telhado/i, 9000],
+  [/^tanque/i, 600],
   [/^tela de proteção/i, 1500],
   [/^canteiros|^horta/i, 600],
   [/^torre para gatos/i, 450],

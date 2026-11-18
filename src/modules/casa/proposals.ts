@@ -20,6 +20,10 @@ export interface Proposal {
   remove?: string[];
   /** Pisos trocados (por exemplo, a varanda no mesmo piso da área gourmet). */
   floors?: Record<string, FloorKind>;
+  /** Cômodos que viram parte de outro (de → para), como o serviço que vira cozinha. */
+  merge?: Record<string, string>;
+  /** Nomes novos para os cômodos, já depois de juntar. */
+  rename?: Record<string, string>;
   pieces: Piece[];
 }
 
@@ -281,6 +285,20 @@ function pergola(r: Rect, wood: string): Part[] {
 
 function roof(r: Rect): Part[] {
   return [part(r.x, r.z, r.w, r.d, 0.03, "cobertura", 2.6)];
+}
+
+/**
+ * Telhado que sai da parede do apartamento (`r.z + r.d`) e desce até a ponta de fora (`r.z`),
+ * para a água escorrer. As peças são caixas retas, então a inclinação vira degraus, com
+ * calha na ponta e pilares segurando.
+ */
+function slopedRoof(r: Rect, steps = 6): Part[] {
+  const out: Part[] = [];
+  const sd = r.d / steps;
+  for (let i = 0; i < steps; i++) out.push(part(r.x, r.z + r.d - (i + 1) * sd, r.w, sd + 0.01, 0.03, "cobertura", 2.75 - i * 0.07));
+  out.push(part(r.x, r.z - 0.08, r.w, 0.1, 0.08, "metal", 2.75 - steps * 0.07));
+  for (const x of [r.x + 0.05, r.x + r.w / 2 - 0.04, r.x + r.w - 0.13]) out.push(part(x, r.z + 0.02, 0.08, 0.08, 2.3, "metal"));
+  return out;
 }
 
 function raisedBed(r: Rect): Part[] {
@@ -657,6 +675,26 @@ function suiteJoao(wood: string, duvet: string, pillow?: string, headboard = woo
   ];
 }
 
+/**
+ * Suíte da J: janela no meio da parede de cima, cama com a cabeceira na parede do lado
+ * de fora, painel com TV na frente dela, guarda-roupa na parede do banheiro e o frigobar
+ * ao lado do painel.
+ */
+function suiteJ(frame: string, duvet: string, accent: string): Piece[] {
+  return [
+    piece("suite", "Cama viúva", "🛏️", "Móveis", bed(R(7.99, 0.15, 1.88, 1.28), "e", duvet, frame, accent, accent)),
+    piece("suite", "Guarda-roupa de correr", "🚪", "Móveis", wardrobe(R(7.97, 2.13, 1.9, 0.55), "s")),
+    piece("suite", "Painel e TV", "📺", "Eletrônicos", [
+      part(6.79, 0.17, 0.28, 1.25, 0.32, "madeira", 0.3, frame),
+      part(6.81, 0.22, 0.04, 1.15, 0.66, "escuro", 0.95, "#1c1f24"),
+    ]),
+    piece("suite", "Frigobar", "🧊", "Eletrodomésticos", [
+      part(6.79, 1.55, 0.42, 0.44, 0.85, "branco", 0, "#eef0f1"),
+      part(7.21, 1.57, 0.03, 0.03, 0.3, "escuro", 0.45),
+    ]),
+  ];
+}
+
 function proposalD(): Proposal {
   seq = 300;
   const oak = "#b98a5c";
@@ -903,49 +941,66 @@ function proposalJ(): Proposal {
   return {
     id: "j",
     name: "Do João",
-    tagline: "Montada com os seus desenhos, um cômodo de cada vez. Por enquanto: a suíte, o quarto, o jantar, a cozinha e o estar.",
+    tagline: "Montada com os seus desenhos, um cômodo de cada vez: suíte, escritório, sala, cozinha e a área de fora com serviço e cobertura.",
     highlights: [
-      "Suíte: cama viúva no topo, guarda-roupa de correr na parede do lado, painel suspenso com TV na parede do banheiro e frigobar no canto.",
-      "Quarto: cama de solteiro no fundo, embaixo da janela, e a mesa com o computador no canto perto da porta.",
-      "Cozinha planejada em L: bancada de ponta a ponta na parede da cozinha e embaixo da janela do serviço, com a pia na janela, cooktop de 4 bocas e armários em cima e embaixo.",
-      "Jantar vira sala de TV: sofá de 2 lugares na parede da cozinha, TV com móvel na parede do quarto e porta de vidro de correr fechando a varanda.",
-      "Estar vira sala de jantar: mesa de 1,40 × 0,80 m para 6, dois de cada lado e um em cada ponta.",
-      "O resto da casa continua vazio até você desenhar.",
+      "Suíte: janela no meio da parede de cima, cama com a cabeceira na parede do lado, painel com TV na frente, frigobar ao lado e guarda-roupa de correr na parede do banheiro.",
+      "Escritório: cama de solteiro no fundo, embaixo da janela, e a mesa com o computador no canto perto da porta.",
+      "Cozinha em L, que agora inclui o antigo serviço: bancada de ponta a ponta, pia embaixo da janela, cooktop de 4 bocas e armários em cima e embaixo.",
+      "Sala inteira, sem divisão: sofá e TV no lado da varanda, com porta de vidro de correr, e mesa para 6 no meio.",
+      "Área de fora: serviço no canto da cozinha (máquina, tanque, armário e varal) e cobertura da parede da esquerda até perto da janela do escritório, para os gatos ficarem no seco.",
     ],
     notes: {
       suite: [
-        "A cama ficou um pouco mais para a janela para sobrar 60 cm na frente do guarda-roupa.",
-        "Do pé da cama até o painel sobram uns 50 cm; por isso o painel é suspenso e raso.",
+        "A janela fica no meio da parede de cima, para a área externa. A cama foi para a parede do lado, com a cabeceira na parede de fora, e a janela fica livre.",
+        "Painel e TV na parede da frente, a uns 90 cm do pé da cama, com o frigobar do lado.",
+        "Guarda-roupa de correr na parede do banheiro, com uns 70 cm livres entre ele e a cama.",
       ],
       quarto: [
-        "Cama de solteiro (88 × 188 cm) deitada ao longo da parede da janela, com a cabeceira na parede do estar.",
+        "Cama de solteiro (88 × 188 cm) deitada ao longo da parede da janela, com a cabeceira na parede da sala.",
         "Mesa de 1,30 m com 60 cm de fundo no canto oposto, e o meio do quarto livre até a porta.",
       ],
-      jantar: [
+      estar: [
+        "Sala inteira: o antigo jantar e o antigo estar viram um cômodo só.",
         "Sofá de 2 lugares (1,70 × 0,90 m) com o encosto na parede da cozinha, de frente para a TV a 1,6 m: bom para uma TV de até 50\".",
         "O sofá tampa parte da abertura da cozinha; a passagem para o estar fica com uns 85 cm, entre o sofá e a parede de baixo.",
         "Entre o sofá e o móvel da TV sobra 1,2 m para chegar à porta de vidro.",
-      ],
-      varanda: ["Porta de vidro de correr de ponta a ponta entre o jantar e a varanda."],
-      estar: [
         "Mesa de 1,40 × 0,80 m: 70 cm por pessoa nas laterais, que é o confortável, e 80 cm nas pontas.",
-        "Ela fica no meio do estar, longe do sofá e da cozinha: entre a cozinha e a ponta da mesa sobram 80 cm livres, e a entrada fica desimpedida.",
+        "Ela fica no meio da parte de baixo da sala, longe do sofá e da cozinha: entre a cozinha e a ponta da mesa sobram 80 cm livres, e a entrada fica desimpedida.",
         "Da mesa até a parede de baixo ficam 62 cm, o suficiente para sentar. O caminho da entrada para os quartos passa por cima da mesa, com uns 50 cm, e pela ponta do lado do banheiro, com 70 cm.",
       ],
       cozinha: [
         "Bancada planejada de 60 cm de fundo, do canto do shaft até a geladeira (2,5 m), com cooktop de 4 bocas e armários embaixo e aéreos em cima.",
         "Em cima do cooktop fica um vão para a coifa, sem armário.",
-      ],
-      servico: [
         "A pia sai da parede da cozinha e vai para baixo da janela, na ponta do L. Ali só tem armário embaixo, porque a janela ocupa a parede.",
-        "O tanque saiu, porque a bancada passa por cima dele. A máquina de lavar cabe embaixo da bancada, do lado da pia.",
+        "O tanque e a máquina de lavar foram para fora, no canto da área de serviço externa.",
+      ],
+      varanda: ["Porta de vidro de correr de ponta a ponta entre a sala e a varanda."],
+      servicoext: [
+        "Encostado na parede da cozinha, do lado de fora: tanque, máquina de lavar e um armário alto para produtos e vassouras.",
+        "Varal de chão na frente, e o telhado protege tudo da chuva.",
+      ],
+      coberta: [
+        "Telhado da parede do apartamento até o fim da área externa, da parede da esquerda até um pouco antes da janela do escritório. Ele desce para fora, com calha na ponta, para a água escorrer longe da casa.",
+        "Os gatos podem ficar aqui fora sem tomar chuva.",
       ],
     },
     remove: ["cozinha:Bancada da pia", "servico:Tanque"],
-    floors: Object.fromEntries(["estar", "jantar", "cozinha", "servico", "varanda", "quarto", "suite", "banhosuite", "circ", "banho"].map((id) => [id, "branco" as FloorKind])),
-    outdoor: [garden("externa", "Área externa", [[-0.11, -1.56, 10.08, 1.45], [-0.11, -0.11, 1.76, 0.3], [1.65, -0.11, 2.54, 0.51]], "grama", [7.2, -0.85], false)],
+    merge: { servico: "cozinha", jantar: "estar" },
+    rename: { estar: "Sala", quarto: "Escritório" },
+    floors: Object.fromEntries(["estar", "cozinha", "varanda", "quarto", "suite", "banhosuite", "circ", "banho"].map((id) => [id, "branco" as FloorKind])),
+    outdoor: [
+      garden("servicoext", "Área de serviço", [[-0.11, -1.56, 1.9, 1.45], [-0.11, -0.11, 1.76, 0.3]], "pedra", [0.8, -1.3], false),
+      garden("coberta", "Área coberta", [[1.79, -1.56, 3.0, 1.45], [1.65, -0.11, 2.54, 0.51]], "deck", [3.3, -0.85]),
+      garden("externa", "Área externa", [[4.79, -1.56, 5.18, 1.45]], "grama", [7.2, -0.85], false),
+    ],
     pieces: [
-      ...suiteJoao(white, "#e9e4da", nishi, nishi),
+      ...suiteJ(white, "#e9e4da", nishi),
+      // Área de fora: serviço no canto da cozinha e cobertura até perto da janela do escritório.
+      { ...piece("servicoext", "Tanque", "🧺", "Móveis", [part(-0.01, -0.36, 0.55, 0.55, 0.9, "branco")]), fixture: { kind: "tanque", x: -0.01, z: -0.36, w: 0.55, d: 0.55, wall: "s" } },
+      piece("servicoext", "Máquina de lavar", "🫧", "Eletrodomésticos", washer(R(0.58, -0.46, 0.6, 0.65), "s")),
+      piece("servicoext", "Armário de serviço", "🧹", "Móveis", tallCabinet(R(1.22, -0.36, 0.4, 0.55), "s", white)),
+      piece("servicoext", "Varal de chão", "👕", "Móveis", clothesline(R(0.0, -1.3, 1.5, 0.06))),
+      piece("coberta", "Telhado inclinado", "🏠", "Obras", slopedRoof(R(-0.11, -1.56, 4.9, 1.75))),
       piece("cozinha", "Bancada planejada", "🗄️", "Móveis", [
         ...plannedCounter(R(-0.01, 0.89, 0.61, 2.51), "e", "#e4d6c2", "#3b3a38"),
         ...plannedCounter(R(0.22, 0.29, 0.53, 0.6), "s", "#e4d6c2", "#3b3a38"),
@@ -985,18 +1040,30 @@ export const PROPOSALS: Proposal[] = [proposalA(), proposalB(), proposalC(), pro
 /** A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam). */
 export function withProposal(home: Home, proposal: Proposal | null): Home {
   if (!proposal) return home;
+  const merge = proposal.merge ?? {};
+  const indoor = home.rooms.filter((r) => !r.outdoor);
+  const rooms = indoor
+    .filter((r) => !merge[r.id])
+    .map((r) => {
+      const parts = [r, ...indoor.filter((o) => merge[o.id] === r.id)];
+      const rects = parts.flatMap((o) => o.rects);
+      const label: [number, number] = parts.length > 1 ? mergedLabel(rects) : r.label;
+      return { ...r, rects, label, name: proposal.rename?.[r.id] ?? r.name, floor: proposal.floors?.[r.id] ?? r.floor };
+    });
+  const roomOf = (id: string) => merge[id] ?? id;
   return {
     ...home,
-    rooms: [
-      ...home.rooms
-        .filter((r) => !r.outdoor)
-        .map((r) => (proposal.floors?.[r.id] ? { ...r, floor: proposal.floors[r.id] } : r)),
-      ...proposal.outdoor,
-    ],
+    rooms: [...rooms, ...proposal.outdoor],
     // Construção que fica (louças, shafts, muro) e a proposta por cima.
     pieces: [
       ...home.pieces.filter((p) => p.fixed && !proposal.remove?.includes(`${p.roomId}:${p.name}`)),
       ...proposal.pieces,
-    ],
+    ].map((p) => (merge[p.roomId] ? { ...p, roomId: roomOf(p.roomId) } : p)),
   };
+}
+
+/** Etiqueta no meio do retângulo maior de um cômodo juntado. */
+function mergedLabel(rects: Room["rects"]): [number, number] {
+  const [x, z, w, d] = rects.reduce((a, b) => (b[2] * b[3] > a[2] * a[3] ? b : a));
+  return [x + w / 2, z + d / 2];
 }
