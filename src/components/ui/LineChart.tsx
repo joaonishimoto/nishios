@@ -28,6 +28,7 @@ export function LineChart({
   label,
   format,
   target,
+  band,
 }: {
   points: ChartPoint[];
   /** Descrição para leitores de tela. */
@@ -35,6 +36,8 @@ export function LineChart({
   format: (value: number) => string;
   /** Linha de referência, como o alvo de uma meta. */
   target?: { value: number; label: string };
+  /** Faixa de referência sombreada, como o peso ideal pelo IMC. */
+  band?: { from: number; to: number; label: string };
 }) {
   const wrap = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
@@ -52,6 +55,7 @@ export function LineChart({
     if (points.length === 0 || width === 0) return null;
     const values = points.map((p) => p.value);
     if (target) values.push(target.value);
+    if (band) values.push(band.from, band.to);
     const lo = Math.min(...values);
     const hi = Math.max(...values);
     const step = niceStep(Math.max(hi - lo, Math.abs(hi) * 0.02, 0.5), 4);
@@ -69,7 +73,7 @@ export function LineChart({
     const y = (v: number) => PAD.top + (1 - (v - min) / (max - min)) * innerH;
     const xy = points.map((p) => ({ x: x(p.date), y: y(p.value) }));
     return { ticks, xy, y, path: xy.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" ") };
-  }, [points, width, target]);
+  }, [points, width, target, band]);
 
   function nearest(clientX: number) {
     if (!geo || !wrap.current) return;
@@ -105,6 +109,23 @@ export function LineChart({
               </text>
             </g>
           ))}
+
+          {band && (
+            <g>
+              <rect
+                x={PAD.left}
+                width={width - PAD.left - PAD.right}
+                y={geo.y(band.to)}
+                height={Math.max(0, geo.y(band.from) - geo.y(band.to))}
+                className="fill-[color-mix(in_srgb,var(--success)_13%,transparent)]"
+              />
+              <line x1={PAD.left} x2={width - PAD.right} y1={geo.y(band.to)} y2={geo.y(band.to)} className="stroke-[color-mix(in_srgb,var(--success)_45%,transparent)]" />
+              <line x1={PAD.left} x2={width - PAD.right} y1={geo.y(band.from)} y2={geo.y(band.from)} className="stroke-[color-mix(in_srgb,var(--success)_45%,transparent)]" />
+              <text x={PAD.left + 8} y={geo.y(band.to) + 15} className="fill-success text-xs">
+                {band.label}
+              </text>
+            </g>
+          )}
 
           {target && (
             <g>
