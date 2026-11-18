@@ -124,7 +124,7 @@ function useEntries(go: (to: string) => void): Entry[] {
       list.push({ id: `s-${s.id}`, group: "Skills", title: s.name, detail: s.category, icon: page("/skills"), extra: `${s.notes} ${s.resources.map((r) => r.title).join(" ")}`, run: () => go(`/skills?s=${s.id}`) });
     }
     for (const a of assets) {
-      list.push({ id: `a-${a.id}`, group: "Bens", title: a.name, detail: a.location || a.category, icon: emoji(a.icon), extra: `${a.category} ${a.notes}`, run: () => go("/bens") });
+      list.push({ id: `a-${a.id}`, group: "Bens", title: a.name, detail: a.location || a.category, icon: emoji(a.icon), extra: `${a.category} ${a.brand ?? ""} ${a.store ?? ""} ${a.notes}`, run: () => go("/bens") });
     }
     for (const w of wishes) {
       list.push({ id: `w-${w.id}`, group: "Desejos", title: w.name, detail: w.price ? money(w.price) : undefined, icon: emoji(w.icon), run: () => go("/bens?aba=desejos") });

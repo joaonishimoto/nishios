@@ -56,7 +56,9 @@ function Content({
   onCreated?: (asset: Asset) => void;
   onClose: () => void;
 }) {
-  const { createAsset, updateAsset, removeAsset, restoreAsset } = useBens();
+  const { assets, createAsset, updateAsset, removeAsset, restoreAsset } = useBens();
+  const known = (key: "brand" | "store") =>
+    [...new Set(assets.map((a) => a[key]?.trim() ?? "").filter(Boolean))].sort((x, y) => x.localeCompare(y, "pt-BR"));
   const toast = useToast();
   const linked = useCommitments().commitments.filter((c) => asset && c.assetId === asset.id);
   const [draft, setDraft] = useState<AssetDraft>({
@@ -67,6 +69,8 @@ function Content({
     purchaseDate: asset?.purchaseDate ?? "",
     warrantyUntil: asset?.warrantyUntil ?? "",
     location: asset?.location ?? "",
+    brand: asset?.brand ?? "",
+    store: asset?.store ?? "",
     notes: asset?.notes ?? "",
     ...(asset ? {} : initial),
   });
@@ -87,6 +91,8 @@ function Content({
       ...draft,
       name: draft.name.trim(),
       location: draft.location.trim(),
+      brand: (draft.brand ?? "").trim(),
+      store: (draft.store ?? "").trim(),
       notes: draft.notes.trim(),
       value: Math.max(0, draft.value || 0),
     };
@@ -163,6 +169,45 @@ function Content({
                 value={draft.warrantyUntil}
                 onChange={(e) => set("warrantyUntil", e.target.value)}
               />
+            )}
+          </Field>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Marca">
+            {(id) => (
+              <>
+                <Input
+                  id={id}
+                  list="bens-marcas"
+                  value={draft.brand ?? ""}
+                  placeholder="Ex.: Apple, Stanley"
+                  onChange={(e) => set("brand", e.target.value)}
+                />
+                <datalist id="bens-marcas">
+                  {known("brand").map((b) => (
+                    <option key={b} value={b} />
+                  ))}
+                </datalist>
+              </>
+            )}
+          </Field>
+          <Field label="Onde comprei">
+            {(id) => (
+              <>
+                <Input
+                  id={id}
+                  list="bens-lojas"
+                  value={draft.store ?? ""}
+                  placeholder="Ex.: Amazon, Mercado Livre"
+                  onChange={(e) => set("store", e.target.value)}
+                />
+                <datalist id="bens-lojas">
+                  {known("store").map((s) => (
+                    <option key={s} value={s} />
+                  ))}
+                </datalist>
+              </>
             )}
           </Field>
         </div>

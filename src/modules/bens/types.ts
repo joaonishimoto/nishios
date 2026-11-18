@@ -11,6 +11,10 @@ export interface Asset {
   warrantyUntil: string;
   /** Onde fica: cômodo, garagem, mochila... */
   location: string;
+  /** Marca do produto; vazio ou ausente quando não se sabe. */
+  brand?: string;
+  /** Onde comprou: Amazon, Mercado Livre, uma loja física... */
+  store?: string;
   notes: string;
 }
 

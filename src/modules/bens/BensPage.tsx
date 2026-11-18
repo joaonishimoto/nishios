@@ -21,6 +21,18 @@ import { ASSET_CATEGORIES, type Asset, type Wish } from "./types";
 import { WishForm } from "./WishForm";
 
 type Tab = "bens" | "desejos";
+type GroupBy = "category" | "brand" | "store";
+
+const GROUP_BY: { value: GroupBy; label: string; empty: string }[] = [
+  { value: "category", label: "Por categoria", empty: "Sem categoria" },
+  { value: "brand", label: "Por marca", empty: "Sem marca" },
+  { value: "store", label: "Por loja", empty: "Sem loja" },
+];
+
+function groupKey(a: Asset, by: GroupBy): string {
+  const v = by === "category" ? a.category : by === "brand" ? a.brand : a.store;
+  return v?.trim() ?? "";
+}
 
 const ASSET_GRID =
   "md:grid md:grid-cols-[minmax(0,1fr)_8rem_10rem_7.5rem] md:items-center md:gap-x-5";
@@ -31,6 +43,7 @@ export function BensPage() {
   const tab: Tab = params.get("aba") === "desejos" ? "desejos" : "bens";
   const [category, setCategory] = useState("all");
   const [query, setQuery] = useState("");
+  const [groupBy, setGroupBy] = useState<GroupBy>("category");
   const [assetForm, setAssetForm] = useState<{ open: boolean; asset?: Asset }>({ open: false });
   const [wishForm, setWishForm] = useState<{ open: boolean; wish?: Wish }>({ open: false });
 
@@ -45,11 +58,25 @@ export function BensPage() {
     const q = query.trim().toLocaleLowerCase("pt-BR");
     const visible = assets
       .filter((a) => category === "all" || a.category === category)
-      .filter((a) => !q || a.name.toLocaleLowerCase("pt-BR").includes(q));
-    return categories
-      .map((c) => ({ category: c, items: visible.filter((a) => a.category === c).sort(byValue) }))
+      .filter((a) => !q || [a.name, a.brand, a.store].some((t) => t?.toLocaleLowerCase("pt-BR").includes(q)));
+    // Por categoria segue a ordem das categorias; por marca ou loja, a de maior valor primeiro.
+    const keys =
+      groupBy === "category"
+        ? categories
+        : [...new Set(visible.map((a) => groupKey(a, groupBy)))];
+    const empty = GROUP_BY.find((g) => g.value === groupBy)!.empty;
+    const list = keys
+      .map((k) => ({
+        category: k || empty,
+        unnamed: !k,
+        items: visible.filter((a) => groupKey(a, groupBy) === k).sort(byValue),
+      }))
       .filter((g) => g.items.length > 0);
-  }, [assets, categories, category, query]);
+    if (groupBy !== "category") {
+      list.sort((x, y) => Number(x.unnamed) - Number(y.unnamed) || total(y.items) - total(x.items) || x.category.localeCompare(y.category, "pt-BR"));
+    }
+    return list;
+  }, [assets, categories, category, query, groupBy]);
 
   const sortedWishes = useMemo(() => [...wishes].sort(byWishPriority), [wishes]);
   const wishTotal = wishes.reduce((sum, w) => sum + w.price, 0);
@@ -90,7 +117,19 @@ export function BensPage() {
           ]}
         />
         {tab === "bens" && (
-          <div className="ml-auto flex w-full gap-2 sm:w-auto">
+          <div className="ml-auto flex w-full flex-wrap gap-2 sm:w-auto sm:flex-nowrap">
+            <Select
+              aria-label="Agrupar bens"
+              className="sm:w-40"
+              value={groupBy}
+              onChange={(e) => setGroupBy(e.target.value as GroupBy)}
+            >
+              {GROUP_BY.map((g) => (
+                <option key={g.value} value={g.value}>
+                  {g.label}
+                </option>
+              ))}
+            </Select>
             <Select
               aria-label="Filtrar por categoria"
               className="sm:w-48"
@@ -230,6 +269,7 @@ function IconTile({ icon }: { icon: string }) {
 
 function AssetRow({ asset: a, onOpen }: { asset: Asset; onOpen: () => void }) {
   const w = warranty(a);
+  const detail = [a.brand, a.store, a.location].filter(Boolean).join(" · ");
   // Manutenção ligada ao bem que já pede atenção aparece na própria linha.
   const due = useCommitments()
     .commitments.filter((c) => c.assetId === a.id)
@@ -263,10 +303,10 @@ function AssetRow({ asset: a, onOpen }: { asset: Asset; onOpen: () => void }) {
             {a.name}
           </button>
           <p className="truncate text-sm text-muted-foreground">
-            {a.location || <span className="md:hidden">{a.purchaseDate && shortDate(a.purchaseDate)}</span>}
+            {detail || <span className="md:hidden">{a.purchaseDate && shortDate(a.purchaseDate)}</span>}
             {due && (
               <span className={due.d.status === "overdue" ? "text-danger-strong" : "text-warning-strong"}>
-                {a.location ? ", " : ""}
+                {detail ? ", " : ""}
                 {due.c.name.toLowerCase()} {dueLabel(due.d).toLowerCase()}
               </span>
             )}
