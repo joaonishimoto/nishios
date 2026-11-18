@@ -7,6 +7,8 @@ import type { FloorKind, Home, Material, Part, Piece, Room, Side } from "./types
  */
 export interface Proposal {
   id: string;
+  /** Nome curto no seletor (sem ele, o id em maiúsculas). */
+  label?: string;
   name: string;
   tagline: string;
   /** O que muda, em frases curtas, para o painel. */
@@ -769,8 +771,195 @@ function addNotes(base: Record<string, string[]>, more: Record<string, string[]>
  * Só a vista principal (a G4) aparece, além da Vazia. A Vazia sempre tira as cores da
  * principal (pisos de dentro e de fora), então muda sozinha se a principal mudar.
  */
-export const MAIN: Proposal = proposalG4();
-export const PROPOSALS: Proposal[] = [MAIN];
+export const MAIN: Proposal = { ...proposalG4(), label: "Principal" };
+
+// ---------- Variações da área externa da principal ----------
+// Mudam só a faixa descoberta do fundo (x 4,79 a 9,87, 1,45 m entre a casa e o muro). A hidro,
+// a área coberta e o resto da casa ficam iguais. Tudo que encosta no muro tem até 65 cm de
+// fundo, para sobrar uns 75 cm de passagem na frente das janelas do escritório e da suíte.
+
+const CREAM = "#f1ebdf", NAVY = "#1b2a4a", OAK = "#d8c3a2", STONE = "#e6e0d4";
+
+function outside(o: { id: string; label: string; name: string; tagline: string; highlight: string; notes: string[]; floor: FloorKind; catio?: boolean; pieces: () => Piece[] }): Proposal {
+  return {
+    ...MAIN,
+    id: o.id,
+    label: o.label,
+    name: o.name,
+    tagline: o.tagline,
+    highlights: [...MAIN.highlights.filter((h) => !h.startsWith("Área externa vazia")), o.highlight],
+    notes: { ...MAIN.notes, externa: o.notes },
+    outdoor: MAIN.outdoor.map((r) => (r.id === "externa" ? { ...r, floor: o.floor, catio: o.catio ?? false } : r)),
+    pieces: [...MAIN.pieces.filter((p) => p.roomId !== "externa"), ...o.pieces()],
+  };
+}
+
+/** Pisantes de pedra perto da casa, da área coberta até o fundo. */
+const steppingStones = () =>
+  piece("externa", "Pisantes", "🪨", "Obras", [4.95, 5.6, 6.25, 6.9, 7.55, 8.2, 8.85, 9.4].map((x) => part(x, -0.55, 0.4, 0.36, 0.02, "pedra", 0, STONE)));
+
+function outsideGarden(): Proposal {
+  const { z0 } = EXT;
+  return outside({
+    id: "jardim",
+    label: "Jardim",
+    name: "Principal com jardim de descanso",
+    tagline: "A principal com o fundo em grama, um banco comprido no muro com jardim vertical e plantas altas.",
+    highlight: "Área externa: grama com pisantes, banco de alvenaria de 2,20 m no muro com almofadas azul-marinho e jardim vertical em cima, mesinha e plantas altas no fundo.",
+    floor: "grama",
+    notes: [
+      "Banco de alvenaria creme de 2,20 × 0,50 m no muro, em frente à janela do escritório, com assento e encosto azul-marinho.",
+      "Jardim vertical no muro, logo acima do encosto: o verde aparece da janela do escritório.",
+      "Mesinha lateral e duas plantas altas no fundo, em frente à suíte, com uma terceira no canto do fim.",
+      "Pisantes de pedra perto da casa e uns 75 cm livres de ponta a ponta.",
+    ],
+    pieces: () => [
+      piece("externa", "Banco de alvenaria", "🪑", "Móveis", [
+        part(5.1, z0, 2.2, 0.5, 0.42, "branco", 0, CREAM),
+        part(5.12, z0 + 0.1, 2.16, 0.38, 0.06, "tecido", 0.42, NAVY),
+        part(5.12, z0, 2.16, 0.1, 0.36, "tecido", 0.46, NAVY),
+      ]),
+      piece("externa", "Jardim vertical", "🌿", "Plantas", full([part(5.1, z0, 2.2, 0.05, 1.2, "planta", 1.0)])),
+      piece("externa", "Mesinha lateral", "🪵", "Móveis", table(R(7.45, z0 + 0.08, 0.4, 0.4), OAK, NAVY, 0.45)),
+      piece("externa", "Plantas altas", "🪴", "Plantas", [...plant(8.2, z0 + 0.05, 0.45, 1.5), ...plant(9.3, z0 + 0.05, 0.45, 1.8), ...plant(9.38, -0.95, 0.4, 1.2)]),
+      steppingStones(),
+    ],
+  });
+}
+
+function outsideSun(): Proposal {
+  const { z0 } = EXT;
+  const lounger = (x: number): Part[] => [
+    part(x, z0 + 0.05, 1.9, 0.62, 0.3, "madeira", 0, OAK),
+    part(x + 0.05, z0 + 0.09, 1.4, 0.54, 0.06, "tecido", 0.3, CREAM),
+    part(x + 1.45, z0 + 0.09, 0.4, 0.54, 0.35, "tecido", 0.3, NAVY),
+  ];
+  return outside({
+    id: "solario",
+    label: "Solário",
+    name: "Principal com solário",
+    tagline: "A principal com o fundo em deque, duas espreguiçadeiras no muro e um ombrelone entre elas.",
+    highlight: "Área externa: deque emendando com a área coberta, duas espreguiçadeiras de carvalho com almofadas creme e azul-marinho, mesinha e ombrelone creme.",
+    floor: "deck",
+    notes: [
+      "O deque continua o da área coberta até o fim, sem degrau: sai da hidro e já está no solário.",
+      "Duas espreguiçadeiras de 1,90 m deitadas ao longo do muro, uma em frente ao escritório e outra em frente à suíte.",
+      "Mesinha entre elas e um ombrelone creme que cobre as duas cabeceiras.",
+      "Sobram uns 75 cm de passagem entre as espreguiçadeiras e a casa.",
+    ],
+    pieces: () => [
+      piece("externa", "Espreguiçadeiras", "🏖️", "Móveis", [...lounger(5.0), ...lounger(7.3)]),
+      piece("externa", "Mesinha lateral", "🪵", "Móveis", table(R(6.94, z0 + 0.15, 0.32, 0.32), OAK, NAVY, 0.45)),
+      piece("externa", "Ombrelone", "⛱️", "Móveis", full([
+        part(7.08, -1.02, 0.04, 0.04, 2.2, "metal", 0),
+        part(6.3, z0 + 0.02, 1.6, 1.15, 0.04, "tecido", 2.2, CREAM),
+      ])),
+      piece("externa", "Planta em vaso", "🪴", "Plantas", plant(9.4, z0 + 0.05, 0.42, 1.5)),
+    ],
+  });
+}
+
+function outsideHerbs(): Proposal {
+  const { z0, x1 } = EXT;
+  const bed = (x: number): Part[] => [part(x, z0, 1.1, 0.45, 0.6, "madeira", 0, OAK), part(x + 0.04, z0 + 0.04, 1.02, 0.37, 0.22, "planta", 0.6)];
+  return outside({
+    id: "horta",
+    label: "Horta",
+    name: "Principal com horta",
+    tagline: "A principal com uma horta no fundo: canteiros altos, prateleiras de ervas e uma bancada com torneira.",
+    highlight: "Área externa: piso de pedra, três canteiros altos de carvalho no muro, prateleiras de ervas em cima, bancada de jardinagem creme com torneira e composteira.",
+    floor: "pedra",
+    notes: [
+      "Três canteiros de 1,10 × 0,45 m e 60 cm de altura no muro: dá para plantar sem se abaixar.",
+      "Duas prateleiras de ervas no muro, em cima dos canteiros, para temperos perto da churrasqueira.",
+      "Bancada de jardinagem creme com tampo de pedra e torneira no fim, e a composteira no canto.",
+      "Piso de pedra, fácil de lavar, com uns 85 cm livres de passagem.",
+    ],
+    pieces: () => [
+      piece("externa", "Canteiros altos", "🌱", "Plantas", [...bed(4.95), ...bed(6.2), ...bed(7.45)]),
+      piece("externa", "Prateleiras de ervas", "🌿", "Plantas", full([1.3, 1.7].flatMap((y) => [
+        part(4.95, z0, 3.6, 0.18, 0.03, "madeira", y, OAK),
+        ...[5.1, 5.6, 6.1, 6.6, 7.1, 7.6, 8.1].map((x) => part(x, z0 + 0.03, 0.3, 0.12, 0.14, "planta", y + 0.03)),
+      ]))),
+      piece("externa", "Bancada de jardinagem", "🪴", "Móveis", [
+        part(8.75, z0, x1 - 8.75, 0.5, 0.86, "madeira", 0, CREAM),
+        part(8.75, z0, x1 - 8.75, 0.5, 0.04, "pedra", 0.86, STONE),
+        ...full([part(9.3, z0 + 0.02, 0.03, 0.03, 0.3, "metal", 0.9), part(9.3, z0 + 0.02, 0.03, 0.14, 0.03, "metal", 1.17)]),
+      ]),
+      piece("externa", "Composteira", "♻️", "Móveis", [part(x1 - 0.42, -0.98, 0.4, 0.4, 0.6, "madeira", 0, NAVY)]),
+    ],
+  });
+}
+
+function outsidePergola(): Proposal {
+  const { z0, z1 } = EXT;
+  const beams: Part[] = [];
+  for (const x of [5.0, 6.2, 7.4, 8.6, 9.75]) beams.push(part(x, z0, 0.08, z1 - z0, 0.12, "madeira", 2.4, OAK));
+  for (let z = z0 + 0.15; z < z1 - 0.1; z += 0.3) beams.push(part(5.0, z, 4.83, 0.05, 0.05, "madeira", 2.52, OAK));
+  return outside({
+    id: "pergolado",
+    label: "Pergolado",
+    name: "Principal com pergolado e café",
+    tagline: "A principal com um pergolado de madeira em todo o fundo, mesa de café para dois e uma poltrona de leitura.",
+    highlight: "Área externa: pergolado de carvalho com trepadeira no fundo todo, mesa de café para dois em frente ao escritório e poltrona azul-marinho com luminária em frente à suíte.",
+    floor: "pedra",
+    notes: [
+      "Pergolado de carvalho a 2,40 m, apoiado na casa e no muro, sem pilares, com uma trepadeira por cima: sombra filtrada sem escurecer as janelas.",
+      "Mesa de café de 70 × 60 cm com duas cadeiras creme, em frente à janela do escritório.",
+      "Poltrona azul-marinho com luminária de piso em frente à suíte, para ler no fim da tarde.",
+      "Vaso alto no canto do fundo e uns 65 cm livres na frente da mesa.",
+    ],
+    pieces: () => [
+      piece("externa", "Pergolado", "🪵", "Obras", full([...beams, part(5.0, z0, 4.83, 0.55, 0.05, "planta", 2.57)])),
+      piece("externa", "Mesa de café", "☕", "Móveis", [
+        ...table(R(5.42, -1.36, 0.7, 0.6), CREAM, NAVY),
+        ...chair(4.94, -1.3, "w", CREAM, 0.44, NAVY), ...chair(6.16, -1.3, "e", CREAM, 0.44, NAVY),
+      ]),
+      piece("externa", "Poltrona", "🛋️", "Móveis", sofa(R(7.9, z0 + 0.05, 0.85, 0.75), "n", NAVY, 1, CREAM)),
+      piece("externa", "Luminária de piso", "💡", "Móveis", full([part(8.85, z0 + 0.15, 0.04, 0.04, 1.5, "metal", 0), part(8.75, z0 + 0.08, 0.25, 0.25, 0.2, "tecido", 1.5, CREAM)])),
+      piece("externa", "Planta em vaso", "🪴", "Plantas", plant(9.35, z0 + 0.05, 0.45, 1.7)),
+    ],
+  });
+}
+
+function outsideZen(): Proposal {
+  const { z0, x1 } = EXT;
+  return outside({
+    id: "zen",
+    label: "Zen",
+    name: "Principal com jardim zen",
+    tagline: "A principal com um jardim zen no fundo: bambu no muro, fonte de pedra e um deque baixo com almofadas de chão.",
+    highlight: "Área externa: pedrisco claro com pisantes, bambu numa floreira creme no muro, fonte de pedra, lanternas e um deque baixo de carvalho com almofadas azul-marinho.",
+    floor: "pedra",
+    notes: [
+      "Bambu numa floreira creme de 2,50 m no muro, em frente ao escritório: verde alto na janela sem ocupar o chão.",
+      "Fonte de pedra no meio, com o barulho da água perto da suíte.",
+      "Deque baixo de carvalho no canto do fundo, com duas almofadas de chão e uma mesinha baixa, para meditar ou tomar um chá.",
+      "Pisantes no pedrisco perto da casa e duas lanternas de pedra marcando o caminho.",
+    ],
+    pieces: () => [
+      piece("externa", "Bambu na floreira", "🎋", "Plantas", full([part(4.9, z0, 2.5, 0.35, 0.4, "branco", 0, CREAM), part(4.95, z0 + 0.05, 2.4, 0.25, 1.9, "planta", 0.4)])),
+      piece("externa", "Fonte de pedra", "⛲", "Móveis", [
+        part(7.75, z0 + 0.05, 0.6, 0.5, 0.45, "pedra", 0, "#cfc8bc"),
+        part(7.8, z0 + 0.1, 0.5, 0.4, 0.02, "vidro", 0.44, "#7fb7cc"),
+        ...full([part(8.0, z0 + 0.05, 0.1, 0.1, 0.35, "pedra", 0.45, "#cfc8bc")]),
+      ]),
+      piece("externa", "Deque com almofadas", "🧘", "Móveis", [
+        part(8.6, z0, x1 - 8.6, 0.8, 0.12, "madeira", 0, OAK),
+        part(8.65, z0 + 0.12, 0.45, 0.45, 0.1, "tecido", 0.12, NAVY),
+        part(9.4, z0 + 0.12, 0.45, 0.45, 0.1, "tecido", 0.12, NAVY),
+        part(9.13, z0 + 0.2, 0.24, 0.3, 0.2, "madeira", 0.12, CREAM),
+      ]),
+      piece("externa", "Lanternas de pedra", "🏮", "Móveis", [
+        part(7.5, -1.12, 0.16, 0.16, 0.5, "pedra", 0, "#cfc8bc"), part(7.48, -1.14, 0.2, 0.2, 0.06, "pedra", 0.5, "#cfc8bc"),
+        part(8.4, -1.12, 0.16, 0.16, 0.5, "pedra", 0, "#cfc8bc"), part(8.38, -1.14, 0.2, 0.2, 0.06, "pedra", 0.5, "#cfc8bc"),
+      ]),
+      steppingStones(),
+    ],
+  });
+}
+
+export const PROPOSALS: Proposal[] = [MAIN, outsideGarden(), outsideSun(), outsideHerbs(), outsidePergola(), outsideZen()];
 
 /**
  * A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam).
