@@ -64,7 +64,8 @@ const R = (x: number, z: number, w: number, d: number): Rect => ({ x, z, w, d })
 function bed(r: Rect, back: Side, duvet: string, frame = "#9a6b45", pillow?: string, headboard = frame): Part[] {
   const { W, D, at } = placer(r, back);
   return [
-    at(0, 0, W, D, 0.28, "madeira", 0, frame),
+    // A base começa depois da cabeceira, para as duas não se atravessarem.
+    at(0, 0.07, W, D - 0.07, 0.28, "madeira", 0, frame),
     at(0, 0, W, 0.07, 1.0, headboard === frame ? "madeira" : "tecido", 0, headboard),
     at(0.04, 0.08, W - 0.08, D - 0.12, 0.2, "branco", 0.28),
     at(0.02, 0.62, W - 0.04, D - 0.66, 0.05, "tecido", 0.48, duvet),
@@ -245,7 +246,7 @@ function proposalJ(): Proposal {
     tagline: "Montada com os seus desenhos, um cômodo de cada vez: suíte, escritório, sala, cozinha e a área de fora com serviço e cobertura.",
     highlights: [
       "Suíte: janela no meio da parede de cima, cama com a cabeceira na parede do lado, painel com TV na frente, frigobar ao lado e guarda-roupa de correr na parede do banheiro.",
-      "Escritório: cama de solteiro no fundo, embaixo da janela, e a mesa com o computador no canto perto da porta.",
+      "Escritório: cama de solteiro no fundo, embaixo da janela, e a mesa preta de 1,70 m com o computador na parede da sala, até o canto da porta.",
       "Cozinha em L, que agora inclui o antigo serviço: bancada de ponta a ponta, pia embaixo da janela, cooktop de 4 bocas e armários em cima e embaixo.",
       "Sala inteira, sem divisão: sofá e TV no lado da varanda, com porta de vidro de correr, e mesa para 6 no meio.",
       "Área de fora: serviço no canto da cozinha (máquina, tanque, armário e varal) e cobertura da parede da esquerda até perto da janela do escritório, para os gatos ficarem no seco.",
@@ -258,7 +259,7 @@ function proposalJ(): Proposal {
       ],
       quarto: [
         "Cama de solteiro (88 × 188 cm) deitada ao longo da parede da janela, com a cabeceira na parede da sala.",
-        "Mesa de 1,30 m com 60 cm de fundo no canto oposto, e o meio do quarto livre até a porta.",
+        "Mesa preta de 1,70 m com 60 cm de fundo na parede da sala, até o canto da porta, com a cadeira preta, e o meio do escritório livre.",
       ],
       estar: [
         "Sala inteira: o antigo jantar e o antigo estar viram um cômodo só.",
@@ -344,8 +345,8 @@ function proposalJ(): Proposal {
         part(2.95, 1.42, 0.04, 0.05, 2.1, "metal"),
       ]),
       piece("quarto", "Cama de solteiro", "🛏️", "Móveis", bed(R(4.29, -0.01, 1.88, 0.88), "w", "#e9e4da", white, nishi, nishi)),
-      piece("quarto", "Mesa com computador", "💻", "Móveis", desk(R(4.29, 1.65, 0.6, 1.3), "w", white, "#e2e2de")),
-      piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(4.95, 2.05, nishi, "e")),
+      piece("quarto", "Mesa com computador", "💻", "Móveis", desk(R(4.29, 1.27, 0.6, 1.7), "w", "#1f1f22", "#2b2b2e")),
+      piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(4.95, 1.87, "#1f1f22", "e")),
     ],
   };
 }
