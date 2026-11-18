@@ -8,7 +8,8 @@ import type { Home } from "./types";
 // v12: portas de abrir nos vãos.
 // v13: muro da área externa com 2,20 m.
 // v14: muro da área externa com 2,50 m.
-const KEY = "nishios:casa:v14";
+// v15: muro alinhado por fora com as paredes da casa.
+const KEY = "nishios:casa:v15";
 
 interface Store {
   home: Home;
