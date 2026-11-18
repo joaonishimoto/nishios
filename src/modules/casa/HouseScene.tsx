@@ -670,7 +670,7 @@ function buildHouse(
       // Com `full`, o 3D mostra a peça inteira (armário planejado, TV).
       else if (!glass && !(part.full && mode === "3d")) h = Math.max(Math.min(y + h, cap) - y, Math.min(h, 0.04));
       if (glass && mode === "planta") h = Math.min(h, WALL_PLAN);
-      if (glass && focusId) h = Math.min(h, WALL_FOCUS + 0.2);
+      if (glass && focusId && !part.full) h = Math.min(h, WALL_FOCUS + 0.2);
       const see = glass ? 0.4 : screen ? 0.22 : roof ? 0.32 : dim && mode === "3d" ? 0.3 : 1;
       const color = mode === "3d" && part.c ? part.c : pal.material[part.m];
       const mesh = addBox(
