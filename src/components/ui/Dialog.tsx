@@ -69,8 +69,13 @@ export function Dialog({
   );
 }
 
+/**
+ * Corpo rolável. Os filhos diretos não encolhem (`*:shrink-0`): num corpo em coluna flex, quando o
+ * conteúdo passa da altura, o navegador encolheria primeiro os que rolam por dentro (textarea), até
+ * sumirem. Foi o que escondeu o nome no painel de skills.
+ */
 export function DialogBody({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cn("flex-1 overflow-y-auto px-6 py-5", className)}>{children}</div>;
+  return <div className={cn("min-h-0 flex-1 overflow-y-auto px-6 py-5 *:shrink-0", className)}>{children}</div>;
 }
 
 export function DialogFooter({ children }: { children: ReactNode }) {
