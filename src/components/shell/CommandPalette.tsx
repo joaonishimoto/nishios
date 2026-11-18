@@ -8,6 +8,8 @@ import { shortDate, toISO, today } from "@/lib/dates";
 import { money } from "@/lib/format";
 import { useBens } from "@/modules/bens/store";
 import { useCalendar } from "@/modules/calendario/store";
+import { balance } from "@/modules/financas/logic";
+import { useFinancas } from "@/modules/financas/store";
 import { useCasa } from "@/modules/casa/store";
 import { useCommitments } from "@/modules/compromissos/store";
 import { usePeople } from "@/modules/pessoas/store";
@@ -68,6 +70,7 @@ function useEntries(go: (to: string) => void): Entry[] {
   const { assets, wishes } = useBens();
   const { modalities } = useTreinos();
   const { home } = useCasa();
+  const { recurrences, investments } = useFinancas();
 
   return useMemo(() => {
     const emoji = (e: string) => <span className="text-base leading-none">{e}</span>;
@@ -135,8 +138,22 @@ function useEntries(go: (to: string) => void): Entry[] {
     for (const r of home.rooms) {
       list.push({ id: `r-${r.id}`, group: "Casa", title: r.name, detail: "Cômodo", icon: page("/casa"), run: () => go(`/casa?comodo=${r.id}`) });
     }
+    for (const r of recurrences) {
+      list.push({
+        id: `fin-${r.id}`,
+        group: "Finanças",
+        title: r.name,
+        detail: `${r.kind === "in" ? "Entrada" : "Saída"} de ${money(r.amount)}`,
+        icon: emoji(r.icon),
+        extra: `${r.category} ${r.notes} recorrência`,
+        run: () => go(`/financas?aba=recorrencias&r=${r.id}`),
+      });
+    }
+    for (const i of investments) {
+      list.push({ id: `inv-${i.id}`, group: "Finanças", title: i.name, detail: money(balance(i)), icon: emoji(i.icon), extra: `${i.institution} ${i.notes} investimento`, run: () => go(`/financas?aba=investimentos&i=${i.id}`) });
+    }
     return list;
-  }, [tasks, commitments, habits, goals, events, people, pets, skills, assets, wishes, modalities, home, go]);
+  }, [tasks, commitments, habits, goals, events, people, pets, skills, assets, wishes, modalities, home, recurrences, investments, go]);
 }
 
 function Results({ query, onDone }: { query: string; onDone: () => void }) {

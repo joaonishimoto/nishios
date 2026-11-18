@@ -4,6 +4,7 @@ import { toISO, today } from "@/lib/dates";
 import { useBens } from "@/modules/bens/store";
 import { useCorpo } from "@/modules/corpo/store";
 import { useCommitments } from "@/modules/compromissos/store";
+import { useFinancas } from "@/modules/financas/store";
 import { usePeople } from "@/modules/pessoas/store";
 import { usePets } from "@/modules/pets/store";
 import { useRoutine } from "@/modules/rotina/store";
@@ -26,9 +27,10 @@ export function useEverything(): Everything {
   const { people } = usePeople();
   const { pets } = usePets();
   const { skills } = useSkills();
+  const { recurrences } = useFinancas();
   return useMemo(
-    () => ({ events, tasks, commitments, goals, modalities, sessions, plannedSessions, entries, assets, wishes, people, pets, skills }),
-    [events, tasks, commitments, goals, modalities, sessions, plannedSessions, entries, assets, wishes, people, pets, skills],
+    () => ({ events, tasks, commitments, goals, modalities, sessions, plannedSessions, entries, assets, wishes, people, pets, skills, recurrences }),
+    [events, tasks, commitments, goals, modalities, sessions, plannedSessions, entries, assets, wishes, people, pets, skills, recurrences],
   );
 }
 

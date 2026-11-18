@@ -14,6 +14,8 @@ import { PageHeader } from "@/components/shell/PageHeader";
 import { cn } from "@/lib/cn";
 import { shortDate, toISO, today } from "@/lib/dates";
 import { money, plural } from "@/lib/format";
+import { finished, monthlyEquivalent, monthOf } from "@/modules/financas/logic";
+import { useFinancas } from "@/modules/financas/store";
 import { AssetForm } from "./AssetForm";
 import { bought, byValue, byWishPriority, owned, ownedValue, ownershipLabel, PRIORITY_META, stillHas, total, warranty } from "./logic";
 import { useBens } from "./store";
@@ -336,7 +338,14 @@ function AssetRow({ asset: a, onOpen }: { asset: Asset; onOpen: () => void }) {
   const w = warranty(a);
   const status = ownershipLabel(a);
   const gone = !stillHas(a);
-  const detail = [status, a.brand, a.store, a.location].filter(Boolean).join(" · ");
+  // Custos fixos ligados ao bem em Finanças (seguro, plano, parcelas que ainda correm).
+  const month = monthOf(today());
+  const fixed = useFinancas()
+    .recurrences.filter((r) => r.assetId === a.id && !finished(r, month))
+    .reduce((n, r) => n + monthlyEquivalent(r), 0);
+  const detail = [status, a.brand, a.store, a.location, fixed > 0 ? `${money(Math.round(fixed))}/mês em custos fixos` : ""]
+    .filter(Boolean)
+    .join(" · ");
   // Manutenção ligada ao bem que já pede atenção aparece na própria linha.
   const due = useCommitments()
     .commitments.filter((c) => c.assetId === a.id)

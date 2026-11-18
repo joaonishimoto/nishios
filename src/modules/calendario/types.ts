@@ -9,6 +9,7 @@ export type SourceId =
   | "pets"
   | "bens"
   | "skills"
+  | "financas"
   | "iphone";
 
 export type Repeat = "none" | "daily" | "weekly" | "monthly" | "yearly";

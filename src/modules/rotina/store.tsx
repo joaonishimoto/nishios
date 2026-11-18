@@ -1,6 +1,7 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { usePersistentState } from "@/lib/storage";
 import { useCorpo } from "@/modules/corpo/store";
+import { useFinancas } from "@/modules/financas/store";
 import { useSkills } from "@/modules/skills/store";
 import { useTasks } from "@/modules/tarefas/store";
 import { useTreinos } from "@/modules/treinos/store";
@@ -37,12 +38,13 @@ export function RoutineProvider({ children }: { children: ReactNode }) {
   const { entries } = useCorpo();
   const { tasks } = useTasks();
   const { skills } = useSkills();
+  const { investments } = useFinancas();
 
   // O que é salvo é sempre o dado cru; as ligações são recalculadas a cada mudança nos outros módulos.
   const habits = useMemo(() => resolveHabits(rawHabits, sessions), [rawHabits, sessions]);
   const goals = useMemo(
-    () => resolveGoals(rawGoals, { sessions, modalities, entries, tasks, skills, habits }),
-    [rawGoals, sessions, modalities, entries, tasks, skills, habits],
+    () => resolveGoals(rawGoals, { sessions, modalities, entries, tasks, skills, investments, habits }),
+    [rawGoals, sessions, modalities, entries, tasks, skills, investments, habits],
   );
 
   const store = useMemo<Store>(

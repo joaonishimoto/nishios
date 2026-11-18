@@ -10,6 +10,8 @@ import { toISO, today } from "@/lib/dates";
 import { latest } from "@/modules/corpo/logic";
 import { useCorpo } from "@/modules/corpo/store";
 import { MEASURES, type MeasureId } from "@/modules/corpo/types";
+import { balance } from "@/modules/financas/logic";
+import { useFinancas } from "@/modules/financas/store";
 import { useSkills } from "@/modules/skills/store";
 import { LISTS } from "@/modules/tarefas/types";
 import { useTreinos } from "@/modules/treinos/store";
@@ -29,6 +31,8 @@ const SOURCES: [SourceKind, string][] = [
   ["tarefas", "Tarefas concluídas"],
   ["skill", "Uma skill"],
   ["skills", "Skills aprendidas"],
+  ["investimento", "Um investimento (Finanças)"],
+  ["investimentos", "Total investido (Finanças)"],
 ];
 
 export function GoalForm({
@@ -57,6 +61,7 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
   const { modalities } = useTreinos();
   const { entries } = useCorpo();
   const { skills } = useSkills();
+  const { investments } = useFinancas();
   const toast = useToast();
   const yearStart = toISO(startOfYear(today()));
   const [draft, setDraft] = useState<GoalDraft>({
@@ -105,6 +110,12 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
         }
         case "skills":
           return { ...d, link: { kind: "skills" }, unit: "skills", start: undefined };
+        case "investimento": {
+          const inv = investments.find((i) => i.type === "reserva") ?? investments[0];
+          return { ...d, link: { kind: "investimento", investmentId: inv?.id ?? "" }, unit: "reais", start: undefined };
+        }
+        case "investimentos":
+          return { ...d, link: { kind: "investimentos" }, unit: "reais", start: undefined };
       }
     });
   }
@@ -292,6 +303,27 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
           </div>
         )}
 
+        {draft.link?.kind === "investimento" && (
+          <Field
+            label="Investimento"
+            hint={investments.length === 0 ? "Cadastre um investimento em Finanças primeiro." : "A meta acompanha o saldo que você atualiza lá."}
+          >
+            {(id) => (
+              <Select
+                id={id}
+                value={draft.link?.kind === "investimento" ? draft.link.investmentId : ""}
+                onChange={(e) => setLink({ kind: "investimento", investmentId: e.target.value })}
+              >
+                {investments.map((i) => (
+                  <option key={i.id} value={i.id}>
+                    {i.name} ({balance(i).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })})
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+        )}
+
         {draft.link?.kind === "medida" && (
           <Field label="Medida">
             {(id) => (
@@ -338,7 +370,7 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
                 />
               )}
             </Field>
-          ) : kind === "skill" || kind === "skills" ? null : (
+          ) : kind === "skill" || kind === "skills" || kind === "investimento" || kind === "investimentos" ? null : (
           <Field label="Onde está hoje">
             {(id) => (
               <Input

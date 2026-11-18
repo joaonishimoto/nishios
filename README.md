@@ -1,6 +1,6 @@
 # NishiOS
 
-Sistema pessoal de gestão de vida. Já tem o shell do app (barra lateral, topo, tema claro e escuro), o design system um **calendário unificado** e dez módulos: **tarefas**, **rotina e metas**, **compromissos recorrentes**, **treinos**, **corpo**, **bens e desejos**, **casa**, **pessoas**, **pets** e **skills**.
+Sistema pessoal de gestão de vida. Já tem o shell do app (barra lateral, topo, tema claro e escuro), o design system um **calendário unificado** e onze módulos: **tarefas**, **rotina e metas**, **compromissos recorrentes**, **treinos**, **corpo**, **bens e desejos**, **casa**, **pessoas**, **pets**, **skills** e **finanças**.
 
 Os dados ficam no `localStorage` do navegador e, com o Supabase configurado, sobem para a nuvem e sincronizam entre computador e celular. Sem o Supabase, o app roda só no navegador, sem login, e começa com exemplos.
 
@@ -71,6 +71,11 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
 - **Corpo**: peso, gordura corporal e dez medidas, com uma silhueta que mostra o valor atual e a variação de cada uma.
   - Toque em uma medida (ou no peso) para ver o gráfico de evolução. Se houver uma meta ligada, o alvo aparece como linha no gráfico, com o progresso embaixo.
   - "Registrar medidas" aceita só o que foi medido no dia. IMC calculado pela altura.
+- **Finanças** (v1, só o que é certo): o resto dos gastos fica de fora de propósito, para não virar planilha de cada centavo.
+  - Recorrências: o que entra e sai com certeza (salário, aluguel, contas, assinaturas), todo mês ou a cada tantos meses, com parcelamentos que terminam sozinhos e valor aproximado para contas que variam. Mostra o custo mensal e anual dos fixos e das assinaturas.
+  - Previsão: entra, sai, vai para investimentos e sobra do mês, a lista do mês por data e barras com a sobra dos próximos 12 meses (o mês do IPVA aparece apertado). Confirmar e ajustar o valor de um mês são opcionais.
+  - Investimentos: saldo atualizado à mão, com histórico e gráfico de evolução. Uma meta pode ser ligada a um investimento (ou ao total) e sobe sozinha; com um aporte recorrente, o cartão mostra quando chega lá.
+  - Ligações: camada no calendário, cartão no Início, busca, aviso das contas dos próximos 3 dias no sino, custo fixo na linha do bem e desejos com data como compra planejada na previsão.
 - **Bens e desejos**:
   - Meus bens: agrupados por categoria, com valor de compra, data, garantia (avisa quando está acabando) e onde fica. O topo mostra o total.
   - Lista de desejos: preço, prioridade, data pretendida e link. "Comprei" registra a compra e move o item para os bens.

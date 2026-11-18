@@ -27,6 +27,7 @@ export function LineChart({
   points,
   label,
   format,
+  axisFormat,
   target,
   band,
 }: {
@@ -34,6 +35,8 @@ export function LineChart({
   /** Descrição para leitores de tela. */
   label: string;
   format: (value: number) => string;
+  /** Rótulo curto do eixo. Sem ele, usa o número de `format` sem a unidade. */
+  axisFormat?: (value: number) => string;
   /** Linha de referência, como o alvo de uma meta. */
   target?: { value: number; label: string };
   /** Faixa de referência sombreada, como o peso ideal pelo IMC. */
@@ -108,7 +111,7 @@ export function LineChart({
               <g key={t}>
                 <line x1={PAD.left} x2={width - PAD.right} y1={geo.y(t)} y2={geo.y(t)} className="stroke-border" />
                 <text x={PAD.left - 8} y={geo.y(t)} dy="0.32em" textAnchor="end" className="fill-subtle-foreground text-xs tabular-nums">
-                  {format(t).replace(/\s.*$/, "")}
+                  {axisFormat ? axisFormat(t) : format(t).replace(/\s.*$/, "")}
                 </text>
               </g>
             ))}

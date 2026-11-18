@@ -10,6 +10,7 @@ import {
   Smartphone,
   Target,
   Users,
+  Wallet,
   type LucideIcon,
 } from "lucide-react";
 import type { SourceId } from "./types";
@@ -35,6 +36,7 @@ export const SOURCES: SourceMeta[] = [
   { id: "pets", label: "Pets", hint: "Vacinas, cuidados e consultas", icon: PawPrint, color: "var(--cal-pets)" },
   { id: "bens", label: "Bens e desejos", hint: "Garantias e compras planejadas", icon: Package, color: "var(--cal-bens)" },
   { id: "skills", label: "Skills", hint: "Anotações do diário", icon: GraduationCap, color: "var(--cal-skills)" },
+  { id: "financas", label: "Finanças", hint: "Contas a pagar e o que vai entrar", icon: Wallet, color: "var(--cal-financas)" },
   { id: "iphone", label: "iPhone", hint: "Eventos trazidos do iPhone", icon: Smartphone, color: "var(--cal-iphone)" },
 ];
 

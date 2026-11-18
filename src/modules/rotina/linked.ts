@@ -1,6 +1,8 @@
 import { latest } from "@/modules/corpo/logic";
 import type { Entry } from "@/modules/corpo/types";
 import { MEASURE } from "@/modules/corpo/types";
+import { balance, totalInvested } from "@/modules/financas/logic";
+import type { Investment } from "@/modules/financas/types";
 import type { Skill } from "@/modules/skills/types";
 import type { Task } from "@/modules/tarefas/types";
 import type { Modality, Session } from "@/modules/treinos/types";
@@ -13,6 +15,7 @@ export interface LinkData {
   entries: Entry[];
   tasks: Task[];
   skills: Skill[];
+  investments: Investment[];
   /** Hábitos já com os dias automáticos, para metas que contam hábito. */
   habits: Habit[];
 }
@@ -61,11 +64,17 @@ export function linkedValue(link: GoalLink, data: LinkData): number {
     }
     case "skills":
       return data.skills.filter((s) => s.status === "learned").length;
+    case "investimento": {
+      const inv = data.investments.find((i) => i.id === link.investmentId);
+      return inv ? balance(inv) : 0;
+    }
+    case "investimentos":
+      return totalInvested(data.investments);
   }
 }
 
 /** Frase curta que diz de onde o número vem, para o cartão da meta. */
-export function linkLabel(link: GoalLink, data: Pick<LinkData, "modalities" | "habits" | "skills">): string {
+export function linkLabel(link: GoalLink, data: Pick<LinkData, "modalities" | "habits" | "skills" | "investments">): string {
   switch (link.kind) {
     case "treinos": {
       const m = data.modalities.find((x) => x.id === link.modalityId);
@@ -90,6 +99,12 @@ export function linkLabel(link: GoalLink, data: Pick<LinkData, "modalities" | "h
     }
     case "skills":
       return "Atualiza sozinha com as skills que você marca como aprendidas";
+    case "investimento": {
+      const inv = data.investments.find((i) => i.id === link.investmentId);
+      return `Atualiza sozinha com o saldo de ${inv ? inv.name : "um investimento"} em Finanças`;
+    }
+    case "investimentos":
+      return "Atualiza sozinha com o total investido em Finanças";
   }
 }
 
@@ -100,6 +115,7 @@ export function linkRoute(link: GoalLink): string {
   if (link.kind === "habito") return "/rotina";
   if (link.kind === "skill") return `/skills?s=${link.skillId}`;
   if (link.kind === "skills") return "/skills";
+  if (link.kind === "investimento" || link.kind === "investimentos") return "/financas?aba=investimentos";
   return "/corpo";
 }
 

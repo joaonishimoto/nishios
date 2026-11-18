@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { format } from "date-fns";
+import { add, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ArrowRight, CalendarDays, CheckCheck, Repeat } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -23,7 +23,9 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { Progress } from "@/components/ui/Progress";
 import { cn } from "@/lib/cn";
 import { toISO } from "@/lib/dates";
-import { plural } from "@/lib/format";
+import { money, plural } from "@/lib/format";
+import { between, monthOf, summarize, totalInvested } from "@/modules/financas/logic";
+import { useFinancas } from "@/modules/financas/store";
 import { change, formatDelta, formatValue } from "@/modules/corpo/logic";
 import { useCorpo } from "@/modules/corpo/store";
 import { petHeadline } from "@/modules/pets/logic";
@@ -103,6 +105,9 @@ export function HomePage() {
   const weekSessions = sessions.filter((x) => inCurrentWeek(x, now)).length;
   const lastSession = [...sessions].sort(newestFirst)[0];
   const { pets } = usePets();
+  const { recurrences, investments } = useFinancas();
+  const finance = summarize(recurrences, monthOf(now));
+  const bills = between(recurrences.filter((r) => r.kind === "out"), todayISO, toISO(add(now, { days: 7 }))).filter((o) => !o.done);
   const dateLine = format(now, "EEEE, d 'de' MMMM", { locale: ptBR });
 
   return (
@@ -308,6 +313,50 @@ export function HomePage() {
                   </li>
                 );
               })}
+            </ul>
+          </section>
+        )}
+
+        {(recurrences.length > 0 || investments.length > 0) && (
+          <section className="min-w-0">
+            <SectionHeader title="Finanças" to="/financas" linkLabel="Abrir finanças" />
+            <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
+              {recurrences.length > 0 && (
+                <li className="border-b border-border last:border-b-0">
+                  <Link to="/financas" className="flex items-center gap-3 px-3 py-2.5 hover:bg-surface-hover">
+                    <span className="flex-1 font-medium first-letter:uppercase">
+                      {finance.leftAfter >= 0 ? "Sobra prevista" : "Falta"} em {format(now, "MMMM", { locale: ptBR })}
+                    </span>
+                    <span className={cn("shrink-0 font-semibold tabular-nums", finance.leftAfter < 0 && "text-danger-strong")}>
+                      {money(Math.abs(finance.leftAfter))}
+                    </span>
+                  </Link>
+                </li>
+              )}
+              {recurrences.length > 0 && (
+                <li className="border-b border-border last:border-b-0">
+                  <Link to="/financas" className="flex items-center gap-3 px-3 py-2.5 hover:bg-surface-hover">
+                    <span className="flex-1 font-medium whitespace-nowrap">Contas nos próximos 7 dias</span>
+                    {bills.length > 0 && (
+                      <span className="min-w-0 truncate text-sm text-muted-foreground">
+                        {bills.slice(0, 2).map((o) => o.rec.name).join(", ")}
+                        {bills.length > 2 ? ` e mais ${bills.length - 2}` : ""}
+                      </span>
+                    )}
+                    <span className="shrink-0 font-semibold tabular-nums">
+                      {bills.length === 0 ? "Nenhuma" : money(bills.reduce((n, o) => n + o.amount, 0))}
+                    </span>
+                  </Link>
+                </li>
+              )}
+              {investments.length > 0 && (
+                <li className="border-b border-border last:border-b-0">
+                  <Link to="/financas?aba=investimentos" className="flex items-center gap-3 px-3 py-2.5 hover:bg-surface-hover">
+                    <span className="flex-1 font-medium">Investido</span>
+                    <span className="shrink-0 font-semibold tabular-nums">{money(totalInvested(investments))}</span>
+                  </Link>
+                </li>
+              )}
             </ul>
           </section>
         )}
