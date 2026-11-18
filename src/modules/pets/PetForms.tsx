@@ -118,7 +118,7 @@ function PetContent({ pet, onClose, onRemoved }: { pet?: Pet; onClose: () => voi
           <IconPicker icons={PET_ICONS} value={draft.icon} onChange={(i) => set("icon", i)} />
           <Field label="Nome" className="flex-1" error={tried ? nameError : undefined}>
             {(id) => (
-              <Input id={id} value={draft.name} autoFocus={!pet} onChange={(e) => set("name", e.target.value)} />
+              <Input placeholder="Ex.: Thor" id={id} value={draft.name} autoFocus={!pet} onChange={(e) => set("name", e.target.value)} />
             )}
           </Field>
         </div>
@@ -133,11 +133,12 @@ function PetContent({ pet, onClose, onRemoved }: { pet?: Pet; onClose: () => voi
             )}
           </Field>
           <Field label="Raça">
-            {(id) => <Input id={id} value={draft.breed} onChange={(e) => set("breed", e.target.value)} />}
+            {(id) => <Input placeholder="Ex.: Siamês, SRD" id={id} value={draft.breed} onChange={(e) => set("breed", e.target.value)} />}
           </Field>
           <Field label="Nascimento">
             {(id) => (
               <Input
+                placeholder="Sem data"
                 id={id}
                 type="date"
                 max={toISO(today())}
@@ -245,6 +246,7 @@ function CareContent({ care, pet, onClose }: { care?: Care; pet: Pet; onClose: (
           <Field label="Última vez" hint="Deixe em branco se ainda não fez.">
             {(id) => (
               <Input
+                placeholder="Ainda não fez"
                 id={id}
                 type="date"
                 max={toISO(today())}
@@ -348,6 +350,7 @@ function HealthContent({ record, pet, onClose }: { record?: HealthRecord; pet: P
           <Field label="Data">
             {(id) => (
               <Input
+                placeholder="Escolher a data"
                 id={id}
                 type="date"
                 max={toISO(today())}

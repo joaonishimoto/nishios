@@ -9,7 +9,8 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
-import { ChevronLeft, ChevronRight, Layers, Plus, Smartphone } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Layers, Plus, Smartphone } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover";
@@ -397,9 +398,11 @@ function Agenda({ days, byDate, selectedISO, todayISO, onSelect, onOpenEvent }: 
   const withItems = days.filter((d) => (byDate.get(toISO(d)) ?? []).length > 0);
   if (withItems.length === 0) {
     return (
-      <p className="rounded-lg border border-dashed border-border-strong px-6 py-12 text-center text-muted-foreground">
-        Nada marcado nos próximos 30 dias. Crie um evento ou ligue mais camadas.
-      </p>
+      <EmptyState
+        icon={CalendarDays}
+        title="Nada marcado nos próximos 30 dias"
+        description="Crie um evento ou ligue mais camadas para ver o que vem pela frente."
+      />
     );
   }
   return (
@@ -480,9 +483,12 @@ function DayPanel({
 
       <div className="flex flex-col gap-4 p-2">
         {empty && (
-          <p className="px-2 py-6 text-center text-muted-foreground">
-            Dia livre. Use o botão acima para marcar um evento aqui.
-          </p>
+          <EmptyState
+            size="sm"
+            icon={CalendarDays}
+            title="Dia livre"
+            description="Use o botão + acima para marcar um evento neste dia."
+          />
         )}
 
         {items.length > 0 && (

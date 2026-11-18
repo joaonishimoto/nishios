@@ -131,6 +131,7 @@ function Content({
           <Field label="Data" hint={future ? "Dia que ainda não chegou: fica como treino planejado." : undefined}>
             {(id) => (
               <Input
+                placeholder="Escolher a data"
                 id={id}
                 type="date"
                 value={draft.date}
@@ -142,6 +143,7 @@ function Content({
           <Field label="Duração (minutos)">
             {(id) => (
               <Input
+                placeholder="Ex.: 60"
                 id={id}
                 type="number"
                 min={0}
@@ -176,6 +178,7 @@ function Content({
           >
             {(id) => (
               <Input
+                placeholder="Ex.: 5"
                 id={id}
                 type="number"
                 min={0}
@@ -212,6 +215,7 @@ function Content({
             <Field label="Rounds">
               {(id) => (
                 <Input
+                  placeholder="Ex.: 5"
                   id={id}
                   type="number"
                   min={0}

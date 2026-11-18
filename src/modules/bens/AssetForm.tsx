@@ -145,6 +145,7 @@ function Content({
           <Field label="Data da compra">
             {(id) => (
               <Input
+                placeholder="Quando comprou"
                 id={id}
                 type="date"
                 max={toISO(today())}
@@ -156,6 +157,7 @@ function Content({
           <Field label="Garantia até" hint="Deixe em branco se não tiver.">
             {(id) => (
               <Input
+                placeholder="Sem garantia"
                 id={id}
                 type="date"
                 value={draft.warrantyUntil}

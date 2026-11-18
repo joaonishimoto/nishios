@@ -2,10 +2,10 @@ import { derive, dueLabel } from "@/modules/compromissos/logic";
 import { useCommitments } from "@/modules/compromissos/store";
 import { useMemo, useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ExternalLink, Plus, Search, ShoppingBag } from "lucide-react";
+import { ExternalLink, Gift, Package, Plus, Search, ShoppingBag } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { EmptyState, NoResults } from "@/components/ui/EmptyState";
 import { Field, Input, Select } from "@/components/ui/Field";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover";
 import { Segmented } from "@/components/ui/Segmented";
@@ -110,7 +110,7 @@ export function BensPage() {
               <Input
                 type="search"
                 aria-label="Buscar bem"
-                placeholder="Buscar"
+                placeholder="Buscar bens"
                 className="pl-8"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -124,6 +124,7 @@ export function BensPage() {
         {tab === "bens" ? (
           assets.length === 0 ? (
             <EmptyState
+              icon={Package}
               title="Nenhum bem cadastrado"
               description="Comece pelos mais caros: notebook, celular, geladeira, carro."
               action={
@@ -134,21 +135,15 @@ export function BensPage() {
               }
             />
           ) : groups.length === 0 ? (
-            <EmptyState
-              title="Nada por aqui"
-              description="Nenhum bem combina com os filtros escolhidos."
-              action={
-                filtering && (
-                  <Button
-                    variant="outline"
-                    onClick={() => {
+            <NoResults
+              query={query}
+              onClear={
+                filtering
+                  ? () => {
                       setCategory("all");
                       setQuery("");
-                    }}
-                  >
-                    Limpar filtros
-                  </Button>
-                )
+                    }
+                  : undefined
               }
             />
           ) : (
@@ -189,6 +184,7 @@ export function BensPage() {
           )
         ) : wishes.length === 0 ? (
           <EmptyState
+            icon={Gift}
             title="Lista de desejos vazia"
             description="Anote o que você quer comprar para decidir com calma, sem perder de vista."
             action={
@@ -388,6 +384,7 @@ function BuyWish({ wish }: { wish: Wish }) {
           <Field label="Quanto pagou (R$)">
             {(id) => (
               <Input
+                placeholder="0,00"
                 id={id}
                 type="number"
                 min={0}
@@ -401,7 +398,7 @@ function BuyWish({ wish }: { wish: Wish }) {
           </Field>
           <Field label="Quando comprou">
             {(id) => (
-              <Input id={id} type="date" max={max} value={date} required onChange={(e) => setDate(e.target.value)} />
+              <Input placeholder="Quando comprou" id={id} type="date" max={max} value={date} required onChange={(e) => setDate(e.target.value)} />
             )}
           </Field>
           <Field label="Categoria do bem">

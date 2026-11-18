@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { differenceInCalendarDays } from "date-fns";
-import { Cloud, Download, Eraser, LogOut, RefreshCw, RotateCcw, Upload } from "lucide-react";
+import { Cloud, Download, Eraser, Inbox, LogOut, RefreshCw, RotateCcw, Upload } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { useCloud, useSyncStatus } from "@/components/cloud/CloudGate";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
@@ -115,7 +116,8 @@ function Block({ title, children }: { title: string; children: ReactNode }) {
 
 function Summary({ backup }: { backup: Backup }) {
   const rows = summarize(backup);
-  if (rows.length === 0) return <p className="text-muted-foreground">Nenhum item cadastrado.</p>;
+  if (rows.length === 0)
+    return <EmptyState size="sm" icon={Inbox} className="items-start px-0 text-left" title="Nenhum item cadastrado" description="Este arquivo não tem dados para restaurar." />;
   return (
     <ul className="grid w-full max-w-xl grid-cols-2 gap-x-6 gap-y-1 sm:grid-cols-3">
       {rows.map((r) => (

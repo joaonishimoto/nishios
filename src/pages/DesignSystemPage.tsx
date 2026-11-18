@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from "react";
-import { Check, Plus, Trash2 } from "lucide-react";
+import { CalendarClock, Check, CheckCheck, History, Plus, Trash2 } from "lucide-react";
 import { Badge, Dot, type Tone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { EmptyState, NoResults } from "@/components/ui/EmptyState";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
 import { Segmented } from "@/components/ui/Segmented";
 import { useToast } from "@/components/ui/Toast";
@@ -204,7 +204,12 @@ export function DesignSystemPage() {
       </Section>
 
       <Section title="Campos">
-        <div className="grid max-w-2xl gap-4 sm:grid-cols-2">
+        <p className="max-w-[60ch] text-muted-foreground">
+          Todo campo tem placeholder, e o componente exige. Ele nunca repete o rótulo: em texto, mostra
+          um exemplo real (Ex.: Cortar o cabelo); em número, o formato ou a unidade (0,00); em data
+          opcional, o que o vazio significa (Sem prazo); em texto longo, ideias do que anotar.
+        </p>
+        <div className="mt-4 grid max-w-2xl gap-4 sm:grid-cols-2">
           <Field label="Texto" hint="Uma dica curta fica aqui.">
             {(id) => <Input id={id} placeholder="Ex.: Cortar o cabelo" />}
           </Field>
@@ -217,16 +222,16 @@ export function DesignSystemPage() {
             )}
           </Field>
           <Field label="Com erro" error="Dê um nome ao compromisso.">
-            {(id) => <Input id={id} aria-invalid />}
+            {(id) => <Input placeholder="Ex.: Consulta no dentista" id={id} aria-invalid />}
           </Field>
-          <Field label="Data">{(id) => <Input id={id} type="date" />}</Field>
+          <Field label="Data">{(id) => <Input placeholder="Sem prazo" id={id} type="date" />}</Field>
           <Field label="Texto longo" className="sm:col-span-2">
-            {(id) => <Textarea id={id} placeholder="Anotações..." />}
+            {(id) => <Textarea id={id} placeholder="Onde faz, com quem, o que lembrar de pedir..." />}
           </Field>
         </div>
       </Section>
 
-      <Section title="Filtro, aviso e estado vazio">
+      <Section title="Filtro e aviso">
         <div className="flex flex-col items-start gap-4">
           <Segmented
             label="Exemplo de filtro"
@@ -244,11 +249,47 @@ export function DesignSystemPage() {
           >
             Mostrar aviso
           </Button>
-          <div className="w-full max-w-xl">
+        </div>
+      </Section>
+
+      <Section title="Estados vazios">
+        <p className="max-w-[60ch] text-muted-foreground">
+          Toda lista vazia diz o que aconteceu e o que fazer em seguida. O ícone é o do módulo, o título
+          é curto e a descrição mostra o próximo passo, de preferência com um botão.
+        </p>
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div>
+            <p className="mb-2 text-sm text-muted-foreground">Primeiro uso, no lugar da lista</p>
             <EmptyState
+              icon={CalendarClock}
               title="Nenhum compromisso ainda"
-              description="Um estado vazio diz o que fazer em seguida."
+              description="Comece por algo simples, como o corte de cabelo ou a consulta no dentista."
               action={<Button><Plus />Novo compromisso</Button>}
+            />
+          </div>
+          <div>
+            <p className="mb-2 text-sm text-muted-foreground">Busca ou filtro sem resultado</p>
+            <NoResults query="dentista" onClear={() => {}} />
+          </div>
+          <div>
+            <p className="mb-2 text-sm text-muted-foreground">Pequeno, dentro de um cartão ou painel</p>
+            <EmptyState
+              size="sm"
+              icon={History}
+              frame="dashed"
+              title="Nenhum registro ainda"
+              description="Quando você marcar como feito, as datas aparecem aqui."
+            />
+          </div>
+          <div>
+            <p className="mb-2 text-sm text-muted-foreground">Vazio é bom sinal</p>
+            <EmptyState
+              size="sm"
+              tone="success"
+              icon={CheckCheck}
+              frame="solid"
+              title="Tudo em dia"
+              description="Nada atrasado nem chegando a hora."
             />
           </div>
         </div>

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ArrowUp, Check, Pencil, Plus } from "lucide-react";
+import { ArrowUp, ChartColumn, Check, Dumbbell, Pencil, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -74,6 +74,7 @@ export function TreinosPage() {
 
       {modalities.length === 0 ? (
         <EmptyState
+          icon={Dumbbell}
           title="Nenhuma modalidade ainda"
           description="Crie a primeira: musculação, luta, corrida, natação ou o que você pratica."
           action={
@@ -236,6 +237,7 @@ export function TreinosPage() {
             {history.length === 0 ? (
               <div className="mt-3">
                 <EmptyState
+                  icon={Dumbbell}
                   title="Nenhum treino registrado"
                   description={
                     selected
@@ -382,9 +384,14 @@ function ModalityDetail({
       </div>
 
       {sessions.length === 0 ? (
-        <p className="mt-3 text-muted-foreground">
-          Ainda sem treinos. Os números desta modalidade aparecem aqui depois do primeiro registro.
-        </p>
+        <EmptyState
+          size="sm"
+          icon={ChartColumn}
+          frame="dashed"
+          className="mt-3"
+          title="Ainda sem treinos"
+          description="Os números desta modalidade aparecem aqui depois do primeiro registro."
+        />
       ) : (
         <>
           <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">

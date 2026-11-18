@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Cake, Plus, Search } from "lucide-react";
+import { Cake, Plus, Search, Users } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { CycleTrack } from "@/components/ui/CycleTrack";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { EmptyState, NoResults } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Field";
 import { Segmented } from "@/components/ui/Segmented";
 import { PageHeader } from "@/components/shell/PageHeader";
@@ -136,7 +136,7 @@ export function PessoasPage() {
           <Input
             type="search"
             aria-label="Buscar pessoa"
-            placeholder="Buscar"
+            placeholder="Buscar pessoas"
             className="pl-8"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -147,6 +147,7 @@ export function PessoasPage() {
       <div className="mt-5">
         {people.length === 0 ? (
           <EmptyState
+            icon={Users}
             title="Ninguém por aqui ainda"
             description="Comece pelas pessoas com quem você mais quer manter contato."
             action={
@@ -157,21 +158,15 @@ export function PessoasPage() {
             }
           />
         ) : visible.length === 0 ? (
-          <EmptyState
-            title="Nada por aqui"
-            description="Nenhuma pessoa combina com os filtros escolhidos."
-            action={
-              filtering && (
-                <Button
-                  variant="outline"
-                  onClick={() => {
+          <NoResults
+            query={query}
+            onClear={
+              filtering
+                ? () => {
                     setGroup("all");
                     setQuery("");
-                  }}
-                >
-                  Limpar filtros
-                </Button>
-              )
+                  }
+                : undefined
             }
           />
         ) : (

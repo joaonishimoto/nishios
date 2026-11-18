@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { ExternalLink, Plus, Trash2, X } from "lucide-react";
+import { ExternalLink, NotebookPen, Plus, Trash2, X } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Dialog, DialogBody } from "@/components/ui/Dialog";
@@ -197,9 +198,14 @@ function PanelContent({ skill, onClose }: { skill: Skill; onClose: () => void })
             </Button>
           </form>
           {skill.log.length === 0 ? (
-            <p className="mt-2 text-sm text-muted-foreground">
-              Anote cada avanço. Reler o diário mostra o quanto você já andou.
-            </p>
+            <EmptyState
+              size="sm"
+              icon={NotebookPen}
+              frame="dashed"
+              className="mt-3"
+              title="Diário vazio"
+              description="Anote cada avanço. Reler o diário mostra o quanto você já andou."
+            />
           ) : (
             <ul className="mt-3 flex flex-col gap-3">
               {skill.log.map((l) => (

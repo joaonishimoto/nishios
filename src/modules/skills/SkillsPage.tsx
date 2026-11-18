@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Plus, Search } from "lucide-react";
+import { GraduationCap, Plus, Search } from "lucide-react";
 import { Badge, Dot } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { EmptyState, NoResults } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Field";
 import { LevelDots } from "@/components/ui/LevelDots";
 import { Segmented } from "@/components/ui/Segmented";
@@ -104,7 +104,7 @@ export function SkillsPage() {
           <Input
             type="search"
             aria-label="Buscar skill"
-            placeholder="Buscar"
+            placeholder="Buscar skills"
             className="pl-8"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -115,6 +115,7 @@ export function SkillsPage() {
       <div className="mt-5">
         {skills.length === 0 ? (
           <EmptyState
+            icon={GraduationCap}
             title="Nenhuma skill ainda"
             description="Comece listando o que você quer aprender. Quando começar a estudar, monte o plano com cursos, livros e vídeos."
             action={
@@ -125,20 +126,12 @@ export function SkillsPage() {
             }
           />
         ) : nothingFound ? (
-          <EmptyState
-            title="Nada por aqui"
-            description="Nenhuma skill combina com os filtros escolhidos."
-            action={
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setFilter("all");
-                  setQuery("");
-                }}
-              >
-                Limpar filtros
-              </Button>
-            }
+          <NoResults
+            query={query}
+            onClear={() => {
+              setFilter("all");
+              setQuery("");
+            }}
           />
         ) : view === "geral" ? (
           <SkillsOverview
@@ -177,7 +170,7 @@ export function SkillsPage() {
                     <span className="font-normal text-subtle-foreground tabular-nums">{items.length}</span>
                   </h2>
                   {items.length === 0 ? (
-                    <p className="px-2 py-3 text-sm text-muted-foreground">{meta.empty}</p>
+                    <p className="mt-1 rounded-md border border-dashed border-border-strong px-3 py-5 text-center text-sm text-muted-foreground">{meta.empty}</p>
                   ) : (
                     <ul className="mt-1 flex flex-col gap-2">
                       {items.map((s) => (

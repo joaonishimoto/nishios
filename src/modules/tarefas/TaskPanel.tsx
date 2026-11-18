@@ -86,6 +86,7 @@ function PanelContent({ task, onClose }: { task: Task; onClose: () => void }) {
           <Field label="Prazo">
             {(id) => (
               <Input
+                placeholder="Sem prazo"
                 id={id}
                 type="date"
                 value={task.due}

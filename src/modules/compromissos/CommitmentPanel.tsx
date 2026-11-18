@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useBens } from "@/modules/bens/store";
-import { Pencil, Trash2, X } from "lucide-react";
+import { History, Pencil, Trash2, X } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge, Dot } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogBody } from "@/components/ui/Dialog";
@@ -131,9 +132,14 @@ function PanelContent({ commitment: c, onClose }: { commitment: Commitment; onCl
         <section>
           <h3 className="font-semibold">Histórico</h3>
           {c.history.length === 0 ? (
-            <p className="mt-2 text-muted-foreground">
-              Nenhum registro ainda. Quando você marcar como feito, as datas aparecem aqui.
-            </p>
+            <EmptyState
+              size="sm"
+              icon={History}
+              frame="dashed"
+              className="mt-2"
+              title="Nenhum registro ainda"
+              description="Quando você marcar como feito, as datas aparecem aqui."
+            />
           ) : (
             <ol className="mt-2 flex flex-col">
               {c.history.map((date, i) => (

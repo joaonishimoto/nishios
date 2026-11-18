@@ -107,18 +107,18 @@ function Content({ event, defaultDate, onClose }: { event?: CalEvent; defaultDat
         {draft.allDay ? (
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Dia">
-              {(id) => <Input id={id} type="date" required value={draft.date} onChange={(e) => set("date", e.target.value)} />}
+              {(id) => <Input placeholder="Escolher o dia" id={id} type="date" required value={draft.date} onChange={(e) => set("date", e.target.value)} />}
             </Field>
             <Field label="Até" hint="Só se durar mais de um dia." error={tried ? untilError : undefined}>
               {(id) => (
-                <Input id={id} type="date" min={draft.date} value={draft.endDate} onChange={(e) => set("endDate", e.target.value)} />
+                <Input placeholder="Só um dia" id={id} type="date" min={draft.date} value={draft.endDate} onChange={(e) => set("endDate", e.target.value)} />
               )}
             </Field>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-[minmax(0,1fr)_7rem_7rem]">
             <Field label="Dia" className="col-span-2 sm:col-span-1">
-              {(id) => <Input id={id} type="date" required value={draft.date} onChange={(e) => set("date", e.target.value)} />}
+              {(id) => <Input placeholder="Escolher o dia" id={id} type="date" required value={draft.date} onChange={(e) => set("date", e.target.value)} />}
             </Field>
             <Field label="Início">
               {(id) => <Input id={id} type="time" value={draft.start} onChange={(e) => set("start", e.target.value)} />}
@@ -144,7 +144,7 @@ function Content({ event, defaultDate, onClose }: { event?: CalEvent; defaultDat
           {draft.repeat !== "none" && (
             <Field label="Repete até" hint="Em branco, repete sem fim.">
               {(id) => (
-                <Input id={id} type="date" min={draft.date} value={draft.until} onChange={(e) => set("until", e.target.value)} />
+                <Input placeholder="Sem fim" id={id} type="date" min={draft.date} value={draft.until} onChange={(e) => set("until", e.target.value)} />
               )}
             </Field>
           )}
@@ -186,7 +186,7 @@ function Content({ event, defaultDate, onClose }: { event?: CalEvent; defaultDat
           )}
         </Field>
         <Field label="Anotações">
-          {(id) => <Textarea id={id} value={draft.notes} onChange={(e) => set("notes", e.target.value)} />}
+          {(id) => <Textarea placeholder="Pauta, o que levar, quem avisar..." id={id} value={draft.notes} onChange={(e) => set("notes", e.target.value)} />}
         </Field>
       </DialogBody>
       <DialogFooter>

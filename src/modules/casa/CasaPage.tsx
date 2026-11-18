@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Check, Heart, Lightbulb, Link2, Ruler, Sofa, Type, Unlink } from "lucide-react";
+import { Armchair, ArrowLeft, Check, Heart, Lightbulb, Link2, Ruler, Sofa, Type, Unlink } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge, type Tone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Segmented } from "@/components/ui/Segmented";
@@ -470,7 +471,12 @@ function RoomPanel({
 
       <div className="flex-1 overflow-y-auto">
         {s.pieces.length === 0 ? (
-          <p className="px-4 py-6 text-muted-foreground">Nenhum móvel neste cômodo ainda.</p>
+          <EmptyState
+            size="sm"
+            icon={Armchair}
+            title="Nenhum móvel neste cômodo ainda"
+            description="Os móveis da planta aparecem aqui, e cada um pode virar um bem."
+          />
         ) : (
           <ul className="p-2">
             {s.pieces.map((piece) => {

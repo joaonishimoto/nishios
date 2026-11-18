@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Check, Plus, Search } from "lucide-react";
+import { NoResults } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
 import { Input } from "@/components/ui/Field";
@@ -89,7 +90,9 @@ export function LinkAssetDialog({
             );
           })}
           {visible.length === 0 && (
-            <li className="px-2 py-6 text-center text-muted-foreground">Nenhum bem com esse nome.</li>
+            <li>
+              <NoResults size="sm" query={query} onClear={query ? () => setQuery("") : undefined} />
+            </li>
           )}
         </ul>
       </DialogBody>

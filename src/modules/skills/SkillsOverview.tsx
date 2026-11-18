@@ -1,4 +1,5 @@
-import { ArrowRight, Plus } from "lucide-react";
+import { ArrowRight, Award, BookOpen, Lightbulb, Plus } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
@@ -36,9 +37,14 @@ export function SkillsOverview({
       <section>
         <SectionTitle title="Estudando agora" count={learning.length} />
         {learning.length === 0 ? (
-          <p className="mt-2 text-muted-foreground">
-            Nada em estudo agora. Escolha algo em "Quero aprender" e toque em Começar.
-          </p>
+          <EmptyState
+            size="sm"
+            icon={BookOpen}
+            frame="dashed"
+            className="mt-3"
+            title="Nada em estudo agora"
+            description="Escolha algo em “Quero aprender” e toque em Começar."
+          />
         ) : (
           <ul className="mt-3 grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
             {learning.map((s) => (
@@ -52,7 +58,14 @@ export function SkillsOverview({
         <section>
           <SectionTitle title="Já sei" count={learned.length} />
           {learned.length === 0 ? (
-            <p className="mt-2 text-muted-foreground">O que você já domina aparece aqui, com o nível de cada uma.</p>
+            <EmptyState
+              size="sm"
+              icon={Award}
+              frame="dashed"
+              className="mt-3"
+              title="Nada dominado ainda"
+              description="O que você já domina aparece aqui, com o nível de cada uma."
+            />
           ) : (
             <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
               {learned.map((s) => (
@@ -88,7 +101,14 @@ export function SkillsOverview({
             }
           />
           {want.length === 0 ? (
-            <p className="mt-2 text-muted-foreground">Anote aqui o que você quer aprender, mesmo sem data para começar.</p>
+            <EmptyState
+              size="sm"
+              icon={Lightbulb}
+              frame="dashed"
+              className="mt-3"
+              title="Lista vazia"
+              description="Anote aqui o que você quer aprender, mesmo sem data para começar."
+            />
           ) : (
             <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
               {want.map((s) => (

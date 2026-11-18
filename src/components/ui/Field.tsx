@@ -7,10 +7,25 @@ import { DatePicker } from "./DatePicker";
 export { Select } from "./Select";
 
 /**
+ * Todo campo tem placeholder (o tipo exige). Ele mostra um exemplo ou o que o vazio significa,
+ * nunca repete o rótulo:
+ * - texto: um exemplo real, "Ex.: Cortar o cabelo";
+ * - número: o formato ou a unidade, "0,00", "45";
+ * - data opcional: o que acontece se ficar em branco, "Sem prazo";
+ * - texto longo: as ideias do que anotar, terminando em reticências.
+ * Campos de hora (`type="time"`) não mostram placeholder no navegador, por isso ficam de fora.
+ */
+type WithPlaceholder<T> = Omit<T, "placeholder"> & { placeholder: string };
+export type InputProps =
+  | WithPlaceholder<InputHTMLAttributes<HTMLInputElement>>
+  | (Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & { type: "time" | "hidden" });
+export type TextareaProps = WithPlaceholder<TextareaHTMLAttributes<HTMLTextAreaElement>>;
+
+/**
  * Campo de texto. Com `type="date"` vira o seletor de data do design system,
  * com a mesma forma de usar (`value` em yyyy-MM-dd e `e.target.value` no `onChange`).
  */
-export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
+export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className, ...props }, ref) => {
     if (props.type === "date") {
       return (
@@ -33,10 +48,7 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
 );
 Input.displayName = "Input";
 
-export const Textarea = forwardRef<
-  HTMLTextAreaElement,
-  TextareaHTMLAttributes<HTMLTextAreaElement>
->(({ className, ...props }, ref) => (
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({ className, ...props }, ref) => (
   <textarea ref={ref} className={cn(control, "min-h-20 resize-y py-2", className)} {...props} />
 ));
 Textarea.displayName = "Textarea";
