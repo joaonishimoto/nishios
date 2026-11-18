@@ -77,7 +77,7 @@ const PRICES: [RegExp, number][] = [
   [/^casinha dos gatos/i, 900],
   [/^tanque/i, 600],
   [/^tela de proteção/i, 1500],
-  [/^canteiros|^horta/i, 600],
+  [/^canteiros?|^horta/i, 600],
   [/^torre para gatos/i, 450],
   [/^caixa de areia/i, 150],
   [/^comedouro/i, 250],

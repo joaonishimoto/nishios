@@ -775,7 +775,75 @@ function proposalF(): Proposal {
   });
 }
 
-export const PROPOSALS: Proposal[] = [proposalA(), proposalB(), proposalC(), proposalD(), proposalE(), proposalF(), proposalJ()];
+function proposalG(): Proposal {
+  const cab = "#e4d6c2", stone = "#3b3a38";
+  return fromJ(1300, {
+    id: "g",
+    name: "F com a máquina na cozinha",
+    tagline: "A F com a máquina de lavar dentro da cozinha e a pia perto da geladeira, deixando a área externa livre para descanso, churrasco e jardim.",
+    highlights: [
+      "Área de fora: hidromassagem branca de 2,00 × 1,50 m com deque em volta e churrasqueira com bancada, tudo embaixo do telhado.",
+      "Sem lavanderia fora: a máquina de lavar fica embaixo da bancada, no canto da janela da cozinha, e a pia vai para o lado da geladeira.",
+      "Área externa livre, com mesa para quatro, banco de madeira, jardim vertical no muro e canteiro no fundo.",
+    ],
+    replaceNotes: ["servicoext", "coberta", "externa", "cozinha"],
+    replaceOutdoorHighlight: true,
+    notes: {
+      ...BATH_NOTES,
+      cozinha: [
+        "Bancada planejada de 60 cm de fundo no L, com cooktop de 4 bocas e armários embaixo e aéreos em cima.",
+        "A máquina de lavar fica embaixo da bancada, no canto da janela, com a pedra passando por cima. Dá para usar a bancada normalmente.",
+        "A pia saiu da janela e foi para a parede da geladeira, logo antes dela: lavar, cortar e guardar ficam em sequência.",
+        "Sem tanque: com a máquina dentro de casa, a área externa fica livre.",
+      ],
+      servicoext: [
+        "Hidromassagem branca de 2,00 × 1,50 m embutida num deque de madeira de 45 cm, que ocupa o canto inteiro, do muro até a parede da cozinha.",
+        "A borda da hidro fica 30 cm acima do deque, e um degrau do lado da churrasqueira ajuda a subir.",
+        "Fica embaixo do telhado: dá para usar com chuva, e as folhas não caem na água.",
+        "Ripado de madeira no lado de dentro do muro, do chão até 2,50 m, atrás e do lado da hidro.",
+      ],
+      coberta: [
+        "Churrasqueira e bancada de apoio encostadas no muro, ao lado da hidro: quem está na água fica perto de quem está na grelha.",
+        "Embaixo do telhado, então o churrasco não para com chuva. Sobram uns 90 cm de passagem da varanda até a área externa.",
+        "Os gatos continuam podendo ficar aqui fora sem tomar chuva.",
+      ],
+      externa: [
+        "Mesa para quatro logo depois da cobertura, em frente à janela do escritório, para comer perto da churrasqueira.",
+        "Banco de madeira no muro, em frente à janela da suíte, com jardim vertical atrás e no muro do fundo.",
+        "Canteiro no canto do fundo e vasos, deixando o meio livre: sobra 1 m de passagem na frente do banco.",
+      ],
+    },
+    outdoorChanges: { servicoext: { name: "Hidro", floor: "deck" } },
+    drop: ["servicoext:Tanque", "servicoext:Máquina de lavar", "servicoext:Armário de serviço", "cozinha:Bancada planejada", "servico:Pia"],
+    externa: externa("deck"),
+    pieces: () => [
+      ...bathrooms("#1e3d66", "#e9e4da"),
+      ...salaExtras("#e2ddd2"),
+      piece("cozinha", "Bancada planejada", "🗄️", "Móveis", [
+        ...plannedCounter(R(-0.01, 0.89, 0.61, 1.61), "e", cab, stone),
+        ...plannedCounter(R(0.22, 0.29, 0.78, 0.6), "s", cab, stone),
+        part(1.0, 0.29, 0.6, 0.6, 0.04, "pedra", 0.86, stone),
+      ]),
+      piece("cozinha", "Máquina de lavar", "🫧", "Eletrodomésticos", washer(R(1.0, 0.29, 0.6, 0.6), "n")),
+      { ...piece("cozinha", "Pia", "🚰", "Móveis", [part(-0.01, 2.5, 0.61, 0.9, 0.9, "madeira", 0, cab)]), fixture: { kind: "bancada", x: -0.01, z: 2.5, w: 0.61, d: 0.9, wall: "w", colors: { cabinet: cab, stone } } },
+      piece("servicoext", "Hidromassagem", "🛁", "Móveis", deckedTub(R(0.02, EXT.z0 + 0.03, 2.43, 1.72), R(0.14, -1.42, 2.0, 1.5))),
+      piece("servicoext", "Painel ripado", "🪵", "Obras", [...slatScreen(R(-0.01, EXT.z0, 2.46, 0.03)), ...slatScreen(R(-0.01, EXT.z0, 0.03, 1.75))]),
+      piece("coberta", "Churrasqueira", "🔥", "Móveis", bbq(R(2.85, EXT.z0, 0.9, 0.55))),
+      piece("coberta", "Bancada de apoio", "🗄️", "Móveis", [part(3.8, EXT.z0, 0.95, 0.55, 0.86, "madeira", 0, "#f4f4f1"), part(3.8, EXT.z0, 0.95, 0.55, 0.04, "pedra", 0.86, stone)]),
+      piece("externa", "Mesa e cadeiras", "🍽️", "Móveis", [
+        ...table(R(5.3, -0.95, 1.2, 0.7), "#f4f4f1", "#2b2b2e"),
+        ...chair(5.45, -1.45, "n", "#1e3d66"), ...chair(6.0, -1.45, "n", "#1e3d66"),
+        ...chair(4.82, -0.82, "w", "#1e3d66"), ...chair(6.54, -0.82, "e", "#1e3d66"),
+      ]),
+      piece("externa", "Jardim vertical", "🌿", "Plantas", full([part(7.75, EXT.z0, 2.12, 0.06, 1.4, "planta", 0.6), part(EXT.x1 - 0.06, EXT.z0 + 0.06, 0.06, 1.39, 1.4, "planta", 0.6)])),
+      piece("externa", "Banco de madeira", "🪑", "Móveis", gardenBench(R(7.85, EXT.z0 + 0.06, 1.3, 0.42), "n", "#a07a55")),
+      piece("externa", "Canteiro", "🌱", "Plantas", raisedBed(R(EXT.x1 - 0.6, -0.95, 0.54, 0.8))),
+      piece("externa", "Plantas em vaso", "🪴", "Plantas", [...plant(7.05, -1.45, 0.38, 1.2), ...plant(7.1, -0.5, 0.34, 1.0)]),
+    ],
+  });
+}
+
+export const PROPOSALS: Proposal[] = [proposalA(), proposalB(), proposalC(), proposalD(), proposalE(), proposalF(), proposalG(), proposalJ()];
 
 /**
  * A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam).
