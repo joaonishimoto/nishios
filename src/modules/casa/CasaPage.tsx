@@ -17,10 +17,23 @@ import { indoorArea, roomSize, suggestions, summarize } from "./logic";
 import { PROPOSALS, withProposal, type Proposal } from "./proposals";
 import { useCasa } from "./store";
 import type { Home, Piece, Room, ViewMode } from "./types";
+import { WALL_DEFAULT, WALL_MIN, WALL_REAL } from "./walls";
 import { estimate, inWishes, wishesFor } from "./wishes";
 
 // O three.js só é baixado quando a página Casa abre.
 const HouseScene = lazy(() => import("./HouseScene"));
+
+const WALL_KEY = "nishios:casa:paredes";
+
+function readWallHeight(): number {
+  try {
+    const v = Number(localStorage.getItem(WALL_KEY));
+    if (v >= WALL_MIN && v <= WALL_REAL) return v;
+  } catch {
+    // Sem localStorage, começa na altura padrão.
+  }
+  return WALL_DEFAULT;
+}
 
 const area = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
 
@@ -57,6 +70,16 @@ export function CasaPage() {
   const home = useMemo(() => withProposal(real, proposal), [real, proposal]);
   const focus = home.rooms.find((r) => r.id === params.get("comodo")) ?? null;
   const dims = params.get("cotas") === "1";
+  // Altura das paredes no 3D: fica guardada neste navegador.
+  const [wallHeight, setWallHeight] = useState(readWallHeight);
+  const changeWallHeight = (v: number) => {
+    setWallHeight(v);
+    try {
+      localStorage.setItem(WALL_KEY, String(v));
+    } catch {
+      // Sem localStorage, a altura vale só até recarregar.
+    }
+  };
 
   const setParam = (key: string, value: string | null) =>
     setParams(
@@ -195,10 +218,27 @@ export function CasaPage() {
               focusId={focus?.id ?? null}
               selectedPieceId={selectedPieceId}
               dims={dims}
+              wallHeight={wallHeight}
               onPickRoom={(id) => focusRoom(id)}
               onPickPiece={(id) => setSelectedPieceId((cur) => (cur === id ? null : id))}
             />
           </Suspense>
+          {mode === "3d" && !focus && (
+            <label className="absolute right-3 top-3 flex items-center gap-2 rounded-md bg-surface/90 px-2 py-1 text-xs text-muted-foreground">
+              Paredes
+              <input
+                type="range"
+                min={WALL_MIN}
+                max={WALL_REAL}
+                step={0.05}
+                value={wallHeight}
+                onChange={(e) => changeWallHeight(Number(e.target.value))}
+                className="w-28 accent-primary"
+                aria-label="Altura das paredes"
+              />
+              <span className="w-12 tabular-nums text-foreground">{wallHeight.toFixed(2).replace(".", ",")} m</span>
+            </label>
+          )}
           <p className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-surface/90 px-2 py-1 text-xs text-muted-foreground">
             {focus
               ? "Clique em um móvel para ver o bem ligado a ele."

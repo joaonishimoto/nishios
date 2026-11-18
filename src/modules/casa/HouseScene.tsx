@@ -7,14 +7,23 @@ import { buildFixture } from "./fixtures";
 import { homeBox, pieceTop, roomBox, type Box } from "./logic";
 import { paletteFor, type Palette } from "./palette";
 import type { Home, Room, ViewMode } from "./types";
+import { WALL_DEFAULT, WALL_MIN, WALL_REAL } from "./walls";
 
-/** Altura das paredes: cheia no 3D, baixa com um cômodo em foco (para ver dentro), e mínima na planta. */
-const WALL_3D = 1.35;
+/**
+ * Altura das paredes: no 3D da casa inteira quem escolhe é o João (de WALL_MIN até a altura
+ * real, WALL_REAL); com um cômodo em foco ficam baixas (para ver dentro) e na planta, mínimas.
+ */
+/** Topo das janelas: acima disso a parede continua inteira. */
+const WINDOW_TOP = 2.1;
+/** Peitoril das janelas, no máximo. */
+const WINDOW_SILL = 1.0;
 const WALL_FOCUS = 0.3;
 const WALL_PLAN = 0.45;
 const WALL_THICKNESS = 0.1;
 /** Móveis no chão não passam desta altura, para não esconder o resto da casa. */
 const FURNITURE_CAP_3D = 1.25;
+/** Corte dos móveis no 3D: acompanha a parede, nunca abaixo do corte antigo de 1,25 m. */
+const furnitureCap3d = (wall: number) => Math.max(FURNITURE_CAP_3D, wall - 0.1);
 const FURNITURE_CAP_PLAN = 0.42;
 
 const DIR_OVERVIEW = new THREE.Vector3(5.8, 12, 11.2).normalize();
@@ -30,6 +39,8 @@ export interface HouseSceneProps {
   selectedPieceId: string | null;
   /** Mostra as cotas (largura e profundidade) dos cômodos. */
   dims?: boolean;
+  /** Altura das paredes no 3D da casa inteira, em metros. */
+  wallHeight?: number;
   onPickRoom: (roomId: string) => void;
   onPickPiece: (pieceId: string) => void;
   className?: string;
@@ -68,6 +79,7 @@ interface Engine {
 
 export default function HouseScene(props: HouseSceneProps) {
   const { home, mode, dark, focusId, selectedPieceId, dims = false, className } = props;
+  const wall3d = Math.min(WALL_REAL, Math.max(WALL_MIN, props.wallHeight ?? WALL_DEFAULT));
   const hostRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<Engine | null>(null);
   const labelEls = useRef(new Map<string, HTMLButtonElement>());
@@ -90,10 +102,10 @@ export default function HouseScene(props: HouseSceneProps) {
       cat: info,
     }));
     return [...nameLabels(), ...dimLabels, ...catLabels];
-  }, [home, mode, focusId, selectedPieceId, dims]);
+  }, [home, mode, focusId, selectedPieceId, dims, wall3d]);
 
   function nameLabels(): Label[] {
-    const wall = mode === "planta" ? 0 : WALL_3D + 0.35;
+    const wall = mode === "planta" ? 0 : wall3d + 0.35;
     if (!focusId) {
       return home.rooms
         .filter((r) => r.id !== "circ")
@@ -350,11 +362,11 @@ export default function HouseScene(props: HouseSceneProps) {
     const pal = paletteFor(mode, dark);
     engine.renderer.shadowMap.enabled = pal.shadows;
     engine.scene.background = new THREE.Color(pal.background);
-    buildHouse(engine.group, home, pal, mode, focusId, selectedPieceId, box, dims);
+    buildHouse(engine.group, home, pal, mode, focusId, selectedPieceId, box, dims, wall3d);
     // Na planta (e com movimento reduzido) os gatos ficam sentados onde estão.
     if (mode === "planta" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) restCats(engine.cats);
     engine.render();
-  }, [home, mode, dark, focusId, selectedPieceId, box, dims]);
+  }, [home, mode, dark, focusId, selectedPieceId, box, dims, wall3d]);
 
   // A grade de onde os gatos podem andar muda junto com a casa.
   useEffect(() => {
@@ -554,6 +566,7 @@ function buildHouse(
   selectedPieceId: string | null,
   box: Box,
   dims: boolean,
+  wall3d: number,
 ) {
   clearGroup(group);
   const cache = new Map<string, THREE.Material>();
@@ -616,7 +629,7 @@ function buildHouse(
   }
 
   // Paredes
-  const wallH = mode === "planta" ? WALL_PLAN : focusId ? WALL_FOCUS : WALL_3D;
+  const wallH = mode === "planta" ? WALL_PLAN : focusId ? WALL_FOCUS : wall3d;
   const wallMat = material(pal.wall);
   const topMat = material(pal.wallTop);
   const T = WALL_THICKNESS;
@@ -641,9 +654,12 @@ function buildHouse(
       for (const end of [a, b]) slab(axis, at, end - 0.02, end + 0.02, 0, wallH, T, wallMat, false);
       return;
     }
-    const sill = wallH * 0.62;
+    const sill = Math.min(wallH * 0.62, WINDOW_SILL);
+    const top = Math.min(wallH, WINDOW_TOP);
     slab(axis, at, a, b, 0, sill, T, wallMat);
-    slab(axis, at, a, b, sill, wallH, 0.02, paneMat, false);
+    slab(axis, at, a, b, sill, top, 0.02, paneMat, false);
+    // Com a parede mais alta que a janela, a parede continua por cima dela.
+    if (wallH > top) slab(axis, at, a, b, top, wallH, T, wallMat);
   };
   for (const wall of home.walls) {
     const cuts = [
@@ -691,7 +707,7 @@ function buildHouse(
   }
 
   // Móveis
-  const cap = mode === "planta" ? FURNITURE_CAP_PLAN : FURNITURE_CAP_3D;
+  const cap = mode === "planta" ? FURNITURE_CAP_PLAN : focusId ? FURNITURE_CAP_3D : furnitureCap3d(wall3d);
   const lineMat = new THREE.LineBasicMaterial({ color: pal.highlight });
   for (const piece of home.pieces) {
     const dim = dimOther(piece.roomId);
@@ -711,7 +727,7 @@ function buildHouse(
           glass: material(pal.material.vidro, 0.35, 0.1),
         },
         {
-          maxHeight: mode === "planta" ? 1.9 : focusId ? WALL_FOCUS + 0.2 : WALL_3D,
+          maxHeight: mode === "planta" ? 1.9 : focusId ? WALL_FOCUS + 0.2 : wall3d,
           shadows: pal.shadows && !dim,
         },
       );
@@ -735,9 +751,11 @@ function buildHouse(
       // Com `full`, o 3D da casa inteira mantém a altura real (telhado apoiado no muro).
       if (y >= 2) {
         if (focusId) continue;
-        if (!(part.full && mode === "3d")) y = (mode === "planta" ? WALL_PLAN + 0.04 : WALL_3D + 0.08) + (y - 2.4) * 0.5;
+        // Com a parede alta, o que fica abaixo dela aparece na altura real.
+        const fits = mode === "3d" && y + h <= wall3d;
+        if (!(part.full && mode === "3d") && !fits) y = (mode === "planta" ? WALL_PLAN + 0.04 : wall3d + 0.08) + (y - 2.4) * 0.5;
       } else if (masonry) h = wallH;
-      else if (screen) h = Math.max(0.02, Math.min(y + h, mode === "planta" ? WALL_PLAN : focusId ? WALL_FOCUS + 0.3 : WALL_3D + 0.2) - y);
+      else if (screen) h = Math.max(0.02, Math.min(y + h, mode === "planta" ? WALL_PLAN : focusId ? WALL_FOCUS + 0.3 : wall3d + 0.2) - y);
       // Tudo o que é baixo é cortado na mesma altura, mesmo o que começa acima do chão
       // (puxadores, TV, prateleiras), para nada atravessar o corte.
       // Com `full`, o 3D mostra a peça inteira (armário planejado, TV).
