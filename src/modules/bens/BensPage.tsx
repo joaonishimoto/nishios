@@ -15,7 +15,7 @@ import { cn } from "@/lib/cn";
 import { shortDate, toISO, today } from "@/lib/dates";
 import { money, plural } from "@/lib/format";
 import { AssetForm } from "./AssetForm";
-import { byValue, byWishPriority, PRIORITY_META, total, warranty } from "./logic";
+import { bought, byValue, byWishPriority, owned, ownedValue, ownershipLabel, PRIORITY_META, stillHas, total, warranty } from "./logic";
 import { useBens } from "./store";
 import { ASSET_CATEGORIES, type Asset, type Wish } from "./types";
 import { WishForm } from "./WishForm";
@@ -23,6 +23,13 @@ import { WishForm } from "./WishForm";
 type Tab = "bens" | "desejos";
 type GroupBy = "category" | "brand" | "store" | "none";
 type SortBy = "value" | "recent" | "oldest";
+type Ownership = "have" | "gone" | "all";
+
+const OWNERSHIP: { value: Ownership; label: string }[] = [
+  { value: "have", label: "Que ainda tenho" },
+  { value: "gone", label: "Que não tenho mais" },
+  { value: "all", label: "Todos, com histórico" },
+];
 
 const GROUP_BY: { value: GroupBy; label: string; empty: string }[] = [
   { value: "category", label: "Por categoria", empty: "Sem categoria" },
@@ -64,6 +71,13 @@ export function BensPage() {
   const [query, setQuery] = useState("");
   const [groupBy, setGroupBy] = useState<GroupBy>("category");
   const [sortBy, setSortBy] = useState<SortBy>("value");
+  const [ownership, setOwnership] = useState<Ownership>("have");
+  const current = useMemo(() => assets.filter(stillHas), [assets]);
+  const hasHistory = assets.some((a) => owned(a) < bought(a));
+  // Sem nada que saiu, não há o que filtrar: mostra tudo.
+  const own: Ownership = hasHistory ? ownership : "all";
+  // Na visão do que ainda tem, o valor é só o das unidades que ficaram.
+  const worth = (items: Asset[]) => (own === "have" ? items.reduce((sum, a) => sum + ownedValue(a), 0) : total(items));
   const [assetForm, setAssetForm] = useState<{ open: boolean; asset?: Asset }>({ open: false });
   const [wishForm, setWishForm] = useState<{ open: boolean; wish?: Wish }>({ open: false });
 
@@ -77,6 +91,7 @@ export function BensPage() {
   const groups = useMemo(() => {
     const q = query.trim().toLocaleLowerCase("pt-BR");
     const visible = assets
+      .filter((a) => own === "all" || (own === "have" ? stillHas(a) : owned(a) < bought(a)))
       .filter((a) => category === "all" || a.category === category)
       .filter((a) => !q || [a.name, a.brand, a.store].some((t) => t?.toLocaleLowerCase("pt-BR").includes(q)));
     // Por categoria segue a ordem das categorias; por marca ou loja, a de maior valor primeiro.
@@ -93,14 +108,16 @@ export function BensPage() {
       }))
       .filter((g) => g.items.length > 0);
     if (groupBy === "brand" || groupBy === "store") {
-      list.sort((x, y) => Number(x.unnamed) - Number(y.unnamed) || total(y.items) - total(x.items) || x.category.localeCompare(y.category, "pt-BR"));
+      list.sort((x, y) => Number(x.unnamed) - Number(y.unnamed) || worth(y.items) - worth(x.items) || x.category.localeCompare(y.category, "pt-BR"));
     }
     return list;
-  }, [assets, categories, category, query, groupBy, sortBy]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assets, categories, category, query, groupBy, sortBy, own]);
 
   const sortedWishes = useMemo(() => [...wishes].sort(byWishPriority), [wishes]);
   const wishTotal = wishes.reduce((sum, w) => sum + w.price, 0);
-  const filtering = category !== "all" || query.trim() !== "";
+  const filtering = category !== "all" || query.trim() !== "" || own === "gone";
+  const goneCount = assets.length - current.length;
 
   const openNew = () =>
     tab === "bens" ? setAssetForm({ open: true }) : setWishForm({ open: true });
@@ -113,7 +130,8 @@ export function BensPage() {
           tab === "bens"
             ? assets.length === 0
               ? "O que você tem, quanto custou e até quando vai a garantia."
-              : `${plural(assets.length, "bem", "bens")} somando ${money(total(assets))} em valor de compra.`
+              : `${plural(current.length, "bem", "bens")} somando ${money(current.reduce((sum, a) => sum + ownedValue(a), 0))} em valor de compra.` +
+                (goneCount > 0 ? ` ${plural(goneCount, "que você não tem mais fica", "que você não tem mais ficam")} no histórico.` : "")
             : wishes.length === 0
               ? "O que você quer comprar, com preço e prioridade."
               : `${plural(wishes.length, "desejo", "desejos")} somando ${money(wishTotal)}.`
@@ -132,12 +150,26 @@ export function BensPage() {
           value={tab}
           onChange={(t) => setParams(t === "desejos" ? { aba: "desejos" } : {}, { replace: true })}
           options={[
-            { value: "bens", label: "Meus bens", count: assets.length },
+            { value: "bens", label: "Meus bens", count: current.length },
             { value: "desejos", label: "Lista de desejos", count: wishes.length },
           ]}
         />
         {tab === "bens" && (
           <div className="ml-auto flex w-full flex-wrap gap-2 sm:w-auto sm:flex-nowrap">
+            {hasHistory && (
+              <Select
+                aria-label="Quais bens mostrar"
+                className="sm:w-48"
+                value={ownership}
+                onChange={(e) => setOwnership(e.target.value as Ownership)}
+              >
+                {OWNERSHIP.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </Select>
+            )}
             <Select
               aria-label="Agrupar bens"
               className="sm:w-36"
@@ -213,6 +245,7 @@ export function BensPage() {
                   ? () => {
                       setCategory("all");
                       setQuery("");
+                      setOwnership("have");
                     }
                   : undefined
               }
@@ -240,7 +273,7 @@ export function BensPage() {
                         {items.length}
                       </span>
                       <span className="ml-auto pr-2 font-medium tabular-nums">
-                        {money(total(items))}
+                        {money(worth(items))}
                       </span>
                     </h2>
                     <ul className="mt-1.5 overflow-hidden rounded-lg border border-border bg-surface">
@@ -301,7 +334,9 @@ function IconTile({ icon }: { icon: string }) {
 
 function AssetRow({ asset: a, onOpen }: { asset: Asset; onOpen: () => void }) {
   const w = warranty(a);
-  const detail = [a.brand, a.store, a.location].filter(Boolean).join(" · ");
+  const status = ownershipLabel(a);
+  const gone = !stillHas(a);
+  const detail = [status, a.brand, a.store, a.location].filter(Boolean).join(" · ");
   // Manutenção ligada ao bem que já pede atenção aparece na própria linha.
   const due = useCommitments()
     .commitments.filter((c) => c.assetId === a.id)
@@ -330,7 +365,10 @@ function AssetRow({ asset: a, onOpen }: { asset: Asset; onOpen: () => void }) {
           <button
             type="button"
             onClick={onOpen}
-            className="block max-w-full truncate text-left font-medium after:absolute after:inset-0"
+            className={cn(
+              "block max-w-full truncate text-left font-medium after:absolute after:inset-0",
+              gone && "text-muted-foreground line-through decoration-subtle-foreground",
+            )}
           >
             {a.name}
           </button>
