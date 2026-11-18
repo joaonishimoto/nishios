@@ -187,7 +187,7 @@ function catShelves(points: [number, number, number][], back: Side, wood = "#b08
 function slopedRoof(r: Rect, steps = 6): Part[] {
   const out: Part[] = [];
   const sd = r.d / steps;
-  for (let i = 0; i < steps; i++) out.push(part(r.x, r.z + r.d - (i + 1) * sd, r.w, sd + 0.01, 0.03, "cobertura", 2.75 - i * 0.07));
+  for (let i = 0; i < steps; i++) out.push(part(r.x, r.z + r.d - (i + 1) * sd, r.w, sd + 0.01, 0.03, "cobertura", 2.9 - i * 0.05));
   return out;
 }
 
@@ -416,7 +416,7 @@ function catTree(x: number, z: number, plush = "#d9d2c4"): Part[] {
 }
 
 /** Ripado de madeira encostado no lado de dentro do muro, do chão até o alto (2,2 m). */
-function slatScreen(r: Rect, wood = "#8a6447", height = 2.2): Part[] {
+function slatScreen(r: Rect, wood = "#8a6447", height = 2.5): Part[] {
   const out: Part[] = [];
   const along = r.w >= r.d;
   const len = along ? r.w : r.d;
@@ -562,7 +562,7 @@ function proposalC(): Proposal {
     id: "c",
     name: "J com catio",
     tagline: "A J completa, com o fundo todo telado para a Maki e o Gojo e um cantinho de rede para você.",
-    highlights: ["Área externa: tela de 50 cm em cima do muro de 2,20 m, torre de arranhar, caminho de prateleiras no muro, grama para os gatos e uma rede."],
+    highlights: ["Área externa: tela de 50 cm em cima do muro de 2,50 m, torre de arranhar, caminho de prateleiras no muro, grama para os gatos e uma rede."],
     notes: {
       ...BATH_NOTES,
       externa: [
@@ -575,7 +575,7 @@ function proposalC(): Proposal {
     pieces: () => [
       ...bathrooms("#1e3d66", "#d9d2c4"),
       ...salaExtras("#e2ddd2"),
-      piece("externa", "Tela de proteção", "🕸️", "Pets", [part(4.79, -1.66, 5.23, 0.03, 0.5, "tela", 2.2), part(9.99, -1.66, 0.03, 1.55, 0.5, "tela", 2.2)]),
+      piece("externa", "Tela de proteção", "🕸️", "Pets", [part(4.79, -1.66, 5.23, 0.03, 0.5, "tela", 2.5), part(9.99, -1.66, 0.03, 1.55, 0.5, "tela", 2.5)]),
       piece("externa", "Torre para gatos", "🐈", "Pets", catTree(9.3, -1.45)),
       piece("externa", "Caminho dos gatos", "🐾", "Pets", full(catShelves([[7.0, -1.56, 0.8], [7.6, -1.56, 1.1], [8.2, -1.56, 1.4]], "n", "#f4f4f1"))),
       piece("externa", "Grama para gatos", "🌾", "Pets", raisedBed(R(6.0, -1.56, 0.8, 0.4), "#f4f4f1")),
@@ -597,7 +597,7 @@ function proposalD(): Proposal {
       ...BATH_NOTES,
       externa: [
         "A hidromassagem branca tem 2,00 × 1,40 m, e não 1,50 m: da casa até o muro são 1,45 m, e o ripado ocupa um pouco. Fica no fim, na frente da janela da suíte, com um degrau do lado para entrar.",
-        "Ripado de madeira encostado no lado de dentro do muro de 2,20 m, atrás e do lado da hidro, do chão até o alto.",
+        "Ripado de madeira encostado no lado de dentro do muro de 2,50 m, atrás e do lado da hidro, do chão até o alto.",
         "Ducha do lado da hidro para tirar o cloro. A frente do escritório fica livre para circular.",
         "Deque de madeira em todo o fundo.",
       ],
@@ -630,7 +630,7 @@ function proposalE(): Proposal {
       servicoext: [
         "Hidromassagem branca de 2,00 × 1,40 m no canto, entre o muro e a parede da cozinha, com o degrau do lado da varanda.",
         "Fica embaixo do telhado: dá para usar com chuva, e as folhas não caem na água. A janela da cozinha fica de frente para a hidro.",
-        "Ripado de madeira no lado de dentro do muro, do chão até 2,20 m, atrás e do lado da hidro.",
+        "Ripado de madeira no lado de dentro do muro, do chão até 2,50 m, atrás e do lado da hidro.",
       ],
       coberta: [
         "O serviço vem para cá: tanque, máquina e armário encostados no muro do fundo, embaixo do telhado.",
