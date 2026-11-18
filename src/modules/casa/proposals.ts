@@ -707,6 +707,13 @@ function proposalG4(): Proposal {
     // Cozinha
     piece("cozinha", "Aéreo da geladeira", "🗄️", "Móveis", full([part(-0.01, 3.42, 0.66, 0.66, 0.45, "madeira", 1.92, "#e4d6c2")])),
     piece("cozinha", "Passadeira", "🟦", "Móveis", rug(R(0.75, 1.1, 0.55, 1.3), nishi)),
+    // Coifa de parede em inox no vão entre os aéreos, 65 cm acima do cooktop, com a chaminé até o teto.
+    piece("cozinha", "Coifa de parede", "💨", "Eletrodomésticos", full([
+      part(-0.01, 1.26, 0.5, 0.62, 0.05, "metal", 1.55),
+      part(0.47, 1.3, 0.012, 0.54, 0.02, "escuro", 1.57, "#2b2f35"),
+      part(-0.01, 1.36, 0.34, 0.42, 0.2, "metal", 1.6),
+      part(-0.01, 1.44, 0.24, 0.26, 2.6 - 1.8, "metal", 1.8),
+    ])),
     // Banheiros
     piece("banho", "Armário do vaso", "🗄️", "Móveis", full([part(6.5, 5.2, 0.52, 0.22, 0.6, "branco", 1.3, white)])),
     piece("banho", "Nicho no box", "🧴", "Móveis", full([part(7.3, 5.4, 0.4, 0.02, 0.3, "escuro", 1.1, "#c9c4ba")])),
@@ -728,7 +735,7 @@ function proposalG4(): Proposal {
       ],
       estar: ["Dois pendentes azul-marinho em cima da mesa de 6 e um espelho de 1,40 m atrás dela, que deixa a sala parecer maior."],
       jantar: ["Tapete entre o sofá e a TV, sem mesa de centro, para não fechar o caminho de 1,2 m até a porta de vidro. Almofadas creme no sofá azul-marinho."],
-      cozinha: ["Aéreo em cima da geladeira e uma passadeira azul-marinho no corredor da bancada."],
+      cozinha: ["Aéreo em cima da geladeira e uma passadeira azul-marinho no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto."],
       banho: ["Armário em cima do vaso e nicho dentro do box."],
       banhosuite: ["Armário em cima do vaso e nicho dentro do box."],
       varanda: ["Uma planta grande no canto, longe da passagem para fora."],
@@ -741,7 +748,7 @@ function proposalG4(): Proposal {
     keep: KEEP_COLORS,
     highlights: [
       ...g.highlights,
-      "Cômodo por cômodo, o que faltava: cortinas blackout, criado-mudo e pendente na suíte; armário, prateleiras, luminária e gavetas no escritório; pendentes e espelho na sala; aéreo na geladeira; armários e nichos nos banheiros; planta na varanda.",
+      "Cômodo por cômodo, o que faltava: cortinas blackout, criado-mudo e pendente na suíte; armário, prateleiras, luminária e gavetas no escritório; pendentes e espelho na sala; aéreo na geladeira e coifa no cooktop; armários e nichos nos banheiros; planta na varanda.",
       "Cores: móveis e cozinha em creme, pedra clara, e azul-marinho no sofá, nas cabeceiras, nos tapetes, na mesa do escritório e nos pendentes.",
     ],
     colors: {
