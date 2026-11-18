@@ -1,3 +1,4 @@
+import { seedAssets, seedWishes } from "@/modules/bens/seed";
 import { seedPets } from "@/modules/pets/seed";
 import { markDeleted, markDirty } from "./sync";
 
@@ -93,6 +94,55 @@ export function applyBackup(backup: Backup) {
   // Com login, o backup restaurado também vale para a nuvem e os outros aparelhos.
   markDeleted(before.filter((k) => !(k in backup.data)));
   markDirty(Object.keys(backup.data));
+}
+
+/** Ids dos exemplos que saem quando se junta um arquivo com itens de verdade da mesma lista. */
+function exampleIds(key: string): Set<string> {
+  if (key === "nishios:bens:v1") return new Set(seedAssets().map((a) => a.id));
+  if (key === "nishios:desejos:v1") return new Set(seedWishes().map((w) => w.id));
+  return new Set();
+}
+
+function idOf(item: unknown): string | undefined {
+  const id = (item as { id?: unknown } | null)?.id;
+  return typeof id === "string" ? id : undefined;
+}
+
+/**
+ * Junta o arquivo ao que já está salvo, sem apagar nada seu. Nas listas, entram só os itens
+ * com id novo, e os exemplos daquela lista saem. Chaves que ainda não existem aqui são
+ * copiadas como estão; as que não são listas ficam como estavam. Devolve quantos itens entraram.
+ */
+export function mergeBackup(backup: Backup): number {
+  let added = 0;
+  const touched: string[] = [];
+  for (const [k, incoming] of Object.entries(backup.data)) {
+    const raw = localStorage.getItem(k);
+    if (raw === null) {
+      localStorage.setItem(k, typeof incoming === "string" ? incoming : JSON.stringify(incoming));
+      if (Array.isArray(incoming)) added += incoming.length;
+      touched.push(k);
+      continue;
+    }
+    if (!Array.isArray(incoming)) continue;
+    let current: unknown;
+    try {
+      current = JSON.parse(raw);
+    } catch {
+      continue;
+    }
+    if (!Array.isArray(current)) continue;
+    const examples = exampleIds(k);
+    const kept = current.filter((item) => !examples.has(idOf(item) ?? ""));
+    const have = new Set(kept.map(idOf));
+    const fresh = incoming.filter((item) => !have.has(idOf(item)));
+    if (fresh.length === 0 && kept.length === current.length) continue;
+    added += fresh.length;
+    localStorage.setItem(k, JSON.stringify([...kept, ...fresh]));
+    touched.push(k);
+  }
+  markDirty(touched);
+  return added;
 }
 
 /** Apaga o que está salvo; ao recarregar, o app volta aos dados de exemplo. */
