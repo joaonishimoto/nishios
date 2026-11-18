@@ -109,8 +109,8 @@ function idOf(item: unknown): string | undefined {
 }
 
 /**
- * Junta o arquivo ao que já está salvo, sem apagar nada seu. Nas listas, entram só os itens
- * com id novo, e os exemplos daquela lista saem. Chaves que ainda não existem aqui são
+ * Junta o arquivo ao que já está salvo, sem apagar nada seu. Nas listas, entram os itens
+ * com id novo, os que já existem ganham os campos que faltam, e os exemplos daquela lista saem. Chaves que ainda não existem aqui são
  * copiadas como estão; as que não são listas ficam como estavam. Devolve quantos itens entraram.
  */
 export function mergeBackup(backup: Backup): number {
@@ -133,10 +133,24 @@ export function mergeBackup(backup: Backup): number {
     }
     if (!Array.isArray(current)) continue;
     const examples = exampleIds(k);
-    const kept = current.filter((item) => !examples.has(idOf(item) ?? ""));
+    const byId = new Map(incoming.map((item) => [idOf(item), item] as const));
+    let filled = false;
+    // Um item que já existe só ganha os campos que ainda não tem; o que você editou fica.
+    const kept = current
+      .filter((item) => !examples.has(idOf(item) ?? ""))
+      .map((item) => {
+        const other = byId.get(idOf(item));
+        if (!other || typeof other !== "object" || typeof item !== "object" || item === null) return item;
+        const missing = Object.entries(other as Record<string, unknown>).filter(
+          ([f]) => (item as Record<string, unknown>)[f] === undefined || (item as Record<string, unknown>)[f] === "",
+        );
+        if (missing.length === 0) return item;
+        filled = true;
+        return { ...item, ...Object.fromEntries(missing) };
+      });
     const have = new Set(kept.map(idOf));
     const fresh = incoming.filter((item) => !have.has(idOf(item)));
-    if (fresh.length === 0 && kept.length === current.length) continue;
+    if (fresh.length === 0 && !filled && kept.length === current.length) continue;
     added += fresh.length;
     localStorage.setItem(k, JSON.stringify([...kept, ...fresh]));
     touched.push(k);
