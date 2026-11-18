@@ -16,6 +16,8 @@ export interface Proposal {
   notes: Record<string, string[]>;
   /** A área externa vira estes cômodos. */
   outdoor: Room[];
+  /** Peças da construção que a proposta tira, como "cozinha:Bancada da pia". */
+  remove?: string[];
   /** Pisos trocados (por exemplo, a varanda no mesmo piso da área gourmet). */
   floors?: Record<string, FloorKind>;
   pieces: Piece[];
@@ -637,6 +639,23 @@ function outdoorZones(
 /** Passagem livre da varanda para a área externa, conferida em todas as propostas. */
 const PASSAGEM = "Fica uma passagem livre de quase 1 m da varanda para a área externa.";
 
+/** A suíte como o João desenhou: cama viúva no topo, guarda-roupa na parede do lado, painel com TV e frigobar. */
+function suiteJoao(wood: string, duvet: string): Piece[] {
+  return [
+    piece("suite", "Cama viúva", "🛏️", "Móveis", bed(R(7.95, -0.01, 1.28, 1.88), "n", duvet, wood)),
+    piece("suite", "Guarda-roupa de correr", "🚪", "Móveis", wardrobe(R(6.79, -0.01, 0.55, 1.89), "w")),
+    piece("suite", "Painel e TV", "📺", "Eletrônicos", [
+      part(7.97, 2.4, 1.25, 0.28, 0.32, "madeira", 0.3, wood),
+      part(8.02, 2.62, 1.15, 0.04, 0.66, "escuro", 0.95, "#1c1f24"),
+    ]),
+    piece("suite", "Frigobar", "🧊", "Eletrodomésticos", [
+      part(9.43, 2.26, 0.44, 0.42, 0.85, "branco", 0, "#eef0f1"),
+      part(9.45, 2.24, 0.03, 0.03, 0.3, "escuro", 0.45),
+    ]),
+    piece("suite", "Rede de janela (gatos)", "🐈", "Pets", windowPerch(R(9.5, 0.85, 0.36, 0.9), "#d8cfc2")),
+  ];
+}
+
 function proposalD(): Proposal {
   seq = 300;
   const oak = "#b98a5c";
@@ -657,7 +676,7 @@ function proposalD(): Proposal {
       estar: ["Sofá na parede de baixo e poltrona do lado da cozinha, os dois virados para a TV.", "Fica livre a passagem da entrada para os quartos.", "Prateleiras dos gatos em cima da sapateira."],
       varanda: ["Uma poltrona e uma planta, e o resto livre para passar.", PASSAGEM],
       quarto: ["Cama de solteiro com bicama: vira duas camas quando vierem visitas.", "Mesa embaixo da janela, com luz natural de lado na tela."],
-      suite: ["Cama de casal no topo, guarda-roupa na parede da porta e rede para os gatos na janela."],
+      suite: ["A suíte do jeito que você desenhou: cama viúva no topo, guarda-roupa na parede do lado, painel suspenso com a TV na parede do banheiro e frigobar no canto.", "A cama ficou um pouco mais para a janela para sobrar 60 cm de passagem na frente do guarda-roupa."],
       lavanderia: ["Varal e armário de jardinagem atrás do serviço, e a segunda caixa de areia, ventilada."],
       deck: ["Pergolado com mesa para quatro na saída da varanda."],
       horta: ["Canteiros e horta vertical no muro, de frente para a janela do escritório."],
@@ -694,11 +713,7 @@ function proposalD(): Proposal {
       piece("quarto", "Prateleiras dos gatos", "🐈", "Pets", catShelves([[6.44, 1.0, 0.9], [6.44, 1.6, 1.2]], "e", oak)),
       piece("quarto", "Tapete", "🟫", "Decoração", rug(R(5.3, 1.2, 1.2, 1.4), "#d9cbb5")),
       // Suíte
-      piece("suite", "Cama de casal", "🛏️", "Móveis", bed(R(7.81, -0.01, 1.58, 2.0), "n", "#d8cdb8", oak)),
-      piece("suite", "Criado-mudo", "🛋️", "Móveis", nightstand(R(7.36, -0.01, 0.42, 0.4), "n", oak)),
-      piece("suite", "Criado-mudo", "🛋️", "Móveis", nightstand(R(9.42, -0.01, 0.42, 0.4), "n", oak)),
-      piece("suite", "Guarda-roupa", "🚪", "Móveis", wardrobe(R(6.79, -0.01, 0.55, 2.0), "w")),
-      piece("suite", "Rede de janela (gatos)", "🐈", "Pets", windowPerch(R(9.5, 1.0, 0.36, 0.6), "#d8cfc2")),
+      ...suiteJoao(oak, "#c9d4c5"),
       // Área externa
       piece("lavanderia", "Armário de jardinagem", "🧰", "Móveis", tallCabinet(R(-0.06, -1.56, 1.0, 0.5), "n", "#8d6748")),
       piece("lavanderia", "Varal", "👕", "Outros", clothesline(R(0.0, -0.65, 1.55, 0.1))),
@@ -735,7 +750,7 @@ function proposalE(): Proposal {
       jantar: ["Mesa no limite com a varanda: o jantar ganha a luz e a vista do quintal.", PASSAGEM],
       varanda: ["A varanda fica livre do lado do quarto para passar para o quintal.", PASSAGEM],
       quarto: ["Cama de casal encostada no canto, com a cabeceira na parede do estar.", "Mesa na parede do lado e nicho na janela para os gatos."],
-      suite: ["Cama encostada na parede do banheiro, guarda-roupa inteiro na parede da porta e TV no topo."],
+      suite: ["A suíte do jeito que você desenhou: cama viúva no topo, guarda-roupa na parede do lado, painel suspenso com a TV na parede do banheiro e frigobar no canto.", "A cama ficou um pouco mais para a janela para sobrar 60 cm de passagem na frente do guarda-roupa."],
       academia: ["Bicicleta, colchonete e halteres atrás do serviço, longe dos quartos."],
       gourmet: ["Churrasqueira no muro e bancada alta com banquetas, de frente para a varanda."],
       lounge: ["Banco de alvenaria com almofadas ao longo do muro, na frente da janela do escritório."],
@@ -769,12 +784,7 @@ function proposalE(): Proposal {
       piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(5.58, 0.5, "#2f3338")),
       piece("quarto", "Nicho na janela (gatos)", "🐈", "Pets", windowPerch(R(4.95, -0.01, 0.8, 0.3), "#9aa0a6")),
       // Suíte
-      piece("suite", "Cama de casal", "🛏️", "Móveis", bed(R(7.9, 0.68, 1.58, 2.0), "s", "#cfd3d6", walnut)),
-      piece("suite", "Criado-mudo", "🛋️", "Móveis", nightstand(R(7.45, 2.26, 0.42, 0.42), "s", walnut)),
-      piece("suite", "Criado-mudo", "🛋️", "Móveis", nightstand(R(9.45, 2.26, 0.42, 0.42), "s", walnut)),
-      piece("suite", "Guarda-roupa", "🚪", "Móveis", wardrobe(R(6.79, -0.01, 0.55, 2.0), "w", "#d9d6d1")),
-      piece("suite", "Rack e TV", "📺", "Eletrônicos", rackTv(R(8.1, -0.01, 1.2, 0.4), "n", walnut)),
-      piece("suite", "Rede de janela (gatos)", "🐈", "Pets", windowPerch(R(9.5, 0.85, 0.36, 0.9), "#9aa0a6")),
+      ...suiteJoao(walnut, "#cfd3d6"),
       // Área externa
       piece("academia", "Cobertura", "🏠", "Outros", roof(R(-0.11, -1.56, 10.08, 1.45))),
       piece("academia", "Bicicleta", "🚲", "Esporte", exerciseBike(-0.05, -1.5)),
@@ -805,7 +815,7 @@ function proposalF(): Proposal {
     tagline: "A sala troca de lugar com o jantar: o sofá fica olhando o quintal e a mesa de 6 vai para o estar.",
     highlights: [
       "Jantar vira sala de estar: sofá de dois lugares de frente para a varanda e o jardim.",
-      "Estar vira sala de jantar com mesa de 6 e aparador. Sem TV na sala; ela fica na suíte.",
+      "Estar vira sala de jantar com mesa de 6 e aparador. Sem TV na sala; ela fica na suíte, no painel da parede do banheiro.",
       "Escritório: cama de casal embaixo da janela e mesa na parede da porta.",
       "Área externa telada: horta e varal, mesa com banco no muro sob cobertura, rede, e um catio coberto atrás da suíte.",
     ],
@@ -814,7 +824,7 @@ function proposalF(): Proposal {
       estar: ["A sala maior recebe a mesa de 6, que é o que mais ocupa espaço.", "Aparador na parede do banheiro, longe da passagem para os quartos."],
       varanda: ["Torre dos gatos na quina e plantas, com o meio livre.", PASSAGEM],
       quarto: ["Cama de casal com a cabeceira embaixo da janela e mesa perto da porta.", "Prateleiras dos gatos na parede do lado."],
-      suite: ["Cama com a cabeceira na janela, guarda-roupa no topo e TV na parede da porta."],
+      suite: ["A suíte do jeito que você desenhou: cama viúva no topo, guarda-roupa na parede do lado, painel suspenso com a TV na parede do banheiro e frigobar no canto.", "A cama ficou um pouco mais para a janela para sobrar 60 cm de passagem na frente do guarda-roupa."],
       horta: ["Canteiros altos e varal atrás do serviço, onde bate menos gente."],
       patio: ["Banco de alvenaria no muro e mesa para quatro, com cobertura para usar com chuva."],
       rede: ["Rede e plantas na frente da janela do escritório."],
@@ -851,11 +861,7 @@ function proposalF(): Proposal {
       piece("quarto", "Prateleiras dos gatos", "🐈", "Pets", catShelves([[6.44, 1.3, 0.6], [6.44, 1.9, 0.95], [6.44, 2.45, 1.25]], "e", ash)),
       piece("quarto", "Caixa de areia", "🐈", "Pets", litterBox(6.1, 2.0, "e")),
       // Suíte
-      piece("suite", "Cama de casal", "🛏️", "Móveis", bed(R(7.87, 0.55, 2.0, 1.58), "e", "#e9dcd2", ash)),
-      piece("suite", "Criado-mudo", "🛋️", "Móveis", nightstand(R(9.45, 0.12, 0.42, 0.4), "e", ash)),
-      piece("suite", "Criado-mudo", "🛋️", "Móveis", nightstand(R(9.45, 2.16, 0.42, 0.4), "e", ash)),
-      piece("suite", "Guarda-roupa", "🚪", "Móveis", wardrobe(R(7.3, -0.01, 2.0, 0.56), "n", "#f3eee6")),
-      piece("suite", "Rack e TV", "📺", "Eletrônicos", rackTv(R(6.79, 0.7, 0.4, 1.3), "w", ash)),
+      ...suiteJoao(ash, "#e9dcd2"),
       // Área externa
       piece("horta", "Canteiros", "🥬", "Outros", [...raisedBed(R(-0.05, -1.5, 0.8, 0.5)), ...raisedBed(R(0.85, -1.5, 0.75, 0.5))]),
       piece("horta", "Varal", "👕", "Outros", clothesline(R(0.0, -0.5, 1.55, 0.1))),
@@ -874,7 +880,102 @@ function proposalF(): Proposal {
   };
 }
 
-export const PROPOSALS: Proposal[] = [proposalA(), proposalB(), proposalC(), proposalD(), proposalE(), proposalF()];
+/** Bancada planejada: armário embaixo, tampo de pedra e as frestas das portas na frente. */
+function plannedCounter(r: Rect, front: Side, cabinet: string, top: string): Part[] {
+  const out = [part(r.x, r.z, r.w, r.d, 0.86, "madeira", 0, cabinet), part(r.x, r.z, r.w, r.d, 0.04, "pedra", 0.86, top)];
+  const along = front === "n" || front === "s" ? r.w : r.d;
+  const doors = Math.max(1, Math.round(along / 0.45));
+  for (let i = 1; i < doors; i++) {
+    const t = (along / doors) * i;
+    if (front === "e") out.push(part(r.x + r.w, r.z + t - 0.004, 0.006, 0.008, 0.7, "escuro", 0.1, "#6b5a48"));
+    if (front === "s") out.push(part(r.x + t - 0.004, r.z + r.d, 0.008, 0.006, 0.7, "escuro", 0.1, "#6b5a48"));
+  }
+  return out;
+}
+
+function proposalJ(): Proposal {
+  seq = 600;
+  const wood = "#b98a5c";
+  return {
+    id: "j",
+    name: "Do João",
+    tagline: "Montada com os seus desenhos, um cômodo de cada vez. Por enquanto: a suíte, o quarto, o jantar, a cozinha e o estar.",
+    highlights: [
+      "Suíte: cama viúva no topo, guarda-roupa de correr na parede do lado, painel suspenso com TV na parede do banheiro e frigobar no canto.",
+      "Quarto: cama de solteiro no fundo, embaixo da janela, e a mesa com o computador no canto perto da porta.",
+      "Cozinha planejada em L: bancada de ponta a ponta na parede da cozinha e embaixo da janela do serviço, com a pia na janela, cooktop de 4 bocas e armários em cima e embaixo.",
+      "Jantar vira sala de TV: sofá de 2 lugares na parede da cozinha, TV com móvel na parede do quarto e porta de vidro de correr fechando a varanda.",
+      "Estar vira sala de jantar: mesa de 1,40 × 0,80 m para 6, dois de cada lado e um em cada ponta.",
+      "O resto da casa continua vazio até você desenhar.",
+    ],
+    notes: {
+      suite: [
+        "A cama ficou um pouco mais para a janela para sobrar 60 cm na frente do guarda-roupa.",
+        "Do pé da cama até o painel sobram uns 50 cm; por isso o painel é suspenso e raso.",
+      ],
+      quarto: [
+        "Cama de solteiro (88 × 188 cm) deitada ao longo da parede da janela, com a cabeceira na parede do estar.",
+        "Mesa de 1,30 m com 60 cm de fundo no canto oposto, e o meio do quarto livre até a porta.",
+      ],
+      jantar: [
+        "Sofá de 2 lugares (1,70 × 0,90 m) com o encosto na parede da cozinha, de frente para a TV a 1,6 m: bom para uma TV de até 50\".",
+        "O sofá tampa parte da abertura da cozinha; a passagem para o estar fica com uns 85 cm, entre o sofá e a parede de baixo.",
+        "Entre o sofá e o móvel da TV sobra 1,2 m para chegar à porta de vidro.",
+      ],
+      varanda: ["Porta de vidro de correr de ponta a ponta entre o jantar e a varanda."],
+      estar: [
+        "Mesa de 1,40 × 0,80 m: 70 cm por pessoa nas laterais, que é o confortável, e 80 cm nas pontas.",
+        "Ela fica mais para o lado do jantar: as cadeiras de cima podem recuar para lá, e atrás das cadeiras de baixo sobram 60 cm para passar da porta de entrada para os quartos.",
+        "Da ponta perto do banheiro até a parede sobra 1,2 m, que é o caminho para a circulação dos quartos.",
+      ],
+      cozinha: [
+        "Bancada planejada de 60 cm de fundo, do canto do shaft até a geladeira (2,5 m), com cooktop de 4 bocas e armários embaixo e aéreos em cima.",
+        "Em cima do cooktop fica um vão para a coifa, sem armário.",
+      ],
+      servico: [
+        "A pia sai da parede da cozinha e vai para baixo da janela, na ponta do L. Ali só tem armário embaixo, porque a janela ocupa a parede.",
+        "O tanque saiu, porque a bancada passa por cima dele. A máquina de lavar cabe embaixo da bancada, do lado da pia.",
+      ],
+    },
+    remove: ["cozinha:Bancada da pia", "servico:Tanque"],
+    outdoor: [garden("externa", "Área externa", [[-0.11, -1.56, 10.08, 1.45], [-0.11, -0.11, 1.76, 0.3], [1.65, -0.11, 2.54, 0.51]], "grama", [7.2, -0.85], false)],
+    pieces: [
+      ...suiteJoao(wood, "#c9d4c5"),
+      piece("cozinha", "Bancada planejada", "🗄️", "Móveis", [
+        ...plannedCounter(R(-0.01, 0.89, 0.61, 2.51), "e", "#e4d6c2", "#3b3a38"),
+        ...plannedCounter(R(0.22, 0.29, 0.53, 0.6), "s", "#e4d6c2", "#3b3a38"),
+      ]),
+      { ...piece("servico", "Pia", "🚰", "Móveis", [part(0.75, 0.29, 0.85, 0.6, 0.9, "branco")]), fixture: { kind: "bancada", x: 0.75, z: 0.29, w: 0.85, d: 0.6, wall: "n" } },
+      piece("cozinha", "Cooktop 4 bocas", "🍳", "Eletrodomésticos", [
+        part(0.06, 1.28, 0.5, 0.58, 0.012, "escuro", 0.9, "#1c1f24"),
+        ...[[0.12, 1.36], [0.36, 1.36], [0.12, 1.62], [0.36, 1.62]].map(([x, z]) => part(x, z, 0.13, 0.13, 0.01, "metal", 0.912)),
+      ]),
+      piece("cozinha", "Armários aéreos", "🗄️", "Móveis", [
+        part(-0.01, 0.89, 0.35, 0.36, 0.7, "madeira", 1.5, "#e4d6c2"),
+        part(-0.01, 1.92, 0.35, 1.48, 0.7, "madeira", 1.5, "#e4d6c2"),
+      ]),
+      piece("cozinha", "Geladeira", "🧊", "Eletrodomésticos", fridge(R(-0.01, 3.42, 0.7, 0.66), "w")),
+      piece("estar", "Mesa de 6 lugares", "🍽️", "Móveis", table(R(2.6, 3.55, 1.4, 0.8), wood)),
+      piece("estar", "Cadeiras", "🪑", "Móveis", [
+        ...chair(2.78, 3.08, "n", "#7d8a7a"), ...chair(3.38, 3.08, "n", "#7d8a7a"),
+        ...chair(2.78, 4.38, "s", "#7d8a7a"), ...chair(3.38, 4.38, "s", "#7d8a7a"),
+        ...chair(2.13, 3.73, "w", "#7d8a7a"), ...chair(4.03, 3.73, "e", "#7d8a7a"),
+      ]),
+      piece("jantar", "Sofá 2 lugares", "🛋️", "Móveis", sofa(R(1.7, 1.55, 0.9, 1.7), "w", "#a8774a", 2)),
+      piece("jantar", "Rack e TV", "📺", "Eletrônicos", rackTv(R(3.82, 1.6, 0.4, 1.45), "e", wood)),
+      piece("varanda", "Porta de vidro", "🪟", "Outros", [
+        part(1.7, 1.42, 2.49, 0.04, 2.1, "vidro"),
+        part(1.7, 1.42, 2.49, 0.05, 0.03, "metal"),
+        part(2.95, 1.42, 0.04, 0.05, 2.1, "metal"),
+      ]),
+      piece("quarto", "Cama de solteiro", "🛏️", "Móveis", bed(R(4.29, -0.01, 1.88, 0.88), "w", "#d8cdb8", wood)),
+      piece("quarto", "Mesa com computador", "💻", "Móveis", desk(R(4.29, 1.65, 0.6, 1.3), "w", wood)),
+      piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(4.95, 2.05, "#3e4a52")),
+    ],
+  };
+}
+
+export const PROPOSALS: Proposal[] = [proposalA(), proposalB(), proposalC(), proposalD(), proposalE(), proposalF(), proposalJ()];
 
 /** A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam). */
 export function withProposal(home: Home, proposal: Proposal | null): Home {
@@ -888,6 +989,9 @@ export function withProposal(home: Home, proposal: Proposal | null): Home {
       ...proposal.outdoor,
     ],
     // Construção que fica (louças, shafts, muro) e a proposta por cima.
-    pieces: [...home.pieces.filter((p) => p.fixed), ...proposal.pieces],
+    pieces: [
+      ...home.pieces.filter((p) => p.fixed && !proposal.remove?.includes(`${p.roomId}:${p.name}`)),
+      ...proposal.pieces,
+    ],
   };
 }

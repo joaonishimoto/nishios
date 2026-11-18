@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Lightbulb, Link2, Ruler, Sofa, Unlink } from "lucide-react";
+import { ArrowLeft, Check, Heart, Lightbulb, Link2, Ruler, Sofa, Unlink } from "lucide-react";
 import { Badge, type Tone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Segmented } from "@/components/ui/Segmented";
@@ -11,12 +11,13 @@ import { money, plural } from "@/lib/format";
 import { AssetForm } from "@/modules/bens/AssetForm";
 import { warranty } from "@/modules/bens/logic";
 import { useBens } from "@/modules/bens/store";
-import type { Asset } from "@/modules/bens/types";
+import type { Asset, Wish } from "@/modules/bens/types";
 import { LinkAssetDialog } from "./LinkAssetDialog";
 import { indoorArea, roomSize, suggestions, summarize } from "./logic";
 import { PROPOSALS, withProposal, type Proposal } from "./proposals";
 import { useCasa } from "./store";
 import type { Home, Piece, Room, ViewMode } from "./types";
+import { estimate, inWishes, wishesFor } from "./wishes";
 
 // O three.js só é baixado quando a página Casa abre.
 const HouseScene = lazy(() => import("./HouseScene"));
@@ -39,7 +40,7 @@ function useIsDark() {
 
 export function CasaPage() {
   const { home: real, linkPiece } = useCasa();
-  const { assets, updateAsset } = useBens();
+  const { assets, updateAsset, wishes, restoreWish, removeWish } = useBens();
   const toast = useToast();
   const dark = useIsDark();
   const [params, setParams] = useSearchParams();
@@ -85,6 +86,25 @@ export function CasaPage() {
     }
     setLinking(null);
     toast({ message: `${piece.name} agora é ${asset.name} nos seus bens` });
+  };
+
+  // Móveis da proposta viram desejos em Bens, com desfazer.
+  const addWishes = (pieces: Piece[]) => {
+    if (!proposal) return;
+    const roomName = (id: string) => home.rooms.find((r) => r.id === id)?.name ?? "";
+    const fresh: Wish[] = wishesFor(proposal, pieces, roomName, wishes);
+    if (fresh.length === 0) {
+      toast({ message: "Já está na sua lista de desejos" });
+      return;
+    }
+    fresh.forEach(restoreWish);
+    toast({
+      message:
+        fresh.length === 1
+          ? `${fresh[0].name} foi para a lista de desejos`
+          : `${fresh.length} desejos novos em Bens, somando ${money(fresh.reduce((s, w) => s + w.price, 0))}`,
+      action: { label: "Desfazer", onClick: () => fresh.forEach((w) => removeWish(w.id)) },
+    });
   };
 
   const unlink = (piece: Piece) => {
@@ -197,11 +217,18 @@ export function CasaPage() {
               onSelectPiece={(id) => setSelectedPieceId((cur) => (cur === id ? null : id))}
               home={home}
               proposal={proposal}
+              isWished={(piece) => !!proposal && inWishes(proposal, piece, wishes)}
+              onWish={(piece) => addWishes([piece])}
               onLink={setLinking}
               onUnlink={unlink}
             />
           ) : (
-            <HomePanel home={home} proposal={proposal} onPickRoom={focusRoom} />
+            <HomePanel
+              home={home}
+              proposal={proposal}
+              onPickRoom={focusRoom}
+              onWishAll={() => addWishes(home.pieces)}
+            />
           )}
         </aside>
       </div>
@@ -275,10 +302,12 @@ function HomePanel({
   home,
   proposal,
   onPickRoom,
+  onWishAll,
 }: {
   home: Home;
   proposal: Proposal | null;
   onPickRoom: (id: string) => void;
+  onWishAll: () => void;
 }) {
   const { assets } = useBens();
   const whole = summarize(home, assets);
@@ -309,6 +338,10 @@ function HomePanel({
               <li key={h}>{h}</li>
             ))}
           </ul>
+          <Button size="sm" variant="outline" className="mt-3" onClick={onWishAll}>
+            <Heart />
+            Levar os móveis para os desejos
+          </Button>
         </div>
       )}
       <ul className="p-2 lg:flex-1 lg:overflow-y-auto">
@@ -345,6 +378,8 @@ function RoomPanel({
   onSelectPiece,
   home,
   proposal,
+  isWished,
+  onWish,
   onLink,
   onUnlink,
 }: {
@@ -354,6 +389,8 @@ function RoomPanel({
   onSelectPiece: (id: string) => void;
   home: Home;
   proposal: Proposal | null;
+  isWished: (piece: Piece) => boolean;
+  onWish: (piece: Piece) => void;
   onLink: (piece: Piece) => void;
   onUnlink: (piece: Piece) => void;
 }) {
@@ -399,11 +436,39 @@ function RoomPanel({
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-medium">{piece.name}</span>
                       <span className="block truncate text-sm text-muted-foreground">
-                        {asset ? (asset.name === piece.name ? "Em Bens" : `Em Bens como ${asset.name}`) : "Só na planta"}
+                        {proposal
+                          ? isWished(piece)
+                            ? "Na lista de desejos"
+                            : estimate(piece.name) > 0
+                              ? `Cerca de ${money(estimate(piece.name))}`
+                              : "Da proposta"
+                          : asset
+                            ? asset.name === piece.name
+                              ? "Em Bens"
+                              : `Em Bens como ${asset.name}`
+                            : "Só na planta"}
                       </span>
                     </span>
                     {asset && <span className="text-sm font-medium tabular-nums">{money(asset.value)}</span>}
                   </button>
+                  {selected && proposal && (
+                    <div className="flex flex-wrap items-center gap-1.5 px-2 pb-2.5 pl-13">
+                      {isWished(piece) ? (
+                        <Link
+                          to="/bens?aba=desejos"
+                          className="inline-flex items-center gap-1 text-sm font-medium text-primary underline-offset-2 hover:underline"
+                        >
+                          <Check className="size-4" />
+                          Na lista de desejos
+                        </Link>
+                      ) : (
+                        <Button size="sm" variant="outline" onClick={() => onWish(piece)}>
+                          <Heart />
+                          Adicionar aos desejos
+                        </Button>
+                      )}
+                    </div>
+                  )}
                   {selected && !proposal && (
                     <div className="flex flex-wrap items-center gap-1.5 px-2 pb-2.5 pl-13">
                       {w && <Badge tone={WARRANTY_TONE[w.state]}>Garantia: {w.label.toLowerCase()}</Badge>}
