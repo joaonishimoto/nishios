@@ -223,8 +223,8 @@ const garden = (id: string, name: string, rects: Room["rects"], floor: FloorKind
 
 /**
  * Suíte da J: janela no meio da parede de cima, cama com a cabeceira na parede do lado
- * de fora, painel com TV na frente dela, guarda-roupa na parede do banheiro e o frigobar
- * ao lado do painel.
+ * de fora, painel com TV na frente dela e guarda-roupa na parede do banheiro. O frigobar
+ * saiu por enquanto.
  */
 function suiteJ(frame: string, duvet: string, accent: string): Piece[] {
   return [
@@ -234,10 +234,6 @@ function suiteJ(frame: string, duvet: string, accent: string): Piece[] {
       part(6.79, 0.17, 0.28, 1.25, 0.32, "madeira", 0.3, frame),
       part(6.81, 0.22, 0.04, 1.15, 0.66, "escuro", 0.95, "#1c1f24"),
     ])),
-    piece("suite", "Frigobar", "🧊", "Eletrodomésticos", [
-      part(6.79, 1.55, 0.42, 0.44, 0.85, "branco", 0, "#eef0f1"),
-      part(7.21, 1.57, 0.03, 0.03, 0.3, "escuro", 0.45),
-    ]),
   ];
 }
 
@@ -265,7 +261,7 @@ function proposalJ(start = 600): Proposal {
     name: "Do João",
     tagline: "Montada com os seus desenhos, um cômodo de cada vez: suíte, escritório, sala, cozinha e a área de fora com serviço e cobertura.",
     highlights: [
-      "Suíte: janela no meio da parede de cima, cama com a cabeceira na parede do lado, painel com TV na frente, frigobar ao lado e guarda-roupa de correr na parede do banheiro.",
+      "Suíte: janela no meio da parede de cima, cama com a cabeceira na parede do lado, painel com TV na frente e guarda-roupa de correr na parede do banheiro.",
       "Escritório: cama de solteiro no fundo, embaixo da janela, e a mesa preta de 1,70 m com o computador na parede da sala, até o canto da porta.",
       "Cozinha em L, que agora inclui o antigo serviço: bancada de ponta a ponta, pia embaixo da janela, cooktop de 4 bocas e armários em cima e embaixo.",
       "Sala inteira, sem divisão: sofá e TV no lado da varanda, com porta de vidro de correr, e mesa para 6 no meio.",
@@ -274,7 +270,7 @@ function proposalJ(start = 600): Proposal {
     notes: {
       suite: [
         "A janela fica no meio da parede de cima, para a área externa. A cama foi para a parede do lado, com a cabeceira na parede de fora, e a janela fica livre.",
-        "Painel e TV na parede da frente, a uns 90 cm do pé da cama, com o frigobar do lado.",
+        "Painel e TV na parede da frente, a uns 90 cm do pé da cama.",
         "Guarda-roupa de correr na parede do banheiro, com uns 70 cm livres entre ele e a cama.",
       ],
       quarto: [
@@ -527,6 +523,8 @@ interface Extra {
   replaceNotes?: string[];
   /** Troca os destaques da J que começam com "Área de fora" pelos da `extra`. */
   replaceOutdoorHighlight?: boolean;
+  /** Destaques da J que saem, pelo começo do texto. */
+  dropHighlights?: string[];
 }
 
 /** Uma proposta que é a J inteira mais o que a `extra` acrescenta. */
@@ -543,7 +541,9 @@ function fromJ(start: number, extra: Extra): Proposal {
     name: extra.name,
     tagline: extra.tagline,
     highlights: [
-      ...(extra.replaceOutdoorHighlight ? j.highlights.filter((h) => !h.startsWith("Área de fora")) : j.highlights),
+      ...j.highlights.filter(
+        (h) => !(extra.replaceOutdoorHighlight && h.startsWith("Área de fora")) && !extra.dropHighlights?.some((d) => h.startsWith(d)),
+      ),
       ...extra.highlights,
     ],
     notes,
@@ -775,7 +775,181 @@ function proposalF(): Proposal {
   });
 }
 
-export const PROPOSALS: Proposal[] = [proposalA(), proposalB(), proposalC(), proposalD(), proposalE(), proposalF(), proposalJ()];
+function extraG(): Extra {
+  const cab = "#e4d6c2", stone = "#3b3a38";
+  return {
+    id: "g",
+    name: "F com a máquina na cozinha",
+    tagline: "A F com a máquina de lavar dentro da cozinha e a pia perto da geladeira, deixando a área externa livre para descanso, churrasco e jardim.",
+    highlights: [
+      "Área de fora: hidromassagem branca de 2,00 × 1,50 m com deque em volta e churrasqueira com bancada, tudo embaixo do telhado.",
+      "Cozinha em L com bancada de ponta a ponta, cooktop de 4 bocas e armários em cima e embaixo. A máquina de lavar fica embaixo da bancada, no canto da janela, e a pia vai para o lado da geladeira.",
+      "Área externa livre, com mesa para quatro, banco de madeira, jardim vertical no muro e canteiro no fundo.",
+    ],
+    replaceNotes: ["servicoext", "coberta", "externa", "cozinha"],
+    replaceOutdoorHighlight: true,
+    dropHighlights: ["Cozinha em L"],
+    notes: {
+      ...BATH_NOTES,
+      cozinha: [
+        "Bancada planejada de 60 cm de fundo no L, com cooktop de 4 bocas e armários embaixo e aéreos em cima.",
+        "A máquina de lavar fica embaixo da bancada, no canto da janela, com a pedra passando por cima. Dá para usar a bancada normalmente.",
+        "A pia saiu da janela e foi para a parede da geladeira, logo antes dela: lavar, cortar e guardar ficam em sequência.",
+        "Sem tanque: com a máquina dentro de casa, a área externa fica livre.",
+      ],
+      servicoext: [
+        "Hidromassagem branca de 2,00 × 1,50 m embutida num deque de madeira de 45 cm, que ocupa o canto inteiro, do muro até a parede da cozinha.",
+        "A borda da hidro fica 30 cm acima do deque, e um degrau do lado da churrasqueira ajuda a subir.",
+        "Fica embaixo do telhado: dá para usar com chuva, e as folhas não caem na água.",
+        "Ripado de madeira no lado de dentro do muro, do chão até 2,50 m, atrás e do lado da hidro.",
+      ],
+      coberta: [
+        "Churrasqueira e bancada de apoio encostadas no muro, ao lado da hidro: quem está na água fica perto de quem está na grelha.",
+        "Embaixo do telhado, então o churrasco não para com chuva. Sobram uns 90 cm de passagem da varanda até a área externa.",
+        "Os gatos continuam podendo ficar aqui fora sem tomar chuva.",
+      ],
+      externa: [
+        "Mesa para quatro logo depois da cobertura, em frente à janela do escritório, para comer perto da churrasqueira.",
+        "Banco de madeira no muro, em frente à janela da suíte, com jardim vertical atrás e no muro do fundo.",
+        "Canteiro no canto do fundo e vasos, deixando o meio livre: sobra 1 m de passagem na frente do banco.",
+      ],
+    },
+    outdoorChanges: { servicoext: { name: "Hidro", floor: "deck" } },
+    drop: ["servicoext:Tanque", "servicoext:Máquina de lavar", "servicoext:Armário de serviço", "cozinha:Bancada planejada", "servico:Pia"],
+    externa: externa("deck"),
+    pieces: () => [
+      ...bathrooms("#1e3d66", "#e9e4da"),
+      ...salaExtras("#e2ddd2"),
+      piece("cozinha", "Bancada planejada", "🗄️", "Móveis", [
+        ...plannedCounter(R(-0.01, 0.89, 0.61, 1.61), "e", cab, stone),
+        ...plannedCounter(R(0.22, 0.29, 0.78, 0.6), "s", cab, stone),
+        part(1.0, 0.29, 0.6, 0.6, 0.04, "pedra", 0.86, stone),
+      ]),
+      piece("cozinha", "Máquina de lavar", "🫧", "Eletrodomésticos", washer(R(1.0, 0.29, 0.6, 0.6), "n")),
+      { ...piece("cozinha", "Pia", "🚰", "Móveis", [part(-0.01, 2.5, 0.61, 0.9, 0.9, "madeira", 0, cab)]), fixture: { kind: "bancada", x: -0.01, z: 2.5, w: 0.61, d: 0.9, wall: "w", colors: { cabinet: cab, stone } } },
+      piece("servicoext", "Hidromassagem", "🛁", "Móveis", deckedTub(R(0.02, EXT.z0 + 0.03, 2.43, 1.72), R(0.14, -1.42, 2.0, 1.5))),
+      piece("servicoext", "Painel ripado", "🪵", "Obras", [...slatScreen(R(-0.01, EXT.z0, 2.46, 0.03)), ...slatScreen(R(-0.01, EXT.z0, 0.03, 1.75))]),
+      piece("coberta", "Churrasqueira", "🔥", "Móveis", bbq(R(2.85, EXT.z0, 0.9, 0.55))),
+      piece("coberta", "Bancada de apoio", "🗄️", "Móveis", [part(3.8, EXT.z0, 0.95, 0.55, 0.86, "madeira", 0, "#f4f4f1"), part(3.8, EXT.z0, 0.95, 0.55, 0.04, "pedra", 0.86, stone)]),
+      piece("externa", "Mesa e cadeiras", "🍽️", "Móveis", [
+        ...table(R(5.3, -0.95, 1.2, 0.7), "#f4f4f1", "#2b2b2e"),
+        ...chair(5.45, -1.45, "n", "#1e3d66"), ...chair(6.0, -1.45, "n", "#1e3d66"),
+        ...chair(4.82, -0.82, "w", "#1e3d66"), ...chair(6.54, -0.82, "e", "#1e3d66"),
+      ]),
+      piece("externa", "Jardim vertical", "🌿", "Plantas", full([part(7.75, EXT.z0, 2.12, 0.06, 1.4, "planta", 0.6), part(EXT.x1 - 0.06, EXT.z0 + 0.06, 0.06, 1.39, 1.4, "planta", 0.6)])),
+      piece("externa", "Banco de madeira", "🪑", "Móveis", gardenBench(R(7.85, EXT.z0 + 0.06, 1.3, 0.42), "n", "#a07a55")),
+      piece("externa", "Canteiro", "🌱", "Plantas", raisedBed(R(EXT.x1 - 0.6, -0.95, 0.54, 0.8))),
+      piece("externa", "Plantas em vaso", "🪴", "Plantas", [...plant(7.05, -1.45, 0.38, 1.2), ...plant(7.1, -0.5, 0.34, 1.0)]),
+    ],
+  };
+}
+
+function proposalG(): Proposal {
+  return fromJ(1300, extraG());
+}
+
+/** Junta as notas da G com as novas: soma as listas dos cômodos que aparecem nas duas. */
+function addNotes(base: Record<string, string[]>, more: Record<string, string[]>): Record<string, string[]> {
+  const out = { ...base };
+  for (const [room, list] of Object.entries(more)) out[room] = [...(out[room] ?? []), ...list];
+  return out;
+}
+
+/** H: a G com mais lugar para guardar, sem mexer em nenhum móvel. */
+function proposalH(): Proposal {
+  const g = extraG();
+  const white = "#f4f4f1", nishi = "#1e3d66", oak = "#c9a77c";
+  return fromJ(1400, {
+    ...g,
+    id: "h",
+    name: "G com mais armazenamento",
+    tagline: "A G com os mesmos móveis, e mais lugar para guardar coisas: parede, alto dos armários e embaixo da cama.",
+    highlights: [
+      ...g.highlights,
+      "Mais armazenamento sem tirar nada do lugar: armário no escritório, prateleiras em cima da mesa, gavetas embaixo da cama, aéreos em cima da geladeira, da cabeceira e dos vasos.",
+      "Varal de teto embaixo do telhado, já que a máquina foi para dentro: a roupa seca coberta.",
+    ],
+    notes: addNotes(g.notes, {
+      quarto: [
+        "Armário alto de 40 cm de fundo na parede da suíte, longe da porta, para livros, papéis e roupa de cama.",
+        "Três prateleiras em cima da mesa, a partir de 1,20 m, para não bater a cabeça ao sentar.",
+        "Duas gavetas grandes embaixo da cama de solteiro, abrindo para o meio do escritório.",
+      ],
+      suite: [
+        "Aéreo em cima da cabeceira e um criado-mudo suspenso do lado da cama, que deixa o chão livre para limpar.",
+      ],
+      cozinha: ["Aéreo em cima da geladeira, para o que se usa pouco (assadeiras, garrafas)."],
+      banho: ["Armário em cima do vaso e nicho dentro do box."],
+      banhosuite: ["Armário em cima do vaso e nicho dentro do box."],
+      coberta: ["Varal de teto de 2 m, embaixo do telhado e perto da casa: sobe e desce, e não atrapalha a passagem."],
+    }),
+    pieces: () => [
+      ...g.pieces(),
+      piece("quarto", "Armário do escritório", "🗄️", "Móveis", full(tallCabinet(R(6.29, 0.95, 0.4, 1.1), "e", white))),
+      piece("quarto", "Prateleiras em cima da mesa", "📚", "Móveis", full([1.2, 1.5, 1.8].map((y) => part(4.29, 1.4, 0.25, 1.4, 0.03, "madeira", y, oak)))),
+      piece("quarto", "Gavetas embaixo da cama", "🗃️", "Móveis", [
+        part(4.55, 0.87, 0.7, 0.02, 0.2, "madeira", 0.06, white), part(5.35, 0.87, 0.7, 0.02, 0.2, "madeira", 0.06, white),
+        part(4.85, 0.885, 0.1, 0.01, 0.02, "escuro", 0.18), part(5.65, 0.885, 0.1, 0.01, 0.02, "escuro", 0.18),
+      ]),
+      piece("suite", "Aéreo da cabeceira", "🗄️", "Móveis", full([part(9.52, 0.15, 0.35, 1.28, 0.45, "madeira", 1.6, white)])),
+      piece("suite", "Criado-mudo suspenso", "🛏️", "Móveis", full([part(9.45, 1.46, 0.42, 0.38, 0.25, "madeira", 0.42, nishi)])),
+      piece("cozinha", "Aéreo da geladeira", "🗄️", "Móveis", full([part(-0.01, 3.42, 0.66, 0.66, 0.45, "madeira", 1.92, "#e4d6c2")])),
+      piece("banho", "Armário do vaso", "🗄️", "Móveis", full([part(6.5, 5.2, 0.52, 0.22, 0.6, "branco", 1.3, white)])),
+      piece("banho", "Nicho no box", "🧴", "Móveis", full([part(7.3, 5.4, 0.4, 0.02, 0.3, "escuro", 1.1, "#c9c4ba")])),
+      piece("banhosuite", "Armário do vaso", "🗄️", "Móveis", full([part(8.54, 2.78, 0.52, 0.22, 0.6, "branco", 1.3, white)])),
+      piece("banhosuite", "Nicho no box", "🧴", "Móveis", full([part(9.3, 2.78, 0.4, 0.02, 0.3, "escuro", 1.1, "#c9c4ba")])),
+      piece("coberta", "Varal de teto", "👕", "Móveis", full([
+        ...[-0.62, -0.47, -0.32].map((z) => part(2.6, z, 2.0, 0.015, 0.015, "metal", 1.95)),
+        part(2.6, -0.65, 0.03, 0.36, 0.03, "metal", 1.95), part(4.57, -0.65, 0.03, 0.36, 0.03, "metal", 1.95),
+      ])),
+    ],
+  });
+}
+
+/** I: a G com conforto e espaços que servem para mais de uma coisa, sem mexer em nenhum móvel. */
+function proposalI(): Proposal {
+  const g = extraG();
+  const linen = "#e9e4da", nishi = "#1e3d66";
+  const curtain = (x: number, w: number, color: string) => full([part(x, 0.0, w, 0.04, 2.2, "tecido", 0.05, color), part(x - 0.05, 0.02, w + 0.1, 0.02, 0.02, "metal", 2.27)]);
+  const pendant = (x: number, z: number, y: number) => full([part(x + 0.12, z + 0.12, 0.01, 0.01, 2.6 - y - 0.18, "escuro", y + 0.18), part(x, z, 0.25, 0.25, 0.18, "escuro", y, "#2b2b2e")]);
+  return fromJ(1500, {
+    ...g,
+    id: "i",
+    name: "G com conforto",
+    tagline: "A G com os mesmos móveis, e detalhes que deixam a casa mais confortável e cada canto servindo para mais de uma coisa.",
+    highlights: [
+      ...g.highlights,
+      "Conforto sem mexer nos móveis: cortinas blackout nas duas janelas da frente, pendentes em cima da mesa, espelho grande na sala e passarela dos gatos na varanda.",
+      "Toldo retrátil em cima da mesa de fora, emendando com o telhado, para usar a mesa com sol ou garoa.",
+    ],
+    notes: addNotes(g.notes, {
+      suite: ["Cortina blackout do chão ao teto na janela atrás da cama, e um pendente do lado da cabeceira para ler."],
+      quarto: ["Cortina blackout na janela, para o escritório virar quarto de hóspede à noite, e luminária de braço em cima da mesa."],
+      estar: [
+        "Dois pendentes baixos em cima da mesa de 6, a 1,6 m do chão: marcam a mesa sem precisar de divisória.",
+        "Espelho de 1,40 m na parede atrás da mesa, que reflete a varanda e faz a sala parecer maior.",
+      ],
+      varanda: ["Prateleiras na parede da cozinha, subindo do armário dos gatos: uma passarela para eles chegarem ao alto."],
+      externa: ["Toldo retrátil em cima da mesa, emendando com o telhado: aberto faz sombra, fechado some no muro."],
+    }),
+    pieces: () => [
+      ...g.pieces(),
+      piece("suite", "Cortina blackout", "🪟", "Móveis", curtain(7.72, 1.22, linen)),
+      piece("suite", "Pendente da cabeceira", "💡", "Móveis", pendant(9.55, 1.5, 1.3)),
+      piece("quarto", "Cortina blackout", "🪟", "Móveis", curtain(4.87, 1.23, linen)),
+      piece("quarto", "Luminária de braço", "💡", "Móveis", full([part(4.31, 2.6, 0.05, 0.05, 0.5, "metal", 0.76), part(4.31, 2.4, 0.3, 0.2, 0.08, "escuro", 1.22, "#2b2b2e")])),
+      piece("estar", "Pendentes da mesa", "💡", "Móveis", [...pendant(3.3, 4.27, 1.6), ...pendant(3.85, 4.27, 1.6)]),
+      piece("estar", "Espelho grande", "🪞", "Móveis", full([part(3.0, 5.4, 1.4, 0.02, 1.1, "vidro", 0.9, "#d7e6ea"), part(2.98, 5.41, 1.44, 0.01, 1.14, "metal", 0.88)])),
+      piece("varanda", "Passarela dos gatos", "🐈", "Pets", full(catShelves([[1.7, 1.38, 1.3], [1.7, 1.78, 1.6], [1.7, 1.38, 1.9]], "w", "#c9a77c"))),
+      piece("externa", "Toldo retrátil", "⛱️", "Obras", full([
+        part(4.79, -1.5, 2.1, 1.3, 0.02, "cobertura", 2.35, nishi),
+        part(4.79, -0.2, 2.1, 0.06, 0.08, "metal", 2.3),
+      ])),
+    ],
+  });
+}
+
+export const PROPOSALS: Proposal[] = [proposalA(), proposalB(), proposalC(), proposalD(), proposalE(), proposalF(), proposalG(), proposalH(), proposalI(), proposalJ()];
 
 /**
  * A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam).
