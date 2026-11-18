@@ -147,7 +147,7 @@ export default function HouseScene(props: HouseSceneProps) {
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.domElement.className = "absolute inset-0 size-full touch-none";
+    renderer.domElement.className = "absolute inset-0 size-full touch-none select-none";
     host.prepend(renderer.domElement);
 
     const scene = new THREE.Scene();
@@ -229,6 +229,8 @@ export default function HouseScene(props: HouseSceneProps) {
       return hit?.object.userData as { roomId: string; pieceId?: string } | undefined;
     };
     const onDown = (e: PointerEvent) => {
+      // Arrastar a vista não pode selecionar texto da página (os chips ficavam marcados de azul).
+      window.getSelection()?.removeAllRanges();
       down = { x: e.clientX, y: e.clientY };
     };
     const onUp = (e: PointerEvent) => {
@@ -407,7 +409,7 @@ export default function HouseScene(props: HouseSceneProps) {
   }, [labels]);
 
   return (
-    <div ref={hostRef} className={cn("relative overflow-hidden", className)}>
+    <div ref={hostRef} className={cn("relative overflow-hidden select-none", className)}>
       <div className="pointer-events-none absolute inset-0">
         {labels.map((l) => (
           <button
