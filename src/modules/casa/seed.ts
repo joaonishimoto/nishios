@@ -108,9 +108,11 @@ export function seedHome(): Home {
       louca("banho", "Pia", { kind: "lavatorio", x: 5.75, z: 4.92, w: 0.64, d: 0.5, wall: "s" }),
       louca("banho", "Vaso", { kind: "vaso", x: 6.56, z: 4.78, w: 0.4, d: 0.64, wall: "s" }),
       louca("banho", "Box", { kind: "box", x: 7.11, z: 4.2, w: 0.79, d: 1.22, wall: "s", glass: ["w"] }),
+      // Muro de 2,50 m, alinhado por fora com as paredes da casa. No 3D ele aparece na altura
+      // real (full), para a área externa ficar com a proporção certa.
       fixed("externa", "Muro", [
-        p(-0.11, -1.66, 10.08, 0.1, 2.5, "pedra"), p(-0.11, -1.66, 0.1, 1.55, 2.5, "pedra"), p(9.87, -1.66, 0.1, 1.55, 2.5, "pedra"), // muro de 2,50 m, alinhado por fora com as paredes da casa
-      ]),
+        p(-0.11, -1.66, 10.08, 0.1, 2.5, "pedra"), p(-0.11, -1.66, 0.1, 1.85, 2.5, "pedra"), p(9.87, -1.66, 0.1, 1.55, 2.5, "pedra"),
+      ].map((m) => ({ ...m, full: true }))),
     ],
   };
 }

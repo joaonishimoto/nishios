@@ -143,12 +143,17 @@ export default function HouseScene(props: HouseSceneProps) {
     perspControls.minDistance = 2.5;
     perspControls.maxDistance = 45;
     perspControls.zoomSpeed = 0.8;
+    // O giro é feito à mão (abaixo), em volta do ponto embaixo do mouse; a roda aproxima
+    // na direção do mouse.
+    perspControls.enableRotate = false;
+    perspControls.zoomToCursor = true;
 
     const orthoControls = new OrbitControls(ortho, renderer.domElement);
     orthoControls.enableRotate = false;
     orthoControls.screenSpacePanning = true;
     orthoControls.minZoom = 0.6;
     orthoControls.maxZoom = 8;
+    orthoControls.zoomToCursor = true;
     orthoControls.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
     orthoControls.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
 
@@ -224,6 +229,69 @@ export default function HouseScene(props: HouseSceneProps) {
         renderer.domElement.style.cursor = pick(e) ? "pointer" : "";
       });
     };
+    // Girar no 3D: o ponto da casa embaixo do mouse vira o eixo do giro. Arrastar para os
+    // lados gira em volta do eixo vertical que passa por ele; para cima e para baixo, inclina.
+    const pointers = new Set<number>();
+    const pivot = new THREE.Vector3();
+    const ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    const UP = new THREE.Vector3(0, 1, 0);
+    let orbit: { id: number; x: number; y: number } | null = null;
+    const pivotAt = (e: PointerEvent) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      const ndc = new THREE.Vector2(
+        ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        -((e.clientY - rect.top) / rect.height) * 2 + 1,
+      );
+      raycaster.setFromCamera(ndc, persp);
+      const hit = raycaster.intersectObjects(group.children, false).find((i) => {
+        const m = (i.object as THREE.Mesh).material as THREE.Material | undefined;
+        return (i.object as THREE.Mesh).isMesh && !(m && m.transparent && m.opacity < 0.6);
+      });
+      if (hit) return pivot.copy(hit.point);
+      return raycaster.ray.intersectPlane(ground, pivot) ?? pivot.copy(perspControls.target);
+    };
+    const onOrbitDown = (e: PointerEvent) => {
+      pointers.add(e.pointerId);
+      const left = e.pointerType !== "mouse" || e.button === 0;
+      if (engine.mode !== "3d" || pointers.size > 1 || !left || !perspControls.enabled) {
+        orbit = null;
+        return;
+      }
+      cancelAnimationFrame(engine.anim);
+      pivotAt(e);
+      // O alvo da câmera passa para a mesma profundidade do eixo, sem mexer na vista:
+      // assim a roda e o arrastar com o botão direito continuam naturais depois do giro.
+      const dir = persp.getWorldDirection(new THREE.Vector3());
+      const depth = Math.max(perspControls.minDistance, pivot.clone().sub(persp.position).dot(dir));
+      perspControls.target.copy(persp.position).addScaledVector(dir, depth);
+      orbit = { id: e.pointerId, x: e.clientX, y: e.clientY };
+    };
+    const onOrbitMove = (e: PointerEvent) => {
+      if (!orbit || e.pointerId !== orbit.id) return;
+      const dx = e.clientX - orbit.x;
+      const dy = e.clientY - orbit.y;
+      orbit.x = e.clientX;
+      orbit.y = e.clientY;
+      const k = (2 * Math.PI) / Math.max(1, renderer.domElement.clientHeight) * 0.6;
+      const target = perspControls.target;
+      const offset = persp.position.clone().sub(target);
+      const phi = Math.acos(THREE.MathUtils.clamp(offset.y / offset.length(), -1, 1));
+      const nextPhi = THREE.MathUtils.clamp(phi - dy * k, 0.05, perspControls.maxPolarAngle);
+      const right = new THREE.Vector3().setFromMatrixColumn(persp.matrixWorld, 0).setY(0).normalize();
+      const q = new THREE.Quaternion()
+        .setFromAxisAngle(UP, -dx * k)
+        .multiply(new THREE.Quaternion().setFromAxisAngle(right, nextPhi - phi));
+      persp.position.sub(pivot).applyQuaternion(q).add(pivot);
+      target.sub(pivot).applyQuaternion(q).add(pivot);
+      persp.lookAt(target);
+      perspControls.update();
+      engine.render();
+    };
+    const onOrbitUp = (e: PointerEvent) => {
+      pointers.delete(e.pointerId);
+      if (orbit?.id === e.pointerId) orbit = null;
+    };
+
     // Os gatos andam a 30 quadros por segundo, só no 3D, com a casa na tela e a aba aberta.
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     let onScreen = true;
@@ -249,6 +317,10 @@ export default function HouseScene(props: HouseSceneProps) {
     catFrame = requestAnimationFrame(tick);
 
     renderer.domElement.addEventListener("pointerdown", onDown);
+    renderer.domElement.addEventListener("pointerdown", onOrbitDown);
+    renderer.domElement.addEventListener("pointermove", onOrbitMove);
+    renderer.domElement.addEventListener("pointerup", onOrbitUp);
+    renderer.domElement.addEventListener("pointercancel", onOrbitUp);
     renderer.domElement.addEventListener("pointerup", onUp);
     renderer.domElement.addEventListener("pointermove", onMove);
 
@@ -660,9 +732,10 @@ function buildHouse(
       const masonry = part.m === "parede";
       // O que fica no alto (pergolado, cobertura, a partir de 2 m) desce para logo acima das
       // paredes cortadas, e some com um cômodo em foco para não tampar a vista.
+      // Com `full`, o 3D da casa inteira mantém a altura real (telhado apoiado no muro).
       if (y >= 2) {
         if (focusId) continue;
-        y = (mode === "planta" ? WALL_PLAN + 0.04 : WALL_3D + 0.08) + (y - 2.4) * 0.5;
+        if (!(part.full && mode === "3d")) y = (mode === "planta" ? WALL_PLAN + 0.04 : WALL_3D + 0.08) + (y - 2.4) * 0.5;
       } else if (masonry) h = wallH;
       else if (screen) h = Math.max(0.02, Math.min(y + h, mode === "planta" ? WALL_PLAN : focusId ? WALL_FOCUS + 0.3 : WALL_3D + 0.2) - y);
       // Tudo o que é baixo é cortado na mesma altura, mesmo o que começa acima do chão

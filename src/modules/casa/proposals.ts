@@ -188,7 +188,7 @@ function slopedRoof(r: Rect, steps = 6): Part[] {
   const out: Part[] = [];
   const sd = r.d / steps;
   for (let i = 0; i < steps; i++) out.push(part(r.x, r.z + r.d - (i + 1) * sd, r.w, sd + 0.01, 0.03, "cobertura", 2.9 - i * 0.05));
-  return out;
+  return full(out);
 }
 
 /**
@@ -414,13 +414,58 @@ function bbq(r: Rect): Part[] {
   ];
 }
 
-/** Hidromassagem de alvenaria e deque: borda larga, água e o degrau na frente. */
-function hotTub(r: Rect, shell = "#f4f4f1"): Part[] {
-  const b = 0.12;
+/**
+ * Banheira da hidro, oca: borda branca de 10 cm, fundo a 25 cm, dois bancos por dentro,
+ * água azul até 13 cm abaixo da borda, apoios de cabeça e jatos nas paredes.
+ */
+function tubShell(r: Rect, top: number, shell: string): Part[] {
+  const b = 0.1, floor = 0.25, seat = 0.38, jet = "#9aa3ab";
+  const inX = r.x + b, inZ = r.z + b, inW = r.w - 2 * b, inD = r.d - 2 * b;
+  const long = inW >= inD;
+  const seats = long
+    ? [part(inX, inZ, inW, seat, 0.2, "branco", floor, shell), part(inX, inZ + inD - seat, inW, seat, 0.2, "branco", floor, shell)]
+    : [part(inX, inZ, seat, inD, 0.2, "branco", floor, shell), part(inX + inW - seat, inZ, seat, inD, 0.2, "branco", floor, shell)];
+  const jets: Part[] = [];
+  for (let i = 1; i <= 3; i++) {
+    const f = i / 4;
+    if (long) jets.push(part(inX + inW * f, inZ, 0.05, 0.01, 0.05, "escuro", 0.5, jet), part(inX + inW * f, inZ + inD - 0.01, 0.05, 0.01, 0.05, "escuro", 0.5, jet));
+    else jets.push(part(inX, inZ + inD * f, 0.01, 0.05, 0.05, "escuro", 0.5, jet), part(inX + inW - 0.01, inZ + inD * f, 0.01, 0.05, 0.05, "escuro", 0.5, jet));
+  }
+  const pillow = (x: number, z: number, w: number, d: number) => part(x, z, w, d, 0.06, "tecido", top - 0.02, "#d9d6cf");
   return [
-    part(r.x, r.z, r.w, r.d, 0.7, "branco", 0, shell),
-    part(r.x + b, r.z + b, r.w - 2 * b, r.d - 2 * b, 0.02, "vidro", 0.62, "#7fc4d6"),
-    part(r.x - 0.3, r.z + r.d / 2 - 0.3, 0.3, 0.6, 0.2, "branco", 0, shell),
+    part(r.x, r.z, r.w, r.d, floor, "branco", 0, shell),
+    part(r.x, r.z, r.w, b, top - floor, "branco", floor, shell),
+    part(r.x, r.z + r.d - b, r.w, b, top - floor, "branco", floor, shell),
+    part(r.x, r.z + b, b, r.d - 2 * b, top - floor, "branco", floor, shell),
+    part(r.x + r.w - b, r.z + b, b, r.d - 2 * b, top - floor, "branco", floor, shell),
+    ...seats,
+    ...jets,
+    ...(long
+      ? [pillow(r.x + 0.2, r.z, 0.35, b), pillow(r.x + r.w - 0.55, r.z + r.d - b, 0.35, b)]
+      : [pillow(r.x, r.z + 0.2, b, 0.35), pillow(r.x + r.w - b, r.z + r.d - 0.55, b, 0.35)]),
+    ...full([part(inX, inZ, inW, inD, top - 0.13 - floor, "vidro", floor, "#5fb3cf")]),
+  ];
+}
+
+/** Hidromassagem de alvenaria, com o degrau do lado de fora (oeste). */
+function hotTub(r: Rect, shell = "#f4f4f1"): Part[] {
+  return [...tubShell(r, 0.7, shell), part(r.x - 0.3, r.z + r.d / 2 - 0.3, 0.3, 0.6, 0.2, "branco", 0, shell)];
+}
+
+/**
+ * Hidromassagem embutida num deque de madeira: o deque (`deck`) ocupa o canto em volta da
+ * hidro (`tub`), que fica com a borda branca 30 cm acima. Degrau do lado de fora (leste).
+ */
+function deckedTub(deck: Rect, tub: Rect, wood = "#a07a55", shell = "#f4f4f1"): Part[] {
+  const H = 0.45;
+  const tx1 = tub.x + tub.w, tz1 = tub.z + tub.d, dx1 = deck.x + deck.w, dz1 = deck.z + deck.d;
+  return [
+    part(deck.x, deck.z, deck.w, tub.z - deck.z, H, "madeira", 0, wood),
+    part(deck.x, tz1, deck.w, dz1 - tz1, H, "madeira", 0, wood),
+    part(deck.x, tub.z, tub.x - deck.x, tub.d, H, "madeira", 0, wood),
+    part(tx1, tub.z, dx1 - tx1, tub.d, H, "madeira", 0, wood),
+    ...tubShell(tub, H + 0.3, shell),
+    part(dx1, deck.z + deck.d / 2 - 0.35, 0.3, 0.7, 0.22, "madeira", 0, wood),
   ];
 }
 
@@ -443,7 +488,7 @@ function slatScreen(r: Rect, wood = "#8a6447", height = 2.5): Part[] {
   for (let t = 0; t < len - 0.03; t += 0.09) {
     out.push(along ? part(r.x + t, r.z, 0.05, r.d, height, "madeira", 0, wood) : part(r.x, r.z + t, r.w, 0.05, height, "madeira", 0, wood));
   }
-  return out;
+  return full(out);
 }
 
 /** Espelheira em cima da pia, toalheiro e tapete na frente do box, nos dois banheiros. */
@@ -595,7 +640,7 @@ function proposalC(): Proposal {
     pieces: () => [
       ...bathrooms("#1e3d66", "#d9d2c4"),
       ...salaExtras("#e2ddd2"),
-      piece("externa", "Tela de proteção", "🕸️", "Pets", [part(4.79, -1.66, 5.18, 0.03, 0.5, "tela", 2.5), part(9.94, -1.66, 0.03, 1.55, 0.5, "tela", 2.5)]),
+      piece("externa", "Tela de proteção", "🕸️", "Pets", [...full([part(4.79, -1.66, 5.18, 0.03, 0.5, "tela", 2.5), part(9.94, -1.66, 0.03, 1.55, 0.5, "tela", 2.5)])]),
       piece("externa", "Torre para gatos", "🐈", "Pets", catTree(9.3, -1.45)),
       piece("externa", "Caminho dos gatos", "🐾", "Pets", full(catShelves([[7.0, -1.56, 0.8], [7.6, -1.56, 1.1], [8.2, -1.56, 1.4]], "n", "#f4f4f1"))),
       piece("externa", "Grama para gatos", "🌾", "Pets", raisedBed(R(6.0, -1.56, 0.8, 0.4), "#f4f4f1")),
@@ -682,7 +727,7 @@ function proposalF(): Proposal {
     name: "J com hidro e churrasco",
     tagline: "A J completa, com hidro e churrasqueira embaixo do telhado, para descansar e fazer churrasco, e a lavanderia coberta no fundo, atrás da suíte.",
     highlights: [
-      "Área de fora: hidromassagem branca no canto da cozinha e churrasqueira com bancada no muro da área coberta, tudo embaixo do telhado.",
+      "Área de fora: hidromassagem branca de 2,00 × 1,50 m com deque em volta, no canto da cozinha e churrasqueira com bancada no muro da área coberta, tudo embaixo do telhado.",
       "Mesa para quatro logo depois da cobertura, e a lavanderia (tanque, máquina e armário) no fundo, atrás da suíte, com um telhadinho próprio.",
     ],
     replaceNotes: ["servicoext", "coberta", "externa"],
@@ -690,12 +735,13 @@ function proposalF(): Proposal {
     notes: {
       ...BATH_NOTES,
       servicoext: [
-        "Hidromassagem branca de 2,00 × 1,40 m no canto, entre o muro e a parede da cozinha, com o degrau do lado da varanda.",
+        "Hidromassagem branca de 2,00 × 1,50 m embutida num deque de madeira de 45 cm, que ocupa o canto inteiro, do muro até a parede da cozinha.",
+        "A borda da hidro fica 30 cm acima do deque, e um degrau do lado da churrasqueira ajuda a subir.",
         "Fica embaixo do telhado: dá para usar com chuva, e as folhas não caem na água.",
         "Ripado de madeira no lado de dentro do muro, do chão até 2,50 m, atrás e do lado da hidro.",
       ],
       coberta: [
-        "Churrasqueira e bancada de apoio de 1,20 m encostadas no muro, ao lado da hidro: quem está na água fica perto de quem está na grelha.",
+        "Churrasqueira e bancada de apoio de 95 cm encostadas no muro, ao lado da hidro: quem está na água fica perto de quem está na grelha.",
         "Embaixo do telhado, então o churrasco não para com chuva. Sobram uns 90 cm de passagem da varanda até a área externa.",
         "Os gatos continuam podendo ficar aqui fora sem tomar chuva.",
       ],
@@ -711,10 +757,10 @@ function proposalF(): Proposal {
     pieces: () => [
       ...bathrooms("#1e3d66", "#e9e4da"),
       ...salaExtras("#e2ddd2"),
-      piece("servicoext", "Hidromassagem", "🛁", "Móveis", hotTub(R(0.02, EXT.z0 + 0.04, 2.0, 1.4))),
-      piece("servicoext", "Painel ripado", "🪵", "Obras", [...slatScreen(R(-0.01, EXT.z0, 2.1, 0.03)), ...slatScreen(R(-0.01, EXT.z0, 0.03, EXT.z1 - EXT.z0))]),
-      piece("coberta", "Churrasqueira", "🔥", "Móveis", bbq(R(2.35, EXT.z0, 0.9, 0.55))),
-      piece("coberta", "Bancada de apoio", "🗄️", "Móveis", [part(3.3, EXT.z0, 1.2, 0.55, 0.86, "madeira", 0, "#f4f4f1"), part(3.3, EXT.z0, 1.2, 0.55, 0.04, "pedra", 0.86, "#3b3a38")]),
+      piece("servicoext", "Hidromassagem", "🛁", "Móveis", deckedTub(R(0.02, EXT.z0 + 0.03, 2.43, 1.72), R(0.14, -1.42, 2.0, 1.5))),
+      piece("servicoext", "Painel ripado", "🪵", "Obras", [...slatScreen(R(-0.01, EXT.z0, 2.46, 0.03)), ...slatScreen(R(-0.01, EXT.z0, 0.03, 1.75))]),
+      piece("coberta", "Churrasqueira", "🔥", "Móveis", bbq(R(2.85, EXT.z0, 0.9, 0.55))),
+      piece("coberta", "Bancada de apoio", "🗄️", "Móveis", [part(3.8, EXT.z0, 0.95, 0.55, 0.86, "madeira", 0, "#f4f4f1"), part(3.8, EXT.z0, 0.95, 0.55, 0.04, "pedra", 0.86, "#3b3a38")]),
       piece("externa", "Mesa e cadeiras", "🍽️", "Móveis", [
         ...table(R(5.3, -0.95, 1.2, 0.7), "#f4f4f1", "#2b2b2e"),
         ...chair(5.45, -1.45, "n", "#1e3d66"), ...chair(6.0, -1.45, "n", "#1e3d66"),
