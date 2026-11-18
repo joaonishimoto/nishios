@@ -117,6 +117,8 @@ export interface Door {
   b: number;
   hinge: "a" | "b";
   into: 1 | -1;
+  /** Porta de entrada: aparece fechada, no plano da parede, em vez de aberta a 90°. */
+  main?: boolean;
 }
 
 export interface Home {

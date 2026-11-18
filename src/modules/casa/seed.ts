@@ -90,7 +90,7 @@ export function seedHome(): Home {
     ],
     // Portas de abrir, todas abertas a 90° encostadas na parede mais próxima.
     doors: [
-      { axis: "z", at: 1.65, a: 4.42, b: 5.32, hinge: "b", into: 1 }, // entrada, para o estar
+      { axis: "z", at: 1.65, a: 4.42, b: 5.32, hinge: "b", into: 1, main: true }, // entrada, para o estar, fechada
       { axis: "x", at: 3.02, a: 5.81, b: 6.69, hinge: "b", into: -1 }, // quarto
       { axis: "z", at: 6.74, a: 3.23, b: 4.04, hinge: "b", into: 1 }, // suíte
       { axis: "z", at: 7.76, a: 3.32, b: 4.03, hinge: "b", into: 1 }, // banheiro da suíte

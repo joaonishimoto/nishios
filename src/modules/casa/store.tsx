@@ -22,7 +22,10 @@ interface Store {
 const Ctx = createContext<Store | null>(null);
 
 export function CasaProvider({ children }: { children: ReactNode }) {
-  const [home, setHome] = usePersistentState<Home>(KEY, seedHome);
+  const [saved, setHome] = usePersistentState<Home>(KEY, seedHome);
+  // As portas são da construção e ninguém as edita: vêm sempre do seed, para uma mudança nelas
+  // (como a porta de entrada fechada) chegar sem trocar a chave e perder os bens ligados.
+  const home = useMemo(() => ({ ...saved, doors: seedHome().doors }), [saved]);
 
   const store = useMemo<Store>(
     () => ({
