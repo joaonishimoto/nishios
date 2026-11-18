@@ -6,7 +6,8 @@ import type { Home } from "./types";
 // v10: sem o shaft ao lado do chuveiro do banheiro.
 // v11: a janela da suíte fica na parede de cima, para a área externa.
 // v12: portas de abrir nos vãos.
-const KEY = "nishios:casa:v12";
+// v13: muro da área externa com 2,20 m.
+const KEY = "nishios:casa:v13";
 
 interface Store {
   home: Home;

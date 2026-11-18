@@ -109,7 +109,7 @@ export function seedHome(): Home {
       louca("banho", "Vaso", { kind: "vaso", x: 6.56, z: 4.78, w: 0.4, d: 0.64, wall: "s" }),
       louca("banho", "Box", { kind: "box", x: 7.11, z: 4.2, w: 0.79, d: 1.22, wall: "s", glass: ["w"] }),
       fixed("externa", "Muro", [
-        p(-0.16, -1.66, 10.18, 0.1, 0.6, "pedra"), p(-0.16, -1.66, 0.1, 1.55, 0.6, "pedra"), p(9.92, -1.66, 0.1, 1.55, 0.6, "pedra"),
+        p(-0.16, -1.66, 10.18, 0.1, 2.2, "pedra"), p(-0.16, -1.66, 0.1, 1.55, 2.2, "pedra"), p(9.92, -1.66, 0.1, 1.55, 2.2, "pedra"), // muro de 2,20 m
       ]),
     ],
   };
