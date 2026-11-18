@@ -949,7 +949,96 @@ function proposalI(): Proposal {
   });
 }
 
-export const PROPOSALS: Proposal[] = [proposalA(), proposalB(), proposalC(), proposalD(), proposalE(), proposalF(), proposalG(), proposalH(), proposalI(), proposalJ()];
+/**
+ * A G com outra área externa: o apartamento, a hidro e a área coberta ficam iguais, e só o
+ * trecho descoberto do fundo (x 4,79 a 9,87, atrás do escritório e da suíte) é refeito.
+ */
+function fromGOutside(start: number, o: { id: string; name: string; tagline: string; highlight: string; notes: string[]; externa: Room; pieces: () => Piece[] }): Proposal {
+  const g = extraG();
+  return fromJ(start, {
+    ...g,
+    id: o.id,
+    name: o.name,
+    tagline: o.tagline,
+    highlights: [...g.highlights.filter((h) => !h.startsWith("Área externa livre")), o.highlight],
+    notes: { ...g.notes, externa: o.notes },
+    externa: o.externa,
+    pieces: () => [...g.pieces().filter((p) => p.roomId !== "externa"), ...o.pieces()],
+  });
+}
+
+/** K: o fundo vira um deque de descanso, com sofá, espreguiçadeira e ducha. */
+function proposalK(): Proposal {
+  const nishi = "#1e3d66", white = "#f4f4f1", wood = "#a07a55";
+  return fromGOutside(1600, {
+    id: "k",
+    name: "G com deque de descanso",
+    tagline: "A G igual por dentro, com a hidro e a área coberta, e o fundo virando um deque para descansar: sofá, espreguiçadeira e ducha.",
+    highlight: "Área externa em deque, emendando com a área coberta: sofá de 3 lugares no muro, espreguiçadeira na frente da suíte e ducha no canto do fundo.",
+    notes: [
+      "O deque de madeira continua o da área coberta até o fim, sem degrau: parece um ambiente só.",
+      "Sofá externo de 3 lugares (1,90 × 0,70 m) encostado no muro, em frente à janela do escritório, com almofadas azuis e uma mesinha lateral.",
+      "Espreguiçadeira de 1,90 m deitada ao longo do muro, em frente à janela da suíte, para pegar sol.",
+      "Ducha no canto do fundo, com piso de pedra e ripado no muro, para sair da hidro ou se refrescar.",
+      "Sobram uns 75 cm de passagem entre os móveis e a parede da casa, de ponta a ponta.",
+    ],
+    externa: externa("deck"),
+    pieces: () => [
+      piece("externa", "Sofá externo", "🛋️", "Móveis", sofa(R(4.95, EXT.z0, 1.9, 0.7), "n", nishi, 3, nishi)),
+      piece("externa", "Mesinha lateral", "🪵", "Móveis", table(R(6.92, EXT.z0 + 0.1, 0.4, 0.4), wood, "#2b2b2e", 0.5)),
+      piece("externa", "Espreguiçadeira", "🏖️", "Móveis", [
+        part(7.35, EXT.z0 + 0.05, 1.9, 0.62, 0.3, "madeira", 0, wood),
+        part(7.4, EXT.z0 + 0.09, 1.4, 0.54, 0.06, "tecido", 0.3, white),
+        part(8.8, EXT.z0 + 0.09, 0.4, 0.54, 0.35, "tecido", 0.3, white),
+      ]),
+      piece("externa", "Ducha externa", "🚿", "Obras", [
+        part(EXT.x1 - 0.6, EXT.z0, 0.6, 0.7, 0.03, "pedra", 0, "#8a8178"),
+        ...full([
+          part(EXT.x1 - 0.1, EXT.z0 + 0.3, 0.04, 0.04, 2.1, "metal", 0),
+          part(EXT.x1 - 0.35, EXT.z0 + 0.25, 0.3, 0.14, 0.03, "metal", 2.05),
+        ]),
+        ...slatScreen(R(EXT.x1 - 0.03, EXT.z0, 0.03, 0.9)),
+      ]),
+    ],
+  });
+}
+
+/** L: o fundo vira jardim telado para os gatos, com bambu, pisantes e um cantinho para sentar. */
+function proposalL(): Proposal {
+  const nishi = "#1e3d66", white = "#f4f4f1";
+  return fromGOutside(1700, {
+    id: "l",
+    name: "G com jardim dos gatos",
+    tagline: "A G igual por dentro, com a hidro e a área coberta, e o fundo virando um jardim telado para a Maki e o Gojo, com bambu e um cantinho para sentar.",
+    highlight: "Área externa em grama, telada em cima do muro: bambu no muro, caminho de pisantes, duas cadeiras com mesinha, torre e caminho de prateleiras para os gatos.",
+    notes: [
+      "Grama com um caminho de pisantes de pedra perto da casa, da área coberta até o fundo.",
+      "Tela de 50 cm em cima do muro, emendando com a área coberta: os gatos podem andar no fundo todo sem fugir.",
+      "Bambu numa floreira no muro, em frente ao escritório, para trazer verde para a janela.",
+      "Duas cadeiras e uma mesinha na frente do bambu, para um café, sem tampar o caminho.",
+      "Para os gatos: prateleiras em degrau no muro, caixa de grama, fonte de água e torre de 1,2 m no canto, perto da janela da suíte.",
+    ],
+    externa: externa("grama", true),
+    pieces: () => [
+      piece("externa", "Tela de proteção", "🕸️", "Pets", full([part(4.79, -1.66, 5.18, 0.03, 0.5, "tela", 2.5), part(9.94, -1.66, 0.03, 1.55, 0.5, "tela", 2.5)])),
+      piece("externa", "Pisantes", "🪨", "Obras", [5.0, 5.65, 6.3, 6.95, 7.6, 8.25, 8.9, 9.45].map((x) => part(x, -0.55, 0.4, 0.38, 0.02, "pedra", 0, "#cfc8bc"))),
+      piece("externa", "Bambu na floreira", "🎋", "Plantas", full([
+        part(4.85, EXT.z0, 2.0, 0.35, 0.4, "madeira", 0, "#8d6748"),
+        part(4.9, EXT.z0 + 0.05, 1.9, 0.25, 1.9, "planta", 0.4),
+      ])),
+      piece("externa", "Cadeiras e mesinha", "🪑", "Móveis", [
+        ...chair(5.1, -1.15, "n", nishi), ...chair(6.1, -1.15, "n", nishi),
+        ...table(R(5.62, -1.1, 0.4, 0.4), white, "#2b2b2e", 0.5),
+      ]),
+      piece("externa", "Caminho dos gatos", "🐾", "Pets", full(catShelves([[7.2, -1.56, 0.8], [7.8, -1.56, 1.1], [8.4, -1.56, 1.4]], "n", white))),
+      piece("externa", "Grama para gatos", "🌾", "Pets", raisedBed(R(7.2, -1.56, 0.6, 0.35), white)),
+      piece("externa", "Fonte de água", "⛲", "Pets", [part(8.0, -1.5, 0.45, 0.45, 0.3, "pedra", 0, "#8a8178"), part(8.05, -1.45, 0.35, 0.35, 0.02, "vidro", 0.28, "#5fb3cf")]),
+      piece("externa", "Torre para gatos", "🐈", "Pets", catTree(9.3, -1.5)),
+    ],
+  });
+}
+
+export const PROPOSALS: Proposal[] = [proposalA(), proposalB(), proposalC(), proposalD(), proposalE(), proposalF(), proposalG(), proposalH(), proposalI(), proposalJ(), proposalK(), proposalL()];
 
 /**
  * A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam).
