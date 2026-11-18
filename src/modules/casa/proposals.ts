@@ -974,7 +974,10 @@ function proposalJ(): Proposal {
         "A pia sai da parede da cozinha e vai para baixo da janela, na ponta do L. Ali só tem armário embaixo, porque a janela ocupa a parede.",
         "O tanque e a máquina de lavar foram para fora, no canto da área de serviço externa.",
       ],
-      varanda: ["Porta de vidro de correr de ponta a ponta entre a sala e a varanda."],
+      varanda: [
+        "Porta de vidro de correr de ponta a ponta entre a sala e a varanda.",
+        "Cantinho dos gatos suspenso na parede da cozinha, do lado do sofá: dois degraus (35 e 70 cm), uma cama com almofada a 95 cm no canto e uma prateleira mirante a 1,15 m. O chão da varanda fica livre.",
+      ],
       servicoext: [
         "Encostado na parede da cozinha, do lado de fora: tanque, máquina de lavar e um armário alto para produtos e vassouras.",
         "Varal de chão na frente, e o telhado protege tudo da chuva.",
@@ -995,6 +998,15 @@ function proposalJ(): Proposal {
     ],
     pieces: [
       ...suiteJ(white, "#e9e4da", nishi),
+      // Varanda: cantinho suspenso dos gatos na parede da cozinha, do lado do sofá.
+      piece("varanda", "Cantinho suspenso dos gatos", "🐈", "Pets", [
+        ...catShelves([[1.7, 1.0, 0.35], [1.7, 0.95, 0.7]], "w", white),
+        part(1.7, 0.45, 0.55, 0.5, 0.04, "madeira", 0.95, white),
+        part(1.72, 0.47, 0.5, 0.46, 0.06, "tecido", 0.99, nishi),
+        part(1.98, 0.45, 0.27, 0.02, 0.2, "madeira", 0.99, white),
+        part(2.25, 0.45, 0.02, 0.5, 0.2, "madeira", 0.99, white),
+        part(2.3, 0.45, 0.4, 0.25, 0.04, "madeira", 1.15, white),
+      ]),
       // Área de fora: serviço no canto da cozinha e cobertura até perto da janela do escritório.
       { ...piece("servicoext", "Tanque", "🧺", "Móveis", [part(-0.01, -0.36, 0.55, 0.55, 0.9, "branco")]), fixture: { kind: "tanque", x: -0.01, z: -0.36, w: 0.55, d: 0.55, wall: "s" } },
       piece("servicoext", "Máquina de lavar", "🫧", "Eletrodomésticos", washer(R(0.58, -0.46, 0.6, 0.65), "s")),
