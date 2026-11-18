@@ -6,6 +6,10 @@ export interface Commitment {
   /** Emoji que identifica o compromisso na lista. */
   icon: string;
   category: string;
+  /** false quando é algo pontual, que acontece uma vez só. Ausente conta como "repete". */
+  repeats?: boolean;
+  /** Data marcada de um compromisso pontual, no formato yyyy-MM-dd. */
+  date?: string;
   intervalValue: number;
   intervalUnit: IntervalUnit;
   /** Quantos dias antes do vencimento ele passa a aparecer como "próximo". */
@@ -19,7 +23,7 @@ export interface Commitment {
 
 export type CommitmentDraft = Omit<Commitment, "id" | "history"> & { lastDone: string };
 
-export type Status = "overdue" | "soon" | "ok" | "never";
+export type Status = "overdue" | "soon" | "ok" | "never" | "done";
 
 export const CATEGORIES = ["Saúde", "Cuidados pessoais", "Casa", "Carro", "Documentos", "Outros"];
 

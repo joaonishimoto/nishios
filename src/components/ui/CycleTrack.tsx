@@ -1,12 +1,15 @@
 import { cn } from "@/lib/cn";
 
 export type CycleStatus = "overdue" | "soon" | "ok" | "never";
+/** "done": algo pontual que já foi feito, a trilha fica cheia e verde. */
+type TrackStatus = CycleStatus | "done";
 
-const fill: Record<CycleStatus, string> = {
+const fill: Record<TrackStatus, string> = {
   overdue: "bg-danger",
   soon: "bg-warning",
   ok: "bg-primary",
   never: "bg-transparent",
+  done: "bg-success",
 };
 
 /**
@@ -19,7 +22,7 @@ export function CycleTrack({
   size = "sm",
   className,
 }: {
-  derived: { status: CycleStatus; progress: number };
+  derived: { status: TrackStatus; progress: number };
   size?: "sm" | "lg";
   className?: string;
 }) {
@@ -30,7 +33,9 @@ export function CycleTrack({
   return (
     <div
       role="img"
-      aria-label={never ? "Ciclo ainda não iniciado" : `${pct}% do período já passou`}
+      aria-label={
+        never ? "Ciclo ainda não iniciado" : status === "done" ? "Concluído" : `${pct}% do período já passou`
+      }
       className={cn("flex items-center gap-1", className)}
     >
       <div
@@ -57,6 +62,7 @@ export function CycleTrack({
           size === "sm" ? "size-2" : "size-2.5",
           status === "overdue" ? "border-danger bg-danger" : "border-border-strong",
           status === "soon" && "border-warning",
+          status === "done" && "border-success bg-success",
         )}
       />
     </div>

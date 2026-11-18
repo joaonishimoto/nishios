@@ -15,6 +15,7 @@ import {
   dueLabel,
   formatDate,
   humanizeDays,
+  isOneOff,
   periodLabel,
   shortDate,
   sinceLabel,
@@ -51,6 +52,7 @@ function PanelContent({ commitment: c, onClose }: { commitment: Commitment; onCl
   const [editing, setEditing] = useState(false);
   const d = derive(c);
   const meta = STATUS_META[d.status];
+  const oneOff = isOneOff(c);
 
   function handleDelete() {
     remove(c.id);
@@ -83,7 +85,7 @@ function PanelContent({ commitment: c, onClose }: { commitment: Commitment; onCl
             <span>
               {d.lastDone ? (
                 <>
-                  Última vez
+                  {oneOff ? "Feito em" : "Última vez"}
                   <br />
                   <span className="font-medium text-foreground">{shortDate(d.lastDone)}</span>
                 </>
@@ -93,13 +95,15 @@ function PanelContent({ commitment: c, onClose }: { commitment: Commitment; onCl
             </span>
             {d.nextDue && (
               <span className="text-right">
-                Próxima
+                {oneOff ? "Data" : "Próxima"}
                 <br />
                 <span className="font-medium text-foreground">{shortDate(d.nextDue)}</span>
               </span>
             )}
           </div>
-          <MarkDone commitment={c} variant="primary" size="md" className="mt-4 w-full" />
+          {d.status !== "done" && (
+            <MarkDone commitment={c} variant="primary" size="md" className="mt-4 w-full" />
+          )}
         </section>
 
         <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2.5">
@@ -108,8 +112,8 @@ function PanelContent({ commitment: c, onClose }: { commitment: Commitment; onCl
           <dt className="text-muted-foreground">Aviso</dt>
           <dd>
             {c.warnDays === 0
-              ? "Só no dia do vencimento"
-              : `${humanizeDays(c.warnDays)} antes do vencimento`}
+              ? oneOff ? "Só no dia" : "Só no dia do vencimento"
+              : `${humanizeDays(c.warnDays)} antes ${oneOff ? "da data" : "do vencimento"}`}
           </dd>
           {asset && (
             <>
@@ -130,7 +134,7 @@ function PanelContent({ commitment: c, onClose }: { commitment: Commitment; onCl
         </dl>
 
         <section>
-          <h3 className="font-semibold">Histórico</h3>
+          <h3 className="font-semibold">{oneOff ? "Feito em" : "Histórico"}</h3>
           {c.history.length === 0 ? (
             <EmptyState
               size="sm"
