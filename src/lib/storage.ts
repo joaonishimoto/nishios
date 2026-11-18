@@ -1,8 +1,9 @@
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { queuePush } from "./sync";
 
 /**
- * Estado salvo no localStorage. É a única porta de dados do app nesta fase:
- * trocar por um backend depois significa mexer só nos stores que usam este hook.
+ * Estado salvo no localStorage. É a única porta de dados do app: com login,
+ * cada gravação também sobe para o Supabase (veja lib/sync.ts).
  */
 export function usePersistentState<T>(
   key: string,
@@ -25,7 +26,11 @@ export function usePersistentState<T>(
 
   useEffect(() => {
     try {
-      localStorage.setItem(key, JSON.stringify(state));
+      const json = JSON.stringify(state);
+      // Só conta como alteração quando o conteúdo mudou: abrir a tela não sobe nada.
+      if (localStorage.getItem(key) === json) return;
+      localStorage.setItem(key, json);
+      queuePush(key);
     } catch {
       /* sem armazenamento: os dados valem só para esta visita */
     }

@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { differenceInCalendarDays } from "date-fns";
-import { Download, Eraser, RotateCcw, Upload } from "lucide-react";
+import { Cloud, Download, Eraser, LogOut, RefreshCw, RotateCcw, Upload } from "lucide-react";
+import { useCloud, useSyncStatus } from "@/components/cloud/CloudGate";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
 import { useToast } from "@/components/ui/Toast";
@@ -17,6 +18,91 @@ import {
   type Backup,
 } from "@/lib/backup";
 import { formatDate, today } from "@/lib/dates";
+import { LOCAL_COPY_KEY } from "@/lib/sync";
+
+const STATUS: Record<string, string> = {
+  off: "Sincronização desligada.",
+  syncing: "Sincronizando…",
+  synced: "Tudo sincronizado.",
+  offline: "Sem internet. O que mudar aqui sobe quando a conexão voltar.",
+  error: "A última sincronização falhou. O app tenta de novo sozinho.",
+};
+
+function savedLocalCopy(): Backup | null {
+  try {
+    const raw = localStorage.getItem(LOCAL_COPY_KEY);
+    const parsed = raw ? parseBackup(raw) : null;
+    return parsed && typeof parsed !== "string" ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function download(backup: Backup, name: string) {
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function CloudBlock() {
+  const cloud = useCloud();
+  const sync = useSyncStatus();
+  const [copy] = useState(savedLocalCopy);
+  const [busy, setBusy] = useState(false);
+  if (!cloud) return null;
+  return (
+    <Block title="Nuvem">
+      <p className="max-w-[60ch] text-muted-foreground">
+        Conectado como <span className="font-medium text-foreground">{cloud.email}</span>. O que você cadastra aqui
+        sobe para o Supabase e aparece nos seus outros aparelhos ao abrir o app.
+      </p>
+      <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Cloud className="size-4" />
+        {STATUS[sync.status]}
+        {sync.lastSyncAt && sync.status !== "syncing" && ` Última vez: ${new Date(sync.lastSyncAt).toLocaleString("pt-BR")}.`}
+      </p>
+      {sync.status === "error" && sync.error && <p className="text-sm text-danger-strong">{sync.error}</p>}
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant="outline"
+          disabled={busy}
+          onClick={async () => {
+            setBusy(true);
+            await cloud.syncNow();
+            setBusy(false);
+          }}
+        >
+          <RefreshCw />
+          Sincronizar agora
+        </Button>
+        <Button variant="ghost" onClick={() => void cloud.signOut()}>
+          <LogOut />
+          Sair
+        </Button>
+      </div>
+      {copy && (
+        <p className="max-w-[60ch] text-sm text-muted-foreground">
+          Quando este navegador entrou pela primeira vez, a nuvem já tinha dados e eles passaram a valer aqui. O que
+          havia antes neste navegador ficou guardado:{" "}
+          <button
+            type="button"
+            className="font-medium text-foreground underline underline-offset-2"
+            onClick={() => download(copy, `nishios-copia-local-${copy.exportedAt.slice(0, 10)}.json`)}
+          >
+            baixar essa cópia
+          </button>
+          .
+        </p>
+      )}
+    </Block>
+  );
+}
 
 function Block({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -53,6 +139,7 @@ type Confirm = { kind: "restore"; backup: Backup; fileName: string } | { kind: "
 
 export function DadosPage() {
   const toast = useToast();
+  const cloud = useCloud();
   const [last, setLast] = useState(lastBackupAt);
   const current = useMemo(readBackup, []);
   const input = useRef<HTMLInputElement>(null);
@@ -89,8 +176,14 @@ export function DadosPage() {
     <div className="flex flex-col gap-8">
       <PageHeader
         title="Dados e backup"
-        description="Tudo o que você cadastra fica salvo só neste navegador. Baixe um backup de vez em quando para não perder nada e para levar seus dados a outro computador."
+        description={
+          cloud
+            ? "Seus dados ficam na nuvem e neste navegador. O backup continua valendo como cópia de segurança fora do Supabase."
+            : "Tudo o que você cadastra fica salvo só neste navegador. Baixe um backup de vez em quando para não perder nada e para levar seus dados a outro computador."
+        }
       />
+
+      <CloudBlock />
 
       <Block title="Baixar um backup">
         <p className="max-w-[60ch] text-muted-foreground">
@@ -113,7 +206,7 @@ export function DadosPage() {
 
       <Block title="Restaurar de um arquivo">
         <p className="max-w-[60ch] text-muted-foreground">
-          Escolha um backup baixado aqui. Ele substitui o que está salvo neste navegador, então baixe um backup do
+          Escolha um backup baixado aqui. Ele substitui o que está salvo neste navegador{cloud && " e na nuvem"}, então baixe um backup do
           estado atual antes, se quiser guardar.
         </p>
         <input
@@ -170,7 +263,9 @@ export function DadosPage() {
                     {confirm.backup.exportedAt && `, salvo em ${formatDate(new Date(confirm.backup.exportedAt))}`}.
                   </p>
                   <Summary backup={confirm.backup} />
-                  <p className="text-muted-foreground">O que está salvo neste navegador será substituído.</p>
+                  <p className="text-muted-foreground">
+                    O que está salvo neste navegador{cloud && " e na nuvem"} será substituído.
+                  </p>
                 </>
               ) : confirm.kind === "example" ? (
                 <p className="text-muted-foreground">

@@ -1,3 +1,5 @@
+import { markDeleted, markDirty } from "./sync";
+
 /**
  * Backup de tudo o que o app guarda. Os dados vivem no localStorage deste
  * navegador, em chaves que começam com "nishios:"; o backup é um JSON com todas.
@@ -82,20 +84,27 @@ export function summarize(backup: Backup): { label: string; count: number }[] {
 
 /** Troca tudo o que está salvo pelo conteúdo do backup. Recarregue a página em seguida. */
 export function applyBackup(backup: Backup) {
-  for (const k of keys()) localStorage.removeItem(k);
+  const before = keys();
+  for (const k of before) localStorage.removeItem(k);
   for (const [k, value] of Object.entries(backup.data)) {
     localStorage.setItem(k, typeof value === "string" ? value : JSON.stringify(value));
   }
+  // Com login, o backup restaurado também vale para a nuvem e os outros aparelhos.
+  markDeleted(before.filter((k) => !(k in backup.data)));
+  markDirty(Object.keys(backup.data));
 }
 
 /** Apaga o que está salvo; ao recarregar, o app volta aos dados de exemplo. */
 export function clearToExample() {
-  for (const k of keys()) if (k !== "nishios:tema") localStorage.removeItem(k);
+  const gone = keys().filter((k) => k !== "nishios:tema");
+  for (const k of gone) localStorage.removeItem(k);
+  markDeleted(gone);
 }
 
 /** Esvazia as listas para começar a usar com dados seus. A casa, o tema e as modalidades de treino ficam. */
 export function clearToEmpty() {
   for (const { key } of COUNTED) localStorage.setItem(key, "[]");
+  markDirty(COUNTED.map((c) => c.key));
 }
 
 export function downloadBackup(): Backup {
