@@ -31,6 +31,8 @@ export const COUNTED: { key: string; one: string; many: string }[] = [
   { key: "nishios:desejos:v1", one: "desejo", many: "desejos" },
   { key: "nishios:pets:v1", one: "pet", many: "pets" },
   { key: "nishios:skills:v1", one: "skill", many: "skills" },
+  { key: "nishios:financas:recorrencias:v1", one: "recorrência", many: "recorrências" },
+  { key: "nishios:financas:investimentos:v1", one: "investimento", many: "investimentos" },
 ];
 
 function keys(): string[] {

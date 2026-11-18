@@ -23,6 +23,8 @@ import { TreinosProvider } from "@/modules/treinos/store";
 import { TreinosPage } from "@/modules/treinos/TreinosPage";
 import { CorpoPage } from "@/modules/corpo/CorpoPage";
 import { CorpoProvider } from "@/modules/corpo/store";
+import { FinancasPage } from "@/modules/financas/FinancasPage";
+import { FinancasProvider } from "@/modules/financas/store";
 import { DadosPage } from "@/pages/DadosPage";
 import { DesignSystemPage } from "@/pages/DesignSystemPage";
 import { HomePage } from "@/pages/HomePage";
@@ -37,6 +39,7 @@ export function App() {
           <TreinosProvider>
           <CorpoProvider>
           <SkillsProvider>
+          <FinancasProvider>
           <RoutineProvider>
           <BensProvider>
           <CasaProvider>
@@ -56,6 +59,7 @@ export function App() {
               <Route path="pessoas" element={<PessoasPage />} />
               <Route path="pets" element={<PetsPage />} />
               <Route path="skills" element={<SkillsPage />} />
+              <Route path="financas" element={<FinancasPage />} />
               <Route path="dados" element={<DadosPage />} />
               <Route path="design-system" element={<DesignSystemPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
@@ -66,6 +70,7 @@ export function App() {
           </CasaProvider>
           </BensProvider>
           </RoutineProvider>
+          </FinancasProvider>
           </SkillsProvider>
           </CorpoProvider>
           </TreinosProvider>

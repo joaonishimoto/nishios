@@ -1,16 +1,20 @@
 import { Link } from "react-router-dom";
+import { add } from "date-fns";
 import { Bell, CheckCheck } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from "@/components/ui/Popover";
 import { cn } from "@/lib/cn";
-import { shortDate } from "@/lib/dates";
+import { shortDate, toISO, today } from "@/lib/dates";
+import { money } from "@/lib/format";
 import { sourceColor } from "@/modules/calendario/CalendarBits";
 import { SOURCE } from "@/modules/calendario/sources";
 import type { CalItem } from "@/modules/calendario/types";
 import { useOverdue } from "@/modules/calendario/useCalendarItems";
 import { derive, dueLabel } from "@/modules/compromissos/logic";
 import { useAttention } from "@/modules/compromissos/useAttention";
+import { between } from "@/modules/financas/logic";
+import { useFinancas } from "@/modules/financas/store";
 
 interface Notice {
   key: string;
@@ -29,6 +33,14 @@ interface Notice {
 export function Notifications() {
   const overdue = useOverdue();
   const attention = useAttention();
+  const { recurrences } = useFinancas();
+  const now = today();
+  // Contas a pagar de hoje até daqui a 3 dias que ainda não foram confirmadas.
+  const bills = between(
+    recurrences.filter((r) => r.kind === "out"),
+    toISO(now),
+    toISO(add(now, { days: 3 })),
+  ).filter((o) => !o.done);
 
   const notices: Notice[] = [
     ...overdue.map((i) => ({
@@ -51,6 +63,15 @@ export function Notifications() {
         source: "compromissos" as const,
         overdue: false,
       })),
+    ...bills.map((o) => ({
+      key: `bill-${o.rec.id}-${o.date}`,
+      title: `${o.rec.name}: ${money(o.amount)}`,
+      detail: `Finanças, ${o.date === toISO(now) ? "vence hoje" : `vence em ${shortDate(o.date)}`}`,
+      to: `/financas?r=${o.rec.id}`,
+      icon: o.rec.icon,
+      source: "financas" as const,
+      overdue: false,
+    })),
   ];
   const count = notices.length;
 

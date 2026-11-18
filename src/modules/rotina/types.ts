@@ -35,7 +35,11 @@ export type GoalLink =
   /** Uma skill: materiais concluídos do plano de estudo ou o nível em que ela está. */
   | { kind: "skill"; skillId: string; metric: SkillMetric }
   /** Quantas skills já estão em "Aprendi". */
-  | { kind: "skills" };
+  | { kind: "skills" }
+  /** O saldo atual de um investimento de Finanças (a reserva de emergência). */
+  | { kind: "investimento"; investmentId: string }
+  /** A soma de todos os investimentos. */
+  | { kind: "investimentos" };
 
 export type SkillMetric = "materiais" | "nivel";
 

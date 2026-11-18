@@ -1,10 +1,13 @@
 import { add, parseISO } from "date-fns";
 import { toISO } from "@/lib/dates";
+import { money } from "@/lib/format";
 import type { Asset, Wish } from "@/modules/bens/types";
 import { entrySummary, formatValue } from "@/modules/corpo/logic";
 import type { Entry } from "@/modules/corpo/types";
 import { derive } from "@/modules/compromissos/logic";
 import type { Commitment } from "@/modules/compromissos/types";
+import { between } from "@/modules/financas/logic";
+import type { Recurrence } from "@/modules/financas/types";
 import { contact } from "@/modules/pessoas/logic";
 import type { Person } from "@/modules/pessoas/types";
 import { careState } from "@/modules/pets/logic";
@@ -32,6 +35,7 @@ export interface Everything {
   people: Person[];
   pets: Pet[];
   skills: Skill[];
+  recurrences: Recurrence[];
 }
 
 /** Quantas vezes projetar para a frente algo que se repete (compromissos, vacinas). */
@@ -144,6 +148,22 @@ export function collect(data: Everything, from: string, to: string, now: Date): 
     if (w.targetDate) {
       push({ key: `wish-${w.id}`, source: "bens", date: w.targetDate, title: `Comprar: ${w.name}`, icon: w.icon, state: "planned", note: "Lista de desejos", to: "/bens?aba=desejos" });
     }
+  }
+
+  /* Finanças: o que entra e sai em cada mês. O que já passou conta como feito: não vira atraso. */
+  for (const o of between(data.recurrences, from, to)) {
+    const r = o.rec;
+    const sign = r.kind === "in" ? "+" : "−";
+    push({
+      key: `fin-${r.id}-${o.date}`,
+      source: "financas",
+      date: o.date,
+      title: `${r.name}: ${sign}${money(o.amount)}`,
+      icon: r.icon,
+      state: o.done || o.date < todayISO ? "done" : "planned",
+      note: r.kind === "in" ? "Entrada prevista" : r.investmentId ? "Aporte" : "Saída prevista",
+      to: `/financas?r=${r.id}`,
+    });
   }
 
   /* Aniversários (pessoas e pets) em cada ano do intervalo */

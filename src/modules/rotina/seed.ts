@@ -49,7 +49,7 @@ export function seedGoals(): Goal[] {
   const english = seedSkills().find((s) => s.name === "Inglês para reuniões");
   return [
     { id: "g1", name: "Ler 24 livros no ano", icon: "📚", unit: "livros", target: 24, current: 19, deadline: yearEnd, notes: "" },
-    { id: "g2", name: "Juntar a reserva de emergência", icon: "💰", unit: "reais", target: 30000, current: 18500, deadline: "", notes: "Seis meses de custo de vida." },
+    { id: "g2", name: "Juntar a reserva de emergência", icon: "💰", unit: "reais", target: 30000, current: 0, deadline: "", notes: "Seis meses de custo de vida.", link: { kind: "investimento", investmentId: "inv-reserva" } },
     // As três abaixo são ligadas: o número vem dos treinos e do corpo.
     { id: "g3", name: "Correr 40 km no mês", icon: "🏃", unit: "km", target: 40, current: 0, deadline: "", notes: "", link: { kind: "treinos", modalityId: "m-corrida", metric: "distance", since: monthStart } },
     { id: "g5", name: "Chegar a 78 kg", icon: "⚖️", unit: "kg", target: 78, current: 0, start: 84.2, deadline: yearEnd, notes: "Sem pressa: meio quilo por mês já serve.", link: { kind: "peso" } },

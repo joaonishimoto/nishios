@@ -64,8 +64,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Crescimento",
     items: [
       { label: "Skills", icon: GraduationCap, to: "/skills" },
-      // Sem rota: ainda não construído.
-      { label: "Finanças", icon: Wallet },
+      { label: "Finanças", icon: Wallet, to: "/financas" },
     ],
   },
 ];
