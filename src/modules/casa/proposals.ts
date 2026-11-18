@@ -377,9 +377,9 @@ function proposalJ(start = 600): Proposal {
 
 // ---------- A, B, C e D: a J completa ----------
 // Cada uma parte da J sem mudar nada dela e completa o que falta: banheiros, sala e a área
-// externa do fundo (x 4,79 a 9,92, com 1,45 m entre a casa e o muro).
+// externa do fundo (x 4,79 a 9,87, com 1,45 m entre a casa e o muro).
 
-const EXT = { x0: 4.79, x1: 9.92, z0: -1.56, z1: -0.11 };
+const EXT = { x0: 4.79, x1: 9.87, z0: -1.56, z1: -0.11 };
 
 function plant(x: number, z: number, size = 0.4, tall = 0.9): Part[] {
   return [
@@ -595,7 +595,7 @@ function proposalC(): Proposal {
     pieces: () => [
       ...bathrooms("#1e3d66", "#d9d2c4"),
       ...salaExtras("#e2ddd2"),
-      piece("externa", "Tela de proteção", "🕸️", "Pets", [part(4.79, -1.66, 5.23, 0.03, 0.5, "tela", 2.5), part(9.99, -1.66, 0.03, 1.55, 0.5, "tela", 2.5)]),
+      piece("externa", "Tela de proteção", "🕸️", "Pets", [part(4.79, -1.66, 5.18, 0.03, 0.5, "tela", 2.5), part(9.94, -1.66, 0.03, 1.55, 0.5, "tela", 2.5)]),
       piece("externa", "Torre para gatos", "🐈", "Pets", catTree(9.3, -1.45)),
       piece("externa", "Caminho dos gatos", "🐾", "Pets", full(catShelves([[7.0, -1.56, 0.8], [7.6, -1.56, 1.1], [8.2, -1.56, 1.4]], "n", "#f4f4f1"))),
       piece("externa", "Grama para gatos", "🌾", "Pets", raisedBed(R(6.0, -1.56, 0.8, 0.4), "#f4f4f1")),
@@ -627,7 +627,7 @@ function proposalD(): Proposal {
       ...bathrooms("#e9e4da", "#1e3d66"),
       ...salaExtras("#d6dbe3"),
       piece("externa", "Hidromassagem", "🛁", "Móveis", hotTub(R(EXT.x1 - 2.04, EXT.z0 + 0.04, 2.0, 1.4))),
-      piece("externa", "Painel ripado", "🪵", "Obras", [...slatScreen(R(7.6, EXT.z0, 2.32, 0.03)), ...slatScreen(R(EXT.x1 - 0.03, EXT.z0, 0.03, EXT.z1 - EXT.z0))]),
+      piece("externa", "Painel ripado", "🪵", "Obras", [...slatScreen(R(7.6, EXT.z0, EXT.x1 - 7.6, 0.03)), ...slatScreen(R(EXT.x1 - 0.03, EXT.z0, 0.03, EXT.z1 - EXT.z0))]),
       piece("externa", "Ducha", "🚿", "Móveis", full([part(7.55, -1.5, 0.3, 0.3, 0.02, "pedra", 0, "#cfc8bc"), part(7.66, -1.45, 0.06, 0.06, 2.1, "metal"), part(7.6, -1.45, 0.2, 0.2, 0.03, "metal", 2.05)])),
       piece("externa", "Plantas em vaso", "🪴", "Plantas", [...plant(7.05, -0.55, 0.38, 1.2), ...plant(7.05, -1.5, 0.38, 1.2)]),
     ],
@@ -665,8 +665,8 @@ function proposalE(): Proposal {
     pieces: () => [
       ...bathrooms("#1e3d66", "#e9e4da"),
       ...salaExtras("#e2ddd2"),
-      piece("servicoext", "Hidromassagem", "🛁", "Móveis", hotTub(R(-0.03, EXT.z0 + 0.04, 2.0, 1.4))),
-      piece("servicoext", "Painel ripado", "🪵", "Obras", [...slatScreen(R(-0.06, EXT.z0, 2.1, 0.03)), ...slatScreen(R(-0.06, EXT.z0, 0.03, EXT.z1 - EXT.z0))]),
+      piece("servicoext", "Hidromassagem", "🛁", "Móveis", hotTub(R(0.02, EXT.z0 + 0.04, 2.0, 1.4))),
+      piece("servicoext", "Painel ripado", "🪵", "Obras", [...slatScreen(R(-0.01, EXT.z0, 2.1, 0.03)), ...slatScreen(R(-0.01, EXT.z0, 0.03, EXT.z1 - EXT.z0))]),
       piece("coberta", "Ducha", "🚿", "Móveis", full([part(2.32, -1.5, 0.3, 0.3, 0.02, "pedra", 0, "#cfc8bc"), part(2.43, -1.45, 0.06, 0.06, 2.1, "metal"), part(2.37, -1.45, 0.2, 0.2, 0.03, "metal", 2.05)])),
       { ...piece("coberta", "Tanque", "🧺", "Móveis", [part(3.0, -1.53, 0.55, 0.55, 0.9, "branco")]), fixture: { kind: "tanque", x: 3.0, z: -1.53, w: 0.55, d: 0.55, wall: "n" } },
       piece("coberta", "Máquina de lavar", "🫧", "Eletrodomésticos", washer(R(3.58, -1.53, 0.6, 0.65), "n")),
