@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/Toast";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { cn } from "@/lib/cn";
 import { money, plural } from "@/lib/format";
+import { queuePush } from "@/lib/sync";
 import { AssetForm } from "@/modules/bens/AssetForm";
 import { warranty } from "@/modules/bens/logic";
 import { useBens } from "@/modules/bens/store";
@@ -78,6 +79,7 @@ export function CasaPage() {
     setWallHeight(v);
     try {
       localStorage.setItem(WALL_KEY, String(v));
+      queuePush(WALL_KEY);
     } catch {
       // Sem localStorage, a altura vale só até recarregar.
     }

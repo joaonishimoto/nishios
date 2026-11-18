@@ -2,7 +2,7 @@
 
 Sistema pessoal de gestão de vida. Já tem o shell do app (barra lateral, topo, tema claro e escuro), o design system um **calendário unificado** e dez módulos: **tarefas**, **rotina e metas**, **compromissos recorrentes**, **treinos**, **corpo**, **bens e desejos**, **casa**, **pessoas**, **pets** e **skills**.
 
-Só frontend: sem login e sem backend. Os dados ficam salvos no `localStorage` do navegador e começam com exemplos.
+Os dados ficam no `localStorage` do navegador e, com o Supabase configurado, sobem para a nuvem e sincronizam entre computador e celular. Sem o Supabase, o app roda só no navegador, sem login, e começa com exemplos.
 
 ![Tarefas](docs/screenshots/tarefas.png)
 
@@ -22,6 +22,14 @@ cd ~/nishios && git pull && npm install && npm run dev
 ```
 
 Abra http://localhost:5173.
+
+### Supabase (login e sincronização)
+
+1. Copie `.env.example` para `.env.local` e preencha `VITE_SUPABASE_PUBLISHABLE_KEY` (Supabase → Project Settings → API Keys).
+2. A migration em `supabase/migrations/` cria a tabela `app_state` (uma linha por chave `nishios:...`, com RLS) e a lista `allowed_users`: só os e-mails dela conseguem criar conta. Para liberar um e-mail: `insert into public.allowed_users (email) values ('seu@email.com');` no SQL Editor.
+3. Login: "Entrar com Google" (precisa do provedor Google ligado no Supabase) ou link por e-mail. Em Authentication → URL Configuration, coloque `http://localhost:5173` e o domínio publicado em Redirect URLs.
+
+Na primeira vez que um navegador entra: se a nuvem está vazia, tudo o que está nele sobe (é a migração dos dados atuais); se a nuvem já tem dados, eles passam a valer e o que havia no navegador fica numa cópia para baixar em Dados e backup. Depois, cada alteração sobe em segundos e o app traz o que mudou em outro aparelho ao voltar para a aba. O tema fica só no aparelho.
 
 Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist/`) e `npm run typecheck`.
 
