@@ -145,8 +145,8 @@ function TodayRow({ habit, now, onOpen }: { habit: Habit; now: Date; onOpen: () 
   const avoid = isAvoid(habit);
   const sub = avoid
     ? done
-      ? "Limpo até agora"
-      : "Escapou hoje. Amanhã é outro dia."
+      ? "Sem marca hoje: conta como vitória"
+      : "Marcado hoje. Amanhã é outro dia."
     : habit.perWeek
       ? `${weekCount(habit, now)} de ${habit.perWeek} nesta semana`
       : habit.amount

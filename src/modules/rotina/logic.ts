@@ -187,7 +187,7 @@ export function scheduleLabel(weekdays: number[]): string {
 
 /** "Todos os dias", "3x por semana", "Evitar todo dia", com a quantidade quando tem. */
 export function habitScheduleLabel(habit: Habit): string {
-  if (isAvoid(habit)) return "Mau hábito: cada dia sem ele conta";
+  if (isAvoid(habit)) return "Mau hábito: X nos dias em que fizer";
   const when = habit.perWeek ? `${habit.perWeek}x por semana` : scheduleLabel(habit.weekdays);
   return habit.amount ? `${when} · ${number.format(habit.amount.target)} ${habit.amount.unit}` : when;
 }

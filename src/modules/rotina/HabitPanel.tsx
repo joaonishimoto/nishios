@@ -93,8 +93,8 @@ function Content({
               <p className="text-sm text-muted-foreground">
                 {avoid
                   ? isDone(habit, now)
-                    ? "Limpo até agora"
-                    : "Escapou hoje"
+                    ? "Sem marca: conta como vitória"
+                    : "Marcado hoje"
                   : habit.amount
                     ? `${amountOn(habit, now)} de ${habit.amount.target} ${habit.amount.unit}`
                     : isDone(habit, now)
@@ -114,13 +114,13 @@ function Content({
             fallback={rate === null ? "–" : `${Math.round(rate * 100)}%`}
             tip={
               avoid
-                ? "Dias sem escapar, dos últimos 30."
+                ? "Dias sem marca, dos últimos 30."
                 : habit.perWeek
                   ? "Quanto das vezes por semana você cumpriu nas últimas 4 semanas."
                   : "Dos dias previstos nos últimos 30, em quantos você fez. Hoje só conta depois de feito."
             }
           />
-          <Stat label={avoid ? "Vezes que escapou" : "Vezes feito"} fallback={String(totalTimes(habit))} />
+          <Stat label={avoid ? "Vezes que fez" : "Vezes feito"} fallback={String(totalTimes(habit))} />
         </dl>
 
         <Heatmap habit={habit} now={now} />
@@ -208,10 +208,10 @@ function Heatmap({ habit, now }: { habit: Habit; now: Date }) {
         <h3 className="text-sm font-medium">Últimas {WEEKS} semanas</h3>
         <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <span className="size-2.5 rounded-[3px] bg-surface-muted" /> {avoid ? "fora" : "sem"}
-          <span className={cn("ml-1 size-2.5 rounded-[3px]", avoid ? "bg-success" : "bg-primary")} /> {avoid ? "limpo" : "feito"}
+          <span className="ml-1 size-2.5 rounded-[3px] bg-primary" /> {avoid ? "limpo" : "feito"}
           {avoid && (
             <>
-              <span className="ml-1 size-2.5 rounded-[3px] bg-danger" /> escapou
+              <span className="ml-1 size-2.5 rounded-[3px] bg-danger" /> fez
             </>
           )}
         </span>
@@ -238,8 +238,8 @@ function Heatmap({ habit, now }: { habit: Habit; now: Date }) {
                 type="button"
                 disabled={future || !counts}
                 onClick={() => toggleHabit(habit.id, iso)}
-                title={`${formatDate(day, "EEE, d 'de' MMM")}${slipped ? ": escapou" : done ? (avoid ? ": limpo" : ": feito") : ""}`}
-                aria-label={`${formatDate(day, "EEEE, d 'de' MMMM")}: ${slipped ? "escapou" : done ? (avoid ? "limpo" : "feito") : "não feito"}`}
+                title={`${formatDate(day, "EEE, d 'de' MMM")}${slipped ? ": fez" : done ? (avoid ? ": limpo" : ": feito") : ""}`}
+                aria-label={`${formatDate(day, "EEEE, d 'de' MMMM")}: ${slipped ? "fez" : done ? (avoid ? "limpo" : "feito") : "não feito"}`}
                 className={cn(
                   "h-3.5 min-w-0 rounded-[3px] transition-opacity hover:opacity-70 disabled:hover:opacity-100",
                   future
@@ -249,9 +249,7 @@ function Heatmap({ habit, now }: { habit: Habit; now: Date }) {
                       : slipped
                         ? "bg-danger"
                         : done
-                          ? avoid
-                            ? "bg-success"
-                            : "bg-primary"
+                          ? "bg-primary"
                           : part > 0
                             ? "bg-primary/35"
                             : "bg-surface-muted",

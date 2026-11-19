@@ -116,7 +116,7 @@ function Content({ habit, onClose }: { habit?: Habit; onClose: () => void }) {
           </div>
           <p className="text-sm text-muted-foreground">
             {avoid
-              ? "Mau hábito: cada dia sem ele conta como vitória. Você só marca quando escapar."
+              ? "Mau hábito: você marca um X nos dias em que fizer. Dia sem marca conta como vitória."
               : "Um check nos dias em que você faz."}
           </p>
         </div>

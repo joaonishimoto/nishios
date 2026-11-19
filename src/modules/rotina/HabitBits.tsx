@@ -16,7 +16,8 @@ export function countsOnDay(habit: Habit, day: Date): boolean {
 
 /**
  * Um dia na grade da semana. Feito é o check cheio; quantidade pela metade aparece
- * como um anel parcial; no mau hábito, dia limpo é check verde e dia em que escapou, um X.
+ * como um anel parcial; no mau hábito, o dia sem marca é o círculo vazio (conta como vitória) e o dia em que fez, um X vermelho.
+ * Os mesmos estados em todo lugar: feito = primária cheia, vazio = contorno, futuro = apagado, não vale = traço.
  */
 export function DayCell({ habit, day, now }: { habit: Habit; day: Date; now: Date }) {
   const { toggleHabit } = useRoutine();
@@ -34,26 +35,14 @@ export function DayCell({ habit, day, now }: { habit: Habit; day: Date; now: Dat
   }
 
   if (isAvoid(habit)) {
-    const slipped = habit.log.includes(iso);
     return (
-      <button
-        type="button"
+      <SlipToggle
+        habit={habit}
+        date={iso}
+        size="sm"
         disabled={future}
-        aria-pressed={slipped}
-        aria-label={`${habit.name}, ${when}: ${slipped ? "escapou (toque para desfazer)" : "dia limpo (toque se escapou)"}`}
-        title={slipped ? "Escapou neste dia" : "Dia limpo"}
-        onClick={() => toggleHabit(habit.id, iso)}
-        className={cn(
-          "flex size-7 items-center justify-center rounded-full border-[1.5px] transition-colors duration-(--motion-fast) disabled:opacity-40",
-          future
-            ? "border-dashed border-input bg-surface"
-            : slipped
-              ? "border-danger bg-danger-soft text-danger-strong"
-              : "border-success bg-success-soft text-success-strong hover:border-danger hover:text-danger-strong",
-        )}
-      >
-        {!future && (slipped ? <X className="size-4" strokeWidth={3} /> : <Check className="size-4" strokeWidth={3} />)}
-      </button>
+        label={`${habit.name}, ${when}`}
+      />
     );
   }
 
@@ -96,7 +85,7 @@ export function StreakTag({ habit, now, className }: { habit: Habit; now: Date; 
   return (
     <span
       className={cn("inline-flex shrink-0 items-center gap-1 text-sm font-medium tabular-nums", className)}
-      title={isAvoid(habit) ? "Dias seguidos sem escapar" : "Sequência atual"}
+      title={isAvoid(habit) ? "Dias seguidos sem marcar" : "Sequência atual"}
     >
       <Flame className={cn("size-3.5", hot ? "text-warning" : "text-subtle-foreground")} aria-hidden />
       {streakLabel(info)}
@@ -104,34 +93,12 @@ export function StreakTag({ habit, now, className }: { habit: Habit; now: Date; 
   );
 }
 
-/** O controle grande da lista de hoje: check, contador ou "escapei", conforme o tipo. */
+/** O controle grande da lista de hoje: check, contador ou X, conforme o tipo. */
 export function TodayControl({ habit, now }: { habit: Habit; now: Date }) {
   const { toggleHabit, addAmount } = useRoutine();
   const iso = toISO(now);
 
-  if (isAvoid(habit)) {
-    const slipped = habit.log.includes(iso);
-    return slipped ? (
-      <button
-        type="button"
-        onClick={() => toggleHabit(habit.id, iso)}
-        className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md bg-danger-soft px-2.5 text-sm font-medium text-danger-strong hover:opacity-80"
-        aria-label={`Desfazer: escapei de ${habit.name} hoje`}
-      >
-        <X className="size-3.5" strokeWidth={3} />
-        Escapei hoje
-      </button>
-    ) : (
-      <button
-        type="button"
-        onClick={() => toggleHabit(habit.id, iso)}
-        className="inline-flex h-8 shrink-0 items-center rounded-md border border-input px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-danger hover:text-danger-strong"
-        aria-label={`Marcar que escapei de ${habit.name} hoje`}
-      >
-        Escapei
-      </button>
-    );
-  }
+  if (isAvoid(habit)) return <SlipToggle habit={habit} date={iso} />;
 
   if (habit.amount) {
     const value = amountOn(habit, iso);
@@ -158,7 +125,7 @@ export function TodayControl({ habit, now }: { habit: Habit; now: Date }) {
           aria-label={`Somar ${step} em ${habit.name}`}
           className={cn(
             "flex size-8 items-center justify-center rounded-md transition-colors",
-            done ? "bg-success-soft text-success-strong" : "bg-primary text-primary-foreground hover:bg-primary-hover",
+            "bg-primary text-primary-foreground hover:bg-primary-hover",
           )}
         >
           {done ? <Check className="size-4" strokeWidth={3} /> : <Plus className="size-4" />}
@@ -183,6 +150,50 @@ export function TodayControl({ habit, now }: { habit: Habit; now: Date }) {
       )}
     >
       <Check className="size-5" strokeWidth={3} />
+    </button>
+  );
+}
+
+/**
+ * O X do mau hábito. Marcar registra que você fez o que queria evitar; o dia sem marca
+ * conta como vitória. Tocar de novo desmarca.
+ */
+export function SlipToggle({
+  habit,
+  date,
+  size = "lg",
+  disabled,
+  label,
+}: {
+  habit: Habit;
+  date: string;
+  size?: "sm" | "md" | "lg";
+  disabled?: boolean;
+  label?: string;
+}) {
+  const { toggleHabit } = useRoutine();
+  const slipped = habit.log.includes(date);
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={slipped}
+      disabled={disabled}
+      aria-label={`${label ?? habit.name}: ${slipped ? "marcado, fez o mau hábito" : "sem marca, dia limpo"}`}
+      title={slipped ? "Fez neste dia. Toque para desmarcar." : "Sem marca: conta como vitória. Toque se fez."}
+      onClick={(e) => {
+        e.stopPropagation();
+        toggleHabit(habit.id, date);
+      }}
+      className={cn(
+        "relative z-10 flex shrink-0 items-center justify-center rounded-full transition-all duration-(--motion-fast) active:scale-95 disabled:opacity-40",
+        size === "lg" ? "size-9 border-2" : size === "md" ? "size-[1.125rem] border-[1.5px]" : "size-7 border-[1.5px]",
+        slipped
+          ? "border-danger bg-danger text-danger-foreground"
+          : "border-input-hover bg-surface text-transparent hover:border-danger hover:text-danger/50",
+      )}
+    >
+      <X className={size === "lg" ? "size-5" : size === "md" ? "size-3" : "size-4"} strokeWidth={3} />
     </button>
   );
 }

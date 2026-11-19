@@ -35,6 +35,7 @@ import { daysAgoLabel, inCurrentWeek, newestFirst } from "@/modules/treinos/logi
 import { useTreinos } from "@/modules/treinos/store";
 import { ItemRow } from "@/modules/calendario/CalendarBits";
 import { useCalendarItems } from "@/modules/calendario/useCalendarItems";
+import { SlipToggle } from "@/modules/rotina/HabitBits";
 import { useRoutine } from "@/modules/rotina/store";
 import { byPriority, needsAttention } from "@/modules/tarefas/logic";
 import { useTasks } from "@/modules/tarefas/store";
@@ -177,11 +178,15 @@ export function HomePage() {
                       key={h.id}
                       className="flex items-center gap-3 border-b border-border px-3 py-2 last:border-b-0"
                     >
-                      <Checkbox
-                        checked={done}
-                        onChange={() => toggleHabit(h.id, toISO(now))}
-                        label={h.name}
-                      />
+                      {h.type === "evitar" ? (
+                        <SlipToggle habit={h} date={toISO(now)} size="md" />
+                      ) : (
+                        <Checkbox
+                          checked={done}
+                          onChange={() => toggleHabit(h.id, toISO(now))}
+                          label={h.name}
+                        />
+                      )}
                       <span className="text-lg leading-none">{h.icon}</span>
                       <Link
                         to={`/rotina?habito=${h.id}`}
