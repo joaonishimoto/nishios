@@ -61,7 +61,7 @@ function Glyph({ icon: Icon }: { icon: LucideIcon }) {
 
 /** Tudo o que dá para achar, de todos os módulos. Só é montado com a busca aberta. */
 function useEntries(go: (to: string) => void): Entry[] {
-  const { tasks } = useTasks();
+  const { tasks, projects } = useTasks();
   const { commitments } = useCommitments();
   const { habits, goals } = useRoutine();
   const { events } = useCalendar();
@@ -84,6 +84,18 @@ function useEntries(go: (to: string) => void): Entry[] {
       list.push({ id: `nav-${n.to}`, group: "Ir para", title: n.label, icon: <Glyph icon={n.icon} />, run: () => go(n.to!) });
     }
     list.push({ id: "nav-dados", group: "Ir para", title: "Dados e backup", icon: <Glyph icon={Search} />, extra: "exportar importar restaurar", run: () => go("/dados") });
+    const projectName = new Map(projects.map((p) => [p.id, p.name]));
+    for (const p of projects) {
+      list.push({
+        id: `p-${p.id}`,
+        group: "Tarefas",
+        title: p.name,
+        detail: p.archived ? "Projeto arquivado" : "Projeto",
+        icon: emoji(p.icon),
+        extra: `${p.client} ${p.notes} projeto`,
+        run: () => go(`/tarefas?projeto=${p.id}`),
+      });
+    }
     for (const t of tasks) {
       list.push({
         id: `t-${t.id}`,
@@ -91,7 +103,7 @@ function useEntries(go: (to: string) => void): Entry[] {
         title: t.title,
         detail: t.status === "done" ? "Concluída" : t.due ? shortDate(t.due) : t.list,
         icon: page("/tarefas"),
-        extra: `${t.notes} ${t.list}`,
+        extra: `${t.notes} ${t.list} ${projectName.get(t.projectId) ?? ""}`,
         run: () => go(`/tarefas?t=${t.id}`),
       });
     }
@@ -164,7 +176,7 @@ function useEntries(go: (to: string) => void): Entry[] {
       list.push({ id: `inv-${i.id}`, group: "Finanças", title: i.name, detail: money(balance(i)), icon: emoji(i.icon), extra: `${i.institution} ${i.notes} investimento`, run: () => go(`/financas?aba=investimentos&i=${i.id}`) });
     }
     return list;
-  }, [tasks, commitments, habits, goals, events, people, pets, skills, assets, wishes, modalities, exercises, plans, home, recurrences, investments, go]);
+  }, [tasks, projects, commitments, habits, goals, events, people, pets, skills, assets, wishes, modalities, exercises, plans, home, recurrences, investments, go]);
 }
 
 function Results({ query, onDone }: { query: string; onDone: () => void }) {

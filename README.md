@@ -56,6 +56,10 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
   - "Adicionar tarefa" direto em cada grupo: digite e aperte Enter.
   - No quadro, arraste os cartões entre as colunas.
   - Painel lateral em que cada campo salva na hora. Filtro por lista e busca.
+  - **Projetos**: a barra no topo separa as tarefas por projeto de trabalho (Todas, Sem projeto e um botão por projeto, com `?projeto=<id>` na URL). Tarefas antigas ficam em "Sem projeto". Cada projeto tem ícone, cliente, anotações e pode ser arquivado; excluir um projeto mantém as tarefas, sem projeto.
+  - "Minha ordem": fila manual para priorizar, arrastando pela alça no computador ou com as setas no celular. "Prioridade" continua ordenando por prioridade e prazo.
+  - Horas (opcional): "Registrar horas" no projeto ou na tarefa (aceita 1h30, 1:30, 1,5 ou 45min). O projeto mostra as horas do mês, o total e, com valor da hora, quanto isso vale.
+  - Tarefas com prazo aparecem no calendário com o nome do projeto.
 - **Rotina e metas** (fase 2):
   - Duas abas, Hábitos e Metas. Tudo que abre fica na URL (`?aba=metas`, `?habito=<id>`, `?meta=<id>`), então outras telas abrem o hábito ou a meta direto.
   - Hoje: a lista do dia separada por manhã, tarde e noite, com check grande, contador para hábitos de quantidade e "Escapei" para maus hábitos.

@@ -20,6 +20,8 @@ export interface Backup {
 /** Listas que o resumo conta, na ordem em que aparecem na tela. */
 export const COUNTED: { key: string; one: string; many: string }[] = [
   { key: "nishios:tarefas:v1", one: "tarefa", many: "tarefas" },
+  { key: "nishios:tarefas:projetos:v1", one: "projeto", many: "projetos" },
+  { key: "nishios:tarefas:horas:v1", one: "registro de horas", many: "registros de horas" },
   { key: "nishios:rotina:habitos:v1", one: "hábito", many: "hábitos" },
   { key: "nishios:rotina:metas:v1", one: "meta", many: "metas" },
   { key: "nishios:compromissos:v1", one: "compromisso", many: "compromissos" },
