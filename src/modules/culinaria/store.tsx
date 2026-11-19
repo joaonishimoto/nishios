@@ -1,9 +1,14 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { usePersistentState } from "@/lib/storage";
-import { seedRecipes } from "./seed";
 import type { Attempt, Recipe } from "./types";
 
 const KEY = "nishios:culinaria:receitas:v1";
+
+/** Começa vazia. As receitas de exemplo da primeira versão (ids "seed-...") saem de quem já as tinha. */
+const withoutExamples = (list: Recipe[]): Recipe[] =>
+  list
+    .filter((r) => !r.id.startsWith("seed-"))
+    .map((r) => (r.parentId.startsWith("seed-") ? { ...r, parentId: "" } : r));
 
 interface Store {
   recipes: Recipe[];
@@ -23,7 +28,7 @@ const Ctx = createContext<Store | null>(null);
 export const newId = () => crypto.randomUUID();
 
 export function CulinariaProvider({ children }: { children: ReactNode }) {
-  const [recipes, setRecipes] = usePersistentState<Recipe[]>(KEY, seedRecipes);
+  const [recipes, setRecipes] = usePersistentState<Recipe[]>(KEY, () => [], withoutExamples);
 
   const store = useMemo<Store>(() => {
     const blank = (patch: Partial<Omit<Recipe, "id" | "createdAt">> = {}): Recipe => ({
