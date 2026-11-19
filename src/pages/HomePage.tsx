@@ -28,6 +28,8 @@ import { between, monthOf, summarize, totalInvested } from "@/modules/financas/l
 import { useFinancas } from "@/modules/financas/store";
 import { change, formatDelta, formatValue } from "@/modules/corpo/logic";
 import { useCorpo } from "@/modules/corpo/store";
+import { lastCooked } from "@/modules/culinaria/logic";
+import { useCulinaria } from "@/modules/culinaria/store";
 import { petHeadline } from "@/modules/pets/logic";
 import { usePets } from "@/modules/pets/store";
 import { amountOn, goalAmountLabel, goalDone, goalProgress, isDone, isScheduled } from "@/modules/rotina/logic";
@@ -109,6 +111,11 @@ export function HomePage() {
   const { recurrences, investments } = useFinancas();
   const finance = summarize(recurrences, monthOf(now));
   const bills = between(recurrences.filter((r) => r.kind === "out"), todayISO, toISO(add(now, { days: 7 }))).filter((o) => !o.done);
+  const { recipes } = useCulinaria();
+  const lastRecipe = recipes
+    .filter((r) => r.attempts.length > 0)
+    .sort((a, b) => lastCooked(b).localeCompare(lastCooked(a)))[0];
+  const testingRecipes = recipes.filter((r) => r.status === "testing");
   const dateLine = format(now, "EEEE, d 'de' MMMM", { locale: ptBR });
 
   return (
@@ -371,6 +378,44 @@ export function HomePage() {
                   </Link>
                 </li>
               )}
+            </ul>
+          </section>
+        )}
+
+        {recipes.length > 0 && (
+          <section className="min-w-0">
+            <SectionHeader title="Culinária" to="/culinaria" linkLabel="Abrir culinária" />
+            <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
+              <li className="border-b border-border last:border-b-0">
+                <Link
+                  to={lastRecipe ? `/culinaria?r=${lastRecipe.id}` : "/culinaria"}
+                  className="flex items-center gap-3 px-3 py-2.5 hover:bg-surface-hover"
+                >
+                  <span className="flex-1 font-medium whitespace-nowrap">Última vez na cozinha</span>
+                  {lastRecipe ? (
+                    <>
+                      <span className="min-w-0 truncate text-sm text-muted-foreground">
+                        {lastRecipe.icon} {lastRecipe.name}
+                      </span>
+                      <span className="shrink-0 font-semibold">{daysAgoLabel(lastCooked(lastRecipe), now)}</span>
+                    </>
+                  ) : (
+                    <span className="shrink-0 text-sm text-muted-foreground">Registre a primeira tentativa</span>
+                  )}
+                </Link>
+              </li>
+              <li className="border-b border-border last:border-b-0">
+                <Link to="/culinaria" className="flex items-center gap-3 px-3 py-2.5 hover:bg-surface-hover">
+                  <span className="flex-1 font-medium whitespace-nowrap">Receitas em teste</span>
+                  {testingRecipes.length > 0 && (
+                    <span className="min-w-0 truncate text-sm text-muted-foreground">
+                      {testingRecipes.slice(0, 2).map((r) => r.name).join(", ")}
+                      {testingRecipes.length > 2 ? ` e mais ${testingRecipes.length - 2}` : ""}
+                    </span>
+                  )}
+                  <span className="shrink-0 font-semibold tabular-nums">{testingRecipes.length}</span>
+                </Link>
+              </li>
             </ul>
           </section>
         )}

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import * as RadixDialog from "@radix-ui/react-dialog";
-import { CalendarPlus, CornerDownLeft, GraduationCap, ListPlus, Search, type LucideIcon } from "lucide-react";
+import { CalendarPlus, ChefHat, CornerDownLeft, GraduationCap, ListPlus, Search, type LucideIcon } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
 import { shortDate, toISO, today } from "@/lib/dates";
@@ -11,6 +11,8 @@ import { useCalendar } from "@/modules/calendario/store";
 import { balance } from "@/modules/financas/logic";
 import { useFinancas } from "@/modules/financas/store";
 import { useCasa } from "@/modules/casa/store";
+import { useCulinaria } from "@/modules/culinaria/store";
+import { STATUS_META as RECIPE_STATUS } from "@/modules/culinaria/logic";
 import { useCommitments } from "@/modules/compromissos/store";
 import { usePeople } from "@/modules/pessoas/store";
 import { usePets } from "@/modules/pets/store";
@@ -72,6 +74,7 @@ function useEntries(go: (to: string) => void): Entry[] {
   const { modalities, exercises, plans } = useTreinos();
   const { home } = useCasa();
   const { recurrences, investments } = useFinancas();
+  const { recipes } = useCulinaria();
 
   return useMemo(() => {
     const emoji = (e: string) => <span className="text-base leading-none">{e}</span>;
@@ -139,6 +142,19 @@ function useEntries(go: (to: string) => void): Entry[] {
     for (const s of skills) {
       list.push({ id: `s-${s.id}`, group: "Skills", title: s.name, detail: s.category, icon: page("/skills"), extra: `${s.notes} ${s.resources.map((r) => r.title).join(" ")}`, run: () => go(`/skills?s=${s.id}`) });
     }
+    const recipeName = new Map(recipes.map((r) => [r.id, r.name]));
+    for (const r of recipes) {
+      const parent = recipeName.get(r.parentId);
+      list.push({
+        id: `rec-${r.id}`,
+        group: "Culinária",
+        title: r.name || "Sem nome",
+        detail: parent ? `Variação de ${parent}` : RECIPE_STATUS[r.status].label,
+        icon: emoji(r.icon),
+        extra: `${r.category} ${r.change} ${r.ingredients} ${r.lessons} receita`,
+        run: () => go(`/culinaria?r=${r.id}`),
+      });
+    }
     for (const a of assets) {
       list.push({ id: `a-${a.id}`, group: "Bens", title: a.name, detail: a.location || a.category, icon: emoji(a.icon), extra: `${a.category} ${a.brand ?? ""} ${a.store ?? ""} ${a.notes}`, run: () => go("/bens") });
     }
@@ -176,7 +192,7 @@ function useEntries(go: (to: string) => void): Entry[] {
       list.push({ id: `inv-${i.id}`, group: "Finanças", title: i.name, detail: money(balance(i)), icon: emoji(i.icon), extra: `${i.institution} ${i.notes} investimento`, run: () => go(`/financas?aba=investimentos&i=${i.id}`) });
     }
     return list;
-  }, [tasks, projects, commitments, habits, goals, events, people, pets, skills, assets, wishes, modalities, exercises, plans, home, recurrences, investments, go]);
+  }, [tasks, projects, commitments, habits, goals, events, people, pets, skills, assets, wishes, modalities, exercises, plans, home, recurrences, investments, recipes, go]);
 }
 
 function Results({ query, onDone }: { query: string; onDone: () => void }) {
@@ -185,6 +201,7 @@ function Results({ query, onDone }: { query: string; onDone: () => void }) {
   const tasks = useTasks();
   const calendar = useCalendar();
   const skills = useSkills();
+  const culinaria = useCulinaria();
   const go = useMemo(
     () => (to: string) => {
       navigate(to);
@@ -254,10 +271,20 @@ function Results({ query, onDone }: { query: string; onDone: () => void }) {
             created("Skill adicionada em Quero aprender", `/skills?s=${s.id}`);
           },
         },
+        {
+          id: "new-recipe",
+          group: "Criar",
+          title: `Nova receita "${text}"`,
+          icon: <Glyph icon={ChefHat} />,
+          run: () => {
+            const r = culinaria.create({ name: text });
+            created("Receita criada", `/culinaria?r=${r.id}`);
+          },
+        },
       ],
     });
     return found;
-  }, [text, entries, indexed, tasks, calendar, skills, toast, navigate, onDone]);
+  }, [text, entries, indexed, tasks, calendar, skills, culinaria, toast, navigate, onDone]);
 
   const flat = groups.flatMap((g) => g.items);
   const [active, setActive] = useState(0);
@@ -367,8 +394,8 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
           </div>
           <Results query={query} onDone={close} />
           <p className="hidden shrink-0 border-t border-border px-4 py-2 text-xs text-muted-foreground sm:block">
-            Setas para escolher, Enter para abrir, Esc para fechar. Digite algo novo para criar uma tarefa, um evento ou
-            uma skill.
+            Setas para escolher, Enter para abrir, Esc para fechar. Digite algo novo para criar uma tarefa, um evento, uma skill
+            ou uma receita.
           </p>
         </RadixDialog.Content>
       </RadixDialog.Portal>

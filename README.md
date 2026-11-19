@@ -1,6 +1,6 @@
 # NishiOS
 
-Sistema pessoal de gestão de vida. Já tem o shell do app (barra lateral, topo, tema claro e escuro), o design system um **calendário unificado** e onze módulos: **tarefas**, **rotina e metas**, **compromissos recorrentes**, **treinos**, **corpo**, **bens e desejos**, **casa**, **pessoas**, **pets**, **skills** e **finanças**.
+Sistema pessoal de gestão de vida. Já tem o shell do app (barra lateral, topo, tema claro e escuro), o design system um **calendário unificado** e doze módulos: **tarefas**, **rotina e metas**, **compromissos recorrentes**, **treinos**, **corpo**, **bens e desejos**, **casa**, **pessoas**, **pets**, **skills**, **culinária** e **finanças**.
 
 Os dados ficam no `localStorage` do navegador e, com o Supabase configurado, sobem para a nuvem e sincronizam entre computador e celular. Sem o Supabase, o app roda só no navegador, sem login, e começa com exemplos.
 
@@ -36,7 +36,7 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
 ## O que tem
 
 - **Início**: a agenda e a rotina de hoje, as tarefas que vencem hoje ou estão atrasadas, as metas mais perto de fechar, peso e treinos da semana, os pets, os compromissos que pedem atenção e as pessoas para procurar ou parabenizar.
-- **Busca em tudo** (Cmd+K ou Ctrl+K, ou o campo no topo): acha tarefas, eventos, compromissos, hábitos, metas, pessoas, pets e seus cuidados, skills, bens, desejos, modalidades e cômodos, sem ligar para acento. O que você digitar também vira tarefa, evento de hoje ou skill com um Enter.
+- **Busca em tudo** (Cmd+K ou Ctrl+K, ou o campo no topo): acha tarefas, eventos, compromissos, hábitos, metas, pessoas, pets e seus cuidados, skills, receitas, bens, desejos, modalidades e cômodos, sem ligar para acento. O que você digitar também vira tarefa, evento de hoje, skill ou receita com um Enter.
 - **Dados e backup**: baixa um arquivo com tudo o que está salvo, restaura de um arquivo (mostrando antes o que tem dentro), começa do zero ou volta aos dados de exemplo.
 - **Ligações entre módulos**: o que é registrado em um lugar aparece nos outros.
   - Metas se atualizam sozinhas com treinos, peso e medidas, hábitos, tarefas concluídas e skills (materiais concluídos, nível ou número de skills aprendidas).
@@ -119,6 +119,14 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
   - **Visão geral** (a principal): o que você está estudando agora, com o andamento do plano de estudo e o próximo passo para marcar ali mesmo; o que você já sabe, por nível; e a fila do que quer aprender, com "Começar".
   - **Quadro**: as três colunas (quero aprender, aprendendo, já sei) para arrastar entre elas.
   - Painel lateral com nível de 0 a 5, plano de estudo (passos e links, com progresso) e diário de aprendizado.
+- **Culinária**: uma área de aprendizado, não um livro de receitas.
+  - Cada receita tem ingredientes e modo de fazer (um por linha), situação (em teste, aprovada, não deu certo), categoria e "O que já aprendi".
+  - **Tentativas**: cada vez que cozinhou, com data, nota de 0 a 5, como fez, como ficou e o que mudar na próxima vez. O último "para a próxima vez" aparece em destaque na receita e ao registrar a próxima tentativa.
+  - **Variações**: "Criar variação" nasce da receita aberta já com os ingredientes e o modo de fazer dela, e guarda o que muda (Vinagrete padrão, depois Vinagrete com banana, depois com banana e pimenta). A família aparece em árvore na lista e na receita. Uma tentativa pode "Virar variação", e "Variação de" muda a receita de lugar na árvore. Excluir uma receita passa as variações dela para a de cima.
+  - A lista mostra as famílias pela atividade mais recente, com filtro por situação, busca (também por ingrediente) e "Na cozinha", as últimas tentativas. As tentativas entram no calendário (camada Culinária) e o Início mostra a última vez na cozinha e as receitas em teste. Fica em `?r=<id>` na URL.
+
+![Culinária](docs/screenshots/culinaria-receita.png)
+
 - **Avisos**: o sino no topo lista tudo o que atrasou em qualquer módulo e os compromissos chegando a hora.
 - **Integrações entre módulos**:
   - Metas que se atualizam sozinhas: escolha de onde vem o número (treinos, peso, gordura, uma medida do corpo, um hábito ou tarefas concluídas). Metas de baixar um número, como peso e cintura, usam um ponto de partida.

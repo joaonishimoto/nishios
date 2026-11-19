@@ -15,6 +15,7 @@ import type { Pet } from "@/modules/pets/types";
 import { goalDone } from "@/modules/rotina/logic";
 import type { Goal } from "@/modules/rotina/types";
 import type { Skill } from "@/modules/skills/types";
+import type { Recipe } from "@/modules/culinaria/types";
 import type { Project, Task } from "@/modules/tarefas/types";
 import { sessionSummary } from "@/modules/treinos/logic";
 import type { Modality, Session } from "@/modules/treinos/types";
@@ -37,6 +38,8 @@ export interface Everything {
   people: Person[];
   pets: Pet[];
   skills: Skill[];
+  /** Opcional: quem não passa as receitas só não vê a camada de Culinária. */
+  recipes?: Recipe[];
   recurrences: Recurrence[];
 }
 
@@ -229,6 +232,13 @@ export function collect(data: Everything, from: string, to: string, now: Date): 
   for (const s of data.skills) {
     for (const l of s.log) {
       push({ key: `skill-${l.id}`, source: "skills", date: l.date, title: s.name || "Skill", state: "done", note: l.text, to: `/skills?s=${s.id}` });
+    }
+  }
+
+  /* Culinária: cada vez que cozinhou */
+  for (const r of data.recipes ?? []) {
+    for (const a of r.attempts) {
+      push({ key: `cook-${a.id}`, source: "culinaria", date: a.date, title: r.name || "Receita", icon: r.icon, state: "done", note: a.result || a.how || undefined, to: `/culinaria?r=${r.id}` });
     }
   }
 

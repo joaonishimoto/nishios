@@ -9,6 +9,7 @@ export type SourceId =
   | "pets"
   | "bens"
   | "skills"
+  | "culinaria"
   | "financas"
   | "iphone";
 

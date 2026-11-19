@@ -210,7 +210,7 @@ export function DadosPage() {
       <Block title="Baixar um backup">
         <p className="max-w-[60ch] text-muted-foreground">
           Um arquivo com tudo: tarefas, rotina, metas, compromissos, calendário, pessoas, treinos, corpo, bens, casa,
-          pets e skills.
+          pets, skills e receitas.
         </p>
         <Summary backup={current} />
         <Button
@@ -342,7 +342,7 @@ export function DadosPage() {
                 </p>
               ) : (
                 <p className="text-muted-foreground">
-                  Tarefas, hábitos, metas, compromissos, eventos, pessoas, treinos, medições, bens, desejos, skills e
+                  Tarefas, hábitos, metas, compromissos, eventos, pessoas, treinos, medições, bens, desejos, skills, receitas e
                   os outros pets serão apagados{cloud && ", aqui e na nuvem"}. Da Maki e do Gojo fica só a ficha, e a
                   casa perde os vínculos com os bens. Um backup do que existe hoje é baixado antes.
                 </p>
