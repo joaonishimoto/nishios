@@ -117,7 +117,7 @@ export function collect(data: Everything, from: string, to: string, now: Date): 
   for (const g of data.goals) {
     if (!g.deadline) continue;
     const done = goalDone(g);
-    push({ key: `goal-${g.id}`, source: "rotina", date: g.deadline, title: `Prazo da meta: ${g.name}`, icon: g.icon, state: done ? "done" : planned(g.deadline), note: done ? "Meta batida" : undefined, to: "/rotina" });
+    push({ key: `goal-${g.id}`, source: "rotina", date: g.deadline, title: `Prazo da meta: ${g.name}`, icon: g.icon, state: done ? "done" : planned(g.deadline), note: done ? "Meta batida" : undefined, to: `/rotina?meta=${g.id}` });
   }
 
   /* Treinos registrados */

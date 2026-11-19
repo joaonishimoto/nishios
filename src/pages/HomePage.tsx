@@ -30,7 +30,7 @@ import { change, formatDelta, formatValue } from "@/modules/corpo/logic";
 import { useCorpo } from "@/modules/corpo/store";
 import { petHeadline } from "@/modules/pets/logic";
 import { usePets } from "@/modules/pets/store";
-import { goalAmountLabel, goalDone, goalProgress, isDone, isScheduled } from "@/modules/rotina/logic";
+import { amountOn, goalAmountLabel, goalDone, goalProgress, isDone, isScheduled } from "@/modules/rotina/logic";
 import { daysAgoLabel, inCurrentWeek, newestFirst } from "@/modules/treinos/logic";
 import { useTreinos } from "@/modules/treinos/store";
 import { ItemRow } from "@/modules/calendario/CalendarBits";
@@ -183,9 +183,18 @@ export function HomePage() {
                         label={h.name}
                       />
                       <span className="text-lg leading-none">{h.icon}</span>
-                      <span className={cn("truncate", done && "text-muted-foreground line-through")}>
+                      <Link
+                        to={`/rotina?habito=${h.id}`}
+                        className={cn("min-w-0 flex-1 truncate hover:underline", done && h.type !== "evitar" && "text-muted-foreground line-through")}
+                      >
+                        {h.type === "evitar" && <span className="mr-1.5 text-sm text-muted-foreground">Evitar:</span>}
                         {h.name}
-                      </span>
+                      </Link>
+                      {h.amount && (
+                        <span className="shrink-0 text-sm text-muted-foreground tabular-nums">
+                          {amountOn(h, now)}/{h.amount.target} {h.amount.unit}
+                        </span>
+                      )}
                     </li>
                   );
                 })}
@@ -240,13 +249,13 @@ export function HomePage() {
 
       {openGoals.length > 0 && (
         <section>
-          <SectionHeader title="Metas em andamento" to="/rotina" linkLabel="Ver todas" />
+          <SectionHeader title="Metas em andamento" to="/rotina?aba=metas" linkLabel="Ver todas" />
           <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {openGoals.map((g) => (
               <li key={g.id} className="relative min-w-0 rounded-lg border border-border bg-surface p-4 transition-colors duration-(--motion-fast) hover:border-border-strong">
                 <div className="flex items-start gap-2.5">
                   <span className="text-xl leading-none">{g.icon}</span>
-                  <Link to="/rotina" className="min-w-0 flex-1 truncate font-medium after:absolute after:inset-0">
+                  <Link to={`/rotina?meta=${g.id}`} className="min-w-0 flex-1 truncate font-medium after:absolute after:inset-0">
                     {g.name}
                   </Link>
                   <span className="font-semibold tabular-nums">{Math.round(goalProgress(g) * 100)}%</span>

@@ -1,12 +1,33 @@
 import type { MeasureId } from "@/modules/corpo/types";
 
+export type HabitPeriod = "manha" | "tarde" | "noite";
+
 export interface Habit {
   id: string;
   name: string;
   icon: string;
+  /**
+   * "fazer" (padrão): conta quando você faz.
+   * "evitar": mau hábito. Cada dia sem ele é uma vitória; o `log` guarda os dias em que escapou.
+   */
+  type?: "fazer" | "evitar";
   /** Dias da semana em que o hábito vale: 0 = domingo ... 6 = sábado. */
   weekdays: number[];
-  /** Dias em que foi feito, em yyyy-MM-dd. */
+  /** Quando existe, vale em qualquer dia e o alvo é fazer `times` vezes na semana. */
+  perWeek?: number;
+  /** Hábito de quantidade: só fica feito quando chega no alvo do dia (8 copos, 30 páginas). */
+  amount?: { target: number; unit: string };
+  /** Quanto foi feito em cada dia, para hábitos de quantidade. */
+  counts?: Record<string, number>;
+  /** Parte do dia, para organizar a lista de hoje. */
+  period?: HabitPeriod;
+  /** Por que esse hábito importa. Aparece no detalhe. */
+  why?: string;
+  /** Pausado: sai da rotina sem perder o histórico. */
+  paused?: boolean;
+  /** yyyy-MM-dd. Um mau hábito conta os dias limpos a partir daqui. */
+  createdAt?: string;
+  /** Dias em que foi feito (ou, num mau hábito, em que escapou), em yyyy-MM-dd. */
   log: string[];
   /**
    * Ligação com os treinos: o hábito fica feito sozinho nos dias em que houver
@@ -17,7 +38,7 @@ export interface Habit {
   autoDates?: string[];
 }
 
-export type HabitDraft = Omit<Habit, "id" | "log" | "autoDates">;
+export type HabitDraft = Omit<Habit, "id" | "log" | "autoDates" | "counts" | "createdAt">;
 
 export type TrainingMetric = "sessions" | "distance" | "hours" | "rounds";
 
@@ -58,6 +79,18 @@ export interface Goal {
   start?: number;
   /** Quando existe, `current` é calculado a partir de outro módulo. */
   link?: GoalLink;
+  /** Meta feita de etapas: o número é quantas foram concluídas. */
+  steps?: GoalStep[];
+  /** Cada vez que o número muda à mão, para o gráfico e o ritmo. */
+  history?: { date: string; value: number }[];
+  /** yyyy-MM-dd. Base para saber se a meta está no ritmo do prazo. */
+  createdAt?: string;
+}
+
+export interface GoalStep {
+  id: string;
+  text: string;
+  done: boolean;
 }
 
 export type GoalDraft = Omit<Goal, "id">;
