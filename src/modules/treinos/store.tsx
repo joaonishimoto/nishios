@@ -1,6 +1,7 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { toISO, today } from "@/lib/dates";
 import { usePersistentState } from "@/lib/storage";
+import { ensureDance } from "./danca/migrate";
 import { seedModalities, seedSessions } from "./seed";
 import type { Modality, ModalityDraft, Session, SessionDraft } from "./types";
 
@@ -30,7 +31,7 @@ interface Store {
 const Ctx = createContext<Store | null>(null);
 
 export function TreinosProvider({ children }: { children: ReactNode }) {
-  const [modalities, setModalities] = usePersistentState<Modality[]>(MODALITIES_KEY, seedModalities);
+  const [modalities, setModalities] = usePersistentState<Modality[]>(MODALITIES_KEY, seedModalities, ensureDance);
   const [all, setSessions] = usePersistentState<Session[]>(SESSIONS_KEY, seedSessions);
   const sessions = useMemo(() => all.filter((s) => !s.planned), [all]);
   const planned = useMemo(() => all.filter((s) => s.planned).sort((a, b) => a.date.localeCompare(b.date)), [all]);

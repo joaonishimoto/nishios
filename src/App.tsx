@@ -19,6 +19,7 @@ import { SkillsPage } from "@/modules/skills/SkillsPage";
 import { SkillsProvider } from "@/modules/skills/store";
 import { TasksProvider } from "@/modules/tarefas/store";
 import { TarefasPage } from "@/modules/tarefas/TarefasPage";
+import { DanceProvider } from "@/modules/treinos/danca/store";
 import { TreinosProvider } from "@/modules/treinos/store";
 import { TreinosPage } from "@/modules/treinos/TreinosPage";
 import { CorpoPage } from "@/modules/corpo/CorpoPage";
@@ -37,6 +38,7 @@ export function App() {
         <CommitmentsProvider>
           <TasksProvider>
           <TreinosProvider>
+          <DanceProvider>
           <CorpoProvider>
           <SkillsProvider>
           <FinancasProvider>
@@ -73,6 +75,7 @@ export function App() {
           </FinancasProvider>
           </SkillsProvider>
           </CorpoProvider>
+          </DanceProvider>
           </TreinosProvider>
           </TasksProvider>
         </CommitmentsProvider>
