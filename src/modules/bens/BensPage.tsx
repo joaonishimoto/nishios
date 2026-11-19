@@ -63,7 +63,7 @@ function groupKey(a: Asset, by: GroupBy): string {
 }
 
 const ASSET_GRID =
-  "md:grid md:grid-cols-[minmax(0,1fr)_8rem_10rem_7.5rem] md:items-center md:gap-x-5";
+  "xl:grid xl:grid-cols-[minmax(0,1fr)_8rem_10rem_7.5rem] xl:items-center xl:gap-x-5";
 
 export function BensPage() {
   const { assets, wishes } = useBens();
@@ -146,22 +146,40 @@ export function BensPage() {
         }
       />
 
-      <div className="mt-6 flex flex-wrap items-center gap-2">
-        <Segmented<Tab>
-          label="Bens ou lista de desejos"
-          value={tab}
-          onChange={(t) => setParams(t === "desejos" ? { aba: "desejos" } : {}, { replace: true })}
-          options={[
-            { value: "bens", label: "Meus bens", count: current.length },
-            { value: "desejos", label: "Lista de desejos", count: wishes.length },
-          ]}
-        />
+      <div className="mt-6 flex flex-col gap-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <Segmented<Tab>
+            label="Bens ou lista de desejos"
+            value={tab}
+            onChange={(t) => setParams(t === "desejos" ? { aba: "desejos" } : {}, { replace: true })}
+            options={[
+              { value: "bens", label: "Meus bens", count: current.length },
+              { value: "desejos", label: "Lista de desejos", count: wishes.length },
+            ]}
+          />
+          {tab === "bens" && (
+            <div className="relative w-full lg:w-72">
+              <Search
+                aria-hidden
+                className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-subtle-foreground"
+              />
+              <Input
+                type="search"
+                aria-label="Buscar bem"
+                placeholder="Buscar por nome, marca ou loja"
+                className="pl-8"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+          )}
+        </div>
         {tab === "bens" && (
-          <div className="ml-auto flex w-full flex-wrap gap-2 sm:w-auto sm:flex-nowrap">
+          <div className={cn("grid grid-cols-2 gap-2 xl:flex xl:items-center", hasHistory ? "lg:grid-cols-4" : "lg:grid-cols-3")}>
             {hasHistory && (
               <Select
                 aria-label="Quais bens mostrar"
-                className="sm:w-48"
+                className="col-span-2 sm:col-span-1 xl:w-52"
                 value={ownership}
                 onChange={(e) => setOwnership(e.target.value as Ownership)}
               >
@@ -173,8 +191,19 @@ export function BensPage() {
               </Select>
             )}
             <Select
+              aria-label="Filtrar por categoria"
+              className={cn("col-span-2 lg:col-span-1 xl:w-52", hasHistory && "sm:col-span-1")}
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              <option value="all">Todas as categorias</option>
+              {categories.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </Select>
+            <Select
               aria-label="Agrupar bens"
-              className="sm:w-36"
+              className="xl:ml-auto xl:w-40"
               value={groupBy}
               onChange={(e) => setGroupBy(e.target.value as GroupBy)}
             >
@@ -186,7 +215,7 @@ export function BensPage() {
             </Select>
             <Select
               aria-label="Ordenar bens"
-              className="sm:w-48"
+              className="xl:w-52"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortBy)}
             >
@@ -196,31 +225,6 @@ export function BensPage() {
                 </option>
               ))}
             </Select>
-            <Select
-              aria-label="Filtrar por categoria"
-              className="sm:w-48"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              <option value="all">Todas as categorias</option>
-              {categories.map((c) => (
-                <option key={c}>{c}</option>
-              ))}
-            </Select>
-            <div className="relative w-full sm:w-52">
-              <Search
-                aria-hidden
-                className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-subtle-foreground"
-              />
-              <Input
-                type="search"
-                aria-label="Buscar bem"
-                placeholder="Buscar bens"
-                className="pl-8"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </div>
           </div>
         )}
       </div>
@@ -384,29 +388,29 @@ function AssetRow({ asset: a, onOpen }: { asset: Asset; onOpen: () => void }) {
           <p className="truncate text-sm text-muted-foreground">
             {detail}
             {a.purchaseDate && (
-              <span className="md:hidden">
+              <span className="xl:hidden">
                 {detail ? " · " : ""}
                 {shortDate(a.purchaseDate)}
               </span>
             )}
             {due && (
               <span className={due.d.status === "overdue" ? "text-danger-strong" : "text-warning-strong"}>
-                {detail ? ", " : a.purchaseDate ? <span className="md:hidden">, </span> : ""}
+                {detail ? ", " : a.purchaseDate ? <span className="xl:hidden">, </span> : ""}
                 {due.c.name.toLowerCase()} {dueLabel(due.d).toLowerCase()}
               </span>
             )}
           </p>
         </div>
       </div>
-      <span className="hidden text-sm text-muted-foreground md:block">
+      <span className="hidden text-sm text-muted-foreground xl:block">
         {a.purchaseDate ? shortDate(a.purchaseDate) : "–"}
       </span>
-      <span className="hidden md:block">
+      <span className="hidden xl:block">
         {warrantyText ?? <span className="text-sm text-subtle-foreground">–</span>}
       </span>
       <span className="text-right font-medium tabular-nums">{money(a.value)}</span>
       {w && w.state !== "expired" && (
-        <span className="basis-full pl-11 lowercase first-letter:uppercase md:hidden">
+        <span className="basis-full pl-11 lowercase first-letter:uppercase xl:hidden">
           <span className="text-sm text-muted-foreground">Garantia: </span>
           {warrantyText}
         </span>
