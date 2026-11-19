@@ -796,10 +796,10 @@ function withOwned(p: Proposal): Proposal {
     ])),
     // Micro-ondas preto (52 × 44 × 31 cm) embutido no aéreo, do lado da coifa: só a frente aparece.
     own(OWNED.microondas, piece("cozinha", "Micro-ondas Midea 35L", "📦", "Eletrodomésticos", full([
-      part(0.468, 1.95, 0.006, 0.55, 0.31, "escuro", 1.5, "#141518"),
-      part(0.474, 1.98, 0.004, 0.34, 0.23, "vidro", 1.54, "#25282d"),
-      part(0.474, 2.35, 0.004, 0.11, 0.23, "escuro", 1.54, "#1d1f23"),
-      part(0.478, 2.38, 0.003, 0.05, 0.02, "metal", 1.72, "#9aa0a6"),
+      part(0.462, 1.95, 0.008, 0.5, 0.3, "escuro", 1.48, "#141518"),
+      part(0.47, 1.98, 0.004, 0.32, 0.22, "vidro", 1.52, "#25282d"),
+      part(0.47, 2.33, 0.004, 0.1, 0.22, "escuro", 1.52, "#1d1f23"),
+      part(0.474, 2.36, 0.003, 0.05, 0.02, "metal", 1.7, "#9aa0a6"),
     ]))),
     // Purificador (33 × 26 × 45 cm) na outra ponta da bancada da máquina de lavar, encostado
     // no shaft, perto do ponto de água e virado para a cozinha.
@@ -836,9 +836,16 @@ function withOwned(p: Proposal): Proposal {
     part(-0.01, 0.89, 0.35, 0.36, TOP - 1.5, "madeira", 1.5, cab),
     part(0.34, 1.19, 0.008, 0.03, 0.12, "escuro", 1.54, line),
     // Torre do micro-ondas, do lado da coifa.
-    part(-0.01, 1.9, 0.48, 0.6, TOP - 1.45, "madeira", 1.45, cab),
+    // O corpo fica um pouco para trás no vão do micro-ondas, e uma moldura de 3 a 8 cm o
+    // fecha nos quatro lados, deixando o aparelho embutido.
+    part(-0.01, 1.9, 0.46, 0.6, TOP - 1.4, "madeira", 1.4, cab),
+    part(0.45, 1.9, 0.03, 0.05, 0.46, "madeira", 1.4, cab),
+    part(0.45, 2.45, 0.03, 0.05, 0.46, "madeira", 1.4, cab),
+    part(0.45, 1.95, 0.03, 0.5, 0.08, "madeira", 1.4, cab),
+    part(0.45, 1.95, 0.03, 0.5, 0.08, "madeira", 1.78, cab),
+    part(-0.01, 1.9, 0.48, 0.6, TOP - 1.86, "madeira", 1.86, cab),
     ...door(1.9, 2.5, 1.86, TOP, 0.47),
-    part(0.47, 2.15, 0.008, 0.14, 0.008, "escuro", 1.9, line),
+    part(0.47, 2.15, 0.008, 0.14, 0.008, "escuro", 1.92, line),
     // Em cima da pia: dois módulos e uma fita de luz embaixo.
     part(-0.01, 2.5, 0.35, 0.9, TOP - 1.5, "madeira", 1.5, cab),
     ...door(2.5, 2.95, 1.5, TOP, 0.34),
@@ -857,7 +864,19 @@ function withOwned(p: Proposal): Proposal {
     ...p.pieces.filter((x) => !(x.roomId === "cozinha" && (x.name === "Armários aéreos"))),
     cabinets,
   ];
-  return { ...p, pieces: [...pieces, ...owned] };
+  // Churrasqueira e bancada de apoio lá fora em azul-marinho com tampo de granito preto,
+  // que escondem a sujeira da gordura e do carvão melhor que o creme.
+  const dirty: Record<string, string> = { "#f1ebdf": "#1b2a4a", "#e6e0d4": "#1f2022", "#b9ad98": "#3a4866" };
+  const outside = pieces.map((x) =>
+    x.roomId === "coberta" && (x.name === "Churrasqueira" || x.name === "Bancada de apoio")
+      ? { ...x, parts: x.parts.map((q) => (q.c && dirty[q.c] ? { ...q, c: dirty[q.c] } : q)) }
+      : x,
+  );
+  return {
+    ...p,
+    pieces: [...outside, ...owned],
+    notes: addNotes(p.notes, { coberta: ["Churrasqueira e bancada de apoio em azul-marinho com tampo de granito preto, que não mostram a sujeira como o creme."] }),
+  };
 }
 
 /** Junta as notas: soma as listas dos cômodos que aparecem nas duas. */
