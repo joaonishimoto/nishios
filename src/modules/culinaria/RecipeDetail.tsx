@@ -13,6 +13,7 @@ import { formatDate, shortDate, today } from "@/lib/dates";
 import { plural } from "@/lib/format";
 import { daysAgoLabel } from "@/modules/treinos/logic";
 import { FamilyTree } from "./FamilyTree";
+import { IngredientList } from "./IngredientList";
 import { bestRating, family, lastCooked, lineage, nextTip, RATING_LABELS, rootOf, STATUS_META, STATUS_ORDER } from "./logic";
 import { AttemptForm, StartForm, type AttemptState, type StartState } from "./RecipeForms";
 import { useCulinaria } from "./store";
@@ -126,18 +127,13 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
                 )}
               </Field>
             )}
-            <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-              <Field label="Ingredientes" hint="Um por linha.">
-                {(id) => (
-                  <Textarea
-                    id={id}
-                    value={recipe.ingredients}
-                    placeholder={"3 tomates\n1 cebola roxa\nAzeite, sal..."}
-                    className="min-h-44 leading-relaxed"
-                    onChange={(e) => set({ ingredients: e.target.value })}
-                  />
-                )}
-              </Field>
+            <div className="mt-4 flex flex-col gap-6">
+              <div>
+                <h3 className="mb-1.5 text-sm font-medium">
+                  Ingredientes{recipe.ingredients.length > 0 && <span className="ml-1.5 font-normal text-muted-foreground tabular-nums">{recipe.ingredients.length}</span>}
+                </h3>
+                <IngredientList items={recipe.ingredients} onChange={(ingredients) => set({ ingredients })} />
+              </div>
               <Field label="Modo de fazer" hint="Um passo por linha.">
                 {(id) => (
                   <Textarea

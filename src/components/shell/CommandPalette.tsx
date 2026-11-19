@@ -151,7 +151,7 @@ function useEntries(go: (to: string) => void): Entry[] {
         title: r.name || "Sem nome",
         detail: parent ? `Variação de ${parent}` : RECIPE_STATUS[r.status].label,
         icon: emoji(r.icon),
-        extra: `${r.category} ${r.change} ${r.ingredients} ${r.lessons} receita`,
+        extra: `${r.category} ${r.change} ${r.ingredients.map((i) => i.name).join(" ")} ${r.lessons} receita`,
         run: () => go(`/culinaria?r=${r.id}`),
       });
     }

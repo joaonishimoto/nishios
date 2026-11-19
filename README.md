@@ -120,7 +120,7 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
   - **Quadro**: as três colunas (quero aprender, aprendendo, já sei) para arrastar entre elas.
   - Painel lateral com nível de 0 a 5, plano de estudo (passos e links, com progresso) e diário de aprendizado.
 - **Culinária**: uma área de aprendizado, não um livro de receitas.
-  - Cada receita tem ingredientes e modo de fazer (um por linha), situação (em teste, aprovada, não deu certo), categoria e "O que já aprendi".
+  - Cada receita tem a lista de ingredientes (quantidade, unidade e ingrediente, um por linha da lista, com ordem ajustável; colar várias linhas no campo do ingrediente cria um item por linha), o modo de fazer (um passo por linha), situação (em teste, aprovada, não deu certo), categoria e "O que já aprendi".
   - **Tentativas**: cada vez que cozinhou, com data, nota de 0 a 5, como fez, como ficou e o que mudar na próxima vez. O último "para a próxima vez" aparece em destaque na receita e ao registrar a próxima tentativa.
   - **Variações**: "Criar variação" nasce da receita aberta já com os ingredientes e o modo de fazer dela, e guarda o que muda (Vinagrete padrão, depois Vinagrete com banana, depois com banana e pimenta). A família aparece em árvore na lista e na receita. Uma tentativa pode "Virar variação", e "Variação de" muda a receita de lugar na árvore. Excluir uma receita passa as variações dela para a de cima.
   - A lista mostra as famílias pela atividade mais recente, com filtro por situação, busca (também por ingrediente) e "Na cozinha", as últimas tentativas. As tentativas entram no calendário (camada Culinária) e o Início mostra a última vez na cozinha e as receitas em teste. Fica em `?r=<id>` na URL.
