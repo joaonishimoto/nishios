@@ -704,7 +704,6 @@ function proposalG4(): Proposal {
     // Almofadas apoiadas no assento, na frente do encosto (que termina em x 2,04), longe dos braços.
     piece("jantar", "Almofadas", "🛋️", "Móveis", [part(2.05, 1.78, 0.13, 0.4, 0.34, "tecido", 0.445, linen), part(2.05, 2.62, 0.13, 0.4, 0.34, "tecido", 0.445, linen)]),
     // Cozinha
-    piece("cozinha", "Aéreo da geladeira", "🗄️", "Móveis", full([part(-0.01, 3.42, 0.66, 0.66, 0.45, "madeira", 1.92, "#e4d6c2")])),
     piece("cozinha", "Passadeira", "🟦", "Móveis", rug(R(0.75, 1.1, 0.55, 1.3), nishi)),
     // Coifa de parede em inox no vão entre os aéreos, 65 cm acima do cooktop, com a chaminé até o teto.
     piece("cozinha", "Coifa de parede", "💨", "Eletrodomésticos", full([
@@ -732,8 +731,8 @@ function proposalG4(): Proposal {
         "O frigobar fica no canto do pé da cama, encostado na parede da janela e antes do armário.",
       ],
       estar: ["Dois pendentes azul-marinho em cima da mesa de 6 e um espelho de 1,40 m atrás dela, que deixa a sala parecer maior."],
-      jantar: ["Tapete entre o sofá e a TV, sem mesa de centro, para não fechar o caminho de 1,2 m até a porta de vidro. Almofadas creme no sofá azul-marinho."],
-      cozinha: ["Aéreo em cima da geladeira e uma passadeira azul-marinho no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto.", "Micro-ondas na bancada entre o cooktop e a pia e o purificador na parede do lado da pia, os dois que você já tem."],
+      jantar: ["Tapete entre o sofá e a TV, sem mesa de centro, para não fechar o caminho de 1,2 m até a porta de vidro. Almofadas creme no sofá azul-marinho.", "O purificador de água fica em cima do balcão da mureta, virado para a cozinha e perto da mesa."],
+      cozinha: ["Passadeira azul-marinho no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto.", "Aéreos refeitos numa linha só, com o topo a 2,30 m: módulo no canto do shaft, vão da coifa, torre mais funda com o micro-ondas embutido e porta basculante em cima, dois módulos em cima da pia com luz embaixo e um armário fundo em cima da geladeira, fechado por um painel lateral. A bancada fica livre."],
       banho: ["Armário em cima do vaso e nicho dentro do box."],
       banhosuite: ["Armário em cima do vaso e nicho dentro do box."],
       varanda: ["O freezer horizontal fica no canto do lado da parede, perto da churrasqueira, e o alimentador e o bebedouro dos gatos ficam do lado da casinha. Sobra mais de 1,1 m livre para passar para fora."],
@@ -795,17 +794,16 @@ function withOwned(p: Proposal): Proposal {
       part(3.585, 0.68, 0.015, 0.21, 0.025, "escuro", 0.78, gray),
       part(3.595, 0.53, 0.01, 0.06, 0.03, "escuro", 0.12, dark),
     ])),
-    // Micro-ondas (52 × 44 × 31 cm) na bancada entre o cooktop e a pia, embaixo do aéreo.
-    own(OWNED.microondas, piece("cozinha", "Micro-ondas Midea 35L", "📦", "Eletrodomésticos", [
-      part(0.0, 1.94, 0.44, 0.52, 0.31, "branco", 0.9, white),
-      part(0.44, 1.97, 0.006, 0.34, 0.24, "vidro", 0.935, "#3a3f46"),
-      part(0.44, 2.33, 0.006, 0.1, 0.24, "escuro", 0.935, dark),
-    ])),
-    // Purificador de parede (26 × 25 × 45 cm) do lado da pia, embaixo do aéreo.
-    own(OWNED.purificador, piece("cozinha", "Purificador Electrolux", "💧", "Eletrodomésticos", [
-      part(-0.01, 3.1, 0.25, 0.26, 0.45, "branco", 0.97, white),
-      part(0.24, 3.16, 0.006, 0.14, 0.1, "escuro", 1.27, dark),
-      part(0.2, 3.2, 0.06, 0.03, 0.03, "metal", 1.05),
+    // Micro-ondas (52 × 44 × 31 cm) embutido no aéreo, do lado da coifa: só a frente aparece.
+    own(OWNED.microondas, piece("cozinha", "Micro-ondas Midea 35L", "📦", "Eletrodomésticos", full([
+      part(0.47, 1.97, 0.006, 0.36, 0.25, "vidro", 1.53, "#3a3f46"),
+      part(0.47, 2.35, 0.006, 0.11, 0.25, "escuro", 1.53, dark),
+    ]))),
+    // Purificador (26 × 33 × 45 cm) em cima do balcão da mureta, fora da bancada e perto da mesa.
+    own(OWNED.purificador, piece("jantar", "Purificador Electrolux", "💧", "Eletrodomésticos", [
+      part(1.43, 2.88, 0.27, 0.26, 0.45, "branco", 1.04, white),
+      part(1.425, 2.94, 0.006, 0.14, 0.1, "escuro", 1.34, dark),
+      part(1.39, 2.98, 0.04, 0.06, 0.03, "metal", 1.12),
     ])),
     // Coisas dos gatos do lado da casinha, longe da passagem.
     own(OWNED.alimentador, piece("varanda", "Alimentador Positivo", "🐱", "Pets", [
@@ -818,7 +816,45 @@ function withOwned(p: Proposal): Proposal {
       part(2.23, 0.91, 0.16, 0.16, 0.012, "vidro", 0.14, "#9fc7d6"),
     ])),
   ];
-  return { ...p, pieces: [...p.pieces, ...owned] };
+  // Aéreos da cozinha refeitos numa linha só, com o topo a 2,30 m em toda a parede:
+  // um módulo no canto do shaft, o vão da coifa, um módulo mais fundo (47 cm) com o
+  // micro-ondas embutido e uma porta basculante em cima, dois módulos em cima da pia com
+  // luz embaixo, e um armário em cima da geladeira, fundo como ela, fechado por um painel
+  // lateral até o alto.
+  const oldCab = p.pieces.find((x) => x.roomId === "cozinha" && x.name === "Armários aéreos");
+  const cab = oldCab?.parts.find((q) => q.m === "madeira")?.c ?? "#ece3d1";
+  const line = "#b9ad98", TOP = 2.3;
+  const door = (z0: number, z1: number, y0: number, y1: number, x: number) => [
+    part(x, z0 + 0.004, 0.006, z1 - z0 - 0.008, 0.004, "escuro", y0 + 0.002, line),
+    part(x, z0 + 0.004, 0.006, 0.004, y1 - y0 - 0.004, "escuro", y0 + 0.002, line),
+  ];
+  const cabinets = piece("cozinha", "Armários aéreos", "🗄️", "Móveis", full([
+    // Canto do shaft: um módulo de uma porta.
+    part(-0.01, 0.89, 0.35, 0.36, TOP - 1.5, "madeira", 1.5, cab),
+    part(0.34, 1.19, 0.008, 0.03, 0.12, "escuro", 1.54, line),
+    // Torre do micro-ondas, do lado da coifa.
+    part(-0.01, 1.9, 0.48, 0.6, TOP - 1.45, "madeira", 1.45, cab),
+    ...door(1.9, 2.5, 1.86, TOP, 0.47),
+    part(0.47, 2.15, 0.008, 0.14, 0.008, "escuro", 1.9, line),
+    // Em cima da pia: dois módulos e uma fita de luz embaixo.
+    part(-0.01, 2.5, 0.35, 0.9, TOP - 1.5, "madeira", 1.5, cab),
+    ...door(2.5, 2.95, 1.5, TOP, 0.34),
+    part(0.34, 2.91, 0.008, 0.03, 0.12, "escuro", 1.54, line),
+    part(0.34, 2.99, 0.008, 0.03, 0.12, "escuro", 1.54, line),
+    part(0.28, 2.52, 0.04, 0.86, 0.01, "vidro", 1.49, "#fff6d8"),
+    // Em cima da geladeira: armário de 66 cm de fundo, alinhado com a frente dela.
+    part(-0.01, 3.42, 0.68, 0.66, TOP - 1.9, "madeira", 1.9, cab),
+    ...door(3.42, 3.75, 1.9, TOP, 0.67),
+    part(0.67, 3.7, 0.008, 0.1, 0.008, "escuro", 1.94, line),
+    part(0.67, 3.8, 0.008, 0.1, 0.008, "escuro", 1.94, line),
+    // Painel entre a pia e a geladeira, do chão até o alto.
+    part(-0.01, 3.4, 0.7, 0.02, TOP, "madeira", 0, cab),
+  ]));
+  const pieces = [
+    ...p.pieces.filter((x) => !(x.roomId === "cozinha" && (x.name === "Armários aéreos"))),
+    cabinets,
+  ];
+  return { ...p, pieces: [...pieces, ...owned] };
 }
 
 /** Junta as notas: soma as listas dos cômodos que aparecem nas duas. */
