@@ -135,7 +135,8 @@ export function wishesFor(
   const from = origin(proposal);
   const groups = new Map<string, Piece[]>();
   for (const p of pieces) {
-    if (p.fixed) continue;
+    // Já é um bem: não vira desejo.
+    if (p.fixed || p.assetId) continue;
     groups.set(p.name, [...(groups.get(p.name) ?? []), p]);
   }
   const out: Wish[] = [];
