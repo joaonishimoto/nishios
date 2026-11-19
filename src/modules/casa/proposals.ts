@@ -470,18 +470,17 @@ function tubShell(r: Rect, top: number, shell: string): Part[] {
 
 /**
  * Hidromassagem embutida num deque de madeira: o deque (`deck`) ocupa o canto em volta da
- * hidro (`tub`), que fica com a borda branca 30 cm acima. Degrau do lado de fora (leste).
+ * hidro (`tub`) quase até o topo: a borda branca fica só 5 cm acima do deque, sem degrau.
  */
 function deckedTub(deck: Rect, tub: Rect, wood = "#a07a55", shell = "#f4f4f1"): Part[] {
-  const H = 0.45;
+  const H = 0.7;
   const tx1 = tub.x + tub.w, tz1 = tub.z + tub.d, dx1 = deck.x + deck.w, dz1 = deck.z + deck.d;
   return [
     part(deck.x, deck.z, deck.w, tub.z - deck.z, H, "madeira", 0, wood),
     part(deck.x, tz1, deck.w, dz1 - tz1, H, "madeira", 0, wood),
     part(deck.x, tub.z, tub.x - deck.x, tub.d, H, "madeira", 0, wood),
     part(tx1, tub.z, dx1 - tx1, tub.d, H, "madeira", 0, wood),
-    ...tubShell(tub, H + 0.3, shell),
-    part(dx1, deck.z + deck.d / 2 - 0.35, 0.3, 0.7, 0.22, "madeira", 0, wood),
+    ...tubShell(tub, H + 0.05, shell),
   ];
 }
 
@@ -596,8 +595,8 @@ function extraG(): Extra {
         "Sem tanque: com a máquina dentro de casa, a área externa fica livre.",
       ],
       servicoext: [
-        "Hidromassagem branca de 2,00 × 1,50 m embutida num deque de madeira de 45 cm, que ocupa o canto inteiro, do muro até a parede da cozinha.",
-        "A borda da hidro fica 30 cm acima do deque, e um degrau do lado da churrasqueira ajuda a subir.",
+        "Hidromassagem branca de 2,00 × 1,50 m embutida num deque de madeira de 70 cm, que ocupa o canto inteiro, do muro até a parede da cozinha.",
+        "O deque sobe quase até o topo da hidro: a borda fica só 5 cm acima dele, sem degrau.",
         "Fica embaixo do telhado: dá para usar com chuva, e as folhas não caem na água.",
         "Ripado de madeira no lado de dentro do muro, do chão até 2,50 m, atrás e do lado da hidro.",
       ],
