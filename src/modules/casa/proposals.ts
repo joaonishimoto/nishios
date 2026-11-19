@@ -731,8 +731,8 @@ function proposalG4(): Proposal {
         "O frigobar fica no canto do pé da cama, encostado na parede da janela e antes do armário.",
       ],
       estar: ["Dois pendentes azul-marinho em cima da mesa de 6 e um espelho de 1,40 m atrás dela, que deixa a sala parecer maior."],
-      jantar: ["Tapete entre o sofá e a TV, sem mesa de centro, para não fechar o caminho de 1,2 m até a porta de vidro. Almofadas creme no sofá azul-marinho.", "O purificador de água fica em cima do balcão da mureta, virado para a cozinha e perto da mesa."],
-      cozinha: ["Passadeira azul-marinho no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto.", "Aéreos refeitos numa linha só, com o topo a 2,30 m: módulo no canto do shaft, vão da coifa, torre mais funda com o micro-ondas embutido e porta basculante em cima, dois módulos em cima da pia com luz embaixo e um armário fundo em cima da geladeira, fechado por um painel lateral. A bancada fica livre."],
+      jantar: ["Tapete entre o sofá e a TV, sem mesa de centro, para não fechar o caminho de 1,2 m até a porta de vidro. Almofadas creme no sofá azul-marinho."],
+      cozinha: ["Passadeira azul-marinho no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto.", "Aéreos refeitos numa linha só, com o topo a 2,30 m: módulo no canto do shaft, vão da coifa, torre mais funda com o micro-ondas embutido e porta basculante em cima, dois módulos em cima da pia com luz embaixo e um armário fundo em cima da geladeira, fechado por um painel lateral. A bancada fica livre.", "O purificador fica em cima da bancada da máquina de lavar, no canto, perto do ponto de água."],
       banho: ["Armário em cima do vaso e nicho dentro do box."],
       banhosuite: ["Armário em cima do vaso e nicho dentro do box."],
       varanda: ["O freezer horizontal fica no canto do lado da parede, perto da churrasqueira, e o alimentador e o bebedouro dos gatos ficam do lado da casinha. Sobra mais de 1,1 m livre para passar para fora."],
@@ -801,11 +801,12 @@ function withOwned(p: Proposal): Proposal {
       part(0.474, 2.35, 0.004, 0.11, 0.23, "escuro", 1.54, "#1d1f23"),
       part(0.478, 2.38, 0.003, 0.05, 0.02, "metal", 1.72, "#9aa0a6"),
     ]))),
-    // Purificador (26 × 33 × 45 cm) em cima do balcão da mureta, fora da bancada e perto da mesa.
-    own(OWNED.purificador, piece("jantar", "Purificador Electrolux", "💧", "Eletrodomésticos", [
-      part(1.43, 2.88, 0.27, 0.26, 0.45, "branco", 1.04, white),
-      part(1.425, 2.94, 0.006, 0.14, 0.1, "escuro", 1.34, dark),
-      part(1.39, 2.98, 0.04, 0.06, 0.03, "metal", 1.12),
+    // Purificador (26 × 33 × 45 cm) no canto da máquina de lavar, perto do ponto de água,
+    // encostado na parede do lado e virado para a cozinha.
+    own(OWNED.purificador, piece("cozinha", "Purificador Electrolux", "💧", "Eletrodomésticos", [
+      part(1.33, 0.5, 0.26, 0.33, 0.45, "branco", 0.9, white),
+      part(1.325, 0.6, 0.006, 0.14, 0.1, "escuro", 1.2, dark),
+      part(1.29, 0.64, 0.04, 0.06, 0.03, "metal", 0.98),
     ])),
     // Coisas dos gatos do lado da casinha, longe da passagem.
     own(OWNED.alimentador, piece("varanda", "Alimentador Positivo", "🐱", "Pets", [
