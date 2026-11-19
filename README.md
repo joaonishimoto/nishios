@@ -75,6 +75,7 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
   - Cada modalidade tem um tipo, que define o que se registra: força (exercícios, séries, repetições e carga), luta (estilo e rounds), distância (km ou metros, com ritmo calculado) ou só duração.
   - Ao abrir uma modalidade aparecem os números dela. Em musculação, a evolução de carga de cada exercício; em corrida e natação, distância, ritmo médio e maior distância.
   - "Copiar do último treino" preenche os exercícios do treino anterior.
+  - **Dança**: um catálogo de passos. Cada passo tem grupo (básicos, giros...), vídeos (link do YouTube, Vimeo, Instagram ou TikTok, ou um vídeo enviado do aparelho), dicas e uma faixa que diz quão bem você faz o passo: Não aprendi, Transparente, Branco, Azul, Roxo, Preto e Vermelho. Cada mudança de faixa fica com a data e vira um gráfico de evolução. Vídeos enviados vão para o bucket privado `nishios-videos` do Supabase (migration `20261119110000_videos.sql`); sem login, ficam só no navegador.
 - **Corpo**: peso, gordura corporal e dez medidas, com uma silhueta que mostra o valor atual e a variação de cada uma.
   - Toque em uma medida (ou no peso) para ver o gráfico de evolução. Se houver uma meta ligada, o alvo aparece como linha no gráfico, com o progresso embaixo.
   - "Registrar medidas" aceita só o que foi medido no dia. IMC calculado pela altura.
@@ -196,6 +197,14 @@ Os dados de cada módulo passam todos pelo seu `store.tsx`, que usa `usePersiste
 | Corrida por dentro | Registrar treino |
 | --- | --- |
 | ![Corrida](docs/screenshots/treinos-corrida.png) | ![Registrar treino](docs/screenshots/treino-novo.png) |
+
+| Dança: passos e faixas | Passo por dentro |
+| --- | --- |
+| ![Dança](docs/screenshots/danca-catalogo.png) | ![Passo](docs/screenshots/danca-depois.png) |
+
+| Dança no celular | Passo no celular |
+| --- | --- |
+| ![Dança no celular](docs/screenshots/danca-celular.png) | ![Passo no celular](docs/screenshots/danca-passo-celular.png) |
 
 | Corpo | Metas ligadas |
 | --- | --- |

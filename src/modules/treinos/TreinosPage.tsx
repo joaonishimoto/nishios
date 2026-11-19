@@ -24,6 +24,7 @@ import {
   sessionSummary,
   sum,
 } from "./logic";
+import { DanceSteps } from "./danca/DanceSteps";
 import { ModalityForm } from "./ModalityForm";
 import { SessionForm } from "./SessionForm";
 import { useTreinos } from "./store";
@@ -384,7 +385,8 @@ function ModalityDetail({
       </div>
 
       {sessions.length === 0 ? (
-        <EmptyState
+        // Na dança, os passos logo abaixo já ocupam o lugar; os números chegam com o primeiro treino.
+        m.kind === "dance" ? null : <EmptyState
           size="sm"
           icon={ChartColumn}
           frame="dashed"
@@ -475,6 +477,8 @@ function ModalityDetail({
           )}
         </>
       )}
+
+      {m.kind === "dance" && <DanceSteps modality={m} />}
     </section>
   );
 }

@@ -3,9 +3,10 @@
  * - strength: lista de exercícios com séries, repetições e carga
  * - fight: estilo e rounds
  * - distance: distância, de onde sai o ritmo
+ * - dance: só duração e intensidade no treino; os passos e as faixas ficam em danca/
  * - other: só duração e intensidade
  */
-export type ModalityKind = "strength" | "fight" | "distance" | "other";
+export type ModalityKind = "strength" | "fight" | "distance" | "dance" | "other";
 export type DistanceUnit = "km" | "m";
 
 export interface Modality {
@@ -53,6 +54,7 @@ export const KIND_LABELS: Record<ModalityKind, string> = {
   strength: "Força (exercícios, séries e carga)",
   fight: "Luta (estilo e rounds)",
   distance: "Distância (corrida, caminhada, natação)",
+  dance: "Dança (passos, vídeos e faixas)",
   other: "Outro (só duração)",
 };
 
@@ -61,4 +63,5 @@ export const FIGHT_STYLES = ["Muay thai", "Jiu-jitsu", "Boxe", "Judô", "MMA"];
 export const TRAINING_ICONS = [
   "🏋️", "🥊", "🥋", "🏃", "🚶", "🏊", "🚴", "🧘",
   "⚽", "🏀", "🎾", "🏐", "🧗", "🤸", "⛹️", "🏄",
+  "💃", "🕺",
 ];
