@@ -104,7 +104,7 @@ function PanelContent({ commitment: c, onClose }: { commitment: Commitment; onCl
             )}
           </div>
           {d.status !== "done" && (
-            <MarkDone commitment={c} variant="primary" size="md" className="mt-4 w-full" />
+            <MarkDone commitment={c} variant="primary" size="md" iconOnly={false} className="mt-4 w-full" />
           )}
         </section>
 
