@@ -24,6 +24,7 @@ import {
   STATUS_ORDER,
 } from "./logic";
 import { useCommitments } from "./store";
+import { usePets } from "@/modules/pets/store";
 import type { Commitment, Status } from "./types";
 
 type Filter = "all" | Status;
@@ -224,6 +225,7 @@ export function CompromissosPage() {
 
 function Row({ commitment: c, onOpen }: { commitment: Commitment; onOpen: () => void }) {
   const d = derive(c);
+  const pet = usePets().pets.find((p) => p.id === c.petId);
   const dueTone =
     d.status === "overdue"
       ? "text-danger-strong"
@@ -251,7 +253,10 @@ function Row({ commitment: c, onOpen }: { commitment: Commitment; onOpen: () => 
           >
             {c.name}
           </button>
-          <p className="truncate text-sm text-muted-foreground">{c.category}</p>
+          <p className="truncate text-sm text-muted-foreground">
+            {c.category}
+            {pet && `, ${pet.icon} ${pet.name}`}
+          </p>
         </div>
       </div>
 

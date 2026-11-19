@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Check, PawPrint, Pencil, Plus, Scale, Sofa, Stethoscope, Syringe, X } from "lucide-react";
+import { CalendarClock, Check, PawPrint, Pencil, Plus, Scale, Sofa, Stethoscope, Syringe, X } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { CycleTrack } from "@/components/ui/CycleTrack";
@@ -11,6 +11,9 @@ import { LineChart } from "@/components/ui/LineChart";
 import { useToast } from "@/components/ui/Toast";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { cn } from "@/lib/cn";
+import { CommitmentForm } from "@/modules/compromissos/CommitmentForm";
+import { byUrgency, derive, dueLabel, periodLabel } from "@/modules/compromissos/logic";
+import { useCommitments } from "@/modules/compromissos/store";
 import { formatDate, shortDate, toISO, today } from "@/lib/dates";
 import { plural } from "@/lib/format";
 import {
@@ -265,6 +268,8 @@ function PetDetail({ pet, onEdit }: { pet: Pet; onEdit: () => void }) {
         )}
       </section>
 
+      <PetCommitments pet={pet} />
+
       </div>
       <WeightSection pet={pet} />
       </div>
@@ -282,6 +287,75 @@ function PetDetail({ pet, onEdit }: { pet: Pet; onEdit: () => void }) {
         onOpenChange={(open) => setHealthForm((s) => ({ ...s, open }))}
       />
     </div>
+  );
+}
+
+/** Compromissos ligados ao pet: banho e tosa, consulta marcada, castração... */
+function PetCommitments({ pet }: { pet: Pet }) {
+  const [creating, setCreating] = useState(false);
+  const linked = useCommitments()
+    .commitments.filter((c) => c.petId === pet.id)
+    .sort((a, b) => byUrgency(a, b));
+
+  return (
+    <section>
+      <SectionHead
+        title={`Compromissos de ${pet.name}`}
+        action={
+          <Button variant="outline" size="sm" className="h-8" onClick={() => setCreating(true)}>
+            <Plus />
+            Novo compromisso
+          </Button>
+        }
+      />
+      {linked.length === 0 ? (
+        <EmptyState
+          size="sm"
+          icon={CalendarClock}
+          frame="dashed"
+          className="mt-3"
+          title="Nenhum compromisso ligado"
+          description={`Banho e tosa, consulta marcada, castração: o que for de ${pet.name} aparece aqui e também em Compromissos.`}
+        />
+      ) : (
+        <ul className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
+          {linked.map((c) => {
+            const d = derive(c);
+            return (
+              <li key={c.id} className="border-b border-border last:border-b-0">
+                <Link
+                  to={`/compromissos?c=${c.id}`}
+                  className="flex items-center gap-3 px-3 py-2.5 transition-colors duration-(--motion-fast) hover:bg-surface-hover"
+                >
+                  <span className="text-lg leading-none">{c.icon}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-medium">{c.name}</span>
+                    <span className="block truncate text-sm text-muted-foreground">{periodLabel(c)}</span>
+                  </span>
+                  <span
+                    className={cn(
+                      "shrink-0 text-sm",
+                      d.status === "overdue"
+                        ? "text-danger-strong"
+                        : d.status === "soon"
+                          ? "text-warning-strong"
+                          : "text-muted-foreground",
+                    )}
+                  >
+                    {dueLabel(d)}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <CommitmentForm
+        open={creating}
+        onOpenChange={setCreating}
+        defaults={{ petId: pet.id, icon: "🐾", category: "Pets" }}
+      />
+    </section>
   );
 }
 

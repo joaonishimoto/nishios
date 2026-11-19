@@ -17,6 +17,8 @@ export interface Commitment {
   notes: string;
   /** Bem a que o compromisso se refere (a revisão é do carro, a limpeza é do ar-condicionado). */
   assetId?: string;
+  /** Pet a que o compromisso se refere (vacina, banho, consulta no veterinário). */
+  petId?: string;
   /** Datas em que foi feito, no formato yyyy-MM-dd, da mais recente para a mais antiga. */
   history: string[];
 }
@@ -25,10 +27,11 @@ export type CommitmentDraft = Omit<Commitment, "id" | "history"> & { lastDone: s
 
 export type Status = "overdue" | "soon" | "ok" | "never" | "done";
 
-export const CATEGORIES = ["Saúde", "Cuidados pessoais", "Casa", "Carro", "Documentos", "Outros"];
+export const CATEGORIES = ["Saúde", "Cuidados pessoais", "Casa", "Carro", "Pets", "Documentos", "Outros"];
 
 export const ICONS = [
   "💈", "🦷", "🩸", "🩺", "👓", "💊", "🧴", "🪥",
   "🚗", "🛞", "🏠", "🚰", "❄️", "🔥", "🧯", "🧹",
   "📄", "🪪", "💳", "🛂", "📱", "💻", "🌱", "📌",
+  "🐾", "💉", "🛁", "✂️",
 ];
