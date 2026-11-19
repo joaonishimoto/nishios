@@ -20,7 +20,7 @@ import { useFinancas } from "./store";
 import type { Investment } from "./types";
 
 /** Soma dos saldos em cada data em que algum investimento foi atualizado. */
-function totalHistory(list: Investment[]): ChartPoint[] {
+export function totalHistory(list: Investment[]): ChartPoint[] {
   const dates = [...new Set(list.flatMap((i) => i.history.map((p) => p.date)))].sort();
   return dates.map((date) => ({
     date,
@@ -123,7 +123,7 @@ function GoalLine({ goal, current, perMonth }: { goal: Goal; current: number; pe
     <div className="mt-3 border-t border-border pt-3">
       <div className="flex items-center gap-2 text-sm">
         <Target className="size-4 shrink-0 text-muted-foreground" />
-        <Link to="/rotina" className="min-w-0 flex-1 truncate font-medium hover:underline">
+        <Link to={`/rotina?meta=${goal.id}`} className="min-w-0 flex-1 truncate font-medium hover:underline">
           {goal.name}
         </Link>
         <span className="font-semibold tabular-nums">{Math.round(progress * 100)}%</span>

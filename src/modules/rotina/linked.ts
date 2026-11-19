@@ -6,6 +6,8 @@ import type { Investment } from "@/modules/financas/types";
 import type { Skill } from "@/modules/skills/types";
 import type { Task } from "@/modules/tarefas/types";
 import type { Modality, Session } from "@/modules/treinos/types";
+import { differenceInCalendarDays, parseISO } from "date-fns";
+import { toISO, today } from "@/lib/dates";
 import type { Goal, GoalLink, Habit, TrainingMetric } from "./types";
 
 /** O que as ligações precisam enxergar dos outros módulos. */
@@ -45,7 +47,15 @@ export function linkedValue(link: GoalLink, data: LinkData): number {
     }
     case "habito": {
       const habit = data.habits.find((h) => h.id === link.habitId);
-      return habit ? new Set(habit.log.filter((d) => d >= link.since)).size : 0;
+      if (!habit) return 0;
+      if (habit.type === "evitar") {
+        // Mau hábito: conta os dias limpos desde o início, sem os dias em que escapou.
+        const from = [link.since, habit.createdAt ?? ""].sort().at(-1)!;
+        const now = today();
+        const days = from ? differenceInCalendarDays(now, parseISO(from)) + 1 : 0;
+        return Math.max(0, days - new Set(habit.log.filter((d) => d >= from && d <= toISO(now))).size);
+      }
+      return new Set(habit.log.filter((d) => d >= link.since)).size;
     }
     case "tarefas":
       return data.tasks.filter(
@@ -82,6 +92,7 @@ export function linkLabel(link: GoalLink, data: Pick<LinkData, "modalities" | "h
     }
     case "habito": {
       const h = data.habits.find((x) => x.id === link.habitId);
+      if (h?.type === "evitar") return `Conta os dias sem ${h.name.toLowerCase()}`;
       return `Atualiza sozinha com o hábito ${h ? h.name : "ligado"}`;
     }
     case "tarefas":
@@ -112,7 +123,7 @@ export function linkLabel(link: GoalLink, data: Pick<LinkData, "modalities" | "h
 export function linkRoute(link: GoalLink): string {
   if (link.kind === "treinos") return link.modalityId ? `/treinos?m=${link.modalityId}` : "/treinos";
   if (link.kind === "tarefas") return "/tarefas";
-  if (link.kind === "habito") return "/rotina";
+  if (link.kind === "habito") return `/rotina?habito=${link.habitId}`;
   if (link.kind === "skill") return `/skills?s=${link.skillId}`;
   if (link.kind === "skills") return "/skills";
   if (link.kind === "investimento" || link.kind === "investimentos") return "/financas?aba=investimentos";
@@ -122,7 +133,7 @@ export function linkRoute(link: GoalLink): string {
 /** Hábitos com os dias de treino somados ao registro manual. */
 export function resolveHabits(habits: Habit[], sessions: Session[]): Habit[] {
   return habits.map((h) => {
-    if (!h.link) return h;
+    if (!h.link || h.type === "evitar") return h;
     const modalityId = h.link.modalityId;
     const auto = [...new Set(sessions.filter((s) => !modalityId || s.modalityId === modalityId).map((s) => s.date))];
     return { ...h, autoDates: auto, log: [...new Set([...h.log, ...auto])] };
@@ -130,5 +141,10 @@ export function resolveHabits(habits: Habit[], sessions: Session[]): Habit[] {
 }
 
 export function resolveGoals(goals: Goal[], data: LinkData): Goal[] {
-  return goals.map((g) => (g.link ? { ...g, current: linkedValue(g.link, data) } : g));
+  return goals.map((g) => {
+    if (g.link) return { ...g, current: linkedValue(g.link, data) };
+    // Meta de etapas: o alvo é o número de etapas e o progresso, as concluídas.
+    if (g.steps) return { ...g, current: g.steps.filter((s) => s.done).length, target: g.steps.length, unit: "etapas" };
+    return g;
+  });
 }

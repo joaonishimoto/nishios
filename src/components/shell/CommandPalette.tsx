@@ -109,10 +109,10 @@ function useEntries(go: (to: string) => void): Entry[] {
       list.push({ id: `c-${c.id}`, group: "Compromissos", title: c.name, detail: c.category, icon: emoji(c.icon), extra: c.notes, run: () => go(`/compromissos?c=${c.id}`) });
     }
     for (const h of habits) {
-      list.push({ id: `h-${h.id}`, group: "Hábitos", title: h.name, icon: emoji(h.icon), run: () => go("/rotina") });
+      list.push({ id: `h-${h.id}`, group: "Hábitos", title: h.name, icon: emoji(h.icon), run: () => go(`/rotina?habito=${h.id}`) });
     }
     for (const g of goals) {
-      list.push({ id: `g-${g.id}`, group: "Metas", title: g.name, detail: `${g.current} de ${g.target} ${g.unit}`.trim(), icon: emoji(g.icon), extra: g.notes, run: () => go("/rotina") });
+      list.push({ id: `g-${g.id}`, group: "Metas", title: g.name, detail: `${g.current} de ${g.target} ${g.unit}`.trim(), icon: emoji(g.icon), extra: g.notes, run: () => go(`/rotina?meta=${g.id}`) });
     }
     for (const p of people) {
       list.push({ id: `p-${p.id}`, group: "Pessoas", title: p.name, detail: p.context || p.group, icon: page("/pessoas"), extra: `${p.group} ${p.city} ${p.notes}`, run: () => go(`/pessoas?p=${p.id}`) });

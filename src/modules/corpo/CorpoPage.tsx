@@ -162,7 +162,7 @@ export function CorpoPage() {
                         .filter(Boolean)
                         .join(". ")}
                       {!goalDone(goal) && ". "}
-                      <Link to="/rotina" className="font-medium text-primary hover:underline">
+                      <Link to={`/rotina?meta=${goal.id}`} className="font-medium text-primary hover:underline">
                         Ver em metas
                       </Link>
                     </p>
@@ -171,7 +171,7 @@ export function CorpoPage() {
                   points.length > 0 && (
                     <p className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">
                       Quer um alvo para {metricLabel(metric).toLowerCase()}?{" "}
-                      <Link to="/rotina" className="font-medium text-primary hover:underline">
+                      <Link to="/rotina?aba=metas&novo=meta" className="font-medium text-primary hover:underline">
                         Crie uma meta
                       </Link>{" "}
                       ligada ao corpo e ela se atualiza a cada medição.

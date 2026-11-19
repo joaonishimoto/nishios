@@ -1,4 +1,5 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { toISO, today } from "@/lib/dates";
 import { usePersistentState } from "@/lib/storage";
 import { useCorpo } from "@/modules/corpo/store";
 import { useFinancas } from "@/modules/financas/store";
@@ -18,8 +19,10 @@ interface Store {
   goals: Goal[];
   /** Marca ou desmarca o hábito em um dia (yyyy-MM-dd). */
   toggleHabit: (id: string, date: string) => void;
+  /** Soma (ou tira) quantidade num hábito de quantidade; fica feito ao chegar no alvo. */
+  addAmount: (id: string, date: string, delta: number) => void;
   createHabit: (draft: HabitDraft) => void;
-  updateHabit: (id: string, draft: HabitDraft) => void;
+  updateHabit: (id: string, patch: Partial<HabitDraft>) => void;
   removeHabit: (id: string) => void;
   restoreHabit: (habit: Habit) => void;
   createGoal: (draft: GoalDraft) => void;
@@ -53,21 +56,33 @@ export function RoutineProvider({ children }: { children: ReactNode }) {
       goals,
       toggleHabit(id, date) {
         setHabits((list) =>
-          list.map((h) =>
-            h.id !== id
-              ? h
-              : {
-                  ...h,
-                  log: h.log.includes(date) ? h.log.filter((d) => d !== date) : [...h.log, date],
-                },
-          ),
+          list.map((h) => {
+            if (h.id !== id) return h;
+            const on = h.log.includes(date);
+            const log = on ? h.log.filter((d) => d !== date) : [...h.log, date];
+            // Num hábito de quantidade, marcar é completar o dia e desmarcar é zerar.
+            if (!h.amount) return { ...h, log };
+            return { ...h, log, counts: { ...h.counts, [date]: on ? 0 : h.amount.target } };
+          }),
+        );
+      },
+      addAmount(id, date, delta) {
+        setHabits((list) =>
+          list.map((h) => {
+            if (h.id !== id || !h.amount) return h;
+            const before = h.counts?.[date] ?? (h.log.includes(date) ? h.amount.target : 0);
+            const value = Math.max(0, Math.round((before + delta) * 100) / 100);
+            const reached = value >= h.amount.target;
+            const log = reached ? [...new Set([...h.log, date])] : h.log.filter((d) => d !== date);
+            return { ...h, log, counts: { ...h.counts, [date]: value } };
+          }),
         );
       },
       createHabit(draft) {
-        setHabits((list) => [...list, { ...draft, id: crypto.randomUUID(), log: [] }]);
+        setHabits((list) => [...list, { ...draft, id: crypto.randomUUID(), log: [], createdAt: toISO(today()) }]);
       },
-      updateHabit(id, draft) {
-        setHabits((list) => list.map((h) => (h.id === id ? { ...h, ...draft } : h)));
+      updateHabit(id, patch) {
+        setHabits((list) => list.map((h) => (h.id === id ? { ...h, ...patch } : h)));
       },
       removeHabit(id) {
         setHabits((list) => list.filter((h) => h.id !== id));
@@ -79,10 +94,34 @@ export function RoutineProvider({ children }: { children: ReactNode }) {
         setHabits((list) => (list.some((h) => h.id === habit.id) ? list : [...list, saved]));
       },
       createGoal(draft) {
-        setGoals((list) => [...list, { ...draft, id: crypto.randomUUID() }]);
+        const date = toISO(today());
+        setGoals((list) => [
+          ...list,
+          {
+            ...draft,
+            id: crypto.randomUUID(),
+            createdAt: draft.createdAt ?? date,
+            history: draft.link ? undefined : [{ date, value: draft.steps ? draft.steps.filter((s) => s.done).length : draft.current }],
+          },
+        ]);
       },
       updateGoal(id, patch) {
-        setGoals((list) => list.map((g) => (g.id === id ? { ...g, ...patch } : g)));
+        setGoals((list) =>
+          list.map((g) => {
+            if (g.id !== id) return g;
+            const next = { ...g, ...patch };
+            if (next.link) return next;
+            // Guarda o número do dia sempre que ele muda à mão, para o gráfico e o ritmo.
+            const value = next.steps ? next.steps.filter((s) => s.done).length : next.current;
+            const before = g.steps ? g.steps.filter((s) => s.done).length : g.current;
+            if (value === before && g.history?.length) return next;
+            const date = toISO(today());
+            const history = [...(g.history ?? []).filter((p) => p.date !== date), { date, value }].sort((a, b) =>
+              a.date.localeCompare(b.date),
+            );
+            return { ...next, history };
+          }),
+        );
       },
       removeGoal(id) {
         setGoals((list) => list.filter((g) => g.id !== id));

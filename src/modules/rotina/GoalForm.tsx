@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Trash2 } from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
 import { startOfYear } from "date-fns";
@@ -19,10 +19,11 @@ import { TRAINING_METRICS } from "./linked";
 import { useRoutine } from "./store";
 import { ROUTINE_ICONS, type Goal, type GoalDraft, type GoalLink, type SkillMetric, type TrainingMetric } from "./types";
 
-type SourceKind = "manual" | GoalLink["kind"];
+type SourceKind = "manual" | "etapas" | GoalLink["kind"];
 
 const SOURCES: [SourceKind, string][] = [
   ["manual", "Eu atualizo"],
+  ["etapas", "Etapas (uma lista para ir marcando)"],
   ["treinos", "Treinos"],
   ["peso", "Peso (Corpo)"],
   ["gordura", "Gordura corporal (Corpo)"],
@@ -74,8 +75,12 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
     notes: goal?.notes ?? "",
     start: goal?.start,
     link: goal?.link,
+    steps: goal?.steps,
+    history: goal?.history,
+    createdAt: goal?.createdAt,
   });
-  const kind: SourceKind = draft.link?.kind ?? "manual";
+  const kind: SourceKind = draft.link?.kind ?? (draft.steps ? "etapas" : "manual");
+  const [stepText, setStepText] = useState("");
   const body = kind === "peso" || kind === "gordura" || kind === "medida";
   const counting = kind === "treinos" || kind === "habito" || kind === "tarefas";
 
@@ -83,9 +88,12 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
   function setSource(next: SourceKind) {
     const since = draft.link && "since" in draft.link ? draft.link.since : yearStart;
     setDraft((d) => {
+      if (next !== "etapas" && d.steps) d = { ...d, steps: undefined };
       switch (next) {
         case "manual":
           return { ...d, link: undefined };
+        case "etapas":
+          return { ...d, link: undefined, steps: d.steps ?? [], unit: "etapas", start: undefined };
         case "treinos":
           return { ...d, link: { kind: "treinos", modalityId: "", metric: "sessions", since }, unit: "treinos", start: undefined };
         case "habito":
@@ -130,14 +138,34 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
     setDraft((d) => ({ ...d, [key]: value }));
 
   const nameError = draft.name.trim() ? undefined : "Dê um nome à meta.";
-  const targetError = draft.target > 0 ? undefined : "O alvo precisa ser maior que zero.";
+  const targetError =
+    kind === "etapas"
+      ? (draft.steps?.length ?? 0) > 0 || stepText.trim()
+        ? undefined
+        : "Inclua pelo menos uma etapa."
+      : draft.target > 0
+        ? undefined
+        : "O alvo precisa ser maior que zero.";
+
+  function addStep() {
+    if (!stepText.trim()) return;
+    set("steps", [...(draft.steps ?? []), { id: crypto.randomUUID(), text: stepText.trim(), done: false }]);
+    setStepText("");
+  }
 
   function submit(e: FormEvent) {
     e.preventDefault();
     setTried(true);
     if (nameError || targetError) return;
+    // Uma etapa digitada e não incluída ainda entra junto.
+    const steps =
+      kind === "etapas"
+        ? [...(draft.steps ?? []), ...(stepText.trim() ? [{ id: crypto.randomUUID(), text: stepText.trim(), done: false }] : [])]
+        : undefined;
     const clean = {
       ...draft,
+      steps,
+      ...(steps ? { target: steps.length, current: steps.filter((x) => x.done).length, unit: "etapas" } : {}),
       name: draft.name.trim(),
       unit: draft.unit.trim(),
       notes: draft.notes.trim(),
@@ -178,7 +206,9 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
           hint={
             kind === "manual"
               ? "Você mesmo atualiza o progresso."
-              : "A meta se atualiza sozinha conforme você registra nesse módulo."
+              : kind === "etapas"
+                ? "O progresso é quantas etapas você já concluiu."
+                : "A meta se atualiza sozinha conforme você registra nesse módulo."
           }
         >
           {(id) => (
@@ -342,6 +372,49 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
           </Field>
         )}
 
+        {kind === "etapas" && (
+          <fieldset className="flex flex-col gap-1.5">
+            <legend className="mb-1.5 text-sm font-medium">Etapas</legend>
+            {(draft.steps ?? []).length > 0 && (
+              <ol className="flex flex-col gap-1">
+                {draft.steps!.map((st, i) => (
+                  <li key={st.id} className="flex items-center gap-2 rounded-md bg-surface-muted/60 px-2.5 py-1.5 text-sm">
+                    <span className="w-5 text-muted-foreground tabular-nums">{i + 1}.</span>
+                    <span className={st.done ? "flex-1 text-muted-foreground line-through" : "flex-1"}>{st.text}</span>
+                    <button
+                      type="button"
+                      aria-label={`Tirar ${st.text}`}
+                      className="rounded-sm p-0.5 text-subtle-foreground hover:text-danger-strong"
+                      onClick={() => set("steps", draft.steps!.filter((x) => x.id !== st.id))}
+                    >
+                      <X className="size-4" />
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            )}
+            <div className="flex gap-2">
+              <Input
+                aria-label="Nova etapa"
+                placeholder="Ex.: Exame médico"
+                value={stepText}
+                onChange={(e) => setStepText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key !== "Enter") return;
+                  e.preventDefault();
+                  addStep();
+                }}
+              />
+              <Button variant="outline" onClick={addStep} disabled={!stepText.trim()}>
+                <Plus />
+                Incluir
+              </Button>
+            </div>
+            {tried && targetError && <p className="text-sm text-danger-strong">{targetError}</p>}
+          </fieldset>
+        )}
+
+        {kind !== "etapas" && (
         <div className="grid gap-4 sm:grid-cols-3">
           {counting && draft.link && "since" in draft.link ? (
             <Field label="Contar a partir de">
@@ -411,6 +484,7 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
             )}
           </Field>
         </div>
+        )}
 
         <Field label="Prazo" hint="Deixe em branco se não tiver.">
           {(id) => (

@@ -57,8 +57,15 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
   - No quadro, arraste os cartões entre as colunas.
   - Painel lateral em que cada campo salva na hora. Filtro por lista e busca.
 - **Rotina e metas** (fase 2):
-  - Checks da semana: cada hábito vale nos dias que você escolher, com a sequência de dias seguidos.
-  - Metas com número, unidade, alvo e prazo opcional, e um botão para atualizar o progresso.
+  - Duas abas, Hábitos e Metas. Tudo que abre fica na URL (`?aba=metas`, `?habito=<id>`, `?meta=<id>`), então outras telas abrem o hábito ou a meta direto.
+  - Hoje: a lista do dia separada por manhã, tarde e noite, com check grande, contador para hábitos de quantidade e "Escapei" para maus hábitos.
+  - Tipos de hábito: dias fixos, "X vezes por semana" (vale qualquer dia até fechar a semana, e a sequência conta semanas), quantidade por dia (8 copos, 20 páginas; só fica feito ao chegar no alvo) e mau hábito ("Quero largar": cada dia sem ele conta como vitória e você só marca quando escapar).
+  - Hábitos podem ser pausados sem perder o histórico, ter um "por que importa" e começar de uma sugestão.
+  - Semana navegável para trás, para corrigir dias passados. Detalhe do hábito com sequência atual, melhor sequência, cumprimento dos últimos 30 dias e as últimas 18 semanas em quadradinhos.
+  - Metas com número, unidade, alvo e prazo opcional, "+1" de um toque e "Atualizar". Cada mudança fica guardada e vira gráfico.
+  - Metas de etapas: uma lista para ir marcando (o progresso é quantas etapas foram concluídas).
+  - Ritmo do prazo: a meta diz se está no ritmo, adiantada ou atrasada, com um risco na barra onde deveria estar hoje, quanto precisa por semana ou mês e, quando está atrás, quando chega no ritmo atual. Metas de investimento mostram quando chegam com o aporte mensal.
+  - Filtro de metas em andamento, concluídas e todas.
 - **Compromissos** (fase 1): lista agrupada por situação (atrasados, chegando a hora, sem registro, em dia), com filtro por situação e categoria e busca.
   - Cada compromisso tem período (dias, semanas, meses ou anos), última vez feita, próxima data calculada e antecedência do aviso.
   - "Marcar como feito" registra a data no histórico e recalcula a próxima.
