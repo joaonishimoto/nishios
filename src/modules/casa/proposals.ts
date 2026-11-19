@@ -864,9 +864,9 @@ function withOwned(p: Proposal): Proposal {
     ...p.pieces.filter((x) => !(x.roomId === "cozinha" && (x.name === "Armários aéreos"))),
     cabinets,
   ];
-  // Churrasqueira e bancada de apoio lá fora em azul-marinho com tampo de granito preto,
-  // que escondem a sujeira da gordura e do carvão melhor que o creme.
-  const dirty: Record<string, string> = { "#f1ebdf": "#1b2a4a", "#e6e0d4": "#1f2022", "#b9ad98": "#3a4866" };
+  // Churrasqueira e bancada de apoio lá fora em preto fosco com tampo de granito preto um
+  // tom mais claro, que escondem a sujeira da gordura e do carvão.
+  const dirty: Record<string, string> = { "#f1ebdf": "#1c1d1f", "#e6e0d4": "#303134", "#b9ad98": "#5a5d62" };
   const outside = pieces.map((x) =>
     x.roomId === "coberta" && (x.name === "Churrasqueira" || x.name === "Bancada de apoio")
       ? { ...x, parts: x.parts.map((q) => (q.c && dirty[q.c] ? { ...q, c: dirty[q.c] } : q)) }
@@ -875,7 +875,7 @@ function withOwned(p: Proposal): Proposal {
   return {
     ...p,
     pieces: [...outside, ...owned],
-    notes: addNotes(p.notes, { coberta: ["Churrasqueira e bancada de apoio em azul-marinho com tampo de granito preto, que não mostram a sujeira como o creme."] }),
+    notes: addNotes(p.notes, { coberta: ["Churrasqueira e bancada de apoio em preto fosco com tampo de granito preto, que não mostram a sujeira."] }),
   };
 }
 
