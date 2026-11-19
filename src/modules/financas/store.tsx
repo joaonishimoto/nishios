@@ -23,6 +23,8 @@ interface Store {
   removeInvestment: (id: string) => void;
   restoreInvestment: (inv: Investment) => void;
   resetToExample: () => void;
+  /** Apaga recorrências e investimentos, para começar do zero. */
+  clearAll: () => void;
 }
 
 const Ctx = createContext<Store | null>(null);
@@ -79,6 +81,10 @@ export function FinancasProvider({ children }: { children: ReactNode }) {
       resetToExample() {
         setRecurrences(seedRecurrences());
         setInvestments(seedInvestments());
+      },
+      clearAll() {
+        setRecurrences([]);
+        setInvestments([]);
       },
     }),
     [recurrences, investments, setRecurrences, setInvestments],

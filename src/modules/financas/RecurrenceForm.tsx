@@ -64,6 +64,7 @@ function Content({ recurrence, kind, onClose }: { recurrence?: Recurrence; kind:
     every: recurrence?.every ?? 1,
     first: recurrence?.first ?? toISO(today()),
     times: recurrence?.times,
+    businessDay: recurrence?.businessDay,
     investmentId: recurrence?.investmentId,
     assetId: recurrence?.assetId,
     notes: recurrence?.notes ?? "",
@@ -79,6 +80,8 @@ function Content({ recurrence, kind, onClose }: { recurrence?: Recurrence; kind:
   const nameError = draft.name.trim() ? undefined : "Dê um nome à recorrência.";
   const amountError = draft.amount > 0 ? undefined : "O valor precisa ser maior que zero.";
   const firstError = draft.first ? undefined : "Escolha a data da primeira vez.";
+  const dayError =
+    draft.businessDay === undefined || (draft.businessDay >= 1 && draft.businessDay <= 22) ? undefined : "Use um número de 1 a 22.";
 
   function setKind(next: Flow) {
     setDraft((d) => ({
@@ -101,13 +104,14 @@ function Content({ recurrence, kind, onClose }: { recurrence?: Recurrence; kind:
   function submit(e: FormEvent) {
     e.preventDefault();
     setTried(true);
-    if (nameError || amountError || firstError) return;
+    if (nameError || amountError || firstError || dayError) return;
     const clean: RecurrenceDraft = {
       ...draft,
       name: draft.name.trim(),
       notes: draft.notes.trim(),
       approx: draft.approx || undefined,
       times: draft.times && draft.times > 0 ? Math.round(draft.times) : undefined,
+      businessDay: draft.businessDay ? Math.min(22, Math.max(1, Math.round(draft.businessDay))) : undefined,
     };
     if (recurrence) {
       updateRecurrence(recurrence.id, clean);
@@ -185,6 +189,43 @@ function Content({ recurrence, kind, onClose }: { recurrence?: Recurrence; kind:
           </Field>
         </div>
 
+        <div className="flex flex-col gap-2">
+          <span className="text-sm font-medium text-foreground">Cai em</span>
+          <div>
+            <Segmented<"corrido" | "util">
+              label="Dia corrido ou dia útil"
+              value={draft.businessDay ? "util" : "corrido"}
+              onChange={(m) => set("businessDay", m === "util" ? (draft.businessDay ?? 5) : undefined)}
+              options={[
+                { value: "corrido", label: "Dia corrido" },
+                { value: "util", label: "Dia útil" },
+              ]}
+            />
+          </div>
+          {draft.businessDay !== undefined && (
+            <Field
+              label="Qual dia útil"
+              error={tried ? dayError : undefined}
+              hint="Conta de segunda a sexta, sem feriados nacionais e Carnaval."
+            >
+              {(id) => (
+                <Input
+                  id={id}
+                  type="number"
+                  min={1}
+                  max={22}
+                  step={1}
+                  inputMode="numeric"
+                  placeholder="5"
+                  className="sm:w-40"
+                  value={draft.businessDay || ""}
+                  onChange={(e) => set("businessDay", e.target.value === "" ? 0 : Number(e.target.value))}
+                />
+              )}
+            </Field>
+          )}
+        </div>
+
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="Repete">
             {(id) => (
@@ -197,7 +238,11 @@ function Content({ recurrence, kind, onClose }: { recurrence?: Recurrence; kind:
               </Select>
             )}
           </Field>
-          <Field label="Primeira vez" hint="O dia do mês sai daqui." error={tried ? firstError : undefined}>
+          <Field
+            label={draft.businessDay !== undefined ? "A partir do mês de" : "Primeira vez"}
+            hint={draft.businessDay !== undefined ? "Só o mês conta." : "O dia do mês sai daqui."}
+            error={tried ? firstError : undefined}
+          >
             {(id) => (
               <Input
                 id={id}

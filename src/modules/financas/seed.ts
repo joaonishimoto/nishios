@@ -15,7 +15,7 @@ function on(day: number, months: number): string {
 export function seedRecurrences(): Recurrence[] {
   const base = { notes: "", every: 1 };
   return [
-    { ...base, id: "r-salario", kind: "in", name: "Salário", icon: "💼", category: "Salário", amount: 7800, first: on(5, 24) },
+    { ...base, id: "r-salario", kind: "in", name: "Salário", icon: "💼", category: "Salário", amount: 7800, first: on(1, 24), businessDay: 5 },
     { ...base, id: "r-freela", kind: "in", name: "Freela fixo de design", icon: "💰", category: "Renda extra", amount: 1200, first: on(20, 5), notes: "Contrato de 12 meses.", times: 12 },
     { ...base, id: "r-aluguel", kind: "out", name: "Aluguel", icon: "🏠", category: "Moradia", amount: 2300, first: on(10, 18) },
     { ...base, id: "r-condominio", kind: "out", name: "Condomínio", icon: "🏢", category: "Moradia", amount: 640, first: on(10, 18) },
