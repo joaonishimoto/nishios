@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { toISO, today } from "@/lib/dates";
 import { usePersistentState } from "@/lib/storage";
+import { ensureDance } from "./danca/migrate";
 import { seedExercises, seedModalities, seedPlans, seedSessions } from "./seed";
 import { linkToCatalog } from "./strength";
 import type {
@@ -71,7 +72,7 @@ interface Store {
 const Ctx = createContext<Store | null>(null);
 
 export function TreinosProvider({ children }: { children: ReactNode }) {
-  const [modalities, setModalities] = usePersistentState<Modality[]>(MODALITIES_KEY, seedModalities);
+  const [modalities, setModalities] = usePersistentState<Modality[]>(MODALITIES_KEY, seedModalities, ensureDance);
   const [fresh] = useState(isFresh);
   const [all, setSessions] = usePersistentState<Session[]>(SESSIONS_KEY, seedSessions);
   const [exercises, setExercises] = usePersistentState<ExerciseDef[]>(EXERCISES_KEY, () => (fresh ? seedExercises() : []));

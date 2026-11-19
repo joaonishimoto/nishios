@@ -435,7 +435,7 @@ export function HomePage() {
                     <span>{d.lastDone && shortDate(d.lastDone)}</span>
                     <span>{d.nextDue && shortDate(d.nextDue)}</span>
                   </div>
-                  <div className="relative z-10 mt-4">
+                  <div className="relative z-10 mt-4 flex justify-end">
                     <MarkDone commitment={c} />
                   </div>
                 </li>

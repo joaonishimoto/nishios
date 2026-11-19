@@ -74,6 +74,7 @@ export function seedModalities(): Modality[] {
     { id: "m-corrida", name: "Corrida", icon: "🏃", kind: "distance", unit: "km" },
     { id: "m-caminhada", name: "Caminhada", icon: "🚶", kind: "distance", unit: "km" },
     { id: "m-natacao", name: "Natação", icon: "🏊", kind: "distance", unit: "m" },
+    { id: "m-danca", name: "Dança", icon: "💃", kind: "dance", unit: "km" },
   ];
 }
 
