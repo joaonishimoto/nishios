@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ChefHat, ChevronLeft, GitBranchPlus, Pencil, Plus, Trash2 } from "lucide-react";
-import { Dot } from "@/components/ui/Badge";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Check, ChefHat, ChevronLeft, GitBranchPlus, Pencil, Plus, Trash2 } from "lucide-react";
+import { Badge, Dot } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Field, Select, Textarea } from "@/components/ui/Field";
@@ -15,7 +15,8 @@ import { daysAgoLabel } from "@/modules/treinos/logic";
 import { FamilyTree } from "./FamilyTree";
 import { IngredientList } from "./IngredientList";
 import { PartsSection, UsedIn } from "./Parts";
-import { bestRating, family, lastCooked, lineage, nextTip, RATING_LABELS, rootOf, STATUS_META, STATUS_ORDER } from "./logic";
+import { RecipeView } from "./RecipeView";
+import { bestRating, family, lastCooked, lineage, lines, nextTip, RATING_LABELS, rootOf, STATUS_META, STATUS_ORDER } from "./logic";
 import { AttemptForm, StartForm, type AttemptState, type StartState } from "./RecipeForms";
 import { useCulinaria } from "./store";
 import { CATEGORIES, RECIPE_ICONS, type Recipe, type RecipeStatus } from "./types";
@@ -28,6 +29,12 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
   const [attemptForm, setAttemptForm] = useState<AttemptState>({ open: false });
   const [start, setStart] = useState<StartState>({ open: false });
   const now = today();
+  const [params, setParams] = useSearchParams();
+  // Abre para ler; "Editar" mostra os campos (e fica na URL, para uma receita nova já abrir editando).
+  const editing = params.get("editar") === "1";
+  const setEditing = (on: boolean) =>
+    setParams(on ? { r: recipe.id, editar: "1" } : { r: recipe.id }, { replace: true, preventScrollReset: true });
+  const meta = STATUS_META[recipe.status];
 
   const path = lineage(recipes, recipe);
   const parent = path.length > 1 ? path[path.length - 2] : undefined;
@@ -70,7 +77,8 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
       <header className="mt-3 flex flex-col gap-4 md:flex-row md:items-start md:gap-6">
         <div className="flex min-w-0 items-start gap-3 md:flex-1">
           <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-surface-muted text-2xl leading-none">{recipe.icon}</span>
-          <div className="-ml-2 flex min-w-0 flex-1 flex-col">
+          <div className={cn("flex min-w-0 flex-1 flex-col", editing && "-ml-2")}>
+            {editing ? (
             <textarea
               aria-label="Nome da receita"
               value={recipe.name}
@@ -86,14 +94,21 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
               }}
               className="field-sizing-content min-h-10 w-full min-w-0 resize-none rounded-md bg-transparent px-2 py-0.5 text-2xl font-semibold tracking-tight transition-colors duration-(--motion-fast) placeholder:text-subtle-foreground hover:bg-surface-hover focus:bg-surface-hover focus:outline-none"
             />
-            <p className="px-2 text-muted-foreground">
+            ) : (
+              <h1 className="py-0.5 text-2xl font-semibold tracking-tight break-words">{recipe.name || "Sem nome"}</h1>
+            )}
+            <p className={cn("text-muted-foreground", editing && "px-2")}>
               {parent ? <>Variação de {parent.name || "Sem nome"}</> : inFamily > 1 ? `Receita base, ${plural(inFamily - 1, "variação", "variações")}` : "Receita base"}
               {" · "}
-              {recipe.attempts.length === 0 ? "nunca feita" : `feita ${plural(recipe.attempts.length, "vez", "vezes")}, a última ${daysAgoLabel(last, now)}`}
+              {recipe.category}
             </p>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 md:flex md:shrink-0">
+          <Button variant={editing ? "secondary" : "outline"} onClick={() => setEditing(!editing)} className="col-span-2 md:col-span-1">
+            {editing ? <Check /> : <Pencil />}
+            {editing ? "Pronto" : "Editar"}
+          </Button>
           <Button variant="outline" onClick={() => setStart({ open: true, parent: recipe })}>
             <GitBranchPlus />
             Criar variação
@@ -105,7 +120,27 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
         </div>
       </header>
 
-      <div className="mt-8 grid gap-x-10 gap-y-10 lg:grid-cols-[minmax(0,1fr)_21rem]">
+      {!editing && (
+        <dl className="mt-6 grid grid-cols-2 overflow-hidden rounded-lg border border-border bg-surface sm:grid-cols-4">
+          <Stat label="Situação">
+            <Badge tone={meta.tone}>{meta.label}</Badge>
+          </Stat>
+          <Stat label="Feita">{recipe.attempts.length === 0 ? "Nunca" : plural(recipe.attempts.length, "vez", "vezes")}</Stat>
+          <Stat label="Última vez">{last ? <span className="first-letter:uppercase">{daysAgoLabel(last, now)}</span> : "—"}</Stat>
+          <Stat label="Melhor nota">
+            {best > 0 ? (
+              <span className="inline-flex items-center gap-2">
+                <LevelDots value={best} label="Melhor nota" />
+                <span className="text-sm text-muted-foreground">{RATING_LABELS[best]}</span>
+              </span>
+            ) : (
+              "—"
+            )}
+          </Stat>
+        </dl>
+      )}
+
+      <div className={cn("grid gap-x-10 gap-y-10 lg:grid-cols-[minmax(0,1fr)_21rem]", editing ? "mt-8" : "mt-6")}>
         <div className="flex min-w-0 flex-col gap-10">
           {tip && (
             <p className="rounded-lg border border-warning/40 bg-warning-soft px-4 py-3">
@@ -115,6 +150,17 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
 
           <section>
             <h2 className="text-xl font-semibold tracking-tight">A receita</h2>
+            {!editing ? (
+              <>
+                {parent && recipe.change && (
+                  <p className="mt-4 rounded-lg border border-border bg-surface-muted/60 px-4 py-3">
+                    <span className="font-medium">O que muda em relação a {parent.name || "receita de origem"}:</span> {recipe.change}
+                  </p>
+                )}
+                <RecipeView recipe={recipe} onEdit={() => setEditing(true)} />
+              </>
+            ) : (
+            <>
             {parent && (
               <Field label={`O que muda em relação a ${parent.name || "receita de origem"}`} className="mt-4">
                 {(id) => (
@@ -148,6 +194,8 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
                 )}
               </Field>
             </div>
+            </>
+            )}
           </section>
 
           <section>
@@ -278,6 +326,33 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
             </div>
           </section>
 
+          {!editing && (
+            <section>
+              <h2 className="text-lg font-semibold tracking-tight">O que já aprendi</h2>
+              {recipe.lessons.trim() ? (
+                <ul className="mt-3 flex flex-col gap-2 rounded-lg border border-border bg-surface p-4">
+                  {lines(recipe.lessons).map((l, i) => (
+                    <li key={i} className="flex gap-2.5">
+                      <span aria-hidden className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />
+                      <span className="min-w-0 flex-1">{l}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setEditing(true)}
+                  className="mt-3 w-full rounded-lg border border-dashed border-border-strong px-4 py-4 text-left text-sm text-muted-foreground hover:bg-surface-hover"
+                >
+                  Anote truques e pontos de atenção que você descobriu fazendo. Toque para editar.
+                </button>
+              )}
+              <p className="mt-3 text-sm text-muted-foreground">Criada em {formatDate(recipe.createdAt.slice(0, 10))}</p>
+            </section>
+          )}
+
+          {editing && (
+          <>
           <section className="flex flex-col gap-4">
             <h2 className="text-lg font-semibold tracking-tight">Detalhes</h2>
             <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-4">
@@ -335,6 +410,8 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
               Excluir
             </Button>
           </div>
+          </>
+          )}
         </aside>
       </div>
 
@@ -342,8 +419,17 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
       <StartForm
         state={start}
         onOpenChange={(o) => setStart((s) => ({ ...s, open: o }))}
-        onCreated={(r) => navigate(`/culinaria?r=${r.id}`)}
+        onCreated={(r) => navigate(`/culinaria?r=${r.id}&editar=1`)}
       />
     </>
+  );
+}
+
+function Stat({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex min-w-0 flex-col gap-1 border-border px-4 py-3 not-last:border-r max-sm:nth-2:border-r-0 max-sm:nth-[-n+2]:border-b">
+      <dt className="text-sm text-muted-foreground">{label}</dt>
+      <dd className="truncate font-semibold">{children}</dd>
+    </div>
   );
 }

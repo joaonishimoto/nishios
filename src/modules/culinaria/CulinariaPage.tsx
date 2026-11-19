@@ -12,8 +12,7 @@ import { cn } from "@/lib/cn";
 import { shortDate, today } from "@/lib/dates";
 import { plural } from "@/lib/format";
 import { daysAgoLabel } from "@/modules/treinos/logic";
-import { FamilyTree } from "./FamilyTree";
-import { bestRating, family, partsOf, usedIn, lastCooked, matches, nextTip, roots, STATUS_META, STATUS_ORDER } from "./logic";
+import { bestRating, childrenOf, family, lastCooked, matches, partsOf, roots, STATUS_META, STATUS_ORDER, usedIn } from "./logic";
 import { RecipeDetail } from "./RecipeDetail";
 import { StartForm, type StartState } from "./RecipeForms";
 import { useCulinaria } from "./store";
@@ -138,17 +137,11 @@ function RecipeList() {
                 }}
               />
             ) : (
-              <ul className="grid content-start gap-3 xl:grid-cols-2">
-                {shown.map(({ root, members }) => (
-                  <FamilyCard
-                    key={root.id}
-                    root={root}
-                    variations={members.length - 1}
-                    recipes={recipes}
-                    dim={filtering ? (r) => !visible(r) : undefined}
-                  />
-                ))}
-              </ul>
+              <RecipeTable
+                families={shown.map((f) => f.root)}
+                recipes={recipes}
+                dim={filtering ? (r) => !visible(r) : undefined}
+              />
             )}
 
             <aside className="min-w-0">
@@ -191,79 +184,127 @@ function RecipeList() {
       <StartForm
         state={start}
         onOpenChange={(o) => setStart((s) => ({ ...s, open: o }))}
-        onCreated={(r) => navigate(`/culinaria?r=${r.id}`)}
+        onCreated={(r) => navigate(`/culinaria?r=${r.id}&editar=1`)}
       />
     </>
   );
 }
 
-function FamilyCard({
-  root,
-  variations,
-  recipes,
-  dim,
-}: {
-  root: Recipe;
-  variations: number;
-  recipes: Recipe[];
-  dim?: (r: Recipe) => boolean;
-}) {
-  const meta = STATUS_META[root.status];
-  const count = root.attempts.length;
-  const last = lastCooked(root);
-  const best = bestRating(root);
-  const tip = nextTip(root);
-  const parts = partsOf(recipes, root);
-  const hosts = usedIn(recipes, root.id);
+interface Row {
+  recipe: Recipe;
+  depth: number;
+  /** Para cada nível acima, se ainda vêm irmãos depois (a linha vertical continua). */
+  rails: boolean[];
+  last: boolean;
+}
+
+/** Cada família vira um bloco: a receita base e, embaixo, as variações em árvore. */
+function flatten(recipes: Recipe[], root: Recipe): Row[] {
+  const rows: Row[] = [];
+  const walk = (r: Recipe, depth: number, rails: boolean[], last: boolean, seen: string[]) => {
+    rows.push({ recipe: r, depth, rails, last });
+    const kids = childrenOf(recipes, r.id).filter((k) => !seen.includes(k.id));
+    kids.forEach((k, i) => walk(k, depth + 1, depth === 0 ? [] : [...rails, !last], i === kids.length - 1, [...seen, r.id]));
+  };
+  walk(root, 0, [], true, []);
+  return rows;
+}
+
+/** Recuo de cada nível e o centro do ícone, em rem, para desenhar as linhas da árvore. */
+const pad = (depth: number) => 1 + depth * 2;
+const center = (depth: number) => pad(depth) + (depth === 0 ? 1.25 : 1);
+
+const COLS = "md:grid-cols-[minmax(0,1fr)_7.5rem_8.5rem_5.5rem]";
+
+function RecipeTable({ families, recipes, dim }: { families: Recipe[]; recipes: Recipe[]; dim?: (r: Recipe) => boolean }) {
   return (
-    <li className="flex min-w-0 flex-col rounded-lg border border-border bg-surface transition-colors duration-(--motion-fast) hover:border-border-strong">
+    <div className="min-w-0 overflow-hidden rounded-lg border border-border bg-surface">
+      <div className={cn("hidden border-b border-border bg-surface-muted/60 px-4 py-2 text-sm font-medium text-muted-foreground md:grid md:gap-4", COLS)}>
+        <span>Receita</span>
+        <span>Situação</span>
+        <span>Na cozinha</span>
+        <span className="text-right">Melhor nota</span>
+      </div>
+      <ul>
+        {families.map((root) => (
+          <li key={root.id} className="border-b border-border last:border-b-0">
+            <ul>
+              {flatten(recipes, root).map((row) => (
+                <RecipeRow key={row.recipe.id} row={row} recipes={recipes} dimmed={dim?.(row.recipe) ?? false} />
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function RecipeRow({ row, recipes, dimmed }: { row: Row; recipes: Recipe[]; dimmed: boolean }) {
+  const { recipe: r, depth } = row;
+  const meta = STATUS_META[r.status];
+  const count = r.attempts.length;
+  const last = lastCooked(r);
+  const best = bestRating(r);
+  const parts = partsOf(recipes, r);
+  const hosts = usedIn(recipes, r.id);
+  const discarded = r.status === "discarded";
+  const sub =
+    depth > 0 && r.change
+      ? r.change
+      : parts.length > 0
+        ? `Feita com ${parts.map((p) => p.recipe.name).join(" + ")}`
+        : hosts.length > 0
+          ? `Parte de ${hosts.map((h) => h.name).join(", ")}`
+          : r.category;
+  return (
+    <li>
       <Link
-        to={`/culinaria?r=${root.id}`}
-        className={cn("flex flex-col gap-2 rounded-t-lg p-4 hover:bg-surface-hover", dim?.(root) && "opacity-45", variations === 0 && "rounded-b-lg")}
+        to={`/culinaria?r=${r.id}`}
+        className={cn(
+          "relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 py-2.5 pr-4 transition-colors duration-(--motion-fast) hover:bg-surface-hover",
+          COLS,
+          dimmed && "opacity-45",
+        )}
+        style={{ paddingLeft: `${pad(depth)}rem` }}
       >
-        <span className="flex items-start gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-muted text-xl leading-none">{root.icon}</span>
+        {depth > 0 && (
+          <>
+            {/* Ligação com a receita de cima, como numa árvore; a linha segue enquanto houver irmãs embaixo. */}
+            <span aria-hidden className="absolute top-0 w-px bg-border-strong" style={{ left: `${center(depth - 1)}rem`, height: row.last ? "1.625rem" : "100%" }} />
+            <span aria-hidden className="absolute top-[1.625rem] h-px bg-border-strong" style={{ left: `${center(depth - 1)}rem`, width: `${pad(depth) - center(depth - 1) - 0.25}rem` }} />
+            {row.rails.map((on, i) =>
+              on ? <span key={i} aria-hidden className="absolute inset-y-0 w-px bg-border-strong" style={{ left: `${center(i)}rem` }} /> : null,
+            )}
+          </>
+        )}
+        <span className="flex min-w-0 items-start gap-3">
+          <span
+            className={cn(
+              "flex shrink-0 items-center justify-center rounded-full bg-surface-muted leading-none",
+              depth === 0 ? "size-10 text-xl" : "size-8 text-base",
+            )}
+          >
+            {r.icon}
+          </span>
           <span className="min-w-0 flex-1">
-            <span className="block truncate font-medium">{root.name || "Sem nome"}</span>
-            <span className="block truncate text-sm text-muted-foreground">{root.category}</span>
-          </span>
-          <Badge tone={meta.tone} className="shrink-0">
-            {meta.label}
-          </Badge>
-        </span>
-        <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-          <span>{count === 0 ? "Nunca feita" : `Feita ${plural(count, "vez", "vezes")}`}</span>
-          {last && <span>Última {daysAgoLabel(last)}</span>}
-          {best > 0 && (
-            <span className="inline-flex items-center gap-1.5">
-              Melhor nota <LevelDots value={best} label="Melhor nota" />
+            <span className={cn("line-clamp-2 md:line-clamp-1 md:block", depth === 0 && "font-medium", discarded && "text-muted-foreground line-through decoration-border-strong")}>
+              {r.name || "Sem nome"}
             </span>
-          )}
+            <span className="line-clamp-2 text-sm text-muted-foreground md:line-clamp-1">{sub}</span>
+          </span>
         </span>
-        {parts.length > 0 && (
-          <span className="truncate text-sm">
-            <span className="font-medium">Feita com:</span> {parts.map((p) => p.recipe.name).join(" + ")}
-          </span>
-        )}
-        {hosts.length > 0 && (
-          <span className="truncate text-sm text-muted-foreground">Parte de {hosts.map((h) => h.name).join(", ")}</span>
-        )}
-        {tip && (
-          <span className="line-clamp-2 text-sm">
-            <span className="font-medium">Próxima vez:</span> {tip}
-          </span>
-        )}
+        <span className="row-span-2 self-center justify-self-end md:row-span-1 md:justify-self-start">
+          <Badge tone={meta.tone}>{meta.label}</Badge>
+        </span>
+        <span className={cn("col-start-1 truncate text-sm text-muted-foreground md:col-start-auto md:pl-0", depth === 0 ? "pl-[3.25rem]" : "pl-[2.75rem]")}>
+          {count === 0 ? "Nunca feita" : `${plural(count, "vez", "vezes")}, ${daysAgoLabel(last)}`}
+          {best > 0 && <LevelDots value={best} label="Melhor nota" className="ml-2 md:hidden" />}
+        </span>
+        <span className="hidden justify-self-end md:inline-flex">
+          {best > 0 ? <LevelDots value={best} label="Melhor nota" /> : <span className="text-sm text-subtle-foreground">—</span>}
+        </span>
       </Link>
-      {variations > 0 && (
-        <div className="border-t border-border px-2 pt-2 pb-2">
-          <p className="px-2 pb-1 text-xs font-medium text-muted-foreground">
-            {plural(variations, "variação", "variações")}
-          </p>
-          <div className="-ml-1.5">
-            <FamilyTree recipes={recipes} root={root} showRoot={false} dim={dim} />
-          </div>
-        </div>
-      )}
     </li>
   );
 }
