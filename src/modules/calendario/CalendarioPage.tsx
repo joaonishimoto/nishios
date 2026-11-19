@@ -21,6 +21,7 @@ import { formatDate, toISO, today } from "@/lib/dates";
 import { plural } from "@/lib/format";
 import { usePersistentState } from "@/lib/storage";
 import { isDone, isScheduled, WEEK_ORDER, WEEKDAY_SHORT } from "@/modules/rotina/logic";
+import { SlipToggle } from "@/modules/rotina/HabitBits";
 import { useRoutine } from "@/modules/rotina/store";
 import type { Habit } from "@/modules/rotina/types";
 import { Chip, HabitRing, ItemRow, SourceDot, sourceColor } from "./CalendarBits";
@@ -526,14 +527,18 @@ function DayPanel({
                 return (
                   <li key={h.id} className="flex items-center gap-3 px-2 py-1.5">
                     <span className="flex size-7 shrink-0 items-center justify-center">
-                      <Checkbox
-                        checked={done}
-                        disabled={!canToggleHabits}
-                        onChange={() => toggleHabit(h.id, iso)}
-                        label={`${done ? "Desmarcar" : "Marcar"} ${h.name}`}
-                      />
+                      {h.type === "evitar" ? (
+                        <SlipToggle habit={h} date={iso} size="md" disabled={!canToggleHabits} />
+                      ) : (
+                        <Checkbox
+                          checked={done}
+                          disabled={!canToggleHabits}
+                          onChange={() => toggleHabit(h.id, iso)}
+                          label={`${done ? "Desmarcar" : "Marcar"} ${h.name}`}
+                        />
+                      )}
                     </span>
-                    <span className={cn("min-w-0 flex-1 truncate", done && "text-muted-foreground")}>
+                    <span className={cn("min-w-0 flex-1 truncate", done && h.type !== "evitar" && "text-muted-foreground")}>
                       <span className="mr-1.5">{h.icon}</span>
                       {h.name}
                     </span>
