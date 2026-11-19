@@ -58,8 +58,8 @@ export function DueLabel({ task, className }: { task: Task; className?: string }
 /** Campo "Adicionar tarefa": digite e aperte Enter. */
 export const QuickAdd = forwardRef<
   HTMLInputElement,
-  { status: TaskStatus; list?: string; className?: string }
->(({ status, list, className }, ref) => {
+  { status: TaskStatus; list?: string; projectId?: string; className?: string }
+>(({ status, list, projectId, className }, ref) => {
   const { create } = useTasks();
   const [title, setTitle] = useState("");
 
@@ -70,7 +70,7 @@ export const QuickAdd = forwardRef<
         e.preventDefault();
         const clean = title.trim();
         if (!clean) return;
-        create({ title: clean, status, ...(list ? { list } : {}) });
+        create({ title: clean, status, ...(projectId ? { projectId } : {}), ...(list ? { list } : {}) });
         setTitle("");
       }}
     >

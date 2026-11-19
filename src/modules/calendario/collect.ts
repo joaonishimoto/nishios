@@ -15,7 +15,7 @@ import type { Pet } from "@/modules/pets/types";
 import { goalDone } from "@/modules/rotina/logic";
 import type { Goal } from "@/modules/rotina/types";
 import type { Skill } from "@/modules/skills/types";
-import type { Task } from "@/modules/tarefas/types";
+import type { Project, Task } from "@/modules/tarefas/types";
 import { sessionSummary } from "@/modules/treinos/logic";
 import type { Modality, Session } from "@/modules/treinos/types";
 import { occurrences, spanDays } from "./events";
@@ -24,6 +24,8 @@ import type { CalEvent, CalItem, ItemState } from "./types";
 export interface Everything {
   events: CalEvent[];
   tasks: Task[];
+  /** Projetos das tarefas: o nome do projeto aparece no lugar da lista. */
+  projects?: Project[];
   commitments: Commitment[];
   goals: Goal[];
   modalities: Modality[];
@@ -85,12 +87,14 @@ export function collect(data: Everything, from: string, to: string, now: Date): 
   }
 
   /* Tarefas: prazo das abertas, dia de conclusão das feitas */
+  const projectName = new Map((data.projects ?? []).map((p) => [p.id, `${p.icon} ${p.name}`]));
   for (const t of data.tasks) {
     const title = t.title || "Sem título";
+    const where = projectName.get(t.projectId) ?? t.list;
     if (t.status === "done") {
-      push({ key: `task-${t.id}`, source: "tarefas", date: t.completedAt || t.due, title, state: "done", note: t.list, to: `/tarefas?t=${t.id}`, taskId: t.id });
+      push({ key: `task-${t.id}`, source: "tarefas", date: t.completedAt || t.due, title, state: "done", note: where, to: `/tarefas?t=${t.id}`, taskId: t.id });
     } else if (t.due) {
-      push({ key: `task-${t.id}`, source: "tarefas", date: t.due, title, state: planned(t.due), note: t.list, to: `/tarefas?t=${t.id}`, taskId: t.id });
+      push({ key: `task-${t.id}`, source: "tarefas", date: t.due, title, state: planned(t.due), note: where, to: `/tarefas?t=${t.id}`, taskId: t.id });
     }
   }
 

@@ -56,3 +56,36 @@ export function needsAttention(task: Task, now: Date = today()): boolean {
   const d = dueInfo(task, now);
   return !!d && (d.overdue || d.isToday);
 }
+
+/** Ordem manual ("Minha ordem"); empate cai na prioridade. */
+export function byRank(a: Task, b: Task): number {
+  return a.rank - b.rank || byPriority(a, b);
+}
+
+export type TaskSort = "priority" | "manual";
+
+/** "1h30", "45 min", "2h". */
+export function formatMinutes(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = Math.round(minutes % 60);
+  if (h === 0) return `${m} min`;
+  return m === 0 ? `${h}h` : `${h}h${String(m).padStart(2, "0")}`;
+}
+
+/**
+ * Lê uma duração digitada: "1h30", "1:30", "1,5" (horas), "90m", "45 min".
+ * Um número sozinho conta como horas. Devolve minutos, ou null quando não entende.
+ */
+export function parseDuration(text: string): number | null {
+  const s = text.trim().toLowerCase().replace(/\s+/g, "");
+  if (!s) return null;
+  let m = s.match(/^(\d+):(\d{1,2})$/);
+  if (m) return Number(m[1]) * 60 + Number(m[2]);
+  m = s.match(/^(\d+(?:[.,]\d+)?)h(?:(\d{1,2})(?:m|min)?)?$/);
+  if (m) return Math.round(Number(m[1].replace(",", ".")) * 60) + Number(m[2] ?? 0);
+  m = s.match(/^(\d+)(?:m|min|mins|minutos?)$/);
+  if (m) return Number(m[1]);
+  m = s.match(/^\d+(?:[.,]\d+)?$/);
+  if (m) return Math.round(Number(s.replace(",", ".")) * 60);
+  return null;
+}

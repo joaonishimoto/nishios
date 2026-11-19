@@ -1,10 +1,10 @@
-import { Trash2 } from "lucide-react";
+import { Clock, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogBody } from "@/components/ui/Dialog";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
 import { useToast } from "@/components/ui/Toast";
 import { formatDate } from "@/lib/dates";
-import { PRIORITY_META, PRIORITY_ORDER } from "./logic";
+import { formatMinutes, PRIORITY_META, PRIORITY_ORDER } from "./logic";
 import { useTasks } from "./store";
 import { TaskCheck } from "./TaskBits";
 import { LISTS, type Priority, type Task, type TaskStatus } from "./types";
@@ -16,7 +16,16 @@ const STATUS_OPTIONS: [TaskStatus, string][] = [
 ];
 
 /** Painel lateral da tarefa. Como no Notion, cada campo salva na hora. */
-export function TaskPanel({ task, onClose }: { task: Task | undefined; onClose: () => void }) {
+export function TaskPanel({
+  task,
+  onClose,
+  onLogTime,
+}: {
+  task: Task | undefined;
+  onClose: () => void;
+  /** Abre o registro de horas já com o projeto e a tarefa. */
+  onLogTime?: () => void;
+}) {
   return (
     <Dialog
       variant="sheet"
@@ -25,15 +34,18 @@ export function TaskPanel({ task, onClose }: { task: Task | undefined; onClose: 
       title={task?.title || "Tarefa"}
       hideTitle
     >
-      {task && <PanelContent task={task} onClose={onClose} />}
+      {task && <PanelContent task={task} onClose={onClose} onLogTime={onLogTime} />}
     </Dialog>
   );
 }
 
-function PanelContent({ task, onClose }: { task: Task; onClose: () => void }) {
-  const { update, remove, restore } = useTasks();
+function PanelContent({ task, onClose, onLogTime }: { task: Task; onClose: () => void; onLogTime?: () => void }) {
+  const { update, remove, restore, projects, timeEntries } = useTasks();
   const toast = useToast();
   const lists = LISTS.includes(task.list) ? LISTS : [...LISTS, task.list];
+  const choices = projects.filter((p) => !p.archived || p.id === task.projectId);
+  const project = projects.find((p) => p.id === task.projectId);
+  const logged = timeEntries.filter((e) => e.taskId === task.id).reduce((sum, e) => sum + e.minutes, 0);
 
   return (
     <>
@@ -53,6 +65,18 @@ function PanelContent({ task, onClose }: { task: Task; onClose: () => void }) {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
+          <Field label="Projeto" className="col-span-2">
+            {(id) => (
+              <Select id={id} value={task.projectId} onChange={(e) => update(task.id, { projectId: e.target.value })}>
+                <option value="">Sem projeto</option>
+                {choices.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.icon} {p.name}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
           <Field label="Situação">
             {(id) => (
               <Select
@@ -104,6 +128,18 @@ function PanelContent({ task, onClose }: { task: Task; onClose: () => void }) {
             )}
           </Field>
         </div>
+
+        {project && onLogTime && (
+          <div className="flex items-center gap-3 rounded-md border border-border px-3 py-2.5 text-sm">
+            <Clock className="size-4 shrink-0 text-subtle-foreground" aria-hidden />
+            <span className="flex-1 text-muted-foreground">
+              {logged > 0 ? `${formatMinutes(logged)} registradas nesta tarefa` : "Nenhuma hora registrada nesta tarefa"}
+            </span>
+            <Button variant="outline" size="sm" onClick={onLogTime}>
+              Registrar horas
+            </Button>
+          </div>
+        )}
 
         <Field label="Anotações">
           {(id) => (

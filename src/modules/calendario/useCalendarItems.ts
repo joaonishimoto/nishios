@@ -18,7 +18,7 @@ import type { CalItem } from "./types";
 /** Tudo o que os módulos sabem, no formato que `collect` espera. */
 export function useEverything(): Everything {
   const { events } = useCalendar();
-  const { tasks } = useTasks();
+  const { tasks, projects } = useTasks();
   const { commitments } = useCommitments();
   const { goals } = useRoutine();
   const { modalities, sessions, planned: plannedSessions } = useTreinos();
@@ -29,8 +29,8 @@ export function useEverything(): Everything {
   const { skills } = useSkills();
   const { recurrences } = useFinancas();
   return useMemo(
-    () => ({ events, tasks, commitments, goals, modalities, sessions, plannedSessions, entries, assets, wishes, people, pets, skills, recurrences }),
-    [events, tasks, commitments, goals, modalities, sessions, plannedSessions, entries, assets, wishes, people, pets, skills, recurrences],
+    () => ({ events, tasks, projects, commitments, goals, modalities, sessions, plannedSessions, entries, assets, wishes, people, pets, skills, recurrences }),
+    [events, tasks, projects, commitments, goals, modalities, sessions, plannedSessions, entries, assets, wishes, people, pets, skills, recurrences],
   );
 }
 
