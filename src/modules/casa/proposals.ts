@@ -794,10 +794,12 @@ function withOwned(p: Proposal): Proposal {
       part(3.585, 0.68, 0.015, 0.21, 0.025, "escuro", 0.78, gray),
       part(3.595, 0.53, 0.01, 0.06, 0.03, "escuro", 0.12, dark),
     ])),
-    // Micro-ondas (52 × 44 × 31 cm) embutido no aéreo, do lado da coifa: só a frente aparece.
+    // Micro-ondas preto (52 × 44 × 31 cm) embutido no aéreo, do lado da coifa: só a frente aparece.
     own(OWNED.microondas, piece("cozinha", "Micro-ondas Midea 35L", "📦", "Eletrodomésticos", full([
-      part(0.47, 1.97, 0.006, 0.36, 0.25, "vidro", 1.53, "#3a3f46"),
-      part(0.47, 2.35, 0.006, 0.11, 0.25, "escuro", 1.53, dark),
+      part(0.468, 1.95, 0.006, 0.55, 0.31, "escuro", 1.5, "#141518"),
+      part(0.474, 1.98, 0.004, 0.34, 0.23, "vidro", 1.54, "#25282d"),
+      part(0.474, 2.35, 0.004, 0.11, 0.23, "escuro", 1.54, "#1d1f23"),
+      part(0.478, 2.38, 0.003, 0.05, 0.02, "metal", 1.72, "#9aa0a6"),
     ]))),
     // Purificador (26 × 33 × 45 cm) em cima do balcão da mureta, fora da bancada e perto da mesa.
     own(OWNED.purificador, piece("jantar", "Purificador Electrolux", "💧", "Eletrodomésticos", [
