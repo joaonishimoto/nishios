@@ -719,8 +719,6 @@ function proposalG4(): Proposal {
     piece("banho", "Nicho no box", "🧴", "Móveis", full([part(7.3, 5.4, 0.4, 0.02, 0.3, "escuro", 1.1, "#c9c4ba")])),
     piece("banhosuite", "Armário do vaso", "🗄️", "Móveis", full([part(8.54, 2.78, 0.52, 0.22, 0.6, "branco", 1.3, white)])),
     piece("banhosuite", "Nicho no box", "🧴", "Móveis", full([part(9.3, 2.78, 0.4, 0.02, 0.3, "escuro", 1.1, "#c9c4ba")])),
-    // Varanda
-    piece("varanda", "Planta em vaso", "🪴", "Plantas", plant(3.72, 0.5, 0.4, 1.3)),
   ];
   const withExtras: Proposal = {
     ...g,
@@ -732,23 +730,24 @@ function proposalG4(): Proposal {
       quarto: [
         "Armário alto na parede da suíte, longe da porta, prateleiras em cima da mesa a partir de 1,20 m, luminária de braço e gavetas embaixo da cama.",
         "Cortina blackout na janela e um tapete no meio, deixando a porta abrir livre.",
+        "O frigobar fica no canto do pé da cama, encostado na parede da janela e antes do armário.",
       ],
       estar: ["Dois pendentes azul-marinho em cima da mesa de 6 e um espelho de 1,40 m atrás dela, que deixa a sala parecer maior."],
       jantar: ["Tapete entre o sofá e a TV, sem mesa de centro, para não fechar o caminho de 1,2 m até a porta de vidro. Almofadas creme no sofá azul-marinho."],
-      cozinha: ["Aéreo em cima da geladeira e uma passadeira azul-marinho no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto."],
+      cozinha: ["Aéreo em cima da geladeira e uma passadeira azul-marinho no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto.", "Micro-ondas na bancada entre o cooktop e a pia e o purificador na parede do lado da pia, os dois que você já tem."],
       banho: ["Armário em cima do vaso e nicho dentro do box."],
       banhosuite: ["Armário em cima do vaso e nicho dentro do box."],
-      varanda: ["Uma planta grande no canto, longe da passagem para fora."],
+      varanda: ["O freezer horizontal fica no canto do lado da parede, perto da churrasqueira, e o alimentador e o bebedouro dos gatos ficam do lado da casinha. Sobra mais de 1,1 m livre para passar para fora."],
     }),
   };
-  return recolor(withExtras, {
+  return withOwned(recolor(withExtras, {
     id: "g4",
     name: "G completa, em branco, creme e azul-marinho",
     tagline: "A G completa cômodo por cômodo, sem lotar: móveis em creme, cozinha creme com pedra clara e detalhes azul-marinho no sofá, nas cabeceiras, nos tapetes e nos pendentes.",
     keep: KEEP_COLORS,
     highlights: [
       ...g.highlights,
-      "Cômodo por cômodo, o que faltava: cortinas blackout, criado-mudo e pendente na suíte; armário, prateleiras, luminária e gavetas no escritório; pendentes e espelho na sala; aéreo na geladeira e coifa no cooktop; armários e nichos nos banheiros; planta na varanda.",
+      "Cômodo por cômodo, o que faltava: cortinas blackout, criado-mudo e pendente na suíte; armário, prateleiras, luminária e gavetas no escritório; pendentes e espelho na sala; aéreo na geladeira e coifa no cooktop; armários e nichos nos banheiros; freezer na varanda e frigobar no quarto.",
       "Cores: móveis e cozinha em creme, pedra clara, e azul-marinho no sofá, nas cabeceiras, nos tapetes, na mesa do escritório e nos pendentes.",
     ],
     colors: {
@@ -764,7 +763,63 @@ function proposalG4(): Proposal {
       "#c9a77c": "#d8c3a2", // prateleiras → carvalho claro
       "#4a443d": "#16223b",
     },
-  });
+  }));
+}
+
+/**
+ * Os bens que o João já tem e vão para a casa nova, desenhados e já ligados ao bem (`assetId`),
+ * depois da troca de cores para ficarem com a cor de verdade. Ids de "Bens e desejos".
+ */
+const OWNED = {
+  frigobar: "imp-824a57cd98", // Midea Frigobar 93L
+  freezer: "imp-e5748832cb", // Midea Freezer Horizontal 100L
+  microondas: "imp-2c100141df", // Midea Micro-ondas 35L
+  purificador: "imp-d97754612e", // Electrolux Purificador de Água
+  alimentador: "amz-f044c89652", // Positivo Alimentador Pet Wi-Fi 4L
+  bebedouro: "amz-99423b355b", // Bebedouro para gatos com sensor 3,2L
+};
+
+function withOwned(p: Proposal): Proposal {
+  const own = (assetId: string, x: Piece): Piece => ({ ...x, assetId });
+  const white = "#f2f2f0", gray = "#b9bec4", dark = "#2b2f35";
+  const owned: Piece[] = [
+    // Frigobar (48 × 50 × 85 cm) no canto do pé da cama, com a porta virada para o quarto.
+    own(OWNED.frigobar, piece("quarto", "Frigobar Midea 93L", "🧊", "Eletrodomésticos", [
+      part(6.19, 0.02, 0.48, 0.5, 0.85, "branco", 0, white),
+      part(6.2, 0.52, 0.46, 0.004, 0.006, "escuro", 0.62, gray),
+      part(6.61, 0.52, 0.025, 0.025, 0.3, "escuro", 0.4, gray),
+    ])),
+    // Freezer horizontal (57 × 56 × 85 cm) encostado na parede da varanda: tampa por cima.
+    own(OWNED.freezer, piece("varanda", "Freezer horizontal Midea 100L", "❄️", "Eletrodomésticos", [
+      part(3.61, 0.5, 0.56, 0.57, 0.8, "branco", 0, white),
+      part(3.6, 0.49, 0.58, 0.59, 0.05, "branco", 0.8, "#e9eae8"),
+      part(3.585, 0.68, 0.015, 0.21, 0.025, "escuro", 0.78, gray),
+      part(3.595, 0.53, 0.01, 0.06, 0.03, "escuro", 0.12, dark),
+    ])),
+    // Micro-ondas (52 × 44 × 31 cm) na bancada entre o cooktop e a pia, embaixo do aéreo.
+    own(OWNED.microondas, piece("cozinha", "Micro-ondas Midea 35L", "📦", "Eletrodomésticos", [
+      part(0.0, 1.94, 0.44, 0.52, 0.31, "branco", 0.9, white),
+      part(0.44, 1.97, 0.006, 0.34, 0.24, "vidro", 0.935, "#3a3f46"),
+      part(0.44, 2.33, 0.006, 0.1, 0.24, "escuro", 0.935, dark),
+    ])),
+    // Purificador de parede (26 × 25 × 45 cm) do lado da pia, embaixo do aéreo.
+    own(OWNED.purificador, piece("cozinha", "Purificador Electrolux", "💧", "Eletrodomésticos", [
+      part(-0.01, 3.1, 0.25, 0.26, 0.45, "branco", 0.97, white),
+      part(0.24, 3.16, 0.006, 0.14, 0.1, "escuro", 1.27, dark),
+      part(0.2, 3.2, 0.06, 0.03, 0.03, "metal", 1.05),
+    ])),
+    // Coisas dos gatos do lado da casinha, longe da passagem.
+    own(OWNED.alimentador, piece("varanda", "Alimentador Positivo", "🐱", "Pets", [
+      part(2.2, 0.5, 0.22, 0.3, 0.32, "branco", 0, white),
+      part(2.2, 0.5, 0.22, 0.3, 0.06, "escuro", 0.32, dark),
+      part(2.42, 0.6, 0.06, 0.1, 0.03, "metal", 0.04),
+    ])),
+    own(OWNED.bebedouro, piece("varanda", "Bebedouro dos gatos", "🐱", "Pets", [
+      part(2.2, 0.88, 0.22, 0.22, 0.14, "branco", 0, white),
+      part(2.23, 0.91, 0.16, 0.16, 0.012, "vidro", 0.14, "#9fc7d6"),
+    ])),
+  ];
+  return { ...p, pieces: [...p.pieces, ...owned] };
 }
 
 /** Junta as notas: soma as listas dos cômodos que aparecem nas duas. */
