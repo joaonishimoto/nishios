@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { add } from "date-fns";
 import { toISO, today } from "@/lib/dates";
 import { useBens } from "@/modules/bens/store";
+import { useCulinaria } from "@/modules/culinaria/store";
 import { useCorpo } from "@/modules/corpo/store";
 import { useCommitments } from "@/modules/compromissos/store";
 import { useFinancas } from "@/modules/financas/store";
@@ -28,9 +29,10 @@ export function useEverything(): Everything {
   const { pets } = usePets();
   const { skills } = useSkills();
   const { recurrences } = useFinancas();
+  const { recipes } = useCulinaria();
   return useMemo(
-    () => ({ events, tasks, projects, commitments, goals, modalities, sessions, plannedSessions, entries, assets, wishes, people, pets, skills, recurrences }),
-    [events, tasks, projects, commitments, goals, modalities, sessions, plannedSessions, entries, assets, wishes, people, pets, skills, recurrences],
+    () => ({ events, tasks, projects, commitments, goals, modalities, sessions, plannedSessions, entries, assets, wishes, people, pets, skills, recipes, recurrences }),
+    [events, tasks, projects, commitments, goals, modalities, sessions, plannedSessions, entries, assets, wishes, people, pets, skills, recipes, recurrences],
   );
 }
 

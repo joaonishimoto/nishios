@@ -1,6 +1,7 @@
 import {
   CalendarClock,
   CalendarDays,
+  ChefHat,
   CircleCheckBig,
   Dumbbell,
   GraduationCap,
@@ -64,6 +65,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Crescimento",
     items: [
       { label: "Skills", icon: GraduationCap, to: "/skills" },
+      { label: "Culinária", icon: ChefHat, to: "/culinaria" },
       { label: "Finanças", icon: Wallet, to: "/financas" },
     ],
   },

@@ -19,6 +19,8 @@ import { SkillsPage } from "@/modules/skills/SkillsPage";
 import { SkillsProvider } from "@/modules/skills/store";
 import { TasksProvider } from "@/modules/tarefas/store";
 import { TarefasPage } from "@/modules/tarefas/TarefasPage";
+import { CulinariaPage } from "@/modules/culinaria/CulinariaPage";
+import { CulinariaProvider } from "@/modules/culinaria/store";
 import { DanceProvider } from "@/modules/treinos/danca/store";
 import { TreinosProvider } from "@/modules/treinos/store";
 import { TreinosPage } from "@/modules/treinos/TreinosPage";
@@ -41,6 +43,7 @@ export function App() {
           <DanceProvider>
           <CorpoProvider>
           <SkillsProvider>
+          <CulinariaProvider>
           <FinancasProvider>
           <RoutineProvider>
           <BensProvider>
@@ -61,6 +64,7 @@ export function App() {
               <Route path="pessoas" element={<PessoasPage />} />
               <Route path="pets" element={<PetsPage />} />
               <Route path="skills" element={<SkillsPage />} />
+              <Route path="culinaria" element={<CulinariaPage />} />
               <Route path="financas" element={<FinancasPage />} />
               <Route path="dados" element={<DadosPage />} />
               <Route path="design-system" element={<DesignSystemPage />} />
@@ -73,6 +77,7 @@ export function App() {
           </BensProvider>
           </RoutineProvider>
           </FinancasProvider>
+          </CulinariaProvider>
           </SkillsProvider>
           </CorpoProvider>
           </DanceProvider>
