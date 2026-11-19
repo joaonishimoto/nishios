@@ -1,39 +1,44 @@
 import { useState, type FormEvent } from "react";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
 import { useToast } from "@/components/ui/Toast";
 import { toISO, today } from "@/lib/dates";
 import { INTENSITY_META, newestFirst, pace } from "./logic";
+import { finalize, fromPlan, StrengthEditor, toDraft, type DraftExercise } from "./StrengthEditor";
 import { useTreinos } from "./store";
-import { FIGHT_STYLES, type Exercise, type Intensity, type Session, type SessionDraft } from "./types";
+import { FIGHT_STYLES, type Intensity, type Session, type SessionDraft } from "./types";
 
-const EMPTY_EXERCISE: Exercise = { name: "", sets: 3, reps: 10, weight: 0 };
+const newExercise = (): DraftExercise => ({ key: crypto.randomUUID(), name: "", sets: [{ reps: 10, weight: 0 }, { reps: 10, weight: 0 }, { reps: 10, weight: 0 }] });
 
 export function SessionForm({
   open,
   onOpenChange,
   session,
   defaultModalityId,
+  defaultPlanId,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   session?: Session;
   /** Modalidade já escolhida ao registrar um treino novo. */
   defaultModalityId?: string;
+  /** Ficha para começar o treino, já com os exercícios dela. */
+  defaultPlanId?: string;
 }) {
   return (
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
       title={session?.planned ? "Treino planejado" : session ? "Editar treino" : "Registrar treino"}
-      className="max-w-xl"
+      className="max-w-2xl"
     >
       <Content
-        key={session?.id ?? `novo-${defaultModalityId}`}
+        key={session?.id ?? `novo-${defaultModalityId}-${defaultPlanId}`}
         session={session}
         defaultModalityId={defaultModalityId}
+        defaultPlanId={defaultPlanId}
         onClose={() => onOpenChange(false)}
       />
     </Dialog>
@@ -43,17 +48,29 @@ export function SessionForm({
 function Content({
   session,
   defaultModalityId,
+  defaultPlanId,
   onClose,
 }: {
   session?: Session;
   defaultModalityId?: string;
+  defaultPlanId?: string;
   onClose: () => void;
 }) {
-  const { modalities, sessions, createSession, updateSession, removeSession, restoreSession } =
+  const { modalities, sessions, createSession, updateSession, removeSession, restoreSession, exercises: catalog, addExercises, plans } =
     useTreinos();
+  const startPlan = session ? undefined : plans.find((p) => p.id === defaultPlanId);
+  const [planId, setPlanId] = useState<string>(session?.planId ?? startPlan?.id ?? "");
+  const [strength, setStrength] = useState<DraftExercise[]>(() =>
+    session ? session.exercises.map(toDraft) : startPlan ? fromPlan(startPlan, catalog, sessions) : [],
+  );
   const toast = useToast();
   const [draft, setDraft] = useState<SessionDraft>(() => ({
-    modalityId: session?.modalityId ?? defaultModalityId ?? modalities[0]?.id ?? "",
+    modalityId:
+      session?.modalityId ??
+      (startPlan ? (modalities.find((m) => m.id === defaultModalityId && m.kind === "strength") ?? modalities.find((m) => m.kind === "strength"))?.id : undefined) ??
+      defaultModalityId ??
+      modalities[0]?.id ??
+      "",
     date: session?.date ?? toISO(today()),
     duration: session?.duration ?? 60,
     intensity: session?.intensity ?? "moderado",
@@ -75,15 +92,11 @@ function Content({
     .filter((s) => s.modalityId === draft.modalityId && s.id !== session?.id)
     .sort(newestFirst)[0];
 
-  const setExercise = (index: number, patch: Partial<Exercise>) =>
-    set(
-      "exercises",
-      draft.exercises.map((e, i) => (i === index ? { ...e, ...patch } : e)),
-    );
-
   function submit(e: FormEvent) {
     e.preventDefault();
     if (!modality || !draft.date) return;
+    const strong = kind === "strength" ? finalize(strength, catalog) : { exercises: [], created: [] };
+    addExercises(strong.created);
     // Guarda só os campos do tipo da modalidade, para não sobrar dado escondido.
     const clean: SessionDraft = {
       ...draft,
@@ -92,13 +105,9 @@ function Content({
       distance: kind === "distance" ? Math.max(0, draft.distance || 0) : 0,
       rounds: kind === "fight" ? Math.max(0, Math.floor(draft.rounds || 0)) : 0,
       style: kind === "fight" ? draft.style.trim() : "",
-      exercises:
-        kind === "strength"
-          ? draft.exercises
-              .filter((x) => x.name.trim())
-              .map((x) => ({ ...x, name: x.name.trim() }))
-          : [],
+      exercises: strong.exercises,
       planned: future,
+      planId: kind === "strength" && planId ? planId : undefined,
     };
     if (session) {
       updateSession(session.id, clean);
@@ -229,99 +238,54 @@ function Content({
         )}
 
         {kind === "strength" && (
-          <fieldset className="flex flex-col gap-2">
+          <fieldset className="flex flex-col gap-3">
             <legend className="mb-1.5 text-sm font-medium">Exercícios</legend>
-            {draft.exercises.length > 0 && (
-              <div
-                aria-hidden
-                className="hidden grid-cols-[minmax(0,1fr)_3.5rem_3.5rem_4.5rem_1.75rem] gap-2 text-xs text-muted-foreground sm:grid"
+            {plans.length > 0 && (
+              <Field
+                label="Ficha"
+                hint={planId && !session ? "Os exercícios vêm da ficha, com as cargas da última vez." : undefined}
               >
-                <span>Exercício</span>
-                <span>Séries</span>
-                <span>Reps</span>
-                <span>Carga (kg)</span>
-                <span />
-              </div>
+                {(id) => (
+                  <Select
+                    id={id}
+                    value={planId}
+                    onChange={(e) => {
+                      const plan = plans.find((p) => p.id === e.target.value);
+                      setPlanId(e.target.value);
+                      if (plan) setStrength(fromPlan(plan, catalog, sessions.filter((s) => s.id !== session?.id)));
+                    }}
+                  >
+                    <option value="">Sem ficha</option>
+                    {plans.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              </Field>
             )}
-            {draft.exercises.map((x, i) => (
-              <div
-                key={i}
-                className="grid grid-cols-[1fr_1fr_1fr_1.75rem] items-end gap-2 max-sm:pb-2 sm:items-center sm:grid-cols-[minmax(0,1fr)_3.5rem_3.5rem_4.5rem_1.75rem]"
-              >
-                <Input
-                  aria-label={`Exercício ${i + 1}`}
-                  value={x.name}
-                  placeholder="Ex.: Supino reto"
-                  className="col-span-3 sm:col-span-1"
-                  onChange={(e) => setExercise(i, { name: e.target.value })}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7 max-sm:mb-1 sm:order-last"
-                  aria-label={`Remover o exercício ${i + 1}`}
-                  onClick={() => set("exercises", draft.exercises.filter((_, j) => j !== i))}
-                >
-                  <X />
-                </Button>
-                <label className="flex flex-col gap-0.5">
-                  <span aria-hidden className="text-xs text-muted-foreground sm:hidden">Séries</span>
-                <Input
-                  aria-label={`Séries do exercício ${i + 1}`}
-                  type="number"
-                  min={0}
-                  inputMode="numeric"
-                  className="px-2"
-                  placeholder="Séries"
-                  value={x.sets || ""}
-                  onChange={(e) => setExercise(i, { sets: Number(e.target.value) })}
-                />
-                </label>
-                <label className="flex flex-col gap-0.5">
-                  <span aria-hidden className="text-xs text-muted-foreground sm:hidden">Reps</span>
-                <Input
-                  aria-label={`Repetições do exercício ${i + 1}`}
-                  type="number"
-                  min={0}
-                  inputMode="numeric"
-                  className="px-2"
-                  placeholder="Reps"
-                  value={x.reps || ""}
-                  onChange={(e) => setExercise(i, { reps: Number(e.target.value) })}
-                />
-                </label>
-                <label className="flex flex-col gap-0.5">
-                  <span aria-hidden className="text-xs text-muted-foreground sm:hidden">Carga (kg)</span>
-                <Input
-                  aria-label={`Carga do exercício ${i + 1}, em kg`}
-                  type="number"
-                  min={0}
-                  step="any"
-                  inputMode="decimal"
-                  className="px-2"
-                  placeholder="kg"
-                  value={x.weight || ""}
-                  onChange={(e) => setExercise(i, { weight: Number(e.target.value) })}
-                />
-                </label>
-              </div>
-            ))}
+            <StrengthEditor
+              value={strength}
+              onChange={setStrength}
+              catalog={catalog}
+              sessions={sessions}
+              currentSessionId={session?.id}
+            />
             <div className="flex flex-wrap gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8"
-                onClick={() => set("exercises", [...draft.exercises, { ...EMPTY_EXERCISE }])}
-              >
+              <Button variant="outline" size="sm" className="h-8" onClick={() => setStrength((list) => [...list, newExercise()])}>
                 <Plus />
                 Adicionar exercício
               </Button>
-              {draft.exercises.length === 0 && lastOfModality && lastOfModality.exercises.length > 0 && (
+              {strength.length === 0 && lastOfModality && lastOfModality.exercises.length > 0 && (
                 <Button
                   variant="ghost"
                   size="sm"
                   className="h-8"
-                  onClick={() => set("exercises", lastOfModality.exercises.map((x) => ({ ...x })))}
+                  onClick={() => {
+                    setStrength(lastOfModality.exercises.map(toDraft));
+                    if (lastOfModality.planId) setPlanId(lastOfModality.planId);
+                  }}
                 >
                   Copiar do último treino
                 </Button>

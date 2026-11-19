@@ -73,8 +73,15 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
 - **Treinos**: uma área só para toda atividade física, com modalidades dentro (musculação, luta, corrida, caminhada, natação e as que você criar).
   - Visão geral: a semana com os treinos de cada dia, um cartão por modalidade com o número do mês e o histórico.
   - Cada modalidade tem um tipo, que define o que se registra: força (exercícios, séries, repetições e carga), luta (estilo e rounds), distância (km ou metros, com ritmo calculado) ou só duração.
-  - Ao abrir uma modalidade aparecem os números dela. Em musculação, a evolução de carga de cada exercício; em corrida e natação, distância, ritmo médio e maior distância.
+  - Ao abrir uma modalidade aparecem os números dela. Em corrida e natação, distância, ritmo médio e maior distância.
   - "Copiar do último treino" preenche os exercícios do treino anterior.
+  - **Musculação** tem uma área própria, com cinco abas (`?aba=resumo|fichas|exercicios|progresso|comparar`):
+    - Resumo: treinos e volume do mês, o próximo treino do rodízio com "Começar treino", recordes dos últimos 30 dias, séries por semana de cada grupo muscular e a evolução dos exercícios mais feitos.
+    - Fichas (Treino A, B, C...): exercícios com séries, faixa de repetições, carga alvo e descanso. A ordem é o rodízio. "Começar treino" abre o registro já com a ficha e as cargas da última vez. Sem fichas, "Criar a partir dos treinos" monta as fichas pelas combinações de exercícios que se repetem.
+    - Exercícios: catálogo com equipamento (máquina, halteres, barra, livre, polia, outro) e grupo muscular, busca, filtro por equipamento, a última vez e o recorde. "Juntar com" une nomes repetidos.
+    - Progresso (`?ex=<id>`): gráfico por exercício de carga máxima, 1RM estimado (Epley), volume ou repetições, por período, com recordes e histórico de cada série. Exercícios sem carga contam por repetições.
+    - Comparar (`?cmp=<id>,<id>`): até cinco exercícios no mesmo gráfico, em evolução % (todos partindo do zero) ou em kg, uma tabela com início, agora e ganho por mês, e as séries de cada grupo muscular mês a mês.
+    - O registro do treino tem cada série com repetições e carga, e mostra o que foi feito da última vez. Os treinos antigos continuam valendo: os exercícios deles entram sozinhos no catálogo, ligados pelo nome.
   - **Dança**: um catálogo de passos. Cada passo tem grupo (básicos, giros...), vídeos (link do YouTube, Vimeo, Instagram ou TikTok, ou um vídeo enviado do aparelho), dicas e uma faixa que diz quão bem você faz o passo: Não aprendi, Transparente, Branco, Azul, Roxo, Preto e Vermelho. Cada mudança de faixa fica com a data e vira um gráfico de evolução. Vídeos enviados vão para o bucket privado `nishios-videos` do Supabase (migration `20261119110000_videos.sql`); sem login, ficam só no navegador.
 - **Corpo**: peso, gordura corporal e dez medidas, com uma silhueta que mostra o valor atual e a variação de cada uma.
   - Toque em uma medida (ou no peso) para ver o gráfico de evolução. Se houver uma meta ligada, o alvo aparece como linha no gráfico, com o progresso embaixo.

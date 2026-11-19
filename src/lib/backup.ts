@@ -26,6 +26,8 @@ export const COUNTED: { key: string; one: string; many: string }[] = [
   { key: "nishios:calendario:v1", one: "evento", many: "eventos" },
   { key: "nishios:pessoas:v1", one: "pessoa", many: "pessoas" },
   { key: "nishios:treinos:sessoes:v1", one: "treino", many: "treinos" },
+  { key: "nishios:treinos:fichas:v1", one: "ficha de treino", many: "fichas de treino" },
+  { key: "nishios:treinos:exercicios:v1", one: "exercício", many: "exercícios" },
   { key: "nishios:treinos:passos:v1", one: "passo de dança", many: "passos de dança" },
   { key: "nishios:corpo:v1", one: "medição", many: "medições" },
   { key: "nishios:bens:v1", one: "bem", many: "bens" },
