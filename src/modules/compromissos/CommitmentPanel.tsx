@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useBens } from "@/modules/bens/store";
+import { usePets } from "@/modules/pets/store";
 import { History, Pencil, Trash2, X } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge, Dot } from "@/components/ui/Badge";
@@ -49,6 +50,7 @@ function PanelContent({ commitment: c, onClose }: { commitment: Commitment; onCl
   const { remove, restore, removeDone, markDone } = useCommitments();
   const toast = useToast();
   const asset = useBens().assets.find((a) => a.id === c.assetId);
+  const pet = usePets().pets.find((p) => p.id === c.petId);
   const [editing, setEditing] = useState(false);
   const d = derive(c);
   const meta = STATUS_META[d.status];
@@ -121,6 +123,16 @@ function PanelContent({ commitment: c, onClose }: { commitment: Commitment; onCl
               <dd>
                 <Link to="/bens" className="text-primary hover:underline">
                   {asset.icon} {asset.name}
+                </Link>
+              </dd>
+            </>
+          )}
+          {pet && (
+            <>
+              <dt className="text-muted-foreground">Pet</dt>
+              <dd>
+                <Link to={`/pets?p=${pet.id}`} className="text-primary hover:underline">
+                  {pet.icon} {pet.name}
                 </Link>
               </dd>
             </>

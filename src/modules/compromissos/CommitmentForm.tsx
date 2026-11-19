@@ -6,14 +6,15 @@ import { IconPicker } from "@/components/ui/IconPicker";
 import { Segmented } from "@/components/ui/Segmented";
 import { useToast } from "@/components/ui/Toast";
 import { useBens } from "@/modules/bens/store";
+import { usePets } from "@/modules/pets/store";
 import { toISO, today, unitLabel } from "./logic";
 import { useCommitments } from "./store";
 import { CATEGORIES, ICONS, type Commitment, type CommitmentDraft, type IntervalUnit } from "./types";
 
 const UNITS: IntervalUnit[] = ["days", "weeks", "months", "years"];
 
-function initial(c?: Commitment): CommitmentDraft {
-  return {
+function initial(c?: Commitment, defaults?: Partial<CommitmentDraft>): CommitmentDraft {
+  const base: CommitmentDraft = {
     name: c?.name ?? "",
     icon: c?.icon ?? "📌",
     category: c?.category ?? CATEGORIES[0],
@@ -24,19 +25,24 @@ function initial(c?: Commitment): CommitmentDraft {
     warnDays: c?.warnDays ?? 7,
     notes: c?.notes ?? "",
     assetId: c?.assetId,
+    petId: c?.petId,
     lastDone: c?.history[0] ?? "",
   };
+  return c ? base : { ...base, ...defaults };
 }
 
 export function CommitmentForm({
   open,
   onOpenChange,
   commitment,
+  defaults,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Quando presente, edita; senão, cria. */
   commitment?: Commitment;
+  /** Valores já preenchidos ao criar (ex.: o pet, quando aberto da ficha dele). */
+  defaults?: Partial<CommitmentDraft>;
 }) {
   return (
     <Dialog
@@ -50,16 +56,30 @@ export function CommitmentForm({
       }
     >
       {/* A chave recria o formulário a cada abertura, já com os valores certos. */}
-      <FormContent key={commitment?.id ?? "novo"} commitment={commitment} onClose={() => onOpenChange(false)} />
+      <FormContent
+        key={commitment?.id ?? "novo"}
+        commitment={commitment}
+        defaults={defaults}
+        onClose={() => onOpenChange(false)}
+      />
     </Dialog>
   );
 }
 
-function FormContent({ commitment, onClose }: { commitment?: Commitment; onClose: () => void }) {
+function FormContent({
+  commitment,
+  defaults,
+  onClose,
+}: {
+  commitment?: Commitment;
+  defaults?: Partial<CommitmentDraft>;
+  onClose: () => void;
+}) {
   const { create, update } = useCommitments();
   const toast = useToast();
   const assets = [...useBens().assets].sort((a, b) => a.name.localeCompare(b.name));
-  const [draft, setDraft] = useState<CommitmentDraft>(() => initial(commitment));
+  const pets = [...usePets().pets].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+  const [draft, setDraft] = useState<CommitmentDraft>(() => initial(commitment, defaults));
   const [triedSubmit, setTriedSubmit] = useState(false);
   const set = <K extends keyof CommitmentDraft>(key: K, value: CommitmentDraft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
@@ -220,6 +240,21 @@ function FormContent({ commitment, onClose }: { commitment?: Commitment; onClose
                 {assets.map((a) => (
                   <option key={a.id} value={a.id}>
                     {a.icon} {a.name}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+        )}
+
+        {pets.length > 0 && (
+          <Field label="É de algum pet?" hint="Opcional. O compromisso passa a aparecer na ficha do pet.">
+            {(id) => (
+              <Select id={id} value={draft.petId ?? ""} onChange={(e) => set("petId", e.target.value || undefined)}>
+                <option value="">Nenhum</option>
+                {pets.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.icon} {p.name}
                   </option>
                 ))}
               </Select>
