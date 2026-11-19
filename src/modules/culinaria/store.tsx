@@ -1,7 +1,7 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { usePersistentState } from "@/lib/storage";
 import { parseIngredient } from "./logic";
-import type { Attempt, Component, Ingredient, Recipe } from "./types";
+import { RENAMED_CATEGORIES, type Attempt, type Component, type Ingredient, type Recipe } from "./types";
 
 const KEY = "nishios:culinaria:receitas:v1";
 
@@ -11,7 +11,8 @@ const withoutExamples = (list: Recipe[]): Recipe[] =>
     .filter((r) => !r.id.startsWith("seed-"))
     .map((r) => (r.parentId.startsWith("seed-") ? { ...r, parentId: "" } : r))
     .map(withIngredientList)
-    .map((r) => (Array.isArray(r.components) ? r : { ...r, components: [] }));
+    .map((r) => (Array.isArray(r.components) ? r : { ...r, components: [] }))
+    .map((r) => (RENAMED_CATEGORIES[r.category] ? { ...r, category: RENAMED_CATEGORIES[r.category] } : r));
 
 /** A primeira versão guardava os ingredientes como texto, um por linha: cada linha vira um item da lista. */
 function withIngredientList(r: Recipe): Recipe {

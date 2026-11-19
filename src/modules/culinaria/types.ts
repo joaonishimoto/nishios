@@ -74,18 +74,33 @@ export interface Recipe {
 
 export const CATEGORIES = [
   "Acompanhamentos",
+  "Aves",
+  "Bases e caldos",
   "Bebidas",
-  "Bolos e doces",
+  "Bolos e tortas",
   "Café da manhã",
   "Carnes",
+  "Conservas e fermentados",
+  "Doces e sobremesas",
+  "Drinks",
+  "Grãos e leguminosas",
+  "Lanches e sanduíches",
   "Massas",
-  "Molhos e saladas",
+  "Molhos",
   "Pães",
   "Peixes e frutos do mar",
   "Petiscos",
+  "Saladas",
   "Sopas",
+  "Temperos",
   "Vegetariano",
   "Outros",
 ];
+
+/** Categorias antigas que foram divididas: a receita passa para a nova. */
+export const RENAMED_CATEGORIES: Record<string, string> = {
+  "Molhos e saladas": "Molhos",
+  "Bolos e doces": "Doces e sobremesas",
+};
 
 export const RECIPE_ICONS = ["🍳", "🥗", "🍅", "🍝", "🍚", "🥩", "🍗", "🐟", "🍤", "🍞", "🍰", "🍪", "🍲", "🥘", "🌮", "🍕", "🥞", "☕", "🍹", "🍌", "🥭", "🧄", "🌶️", "🍄"];
