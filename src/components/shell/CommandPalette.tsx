@@ -278,7 +278,7 @@ function Results({ query, onDone }: { query: string; onDone: () => void }) {
           icon: <Glyph icon={ChefHat} />,
           run: () => {
             const r = culinaria.create({ name: text });
-            created("Receita criada", `/culinaria?r=${r.id}`);
+            created("Receita criada", `/culinaria?r=${r.id}&editar=1`);
           },
         },
       ],

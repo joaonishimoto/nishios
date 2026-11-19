@@ -184,7 +184,7 @@ function RecipeList() {
       <StartForm
         state={start}
         onOpenChange={(o) => setStart((s) => ({ ...s, open: o }))}
-        onCreated={(r) => navigate(`/culinaria?r=${r.id}`)}
+        onCreated={(r) => navigate(`/culinaria?r=${r.id}&editar=1`)}
       />
     </>
   );
