@@ -176,7 +176,7 @@ export function CompromissosPage() {
               <span>Última vez</span>
               <span>Repete</span>
               <span>Próxima</span>
-              <span className="w-[9.5rem]" />
+              <span className="w-8" />
             </div>
             <div className="flex flex-col gap-5 pt-4">
               {groups.map(({ status, items }) => {
@@ -240,7 +240,7 @@ function Row({ commitment: c, onOpen }: { commitment: Commitment; onOpen: () => 
         GRID,
       )}
     >
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 items-center gap-3 pr-10 md:pr-0">
         <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-surface-muted text-lg">
           {c.icon}
         </span>
@@ -275,7 +275,8 @@ function Row({ commitment: c, onOpen }: { commitment: Commitment; onOpen: () => 
         <CycleTrack derived={d} className="mt-1.5" />
       </div>
 
-      <div className="relative z-10 flex md:w-[9.5rem] md:justify-end">
+      {/* No celular o check fica no canto da primeira linha; no desktop, na última coluna. */}
+      <div className="absolute top-3 right-3 z-10 flex md:static md:w-8 md:justify-end">
         {d.status !== "done" && <MarkDone commitment={c} />}
       </div>
     </li>

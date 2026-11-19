@@ -8,18 +8,24 @@ import { shortDate, toISO, today } from "./logic";
 import { useCommitments } from "./store";
 import type { Commitment } from "./types";
 
-/** Botão "Marcar como feito": pede a data (hoje por padrão) e registra no histórico. */
+/**
+ * Botão "Marcar como feito": pede a data (hoje por padrão) e registra no histórico.
+ * Nas listas aparece só o ícone de check (com o texto como rótulo acessível e dica);
+ * passe `iconOnly={false}` para mostrar o texto, como no painel do compromisso.
+ */
 export function MarkDone({
   commitment,
   variant = "outline",
   size = "sm",
   label = "Marcar como feito",
+  iconOnly = true,
   className,
 }: {
   commitment: Commitment;
   variant?: ButtonProps["variant"];
   size?: ButtonProps["size"];
   label?: string;
+  iconOnly?: boolean;
   className?: string;
 }) {
   const { markDone, removeDone } = useCommitments();
@@ -52,12 +58,14 @@ export function MarkDone({
       <PopoverTrigger asChild>
         <Button
           variant={variant}
-          size={size}
+          size={iconOnly ? "icon" : size}
           className={className}
+          aria-label={iconOnly ? label : undefined}
+          title={iconOnly ? label : undefined}
           onClick={(e) => e.stopPropagation()}
         >
-          <Check />
-          {label}
+          <Check aria-hidden />
+          {!iconOnly && label}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-60" onClick={(e) => e.stopPropagation()}>
