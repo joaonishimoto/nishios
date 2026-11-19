@@ -1,7 +1,9 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
+import { useToast } from "@/components/ui/Toast";
 import { Segmented } from "@/components/ui/Segmented";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { today } from "@/lib/dates";
@@ -23,7 +25,9 @@ type Tab = "previsao" | "recorrencias" | "investimentos";
  * certeza) dão a previsão do mês; investimentos são atualizados à mão.
  */
 export function FinancasPage() {
-  const { recurrences, investments } = useFinancas();
+  const { recurrences, investments, clearAll, restoreRecurrence, restoreInvestment } = useFinancas();
+  const toast = useToast();
+  const [confirmClear, setConfirmClear] = useState(false);
   const { wishes } = useBens();
   const [params, setParams] = useSearchParams();
   const raw = params.get("aba");
@@ -105,6 +109,55 @@ export function FinancasPage() {
           <InvestmentsTab onNew={() => update({ novo: "1" })} onOpen={(id) => update({ i: id })} />
         )}
       </div>
+
+      {(recurrences.length > 0 || investments.length > 0) && (
+        <div className="mt-10 border-t border-border pt-4">
+          <Button variant="ghost" size="sm" className="hover:bg-danger-soft hover:text-danger-strong" onClick={() => setConfirmClear(true)}>
+            <Trash2 />
+            Apagar todos os dados de Finanças
+          </Button>
+        </div>
+      )}
+
+      <Dialog
+        open={confirmClear}
+        onOpenChange={setConfirmClear}
+        title="Apagar todos os dados de Finanças?"
+        description="Saem todas as recorrências e todos os investimentos, com o histórico de saldos. Os outros módulos não mudam."
+      >
+        <DialogBody>
+          <p className="text-muted-foreground">
+            {recurrences.length} {recurrences.length === 1 ? "recorrência" : "recorrências"} e {investments.length}{" "}
+            {investments.length === 1 ? "investimento" : "investimentos"}. Metas ligadas a um investimento ficam em zero até você ligar outro.
+          </p>
+        </DialogBody>
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => setConfirmClear(false)}>
+            Cancelar
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => {
+              const recs = recurrences;
+              const invs = investments;
+              clearAll();
+              setConfirmClear(false);
+              toast({
+                message: "Finanças está vazio",
+                action: {
+                  label: "Desfazer",
+                  onClick: () => {
+                    invs.forEach(restoreInvestment);
+                    recs.forEach(restoreRecurrence);
+                  },
+                },
+              });
+            }}
+          >
+            Apagar tudo
+          </Button>
+        </DialogFooter>
+      </Dialog>
 
       <RecurrenceForm
         open={!!editRec || newKind === "in" || newKind === "out"}

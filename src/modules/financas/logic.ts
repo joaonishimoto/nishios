@@ -1,6 +1,7 @@
 import { addMonths, format, getDaysInMonth, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toISO } from "@/lib/dates";
+import { nthBusinessDay } from "@/lib/holidays";
 import { money } from "@/lib/format";
 import type { Wish } from "@/modules/bens/types";
 import { EVERY_OPTIONS, INVESTMENT_TYPES, type Investment, type Recurrence } from "./types";
@@ -69,7 +70,7 @@ export function occurrenceIn(r: Recurrence, month: string): Occurrence | null {
   const mark = r.months?.[month];
   return {
     rec: r,
-    date: `${month}-${String(Math.min(day, max)).padStart(2, "0")}`,
+    date: r.businessDay ? nthBusinessDay(month, r.businessDay) : `${month}-${String(Math.min(day, max)).padStart(2, "0")}`,
     amount: mark?.amount ?? r.amount,
     adjusted: mark?.amount !== undefined,
     done: !!mark?.done,
@@ -147,6 +148,10 @@ export const active = (recs: Recurrence[], month: string) => recs.filter((r) => 
 export function everyLabel(r: Recurrence): string {
   const day = Number(r.first.slice(8, 10));
   const base = EVERY_OPTIONS.find((o) => o.value === r.every)?.label ?? `A cada ${r.every} meses`;
+  if (r.businessDay) {
+    const when = `${r.businessDay}º dia útil`;
+    return r.every === 12 ? `${base}, ${when} de ${format(parseISO(r.first), "MMMM", { locale: ptBR })}` : `${base}, ${when}`;
+  }
   if (r.every === 12) return `${base}, em ${format(parseISO(r.first), "d 'de' MMMM", { locale: ptBR })}`;
   return `${base}, dia ${day}`;
 }

@@ -25,8 +25,10 @@ export interface Recurrence {
   approx?: boolean;
   /** A cada quantos meses: 1 = todo mês, 12 = uma vez por ano. */
   every: number;
-  /** Primeira vez, em yyyy-MM-dd. O dia do mês sai daqui. */
+  /** Primeira vez, em yyyy-MM-dd. Em dia corrido, o dia do mês sai daqui; em dia útil, só o mês. */
   first: string;
+  /** Dia útil do mês (5 = quinto dia útil). Ausente = dia corrido, o dia de `first`. */
+  businessDay?: number;
   /** Quantas vezes ao todo (parcelamento). Ausente = sem fim. */
   times?: number;
   /** A saída é um aporte para este investimento. */

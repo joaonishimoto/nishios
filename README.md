@@ -72,8 +72,8 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
   - Toque em uma medida (ou no peso) para ver o gráfico de evolução. Se houver uma meta ligada, o alvo aparece como linha no gráfico, com o progresso embaixo.
   - "Registrar medidas" aceita só o que foi medido no dia. IMC calculado pela altura.
 - **Finanças** (v1, só o que é certo): o resto dos gastos fica de fora de propósito, para não virar planilha de cada centavo.
-  - Recorrências: o que entra e sai com certeza (salário, aluguel, contas, assinaturas), todo mês ou a cada tantos meses, com parcelamentos que terminam sozinhos e valor aproximado para contas que variam. Mostra o custo mensal e anual dos fixos e das assinaturas.
-  - Previsão: entra, sai, vai para investimentos e sobra do mês, a lista do mês por data e barras com a sobra dos próximos 12 meses (o mês do IPVA aparece apertado). Confirmar e ajustar o valor de um mês são opcionais.
+  - Recorrências: o que entra e sai com certeza (salário, aluguel, contas, assinaturas), todo mês ou a cada tantos meses, em dia corrido (dia 10) ou dia útil (5º dia útil, sem fins de semana, feriados nacionais e Carnaval), com parcelamentos que terminam sozinhos e valor aproximado para contas que variam. Mostra o custo mensal e anual dos fixos e das assinaturas.
+  - Previsão: entra, sai, vai para investimentos e sobra do mês, a lista do mês por data e barras com a sobra dos próximos 12 meses (o mês do IPVA aparece apertado). Confirmar e ajustar o valor de um mês são opcionais. No fim da página, "Apagar todos os dados de Finanças" esvazia só este módulo, com Desfazer.
   - Investimentos: saldo atualizado à mão, com histórico e gráfico de evolução. Uma meta pode ser ligada a um investimento (ou ao total) e sobe sozinha; com um aporte recorrente, o cartão mostra quando chega lá.
   - Ligações: camada no calendário, cartão no Início, busca, aviso das contas dos próximos 3 dias no sino, custo fixo na linha do bem e desejos com data como compra planejada na previsão.
 - **Bens e desejos**:
