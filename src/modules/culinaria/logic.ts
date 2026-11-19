@@ -1,5 +1,5 @@
 import type { Tone } from "@/components/ui/Badge";
-import type { Recipe, RecipeStatus } from "./types";
+import { UNITS, type Ingredient, type Recipe, type RecipeStatus } from "./types";
 
 export const STATUS_META: Record<RecipeStatus, { label: string; tone: Tone }> = {
   testing: { label: "Em teste", tone: "warning" },
@@ -89,7 +89,40 @@ export function matches(r: Recipe, query: string): boolean {
   const q = fold(query.trim());
   if (!q) return true;
   const hay = fold(
-    `${r.name} ${r.category} ${r.change} ${r.ingredients} ${r.lessons} ${r.attempts.map((a) => `${a.how} ${a.result} ${a.next}`).join(" ")}`,
+    `${r.name} ${r.category} ${r.change} ${r.ingredients.map(ingredientText).join(" ")} ${r.lessons} ${r.attempts.map((a) => `${a.how} ${a.result} ${a.next}`).join(" ")}`,
   );
   return q.split(/\s+/).every((t) => hay.includes(t));
+}
+
+/** "200 g de cogumelos", "2 tomates", "Sal a gosto". */
+export function ingredientText(i: Ingredient): string {
+  if (i.unit === "a gosto") return `${i.name} a gosto`.trim();
+  const unit = i.unit && i.amount ? `${i.unit}${i.unit.length > 2 ? " de" : ""}` : i.unit;
+  return [i.amount, unit, i.name].filter(Boolean).join(" ");
+}
+
+// Unidades mais longas primeiro, para "colher de sopa" ganhar de "colher".
+const UNIT_WORDS = [...UNITS, "xícaras", "colheres de sopa", "colheres de chá", "colher", "colheres", "unidades", "dentes", "fatias", "latas", "pacotes", "pitadas"]
+  .filter((u) => u !== "a gosto")
+  .sort((a, b) => b.length - a.length);
+
+/** Lê uma linha de texto ("2 colheres de azeite") como quantidade, unidade e ingrediente. */
+export function parseIngredient(line: string): Omit<Ingredient, "id"> {
+  let rest = line.trim();
+  let unit = "";
+  if (/\sa gosto$/i.test(rest)) {
+    return { amount: "", unit: "a gosto", name: rest.replace(/\s+a gosto$/i, "").trim() };
+  }
+  const num = rest.match(/^(\d+(?:[.,]\d+)?(?:\s*\/\s*\d+)?(?:\s+\d\/\d)?)\s*/);
+  const amount = num ? num[1].replace(/\s+/g, " ") : "";
+  if (num) rest = rest.slice(num[0].length);
+  if (amount) {
+    const lower = rest.toLowerCase();
+    const found = UNIT_WORDS.find((u) => lower === u || lower.startsWith(`${u} `));
+    if (found) {
+      unit = found;
+      rest = rest.slice(found.length).trim().replace(/^de\s+/i, "");
+    }
+  }
+  return { amount, unit, name: rest.trim() };
 }

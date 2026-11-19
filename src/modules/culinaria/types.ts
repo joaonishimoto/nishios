@@ -16,6 +16,33 @@ export interface Attempt {
   next: string;
 }
 
+/** Um ingrediente da lista. Quantidade é texto para aceitar "1/2", "1,5" ou ficar vazia ("a gosto"). */
+export interface Ingredient {
+  id: string;
+  amount: string;
+  unit: string;
+  name: string;
+}
+
+/** Unidades sugeridas no campo; qualquer outra também vale. */
+export const UNITS = [
+  "g",
+  "kg",
+  "ml",
+  "l",
+  "xícara",
+  "colher de sopa",
+  "colher de chá",
+  "unidade",
+  "dente",
+  "fatia",
+  "maço",
+  "pitada",
+  "lata",
+  "pacote",
+  "a gosto",
+];
+
 export interface Recipe {
   id: string;
   name: string;
@@ -26,8 +53,7 @@ export interface Recipe {
   /** Só nas variações: o que muda em relação à receita de origem. */
   change: string;
   status: RecipeStatus;
-  /** Um ingrediente por linha. */
-  ingredients: string;
+  ingredients: Ingredient[];
   /** Um passo por linha. */
   steps: string;
   /** O que você já aprendeu fazendo: pontos de atenção, truques. */

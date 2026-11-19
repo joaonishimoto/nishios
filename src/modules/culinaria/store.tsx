@@ -1,6 +1,7 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { usePersistentState } from "@/lib/storage";
-import type { Attempt, Recipe } from "./types";
+import { parseIngredient } from "./logic";
+import type { Attempt, Ingredient, Recipe } from "./types";
 
 const KEY = "nishios:culinaria:receitas:v1";
 
@@ -8,7 +9,25 @@ const KEY = "nishios:culinaria:receitas:v1";
 const withoutExamples = (list: Recipe[]): Recipe[] =>
   list
     .filter((r) => !r.id.startsWith("seed-"))
-    .map((r) => (r.parentId.startsWith("seed-") ? { ...r, parentId: "" } : r));
+    .map((r) => (r.parentId.startsWith("seed-") ? { ...r, parentId: "" } : r))
+    .map(withIngredientList);
+
+/** A primeira versão guardava os ingredientes como texto, um por linha: cada linha vira um item da lista. */
+function withIngredientList(r: Recipe): Recipe {
+  const old = r.ingredients as unknown;
+  if (Array.isArray(old)) return r;
+  const text = typeof old === "string" ? old : "";
+  return {
+    ...r,
+    ingredients: text
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .map((l) => ({ id: newId(), ...parseIngredient(l) })),
+  };
+}
+
+const copyIngredients = (list: Ingredient[]): Ingredient[] => list.map((i) => ({ ...i, id: newId() }));
 
 interface Store {
   recipes: Recipe[];
@@ -39,7 +58,7 @@ export function CulinariaProvider({ children }: { children: ReactNode }) {
       parentId: "",
       change: "",
       status: "testing",
-      ingredients: "",
+      ingredients: [],
       steps: "",
       lessons: "",
       attempts: [],
@@ -57,7 +76,7 @@ export function CulinariaProvider({ children }: { children: ReactNode }) {
         const recipe = blank({
           icon: parent.icon,
           category: parent.category,
-          ingredients: parent.ingredients,
+          ingredients: copyIngredients(parent.ingredients),
           steps: parent.steps,
           ...fields,
           parentId: parent.id,
