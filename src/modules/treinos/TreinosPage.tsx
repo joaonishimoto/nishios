@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ArrowUp, ChartColumn, Check, Dumbbell, Pencil, Plus } from "lucide-react";
+import { ChartColumn, Check, Dumbbell, Pencil, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -17,7 +17,6 @@ import {
   inCurrentMonth,
   inCurrentWeek,
   INTENSITY_META,
-  loadProgress,
   newestFirst,
   num,
   pace,
@@ -25,6 +24,7 @@ import {
   sum,
 } from "./logic";
 import { ModalityForm } from "./ModalityForm";
+import { MusculacaoArea } from "./MusculacaoArea";
 import { SessionForm } from "./SessionForm";
 import { useTreinos } from "./store";
 import type { Modality, Session } from "./types";
@@ -33,10 +33,11 @@ const WEEKDAY_SHORT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const PAGE = 12;
 
 export function TreinosPage() {
-  const { modalities, sessions, planned, completeSession, updateSession } = useTreinos();
+  const { modalities, sessions, planned, completeSession, updateSession, plans } = useTreinos();
+  const planNames = useMemo(() => new Map(plans.map((p) => [p.id, p.name])), [plans]);
   const toast = useToast();
   const [params, setParams] = useSearchParams();
-  const [sessionForm, setSessionForm] = useState<{ open: boolean; session?: Session }>({ open: false });
+  const [sessionForm, setSessionForm] = useState<{ open: boolean; session?: Session; planId?: string }>({ open: false });
   const [modalityForm, setModalityForm] = useState<{ open: boolean; modality?: Modality }>({ open: false });
   const [shown, setShown] = useState(PAGE);
 
@@ -222,7 +223,17 @@ export function TreinosPage() {
             </ul>
           </section>
 
-          {selected && (
+          {selected?.kind === "strength" && (
+            <MusculacaoArea
+              modality={selected}
+              sessions={history}
+              onEdit={() => setModalityForm({ open: true, modality: selected })}
+              onStart={(planId) => setSessionForm({ open: true, planId })}
+              onOpenSession={(session) => setSessionForm({ open: true, session })}
+            />
+          )}
+
+          {selected && selected.kind !== "strength" && (
             <ModalityDetail
               modality={selected}
               sessions={history}
@@ -263,6 +274,7 @@ export function TreinosPage() {
                         session={s}
                         modality={m}
                         showModality={!selected}
+                        planName={s.planId ? planNames.get(s.planId) : undefined}
                         onOpen={() => setSessionForm({ open: true, session: s })}
                       />
                     ) : null;
@@ -283,6 +295,7 @@ export function TreinosPage() {
         open={sessionForm.open}
         session={sessionForm.session}
         defaultModalityId={selected?.id}
+        defaultPlanId={sessionForm.planId}
         onOpenChange={(open) => setSessionForm((s) => ({ ...s, open }))}
       />
       <ModalityForm
@@ -354,7 +367,7 @@ function Fact({ label, value }: { label: string; value: string }) {
   );
 }
 
-/** O "lá dentro" de cada modalidade: números e evolução próprios do tipo. */
+/** O "lá dentro" das modalidades que não são de força (musculação tem a área própria). */
 function ModalityDetail({
   modality: m,
   sessions,
@@ -365,7 +378,6 @@ function ModalityDetail({
   onEdit: () => void;
 }) {
   const month = sessions.filter((s) => inCurrentMonth(s));
-  const progress = m.kind === "strength" ? loadProgress(sessions) : [];
   const withDistance = sessions.filter((s) => s.distance > 0 && s.duration > 0);
   const longest = sessions.reduce((max, s) => Math.max(max, s.distance), 0);
   const styles = [...new Set(sessions.map((s) => s.style).filter(Boolean))];
@@ -413,66 +425,9 @@ function ModalityDetail({
                 <Fact label="Estilos" value={styles.join(", ") || "–"} />
               </>
             )}
-            {m.kind === "strength" && (
-              <Fact
-                label="Duração média"
-                value={formatDuration(sum(sessions, "duration") / sessions.length)}
-              />
-            )}
             <Fact label="Total registrado" value={plural(sessions.length, "treino", "treinos")} />
           </dl>
 
-          {m.kind === "strength" && progress.length > 0 && (
-            <div className="mt-6">
-              <h3 className="font-semibold">Evolução de carga</h3>
-              <p className="text-sm text-muted-foreground">
-                Do primeiro registro de cada exercício até o mais recente.
-              </p>
-              <div className="mt-2 overflow-x-auto">
-                <table className="w-full min-w-[26rem] border-collapse text-left">
-                  <thead>
-                    <tr className="border-b border-border text-sm text-muted-foreground">
-                      <th scope="col" className="py-2 pr-4 font-normal">Exercício</th>
-                      <th scope="col" className="py-2 pr-4 text-right font-normal">Começou</th>
-                      <th scope="col" className="py-2 pr-4 text-right font-normal">Agora</th>
-                      <th scope="col" className="py-2 text-right font-normal">Variação</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {progress.map((p) => {
-                      const diff = p.last - p.first;
-                      return (
-                        <tr key={p.name} className="border-b border-border last:border-b-0">
-                          <th scope="row" className="py-2 pr-4 font-medium">
-                            {p.name}
-                            <span className="block text-sm font-normal text-muted-foreground">
-                              {plural(p.times, "treino", "treinos")}, último em {shortDate(p.lastDate)}
-                            </span>
-                          </th>
-                          <td className="py-2 pr-4 text-right text-muted-foreground tabular-nums">
-                            {num(p.first)} kg
-                          </td>
-                          <td className="py-2 pr-4 text-right font-medium tabular-nums">{num(p.last)} kg</td>
-                          <td className="py-2 text-right tabular-nums">
-                            {diff > 0 ? (
-                              <span className="inline-flex items-center gap-0.5 font-medium text-success-strong">
-                                <ArrowUp className="size-3.5" aria-hidden />
-                                {num(diff)} kg
-                              </span>
-                            ) : diff < 0 ? (
-                              <span className="text-muted-foreground">{num(diff)} kg</span>
-                            ) : (
-                              <span className="text-subtle-foreground">Igual</span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
         </>
       )}
     </section>
@@ -483,15 +438,18 @@ function SessionRow({
   session: s,
   modality: m,
   showModality,
+  planName,
   onOpen,
 }: {
   session: Session;
   modality: Modality;
   showModality: boolean;
+  /** Ficha usada no treino de musculação. */
+  planName?: string;
   onOpen: () => void;
 }) {
   const intensity = INTENSITY_META[s.intensity];
-  const summary = sessionSummary(s, m);
+  const summary = planName ? `${planName}, ${sessionSummary(s, m).replace(/^\d+ exercícios?, /, "")}` : sessionSummary(s, m);
   return (
     <li className="relative flex items-center gap-3 border-b border-border px-3 py-2.5 transition-colors duration-(--motion-fast) last:border-b-0 hover:bg-surface-hover">
       <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-surface-muted text-lg">

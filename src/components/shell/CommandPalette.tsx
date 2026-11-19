@@ -18,6 +18,7 @@ import { useRoutine } from "@/modules/rotina/store";
 import { useSkills } from "@/modules/skills/store";
 import { useTasks } from "@/modules/tarefas/store";
 import { useTreinos } from "@/modules/treinos/store";
+import { EQUIPMENT_LABELS, MUSCLE_LABELS } from "@/modules/treinos/types";
 import { MAIN_NAV } from "./nav";
 
 interface Entry {
@@ -68,7 +69,7 @@ function useEntries(go: (to: string) => void): Entry[] {
   const { pets } = usePets();
   const { skills } = useSkills();
   const { assets, wishes } = useBens();
-  const { modalities } = useTreinos();
+  const { modalities, exercises, plans } = useTreinos();
   const { home } = useCasa();
   const { recurrences, investments } = useFinancas();
 
@@ -135,6 +136,16 @@ function useEntries(go: (to: string) => void): Entry[] {
     for (const m of modalities) {
       list.push({ id: `m-${m.id}`, group: "Treinos", title: m.name, detail: "Modalidade", icon: emoji(m.icon), run: () => go(`/treinos?m=${m.id}`) });
     }
+    // Fichas e exercícios abrem dentro da primeira modalidade de força.
+    const strength = modalities.find((m) => m.kind === "strength");
+    if (strength) {
+      for (const p of plans) {
+        list.push({ id: `f-${p.id}`, group: "Treinos", title: p.name, detail: "Ficha", icon: emoji(strength.icon), run: () => go(`/treinos?m=${strength.id}&aba=fichas`) });
+      }
+      for (const x of exercises) {
+        list.push({ id: `ex-${x.id}`, group: "Treinos", title: x.name, detail: `Exercício · ${EQUIPMENT_LABELS[x.equipment]}`, icon: emoji(strength.icon), extra: `${MUSCLE_LABELS[x.muscle]} ${x.notes}`, run: () => go(`/treinos?m=${strength.id}&aba=progresso&ex=${x.id}`) });
+      }
+    }
     for (const r of home.rooms) {
       list.push({ id: `r-${r.id}`, group: "Casa", title: r.name, detail: "Cômodo", icon: page("/casa"), run: () => go(`/casa?comodo=${r.id}`) });
     }
@@ -153,7 +164,7 @@ function useEntries(go: (to: string) => void): Entry[] {
       list.push({ id: `inv-${i.id}`, group: "Finanças", title: i.name, detail: money(balance(i)), icon: emoji(i.icon), extra: `${i.institution} ${i.notes} investimento`, run: () => go(`/financas?aba=investimentos&i=${i.id}`) });
     }
     return list;
-  }, [tasks, commitments, habits, goals, events, people, pets, skills, assets, wishes, modalities, home, recurrences, investments, go]);
+  }, [tasks, commitments, habits, goals, events, people, pets, skills, assets, wishes, modalities, exercises, plans, home, recurrences, investments, go]);
 }
 
 function Results({ query, onDone }: { query: string; onDone: () => void }) {

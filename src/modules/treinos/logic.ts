@@ -80,36 +80,6 @@ export function inCurrentWeek(s: Session, now: Date = today()): boolean {
 export const sum = (list: Session[], key: "duration" | "distance" | "rounds") =>
   list.reduce((total, s) => total + (s[key] || 0), 0);
 
-export interface LoadProgress {
-  name: string;
-  first: number;
-  last: number;
-  /** Quantos treinos tiveram esse exercício. */
-  times: number;
-  lastDate: string;
-}
-
-/** Evolução da carga de cada exercício, do primeiro registro ao mais recente. */
-export function loadProgress(sessions: Session[]): LoadProgress[] {
-  const byName = new Map<string, LoadProgress>();
-  const chronological = [...sessions].sort((a, b) => a.date.localeCompare(b.date));
-  for (const s of chronological) {
-    for (const e of s.exercises) {
-      const key = e.name.trim().toLocaleLowerCase("pt-BR");
-      if (!key || e.weight <= 0) continue;
-      const entry = byName.get(key);
-      if (entry) {
-        entry.last = e.weight;
-        entry.times++;
-        entry.lastDate = s.date;
-      } else {
-        byName.set(key, { name: e.name.trim(), first: e.weight, last: e.weight, times: 1, lastDate: s.date });
-      }
-    }
-  }
-  return [...byName.values()].sort((a, b) => b.times - a.times || a.name.localeCompare(b.name, "pt-BR"));
-}
-
 export function daysAgoLabel(date: string, now: Date = today()): string {
   const days = Math.round((now.getTime() - parseISO(date).getTime()) / 86_400_000);
   if (days <= 0) return "hoje";
