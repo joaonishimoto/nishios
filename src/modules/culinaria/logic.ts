@@ -1,5 +1,5 @@
 import type { Tone } from "@/components/ui/Badge";
-import { UNITS, type Ingredient, type Recipe, type RecipeStatus } from "./types";
+import { UNITS, type Component, type Ingredient, type Recipe, type RecipeStatus } from "./types";
 
 export const STATUS_META: Record<RecipeStatus, { label: string; tone: Tone }> = {
   testing: { label: "Em teste", tone: "warning" },
@@ -125,4 +125,35 @@ export function parseIngredient(line: string): Omit<Ingredient, "id"> {
     }
   }
   return { amount, unit, name: rest.trim() };
+}
+
+/** Receitas que usam esta como parte. */
+export function usedIn(recipes: Recipe[], id: string): Recipe[] {
+  return recipes.filter((r) => r.components.some((c) => c.recipeId === id));
+}
+
+/** As partes que ainda existem, na ordem da lista. */
+export function partsOf(recipes: Recipe[], recipe: Recipe): { component: Component; recipe: Recipe }[] {
+  const byId = new Map(recipes.map((r) => [r.id, r]));
+  return recipe.components.flatMap((c) => {
+    const r = byId.get(c.recipeId);
+    return r ? [{ component: c, recipe: r }] : [];
+  });
+}
+
+/** Ids que esta receita usa, em qualquer nível (o molho do molho). */
+function nestedIds(recipes: Recipe[], recipe: Recipe, seen = new Set<string>()): Set<string> {
+  for (const { recipe: part } of partsOf(recipes, recipe)) {
+    if (seen.has(part.id)) continue;
+    seen.add(part.id);
+    nestedIds(recipes, part, seen);
+  }
+  return seen;
+}
+
+/** Pode virar parte de `host`: não é ela mesma, não está lá ainda e não usa `host` por dentro (o que daria um laço). */
+export function canBePart(recipes: Recipe[], host: Recipe, candidate: Recipe): boolean {
+  if (candidate.id === host.id) return false;
+  if (host.components.some((c) => c.recipeId === candidate.id)) return false;
+  return !nestedIds(recipes, candidate).has(host.id);
 }

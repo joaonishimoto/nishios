@@ -1,7 +1,7 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { usePersistentState } from "@/lib/storage";
 import { parseIngredient } from "./logic";
-import type { Attempt, Ingredient, Recipe } from "./types";
+import type { Attempt, Component, Ingredient, Recipe } from "./types";
 
 const KEY = "nishios:culinaria:receitas:v1";
 
@@ -10,7 +10,8 @@ const withoutExamples = (list: Recipe[]): Recipe[] =>
   list
     .filter((r) => !r.id.startsWith("seed-"))
     .map((r) => (r.parentId.startsWith("seed-") ? { ...r, parentId: "" } : r))
-    .map(withIngredientList);
+    .map(withIngredientList)
+    .map((r) => (Array.isArray(r.components) ? r : { ...r, components: [] }));
 
 /** A primeira versão guardava os ingredientes como texto, um por linha: cada linha vira um item da lista. */
 function withIngredientList(r: Recipe): Recipe {
@@ -28,6 +29,7 @@ function withIngredientList(r: Recipe): Recipe {
 }
 
 const copyIngredients = (list: Ingredient[]): Ingredient[] => list.map((i) => ({ ...i, id: newId() }));
+const copyComponents = (list: Component[]): Component[] => list.map((c) => ({ ...c, id: newId() }));
 
 interface Store {
   recipes: Recipe[];
@@ -59,6 +61,7 @@ export function CulinariaProvider({ children }: { children: ReactNode }) {
       change: "",
       status: "testing",
       ingredients: [],
+      components: [],
       steps: "",
       lessons: "",
       attempts: [],
@@ -77,6 +80,7 @@ export function CulinariaProvider({ children }: { children: ReactNode }) {
           icon: parent.icon,
           category: parent.category,
           ingredients: copyIngredients(parent.ingredients),
+          components: copyComponents(parent.components),
           steps: parent.steps,
           ...fields,
           parentId: parent.id,

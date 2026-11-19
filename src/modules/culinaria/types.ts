@@ -43,6 +43,14 @@ export const UNITS = [
   "a gosto",
 ];
 
+/** Outra receita que faz parte desta (o molho do vinagrete, a massa da torta). */
+export interface Component {
+  id: string;
+  recipeId: string;
+  /** Quanto dela vai: "1 receita", "metade", "200 ml". Opcional. */
+  amount: string;
+}
+
 export interface Recipe {
   id: string;
   name: string;
@@ -54,6 +62,8 @@ export interface Recipe {
   change: string;
   status: RecipeStatus;
   ingredients: Ingredient[];
+  /** Receitas que entram nesta como partes obrigatórias. */
+  components: Component[];
   /** Um passo por linha. */
   steps: string;
   /** O que você já aprendeu fazendo: pontos de atenção, truques. */

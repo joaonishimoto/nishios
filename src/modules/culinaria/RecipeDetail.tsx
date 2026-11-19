@@ -14,6 +14,7 @@ import { plural } from "@/lib/format";
 import { daysAgoLabel } from "@/modules/treinos/logic";
 import { FamilyTree } from "./FamilyTree";
 import { IngredientList } from "./IngredientList";
+import { PartsSection, UsedIn } from "./Parts";
 import { bestRating, family, lastCooked, lineage, nextTip, RATING_LABELS, rootOf, STATUS_META, STATUS_ORDER } from "./logic";
 import { AttemptForm, StartForm, type AttemptState, type StartState } from "./RecipeForms";
 import { useCulinaria } from "./store";
@@ -128,9 +129,10 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
               </Field>
             )}
             <div className="mt-4 flex flex-col gap-6">
+              <PartsSection recipe={recipe} />
               <div>
                 <h3 className="mb-1.5 text-sm font-medium">
-                  Ingredientes{recipe.ingredients.length > 0 && <span className="ml-1.5 font-normal text-muted-foreground tabular-nums">{recipe.ingredients.length}</span>}
+                  {recipe.components.length > 0 ? "Outros ingredientes" : "Ingredientes"}{recipe.ingredients.length > 0 && <span className="ml-1.5 font-normal text-muted-foreground tabular-nums">{recipe.ingredients.length}</span>}
                 </h3>
                 <IngredientList items={recipe.ingredients} onChange={(ingredients) => set({ ingredients })} />
               </div>
@@ -245,6 +247,7 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
         </div>
 
         <aside className="flex min-w-0 flex-col gap-8">
+          <UsedIn recipe={recipe} />
           <section>
             <div className="flex items-baseline justify-between gap-3">
               <h2 className="text-lg font-semibold tracking-tight">Família</h2>

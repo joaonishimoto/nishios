@@ -13,7 +13,7 @@ import { shortDate, today } from "@/lib/dates";
 import { plural } from "@/lib/format";
 import { daysAgoLabel } from "@/modules/treinos/logic";
 import { FamilyTree } from "./FamilyTree";
-import { bestRating, family, lastCooked, matches, nextTip, roots, STATUS_META, STATUS_ORDER } from "./logic";
+import { bestRating, family, partsOf, usedIn, lastCooked, matches, nextTip, roots, STATUS_META, STATUS_ORDER } from "./logic";
 import { RecipeDetail } from "./RecipeDetail";
 import { StartForm, type StartState } from "./RecipeForms";
 import { useCulinaria } from "./store";
@@ -213,6 +213,8 @@ function FamilyCard({
   const last = lastCooked(root);
   const best = bestRating(root);
   const tip = nextTip(root);
+  const parts = partsOf(recipes, root);
+  const hosts = usedIn(recipes, root.id);
   return (
     <li className="flex min-w-0 flex-col rounded-lg border border-border bg-surface transition-colors duration-(--motion-fast) hover:border-border-strong">
       <Link
@@ -238,6 +240,14 @@ function FamilyCard({
             </span>
           )}
         </span>
+        {parts.length > 0 && (
+          <span className="truncate text-sm">
+            <span className="font-medium">Feita com:</span> {parts.map((p) => p.recipe.name).join(" + ")}
+          </span>
+        )}
+        {hosts.length > 0 && (
+          <span className="truncate text-sm text-muted-foreground">Parte de {hosts.map((h) => h.name).join(", ")}</span>
+        )}
         {tip && (
           <span className="line-clamp-2 text-sm">
             <span className="font-medium">Próxima vez:</span> {tip}
