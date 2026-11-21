@@ -1074,7 +1074,25 @@ function outsideZen(): Proposal {
   });
 }
 
-export const PROPOSALS: Proposal[] = [MAIN, outsideGarden(), outsideSun(), outsideHerbs(), outsidePergola(), outsideZen()];
+/** A principal sem a hidromassagem: o canto da hidro fica vazio, só com o deque no chão. */
+function withoutTub(): Proposal {
+  return {
+    ...MAIN,
+    id: "semhidro",
+    label: "Sem hidro",
+    name: "Principal sem a hidro",
+    tagline: "A principal igual, mas sem a hidromassagem: o canto dela fica livre, com o deque no chão e o ripado no muro.",
+    highlights: [
+      ...MAIN.highlights.filter((h) => !/hidro/i.test(h)),
+      "Área de fora: sem hidromassagem. O canto do lado da cozinha fica vazio, com o deque no chão e o ripado no muro, e a churrasqueira com a bancada continua embaixo do telhado.",
+    ],
+    notes: { ...MAIN.notes, servicoext: ["Sem hidro: o canto fica vazio, só com o deque no chão e o ripado no muro, livre para decidir depois."] },
+    outdoor: MAIN.outdoor.map((r) => (r.id === "servicoext" ? { ...r, name: "Canto livre" } : r)),
+    pieces: MAIN.pieces.filter((x) => !(x.roomId === "servicoext" && x.name === "Hidromassagem")),
+  };
+}
+
+export const PROPOSALS: Proposal[] = [MAIN, withoutTub(), outsideGarden(), outsideSun(), outsideHerbs(), outsidePergola(), outsideZen()];
 
 /**
  * A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam).
