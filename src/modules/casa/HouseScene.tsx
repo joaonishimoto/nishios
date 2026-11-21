@@ -693,9 +693,9 @@ function buildHouse(
   const doorMat = material(mode === "planta" ? pal.wall : "#f1efe9", 1, 0.6);
   const knobMat = material(pal.material.metal, 1, 0.3, 0.6);
   const swingMat = new THREE.LineBasicMaterial({ color: pal.wall, transparent: true, opacity: 0.55 });
-  const frontMat = material(mode === "planta" ? pal.wall : "#1b2a4a", 1, 0.5);
+  const frontMat = material(mode === "planta" ? pal.wall : "#1c1d1f", 1, 0.5);
   for (const door of home.doors ?? []) {
-    // Porta de entrada fechada: folha azul-marinho no meio da parede, com puxador dos dois lados.
+    // Porta de entrada fechada: folha preta no meio da parede, com puxador dos dois lados.
     if (door.main) {
       const h = mode === "planta" ? WALL_PLAN * 0.9 : Math.min(2.1, wallH);
       const t = 0.05;
