@@ -701,8 +701,6 @@ function proposalG4(): Proposal {
     piece("estar", "Pendentes da mesa", "💡", "Móveis", [...pendant(3.3, 4.27, 1.6), ...pendant(3.85, 4.27, 1.6)]),
     piece("estar", "Espelho grande", "🪞", "Móveis", full([part(3.0, 5.4, 1.4, 0.02, 1.1, "vidro", 0.9, "#d7e6ea"), part(2.98, 5.41, 1.44, 0.01, 1.14, "metal", 0.88)])),
     piece("jantar", "Tapete do sofá", "🟦", "Móveis", rug(R(2.65, 1.7, 1.1, 1.4), linen)),
-    // Almofadas apoiadas no assento, na frente do encosto (que termina em x 2,04), longe dos braços.
-    piece("jantar", "Almofadas", "🛋️", "Móveis", [part(2.05, 1.78, 0.13, 0.4, 0.34, "tecido", 0.445, linen), part(2.05, 2.62, 0.13, 0.4, 0.34, "tecido", 0.445, linen)]),
     // Cozinha
     piece("cozinha", "Passadeira", "🟦", "Móveis", rug(R(0.75, 1.1, 0.55, 1.3), nishi)),
     // Coifa de parede em inox no vão entre os aéreos, 65 cm acima do cooktop, com a chaminé até o teto.
@@ -731,7 +729,7 @@ function proposalG4(): Proposal {
         "O frigobar fica no canto do pé da cama, encostado na parede da janela e antes do armário.",
       ],
       estar: ["Dois pendentes azul-marinho em cima da mesa de 6 e um espelho de 1,40 m atrás dela, que deixa a sala parecer maior."],
-      jantar: ["Tapete entre o sofá e a TV, sem mesa de centro, para não fechar o caminho de 1,2 m até a porta de vidro. Almofadas creme no sofá azul-marinho."],
+      jantar: ["Tapete entre o sofá e a TV, sem mesa de centro, para não fechar o caminho de 1,2 m até a porta de vidro."],
       cozinha: ["Passadeira azul-marinho no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto.", "Aéreos refeitos numa linha só, com o topo a 2,30 m: módulo no canto do shaft, vão da coifa, torre mais funda com o micro-ondas embutido e porta basculante em cima, dois módulos em cima da pia com luz embaixo e um armário fundo em cima da geladeira, fechado por um painel lateral. A bancada fica livre.", "O purificador fica na bancada da máquina de lavar, na ponta do lado do shaft, perto do ponto de água."],
       banho: ["Armário em cima do vaso e nicho dentro do box."],
       banhosuite: ["Armário em cima do vaso e nicho dentro do box."],
