@@ -674,7 +674,7 @@ const KEEP_COLORS = ["Hidromassagem", "Espelheira", "Telhado inclinado", "Máqui
 
 /**
  * G4: a G completa cômodo por cômodo, com o que faltava, sem lotar nem fechar passagem, e
- * a casa em branco e creme com detalhes azul-marinho. As peças novas usam as cores da G e
+ * a casa em branco e creme com detalhes pretos. As peças novas usam as cores da G e
  * passam pela mesma troca de cores.
  */
 function proposalG4(): Proposal {
@@ -701,8 +701,6 @@ function proposalG4(): Proposal {
     piece("estar", "Pendentes da mesa", "💡", "Móveis", [...pendant(3.3, 4.27, 1.6), ...pendant(3.85, 4.27, 1.6)]),
     piece("estar", "Espelho grande", "🪞", "Móveis", full([part(3.0, 5.4, 1.4, 0.02, 1.1, "vidro", 0.9, "#d7e6ea"), part(2.98, 5.41, 1.44, 0.01, 1.14, "metal", 0.88)])),
     piece("jantar", "Tapete do sofá", "🟦", "Móveis", rug(R(2.65, 1.7, 1.1, 1.4), linen)),
-    // Almofadas apoiadas no assento, na frente do encosto (que termina em x 2,04), longe dos braços.
-    piece("jantar", "Almofadas", "🛋️", "Móveis", [part(2.05, 1.78, 0.13, 0.4, 0.34, "tecido", 0.445, linen), part(2.05, 2.62, 0.13, 0.4, 0.34, "tecido", 0.445, linen)]),
     // Cozinha
     piece("cozinha", "Passadeira", "🟦", "Móveis", rug(R(0.75, 1.1, 0.55, 1.3), nishi)),
     // Coifa de parede em inox no vão entre os aéreos, 65 cm acima do cooktop, com a chaminé até o teto.
@@ -723,16 +721,16 @@ function proposalG4(): Proposal {
     pieces: [...g.pieces, ...extra],
     notes: addNotes(g.notes, {
       suite: [
-        "Cortina blackout na janela atrás da cama, criado-mudo suspenso com pendente do lado da cabeceira e um tapete azul-marinho na saída da cama.",
+        "Cortina blackout na janela atrás da cama, criado-mudo suspenso com pendente do lado da cabeceira e um tapete preto na saída da cama.",
       ],
       quarto: [
         "Armário alto na parede da suíte, longe da porta, prateleiras em cima da mesa a partir de 1,20 m, luminária de braço e gavetas embaixo da cama.",
         "Cortina blackout na janela e um tapete no meio, deixando a porta abrir livre.",
         "O frigobar fica no canto do pé da cama, encostado na parede da janela e antes do armário.",
       ],
-      estar: ["Dois pendentes azul-marinho em cima da mesa de 6 e um espelho de 1,40 m atrás dela, que deixa a sala parecer maior."],
-      jantar: ["Tapete entre o sofá e a TV, sem mesa de centro, para não fechar o caminho de 1,2 m até a porta de vidro. Almofadas creme no sofá azul-marinho."],
-      cozinha: ["Passadeira azul-marinho no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto.", "Aéreos refeitos numa linha só, com o topo a 2,30 m: módulo no canto do shaft, vão da coifa, torre mais funda com o micro-ondas embutido e porta basculante em cima, dois módulos em cima da pia com luz embaixo e um armário fundo em cima da geladeira, fechado por um painel lateral. A bancada fica livre.", "O purificador fica na bancada da máquina de lavar, na ponta do lado do shaft, perto do ponto de água."],
+      estar: ["Dois pendentes pretos em cima da mesa de 6 e um espelho de 1,40 m atrás dela, que deixa a sala parecer maior."],
+      jantar: ["Tapete entre o sofá e a TV, sem mesa de centro, para não fechar o caminho de 1,2 m até a porta de vidro."],
+      cozinha: ["Passadeira preta no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto.", "Aéreos refeitos numa linha só, com o topo a 2,30 m: módulo no canto do shaft, vão da coifa, torre mais funda com o micro-ondas embutido e porta basculante em cima, dois módulos em cima da pia com luz embaixo e um armário fundo em cima da geladeira, fechado por um painel lateral. A bancada fica livre.", "O purificador fica na bancada da máquina de lavar, na ponta do lado do shaft, perto do ponto de água."],
       banho: ["Armário em cima do vaso e nicho dentro do box."],
       banhosuite: ["Armário em cima do vaso e nicho dentro do box."],
       varanda: ["O freezer horizontal fica no canto do lado da parede, perto da churrasqueira, e o alimentador e o bebedouro dos gatos ficam do lado da casinha. Sobra mais de 1,1 m livre para passar para fora."],
@@ -740,26 +738,24 @@ function proposalG4(): Proposal {
   };
   return withOwned(recolor(withExtras, {
     id: "g4",
-    name: "G completa, em branco, creme e azul-marinho",
-    tagline: "A G completa cômodo por cômodo, sem lotar: móveis em creme, cozinha creme com pedra clara e detalhes azul-marinho no sofá, nas cabeceiras, nos tapetes e nos pendentes.",
+    name: "G completa, em branco, creme e preto",
+    tagline: "A G completa cômodo por cômodo, sem lotar: móveis em creme, cozinha creme com pedra clara e detalhes pretos no sofá, nas cabeceiras, nos tapetes e nos pendentes.",
     keep: KEEP_COLORS,
     highlights: [
       ...g.highlights,
       "Cômodo por cômodo, o que faltava: cortinas blackout, criado-mudo e pendente na suíte; armário, prateleiras, luminária e gavetas no escritório; pendentes e espelho na sala; aéreo na geladeira e coifa no cooktop; armários e nichos nos banheiros; freezer na varanda e frigobar no quarto.",
-      "Cores: móveis e cozinha em creme, pedra clara, e azul-marinho no sofá, nas cabeceiras, nos tapetes, na mesa do escritório e nos pendentes.",
+      "Cores: móveis e cozinha em creme, pedra clara, e preto no sofá, nas cabeceiras, nos tapetes, na mesa do escritório e nos pendentes.",
     ],
     colors: {
-      "#1e3d66": "#1b2a4a", // azul Nishi → azul-marinho
+      "#1e3d66": "#1c1d1f", // azul Nishi → preto
       "#f4f4f1": "#f1ebdf", // móveis brancos → creme claro
       "#e4d6c2": "#ece3d1", // armários da cozinha → creme
       "#3b3a38": "#e6e0d4", // pedra escura → pedra clara
       "#6b5a48": "#b9ad98",
-      "#1f1f22": "#1b2a4a", // mesa e cadeira pretas → azul-marinho
-      "#2b2b2e": "#16223b",
       "#e9e4da": "#f3eee4", // roupa de cama e cortinas → off-white
       "#e2ddd2": "#e8dfcc", // tapete da mesa → creme
       "#c9a77c": "#d8c3a2", // prateleiras → carvalho claro
-      "#4a443d": "#16223b",
+      "#4a443d": "#2a2a2c",
     },
   }));
 }
@@ -897,7 +893,7 @@ export const MAIN: Proposal = { ...proposalG4(), label: "Principal" };
 // a área coberta e o resto da casa ficam iguais. Tudo que encosta no muro tem até 65 cm de
 // fundo, para sobrar uns 75 cm de passagem na frente das janelas do escritório e da suíte.
 
-const CREAM = "#f1ebdf", NAVY = "#1b2a4a", OAK = "#d8c3a2", STONE = "#e6e0d4";
+const CREAM = "#f1ebdf", NAVY = "#1c1d1f", OAK = "#d8c3a2", STONE = "#e6e0d4";
 
 function outside(o: { id: string; label: string; name: string; tagline: string; highlight: string; notes: string[]; floor: FloorKind; catio?: boolean; pieces: () => Piece[] }): Proposal {
   return {
@@ -924,10 +920,10 @@ function outsideGarden(): Proposal {
     label: "Jardim",
     name: "Principal com jardim de descanso",
     tagline: "A principal com o fundo em grama, um banco comprido no muro com jardim vertical e plantas altas.",
-    highlight: "Área externa: grama com pisantes, banco de alvenaria de 2,20 m no muro com almofadas azul-marinho e jardim vertical em cima, mesinha e plantas altas no fundo.",
+    highlight: "Área externa: grama com pisantes, banco de alvenaria de 2,20 m no muro com almofadas pretas e jardim vertical em cima, mesinha e plantas altas no fundo.",
     floor: "grama",
     notes: [
-      "Banco de alvenaria creme de 2,20 × 0,50 m no muro, em frente à janela do escritório, com assento e encosto azul-marinho.",
+      "Banco de alvenaria creme de 2,20 × 0,50 m no muro, em frente à janela do escritório, com assento e encosto pretos.",
       "Jardim vertical no muro, logo acima do encosto: o verde aparece da janela do escritório.",
       "Mesinha lateral e duas plantas altas no fundo, em frente à suíte, com uma terceira no canto do fim.",
       "Pisantes de pedra perto da casa e uns 75 cm livres de ponta a ponta.",
@@ -958,7 +954,7 @@ function outsideSun(): Proposal {
     label: "Solário",
     name: "Principal com solário",
     tagline: "A principal com o fundo em deque, duas espreguiçadeiras no muro e um ombrelone entre elas.",
-    highlight: "Área externa: deque emendando com a área coberta, duas espreguiçadeiras de carvalho com almofadas creme e azul-marinho, mesinha e ombrelone creme.",
+    highlight: "Área externa: deque emendando com a área coberta, duas espreguiçadeiras de carvalho com almofadas creme e pretas, mesinha e ombrelone creme.",
     floor: "deck",
     notes: [
       "O deque continua o da área coberta até o fim, sem degrau: sai da hidro e já está no solário.",
@@ -1020,12 +1016,12 @@ function outsidePergola(): Proposal {
     label: "Pergolado",
     name: "Principal com pergolado e café",
     tagline: "A principal com um pergolado de madeira em todo o fundo, mesa de café para dois e uma poltrona de leitura.",
-    highlight: "Área externa: pergolado de carvalho com trepadeira no fundo todo, mesa de café para dois em frente ao escritório e poltrona azul-marinho com luminária em frente à suíte.",
+    highlight: "Área externa: pergolado de carvalho com trepadeira no fundo todo, mesa de café para dois em frente ao escritório e poltrona preta com luminária em frente à suíte.",
     floor: "pedra",
     notes: [
       "Pergolado de carvalho a 2,40 m, apoiado na casa e no muro, sem pilares, com uma trepadeira por cima: sombra filtrada sem escurecer as janelas.",
       "Mesa de café de 70 × 60 cm com duas cadeiras creme, em frente à janela do escritório.",
-      "Poltrona azul-marinho com luminária de piso em frente à suíte, para ler no fim da tarde.",
+      "Poltrona preta com luminária de piso em frente à suíte, para ler no fim da tarde.",
       "Vaso alto no canto do fundo e uns 65 cm livres na frente da mesa.",
     ],
     pieces: () => [
@@ -1048,7 +1044,7 @@ function outsideZen(): Proposal {
     label: "Zen",
     name: "Principal com jardim zen",
     tagline: "A principal com um jardim zen no fundo: bambu no muro, fonte de pedra e um deque baixo com almofadas de chão.",
-    highlight: "Área externa: pedrisco claro com pisantes, bambu numa floreira creme no muro, fonte de pedra, lanternas e um deque baixo de carvalho com almofadas azul-marinho.",
+    highlight: "Área externa: pedrisco claro com pisantes, bambu numa floreira creme no muro, fonte de pedra, lanternas e um deque baixo de carvalho com almofadas pretas.",
     floor: "pedra",
     notes: [
       "Bambu numa floreira creme de 2,50 m no muro, em frente ao escritório: verde alto na janela sem ocupar o chão.",
@@ -1078,7 +1074,25 @@ function outsideZen(): Proposal {
   });
 }
 
-export const PROPOSALS: Proposal[] = [MAIN, outsideGarden(), outsideSun(), outsideHerbs(), outsidePergola(), outsideZen()];
+/** A principal sem a hidromassagem: o canto da hidro fica vazio, só com o deque no chão. */
+function withoutTub(): Proposal {
+  return {
+    ...MAIN,
+    id: "semhidro",
+    label: "Sem hidro",
+    name: "Principal sem a hidro",
+    tagline: "A principal igual, mas sem a hidromassagem: o canto dela fica livre, com o deque no chão e o ripado no muro.",
+    highlights: [
+      ...MAIN.highlights.filter((h) => !/hidro/i.test(h)),
+      "Área de fora: sem hidromassagem. O canto do lado da cozinha fica vazio, com o deque no chão e o ripado no muro, e a churrasqueira com a bancada continua embaixo do telhado.",
+    ],
+    notes: { ...MAIN.notes, servicoext: ["Sem hidro: o canto fica vazio, só com o deque no chão e o ripado no muro, livre para decidir depois."] },
+    outdoor: MAIN.outdoor.map((r) => (r.id === "servicoext" ? { ...r, name: "Canto livre" } : r)),
+    pieces: MAIN.pieces.filter((x) => !(x.roomId === "servicoext" && x.name === "Hidromassagem")),
+  };
+}
+
+export const PROPOSALS: Proposal[] = [MAIN, withoutTub(), outsideGarden(), outsideSun(), outsideHerbs(), outsidePergola(), outsideZen()];
 
 /**
  * A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam).
