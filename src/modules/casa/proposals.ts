@@ -323,7 +323,7 @@ function proposalJ(start = 600): Proposal {
     floors: Object.fromEntries(["estar", "cozinha", "varanda", "quarto", "suite", "banhosuite", "circ", "banho"].map((id) => [id, "branco" as FloorKind])),
     outdoor: [
       garden("servicoext", "Área de serviço", [[-0.11, -1.56, 1.9, 1.45], [-0.11, -0.11, 1.76, 0.3]], "pedra", [0.8, -1.3], false),
-      garden("coberta", "Área coberta", [[1.79, -1.56, 3.0, 1.45], [1.65, -0.11, 2.54, 0.51]], "deck", [3.3, -0.85]),
+      garden("coberta", "Área coberta", [[1.79, -1.56, 3.0, 1.45], [1.65, -0.11, 2.54, 0.51]], "pedra", [3.3, -0.85]),
       garden("externa", "Área externa", [[4.79, -1.56, 5.18, 1.45]], "grama", [7.2, -0.85], false),
     ],
     pieces: [
@@ -607,7 +607,7 @@ function extraG(): Extra {
       ],
       externa: ["Vazia por enquanto: só grama, da área coberta até o fundo."],
     },
-    outdoorChanges: { servicoext: { name: "Hidro", floor: "deck" } },
+    outdoorChanges: { servicoext: { name: "Hidro", floor: "pedra" } },
     drop: ["servicoext:Tanque", "servicoext:Máquina de lavar", "servicoext:Armário de serviço", "cozinha:Bancada planejada", "servico:Pia"],
     externa: externa("grama"),
     pieces: () => [
@@ -871,7 +871,7 @@ function withOwned(p: Proposal): Proposal {
   return {
     ...p,
     pieces: [...outside, ...owned],
-    notes: addNotes(p.notes, { coberta: ["Churrasqueira e bancada de apoio em preto fosco com tampo de granito preto, que não mostram a sujeira."] }),
+    notes: addNotes(p.notes, { coberta: ["Churrasqueira e bancada de apoio em preto fosco com tampo de granito preto, que não mostram a sujeira.", "O chão da área coberta e do canto da hidro é de pedra clara antiderrapante: a madeira fica só no deque em volta da hidro."] }),
   };
 }
 
@@ -954,10 +954,10 @@ function outsideSun(): Proposal {
     label: "Solário",
     name: "Principal com solário",
     tagline: "A principal com o fundo em deque, duas espreguiçadeiras no muro e um ombrelone entre elas.",
-    highlight: "Área externa: deque emendando com a área coberta, duas espreguiçadeiras de carvalho com almofadas creme e pretas, mesinha e ombrelone creme.",
+    highlight: "Área externa: deque de madeira logo depois da área coberta, duas espreguiçadeiras de carvalho com almofadas creme e pretas, mesinha e ombrelone creme.",
     floor: "deck",
     notes: [
-      "O deque continua o da área coberta até o fim, sem degrau: sai da hidro e já está no solário.",
+      "O deque de madeira começa onde acaba o piso antiderrapante da área coberta, no mesmo nível, e vai até o fim.",
       "Duas espreguiçadeiras de 1,90 m deitadas ao longo do muro, uma em frente ao escritório e outra em frente à suíte.",
       "Mesinha entre elas e um ombrelone creme que cobre as duas cabeceiras.",
       "Sobram uns 75 cm de passagem entre as espreguiçadeiras e a casa.",
@@ -1074,19 +1074,19 @@ function outsideZen(): Proposal {
   });
 }
 
-/** A principal sem a hidromassagem: o canto da hidro fica vazio, só com o deque no chão. */
+/** A principal sem a hidromassagem: o canto da hidro fica vazio, só com o piso. */
 function withoutTub(): Proposal {
   return {
     ...MAIN,
     id: "semhidro",
     label: "Sem hidro",
     name: "Principal sem a hidro",
-    tagline: "A principal igual, mas sem a hidromassagem: o canto dela fica livre, com o deque no chão e o ripado no muro.",
+    tagline: "A principal igual, mas sem a hidromassagem: o canto dela fica livre, com o piso antiderrapante e o ripado no muro.",
     highlights: [
       ...MAIN.highlights.filter((h) => !/hidro/i.test(h)),
-      "Área de fora: sem hidromassagem. O canto do lado da cozinha fica vazio, com o deque no chão e o ripado no muro, e a churrasqueira com a bancada continua embaixo do telhado.",
+      "Área de fora: sem hidromassagem. O canto do lado da cozinha fica vazio, com o piso antiderrapante e o ripado no muro, e a churrasqueira com a bancada continua embaixo do telhado.",
     ],
-    notes: { ...MAIN.notes, servicoext: ["Sem hidro: o canto fica vazio, só com o deque no chão e o ripado no muro, livre para decidir depois."] },
+    notes: { ...MAIN.notes, servicoext: ["Sem hidro: o canto fica vazio, só com o piso antiderrapante e o ripado no muro, livre para decidir depois."] },
     outdoor: MAIN.outdoor.map((r) => (r.id === "servicoext" ? { ...r, name: "Canto livre" } : r)),
     pieces: MAIN.pieces.filter((x) => !(x.roomId === "servicoext" && x.name === "Hidromassagem")),
   };
