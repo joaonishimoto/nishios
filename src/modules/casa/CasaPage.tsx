@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Armchair, ArrowLeft, Check, Heart, Lightbulb, Link2, Ruler, Sofa, Type, Unlink } from "lucide-react";
+import { Armchair, ArrowLeft, Check, Heart, Lightbulb, Link2, Maximize2, Ruler, Sofa, Type, Unlink } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge, type Tone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -144,6 +144,55 @@ export function CasaPage() {
     });
   };
 
+  // Tela cheia (?tela=cheia): só a casa ocupando a janela toda, por cima do menu e das abas,
+  // com um botão de voltar. Esc também volta.
+  const fullscreen = params.get("tela") === "cheia";
+  const openFullscreen = () =>
+    setParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set("tela", "cheia");
+      return next;
+    });
+  const closeFullscreen = () => setParam("tela", null);
+  useEffect(() => {
+    if (!fullscreen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && closeFullscreen();
+    window.addEventListener("keydown", onKey);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = overflow;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fullscreen]);
+
+  if (fullscreen) {
+    return (
+      <div className="fixed inset-0 z-[100] select-none bg-background">
+        <Suspense fallback={<p className="grid size-full place-items-center text-muted-foreground">Montando a casa…</p>}>
+          <HouseScene
+            className="size-full"
+            home={home}
+            mode={mode}
+            dark={dark}
+            focusId={focus?.id ?? null}
+            selectedPieceId={selectedPieceId}
+            dims={dims}
+            names={names}
+            wallHeight={wallHeight}
+            onPickRoom={(id) => focusRoom(id)}
+            onPickPiece={(id) => setSelectedPieceId((cur) => (cur === id ? null : id))}
+          />
+        </Suspense>
+        <Button variant="outline" size="sm" onClick={closeFullscreen} className="absolute left-4 top-4 h-9 bg-surface/90 shadow-sm">
+          <ArrowLeft />
+          Voltar
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <>
       <PageHeader
@@ -196,6 +245,10 @@ export function CasaPage() {
                 Nomes
               </Button>
             )}
+            <Button variant="outline" size="sm" onClick={openFullscreen} className="h-8">
+              <Maximize2 />
+              Tela cheia
+            </Button>
             <Segmented<ViewMode>
               label="Vista"
               value={mode}
