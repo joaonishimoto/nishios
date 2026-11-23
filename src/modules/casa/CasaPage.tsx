@@ -4,6 +4,7 @@ import { Armchair, ArrowLeft, Check, Heart, Lightbulb, Link2, Maximize2, Ruler, 
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge, type Tone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { Select } from "@/components/ui/Select";
 import { Segmented } from "@/components/ui/Segmented";
 import { useToast } from "@/components/ui/Toast";
 import { PageHeader } from "@/components/shell/PageHeader";
@@ -146,6 +147,20 @@ export function CasaPage() {
 
   // Tela cheia (?tela=cheia): só a casa ocupando a janela toda, por cima do menu e das abas,
   // com um botão de voltar. Esc também volta.
+  const pickProposal = (v: string) => {
+    setSelectedPieceId(null);
+    setParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (v === MAIN.id) next.delete("proposta");
+        else next.set("proposta", v);
+        // O cômodo pode não existir na outra proposta (a área externa muda).
+        next.delete("comodo");
+        return next;
+      },
+      { replace: true },
+    );
+  };
   const fullscreen = params.get("tela") === "cheia";
   const openFullscreen = () =>
     setParams((prev) => {
@@ -203,26 +218,21 @@ export function CasaPage() {
             <Segmented<string>
               label="Móveis"
               value={proposal?.id ?? "vazia"}
-              onChange={(v) => {
-                setSelectedPieceId(null);
-                setParams(
-                  (prev) => {
-                    const next = new URLSearchParams(prev);
-                    if (v === MAIN.id) next.delete("proposta");
-                    else next.set("proposta", v);
-                    // O cômodo pode não existir na outra proposta (a área externa muda).
-                    next.delete("comodo");
-                    return next;
-                  },
-                  { replace: true },
-                );
-              }}
+              onChange={pickProposal}
               options={[
                 { value: MAIN.id, label: "Principal" },
                 { value: "vazia", label: "Vazia" },
-                ...PROPOSALS.filter((p) => p !== MAIN).map((p) => ({ value: p.id, label: p.label ?? p.id.toUpperCase() })),
+                ...PROPOSALS.filter((p) => p !== MAIN && !p.room).map((p) => ({ value: p.id, label: p.label ?? p.id.toUpperCase() })),
               ]}
             />
+            <Select aria-label="Versões dos cômodos" className="h-8 w-44" value={proposal?.room ? proposal.id : ""} onChange={(e) => e.target.value && pickProposal(e.target.value)}>
+              <option value="">Versões dos cômodos</option>
+              {PROPOSALS.filter((p) => p.room).map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.label}
+                </option>
+              ))}
+            </Select>
             <Button
               variant="outline"
               size="sm"
