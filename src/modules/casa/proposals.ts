@@ -755,7 +755,7 @@ function proposalG4(): Proposal {
       cozinha: ["Passadeira preta no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto.", "Aéreos refeitos numa linha só, com o topo a 2,30 m: módulo no canto do shaft, vão da coifa, torre mais funda com o micro-ondas embutido e porta basculante em cima, dois módulos em cima da pia com luz embaixo e um armário fundo em cima da geladeira, fechado por um painel lateral. A bancada fica livre.", "O purificador fica na bancada da máquina de lavar, na ponta do lado do shaft, perto do ponto de água."],
       banho: ["Armário em cima do vaso e nicho dentro do box."],
       banhosuite: ["Armário em cima do vaso e nicho dentro do box."],
-      varanda: ["O freezer horizontal e o frigobar ficam lado a lado no canto do lado da parede, em cima de uma base de 8 cm, longe da água do chão: dá para pegar bebida sem entrar em casa.", "O alimentador e o bebedouro dos gatos ficam do lado da casinha, e sobram uns 85 cm livres para passar para fora."],
+      varanda: ["O freezer horizontal e o frigobar ficam lado a lado, os dois encostados na parede do escritório, em cima de uma base de 8 cm, longe da água do chão: dá para pegar bebida sem entrar em casa.", "O frigobar fica do lado da porta de vidro e o freezer do lado de fora, e as portas dos dois abrem para a varanda.", "O alimentador e o bebedouro dos gatos ficam do lado da casinha, e sobra mais de 1 m livre no meio da varanda."],
     }),
   };
   return withOwned(recolor(withExtras, {
@@ -801,19 +801,21 @@ function withOwned(p: Proposal): Proposal {
   const owned: Piece[] = [
     // Base de 8 cm em porcelanato antiderrapante embaixo do frigobar e do freezer, para os
     // dois não ficarem no chão molhado da varanda.
-    piece("varanda", "Base elevada", "🧱", "Obras", [part(3.02, 0.46, 1.17, 0.64, 0.08, "pedra", 0, "#cfc8bc")]),
-    // Frigobar (48 × 50 × 85 cm) do lado do freezer, em cima da base, com a porta virada para a porta de vidro.
+    piece("varanda", "Base elevada", "🧱", "Obras", [part(3.58, 0.2, 0.61, 1.15, 0.08, "pedra", 0, "#cfc8bc")]),
+    // Frigobar (48 × 50 × 85 cm) encostado na parede do escritório, do lado do freezer e
+    // perto da porta de vidro, com a porta virada para a varanda.
     own(OWNED.frigobar, piece("varanda", "Frigobar Midea 93L", "🧊", "Eletrodomésticos", [
-      part(3.06, 0.5, 0.48, 0.5, 0.85, "branco", 0.08, white),
-      part(3.07, 1.0, 0.46, 0.004, 0.006, "escuro", 0.7, gray),
-      part(3.48, 1.0, 0.025, 0.025, 0.3, "escuro", 0.48, gray),
+      part(3.69, 0.83, 0.5, 0.48, 0.85, "branco", 0.08, white),
+      part(3.686, 0.84, 0.004, 0.46, 0.006, "escuro", 0.7, gray),
+      part(3.665, 0.85, 0.025, 0.025, 0.3, "escuro", 0.48, gray),
     ])),
-    // Freezer horizontal (57 × 56 × 85 cm) encostado na parede da varanda, em cima da base: tampa por cima.
+    // Freezer horizontal (57 × 56 × 85 cm) encostado na mesma parede, do lado do frigobar,
+    // em cima da base: tampa por cima.
     own(OWNED.freezer, piece("varanda", "Freezer horizontal Midea 100L", "❄️", "Eletrodomésticos", [
-      part(3.61, 0.5, 0.56, 0.57, 0.8, "branco", 0.08, white),
-      part(3.6, 0.49, 0.58, 0.59, 0.05, "branco", 0.88, "#e9eae8"),
-      part(3.585, 0.68, 0.015, 0.21, 0.025, "escuro", 0.86, gray),
-      part(3.595, 0.53, 0.01, 0.06, 0.03, "escuro", 0.2, dark),
+      part(3.62, 0.24, 0.56, 0.57, 0.8, "branco", 0.08, white),
+      part(3.61, 0.23, 0.58, 0.59, 0.05, "branco", 0.88, "#e9eae8"),
+      part(3.595, 0.42, 0.015, 0.21, 0.025, "escuro", 0.86, gray),
+      part(3.605, 0.27, 0.01, 0.06, 0.03, "escuro", 0.2, dark),
     ])),
     // Micro-ondas preto (52 × 44 × 31 cm) embutido no aéreo, do lado da coifa: só a frente aparece.
     own(OWNED.microondas, piece("cozinha", "Micro-ondas Midea 35L", "📦", "Eletrodomésticos", full([
