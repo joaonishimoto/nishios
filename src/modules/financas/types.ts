@@ -35,9 +35,21 @@ export interface Recurrence {
   investmentId?: string;
   /** Custo de um bem (seguro do carro, plano do celular). */
   assetId?: string;
+  /**
+   * Pertence a um veículo ou imóvel (a parcela do financiamento, o IPVA, o aluguel).
+   * A tela do veículo ou do imóvel cria e edita estas recorrências.
+   */
+  link?: RecurrenceLink;
   /** Por mês (yyyy-MM): confirmado e valor ajustado. */
   months?: Record<string, MonthMark>;
   notes: string;
+}
+
+export interface RecurrenceLink {
+  module: "veiculos" | "imoveis";
+  id: string;
+  /** O que ela é para o dono: "parcela", "ipva", "seguro", "licenciamento", "aluguel", "custo"... */
+  role: string;
 }
 
 export type RecurrenceDraft = Omit<Recurrence, "id" | "months">;
