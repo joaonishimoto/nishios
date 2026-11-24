@@ -817,6 +817,14 @@ function withOwned(p: Proposal): Proposal {
       part(3.605, 0.94, 0.015, 0.21, 0.025, "escuro", 0.86, gray),
       part(3.615, 0.79, 0.01, 0.06, 0.03, "escuro", 0.2, dark),
     ])),
+    // Caixa de areia fechada dos gatos (50 × 40 × 40 cm) na área coberta, junto do muro, no
+    // meio do espaço entre a hidro e a churrasqueira, com a entrada virada para a casa.
+    piece("coberta", "Caixa de areia dos gatos", "🐈", "Pets", [
+      part(2.8, -1.5, 0.5, 0.4, 0.16, "branco", 0, "#d9d6cf"),
+      part(2.8, -1.5, 0.5, 0.4, 0.22, "branco", 0.16, "#ecebe7"),
+      part(2.95, -1.104, 0.2, 0.006, 0.16, "escuro", 0.12, "#3a3b3e"),
+      part(2.82, -1.48, 0.46, 0.36, 0.02, "branco", 0.38, "#d9d6cf"),
+    ]),
     // Micro-ondas preto (52 × 44 × 31 cm) embutido no aéreo, do lado da coifa: só a frente aparece.
     own(OWNED.microondas, piece("cozinha", "Micro-ondas Midea 35L", "📦", "Eletrodomésticos", full([
       part(0.462, 1.95, 0.008, 0.5, 0.3, "escuro", 1.48, "#141518"),
@@ -890,7 +898,7 @@ function withOwned(p: Proposal): Proposal {
   return {
     ...p,
     pieces: [...pieces, ...owned],
-    notes: addNotes(p.notes, { coberta: ["O chão da área coberta e do canto da hidro é de pedra clara antiderrapante: a madeira fica só no deque em volta da hidro."] }),
+    notes: addNotes(p.notes, { coberta: ["O chão da área coberta e do canto da hidro é de pedra clara antiderrapante: a madeira fica só no deque em volta da hidro.", "A caixa de areia fechada dos gatos fica junto do muro, entre a hidro e a churrasqueira, com a entrada virada para a casa: fica embaixo do telhado e longe da comida, que fica na varanda."] }),
   };
 }
 
