@@ -12,6 +12,8 @@ import { ImoveisPage } from "@/modules/imoveis/ImoveisPage";
 import { ImovelPage } from "@/modules/imoveis/ImovelPage";
 import { MAIN_ID } from "@/modules/imoveis/seed";
 import { ImoveisProvider } from "@/modules/imoveis/store";
+import { VeiculosPage } from "@/modules/veiculos/VeiculosPage";
+import { VeiculosProvider } from "@/modules/veiculos/store";
 import { PessoasPage } from "@/modules/pessoas/PessoasPage";
 import { PeopleProvider } from "@/modules/pessoas/store";
 import { PetsPage } from "@/modules/pets/PetsPage";
@@ -52,6 +54,7 @@ export function App() {
           <BensProvider>
           <CasaProvider>
           <ImoveisProvider>
+          <VeiculosProvider>
           <PeopleProvider>
           <PetsProvider>
           <Routes>
@@ -66,6 +69,7 @@ export function App() {
               <Route path="bens" element={<BensPage />} />
               <Route path="imoveis" element={<ImoveisPage />} />
               <Route path="imoveis/:id" element={<ImovelPage />} />
+              <Route path="veiculos" element={<VeiculosPage />} />
               <Route path="casa" element={<CasaRedirect />} />
               <Route path="pessoas" element={<PessoasPage />} />
               <Route path="pets" element={<PetsPage />} />
@@ -79,6 +83,7 @@ export function App() {
           </Routes>
           </PetsProvider>
           </PeopleProvider>
+          </VeiculosProvider>
           </ImoveisProvider>
           </CasaProvider>
           </BensProvider>

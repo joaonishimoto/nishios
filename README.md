@@ -104,6 +104,12 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
   - "Em Finanças" lança a prestação, o aluguel e o condomínio como recorrências ligadas ao imóvel, para entrarem na previsão do mês.
   - Cada imóvel fica salvo numa chave própria (`nishios:imoveis:item:<id>`), então editar um nunca apaga o outro ao sincronizar.
   - O apartamento tem a planta em 3D (a antiga página Casa, que continua em `/casa`).
+- **Veículos**: carros, motos e o que mais tiver, com o valor de hoje (FIPE ou avaliação), marca, modelo, ano, placa e quilometragem.
+  - A lista soma o valor dos veículos, o que ainda devo, quanto já é meu e o custo por mês.
+  - Forma de compra: à vista, financiamento (entrada, banco) ou consórcio (lance, administradora, contemplado ou não). A parcela mostra quantas já venceram, quantas faltam, quanto falta pagar e quando termina; o saldo para quitar do extrato substitui a soma das parcelas.
+  - Parcela, IPVA, seguro, licenciamento e outros custos fixos viram recorrências de Finanças ligadas ao veículo: entram na previsão do mês, no calendário e no sino antes de vencer.
+  - Vendido, sai do patrimônio e os custos param na data da venda.
+  - Cada veículo fica numa chave própria (`nishios:veiculos:item:<id>`), como os imóveis.
 - **Planta em 3D** (aba do apartamento): o apartamento em 3D, montado a partir da planta (cômodos, paredes e a área externa). Começa vazio, só com o que vem da construção: pias, vasos, boxes, tanque, bancada da cozinha, porta da varanda e muro.
   - Duas vistas: **3D** (low-poly, com luz e sombra; arraste para girar e role para aproximar) e **Planta** (vista de cima, a padrão no celular).
   - Clique em um cômodo, ou no nome dele, para a câmera ir até ele: as paredes baixam, o resto da casa fica apagado e os móveis ganham etiqueta.
