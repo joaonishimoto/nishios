@@ -13,6 +13,8 @@ import { useFinancas } from "@/modules/financas/store";
 import { useCasa } from "@/modules/casa/store";
 import { situationLabel } from "@/modules/imoveis/logic";
 import { useImoveis } from "@/modules/imoveis/store";
+import { subtitle as vehicleSubtitle } from "@/modules/veiculos/logic";
+import { useVeiculos } from "@/modules/veiculos/store";
 import { useCulinaria } from "@/modules/culinaria/store";
 import { STATUS_META as RECIPE_STATUS } from "@/modules/culinaria/logic";
 import { useCommitments } from "@/modules/compromissos/store";
@@ -76,6 +78,7 @@ function useEntries(go: (to: string) => void): Entry[] {
   const { modalities, exercises, plans } = useTreinos();
   const { home } = useCasa();
   const { properties } = useImoveis();
+  const { vehicles } = useVeiculos();
   const { recurrences, investments } = useFinancas();
   const { recipes } = useCulinaria();
 
@@ -180,6 +183,9 @@ function useEntries(go: (to: string) => void): Entry[] {
     for (const p of properties) {
       list.push({ id: `im-${p.id}`, group: "Imóveis", title: p.name, detail: situationLabel(p.situation), icon: emoji(p.icon), extra: `${p.address} ${p.lease?.who ?? ""} ${p.financing?.lender ?? ""} imóvel`, run: () => go(`/imoveis/${p.id}`) });
     }
+    for (const v of vehicles) {
+      list.push({ id: `ve-${v.id}`, group: "Veículos", title: v.name, detail: vehicleSubtitle(v) || "Veículo", icon: emoji(v.icon), extra: `${v.plate} ${v.brand} ${v.model} ${v.insurer ?? ""} ${v.acquisition.lender ?? ""} veículo carro moto`, run: () => go(`/veiculos?v=${v.id}`) });
+    }
     for (const r of home.rooms) {
       list.push({ id: `r-${r.id}`, group: "Imóveis", title: r.name, detail: "Cômodo do apartamento", icon: page("/imoveis"), run: () => go(`/imoveis/apartamento?aba=planta&comodo=${r.id}`) });
     }
@@ -198,7 +204,7 @@ function useEntries(go: (to: string) => void): Entry[] {
       list.push({ id: `inv-${i.id}`, group: "Finanças", title: i.name, detail: money(balance(i)), icon: emoji(i.icon), extra: `${i.institution} ${i.notes} investimento`, run: () => go(`/financas?aba=investimentos&i=${i.id}`) });
     }
     return list;
-  }, [tasks, projects, commitments, habits, goals, events, people, pets, skills, assets, wishes, modalities, exercises, plans, home, properties, recurrences, investments, recipes, go]);
+  }, [tasks, projects, commitments, habits, goals, events, people, pets, skills, assets, wishes, modalities, exercises, plans, home, properties, vehicles, recurrences, investments, recipes, go]);
 }
 
 function Results({ query, onDone }: { query: string; onDone: () => void }) {

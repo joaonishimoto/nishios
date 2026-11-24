@@ -1,5 +1,6 @@
 import {
   Building2,
+  Car,
   CalendarClock,
   CalendarDays,
   ChefHat,
@@ -57,6 +58,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Casa",
     items: [
       { label: "Imóveis", icon: Building2, to: "/imoveis" },
+      { label: "Veículos", icon: Car, to: "/veiculos" },
       { label: "Bens e desejos", icon: Package, to: "/bens" },
       { label: "Pets", icon: PawPrint, to: "/pets" },
     ],

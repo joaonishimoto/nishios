@@ -41,6 +41,11 @@ export const COUNTED: { key: string; one: string; many: string }[] = [
   { key: "nishios:financas:investimentos:v1", one: "investimento", many: "investimentos" },
 ];
 
+/** Listas salvas com uma chave por registro (`<prefixo>:<id>`), veja lib/collection.ts. */
+export const COUNTED_COLLECTIONS: { prefix: string; one: string; many: string }[] = [
+  { prefix: "nishios:veiculos:item", one: "veículo", many: "veículos" },
+];
+
 function keys(): string[] {
   const found: string[] = [];
   for (let i = 0; i < localStorage.length; i++) {
@@ -92,11 +97,16 @@ export function parseBackup(text: string): Backup | string {
 
 /** Quantos itens de cada tipo um backup tem, só os que não estão vazios. */
 export function summarize(backup: Backup): { label: string; count: number }[] {
-  return COUNTED.flatMap(({ key, one, many }) => {
+  const lists = COUNTED.flatMap(({ key, one, many }) => {
     const list = backup.data[key];
     if (!Array.isArray(list) || list.length === 0) return [];
     return [{ label: list.length === 1 ? one : many, count: list.length }];
   });
+  const records = COUNTED_COLLECTIONS.flatMap(({ prefix, one, many }) => {
+    const count = Object.keys(backup.data).filter((k) => k.startsWith(`${prefix}:`)).length;
+    return count ? [{ label: count === 1 ? one : many, count }] : [];
+  });
+  return [...lists, ...records];
 }
 
 /** Troca tudo o que está salvo pelo conteúdo do backup. Recarregue a página em seguida. */
@@ -217,6 +227,10 @@ export function clearToEmpty() {
     touched.push(k);
   }
   markDirty(touched);
+
+  const gone = keys().filter((k) => COUNTED_COLLECTIONS.some((c) => k.startsWith(`${c.prefix}:`)));
+  for (const k of gone) localStorage.removeItem(k);
+  markDeleted(gone);
 }
 
 export function downloadBackup(): Backup {
