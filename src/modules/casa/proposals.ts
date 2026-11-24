@@ -287,7 +287,7 @@ function proposalJ(start = 600): Proposal {
     highlights: [
       "Suíte: janela no meio da parede de cima, cama com a cabeceira na parede do lado, painel com TV na frente e guarda-roupa de correr na parede do banheiro.",
       "Escritório: cama de solteiro no fundo, embaixo da janela, e a mesa preta de 1,70 m com o computador na parede da sala, até o canto da porta.",
-      "Cozinha em L, que agora inclui o antigo serviço: bancada de ponta a ponta, pia embaixo da janela, cooktop de 4 bocas e armários em cima e embaixo.",
+      "Cozinha em L, que agora inclui o antigo serviço: bancada de ponta a ponta, pia embaixo da janela, cooktop de indução e armários em cima e embaixo.",
       "Sala inteira, sem divisão: sofá e TV no lado da varanda, com porta de vidro de correr, e mesa para 4 no meio, com duas cadeiras de cada lado e as pontas livres.",
       "Área de fora: serviço no canto da cozinha (máquina, tanque e armário) e cobertura da parede da esquerda até perto da janela do escritório, para os gatos ficarem no seco.",
     ],
@@ -307,12 +307,12 @@ function proposalJ(start = 600): Proposal {
         "O sofá tampa parte da abertura da cozinha; a passagem para o estar fica com uns 85 cm, entre o sofá e a parede de baixo.",
         "Entre o sofá e o móvel da TV sobra 1,2 m para chegar à porta de vidro.",
         "Atrás do sofá, na abertura da cozinha, uma mureta de 1 m (um pouco mais alta que o encosto, de 78 cm) com um balcãozinho de pedra de 32 cm. Ele avança para o lado da cozinha, onde ainda sobram uns 80 cm de passagem.",
-        "Mesa de 1,40 × 0,80 m: 70 cm por pessoa nas laterais, que é o confortável, e 80 cm nas pontas.",
+        "Mesa de 1,40 × 0,80 m para 4: duas cadeiras de cada lado, com 70 cm por pessoa, e as pontas livres.",
         "Ela fica no meio da parte de baixo da sala, longe do sofá e da cozinha: entre a cozinha e a ponta da mesa sobram 80 cm livres, e a entrada fica desimpedida.",
         "Da mesa até a parede de baixo ficam 62 cm, o suficiente para sentar. O caminho da entrada para os quartos passa por cima da mesa, com uns 50 cm, e pela ponta do lado do banheiro, com 70 cm.",
       ],
       cozinha: [
-        "Bancada planejada de 60 cm de fundo, do canto do shaft até a geladeira (2,5 m), com cooktop de 4 bocas e armários embaixo e aéreos em cima.",
+        "Bancada planejada de 60 cm de fundo, do canto do shaft até a geladeira (2,5 m), com cooktop de indução e armários embaixo e aéreos em cima.",
         "Em cima do cooktop fica um vão para a coifa, sem armário.",
         "A pia sai da parede da cozinha e vai para baixo da janela, na ponta do L. Ali só tem armário embaixo, porque a janela ocupa a parede.",
         "O tanque e a máquina de lavar foram para fora, no canto da área de serviço externa.",
@@ -364,9 +364,10 @@ function proposalJ(start = 600): Proposal {
       ]),
       // A pia segue a bancada planejada do lado: mesmo armário e mesma pedra.
       { ...piece("servico", "Pia", "🚰", "Móveis", [part(0.75, 0.29, 0.85, 0.6, 0.9, "madeira", 0, "#e4d6c2")]), fixture: { kind: "bancada", x: 0.75, z: 0.29, w: 0.85, d: 0.6, wall: "n", colors: { cabinet: "#e4d6c2", stone: "#3b3a38" } } },
-      piece("cozinha", "Cooktop 4 bocas", "🍳", "Eletrodomésticos", [
-        part(0.06, 1.28, 0.5, 0.58, 0.012, "escuro", 0.9, "#1c1f24"),
-        ...[[0.12, 1.36], [0.36, 1.36], [0.12, 1.62], [0.36, 1.62]].map(([x, z]) => part(x, z, 0.13, 0.13, 0.01, "metal", 0.912)),
+      // Cooktop de indução: vidro preto liso, só com a faixa de toque na frente.
+      piece("cozinha", "Cooktop de indução", "🍳", "Eletrodomésticos", [
+        part(0.06, 1.28, 0.5, 0.58, 0.012, "escuro", 0.9, "#141518"),
+        part(0.5, 1.33, 0.04, 0.48, 0.002, "escuro", 0.912, "#2c2f35"),
       ]),
       piece("cozinha", "Armários aéreos", "🗄️", "Móveis", full([
         part(-0.01, 0.89, 0.35, 0.36, 0.7, "madeira", 1.5, "#e4d6c2"),
@@ -584,7 +585,7 @@ function extraG(): Extra {
     tagline: "A casa com a máquina de lavar dentro da cozinha e a pia perto da geladeira, a hidro embaixo do telhado, uma churrasqueira móvel na área coberta e um balcão de pedra com pia na ponta da área externa.",
     highlights: [
       "Área de fora: hidromassagem branca de 2,00 × 1,50 m com deque em volta, embaixo do telhado. A área coberta fica com a churrasqueira a bafo de carrinho no canto.",
-      "Cozinha em L com bancada de ponta a ponta, cooktop de 4 bocas e armários em cima e embaixo. A máquina de lavar fica embaixo da bancada, no canto da janela, e a pia vai para o lado da geladeira.",
+      "Cozinha em L com bancada de ponta a ponta, cooktop de indução e armários em cima e embaixo. A máquina de lavar fica embaixo da bancada, no canto da janela, e a pia vai para o lado da geladeira.",
       "Área externa com grama e, na ponta do lado da suíte, um balcão preto sob medida de parede a parede, fechado embaixo, com uma pia que serve de tanque e uma bancada.",
     ],
     replaceNotes: ["servicoext", "coberta", "externa", "cozinha"],
@@ -593,7 +594,7 @@ function extraG(): Extra {
     notes: {
       ...BATH_NOTES,
       cozinha: [
-        "Bancada planejada de 60 cm de fundo no L, com cooktop de 4 bocas e armários embaixo e aéreos em cima.",
+        "Bancada planejada de 60 cm de fundo no L, com cooktop de indução e armários embaixo e aéreos em cima.",
         "A máquina de lavar fica embaixo da bancada, no canto da janela, com a pedra passando por cima. Dá para usar a bancada normalmente.",
         "A pia saiu da janela e foi para a parede da geladeira, logo antes dela: lavar, cortar e guardar ficam em sequência.",
         "Lava-louças de 45 cm embutida embaixo da bancada, logo antes da pia, com frente de inox: a água e o esgoto ficam juntos.",
@@ -721,6 +722,16 @@ function proposalG4(): Proposal {
     piece("estar", "Pendentes da mesa", "💡", "Móveis", [...pendant(3.3, 4.27, 1.6), ...pendant(3.85, 4.27, 1.6)]),
     piece("estar", "Espelho grande", "🪞", "Móveis", full([part(3.0, 5.4, 1.4, 0.02, 1.1, "vidro", 0.9, "#d7e6ea"), part(2.98, 5.41, 1.44, 0.01, 1.14, "metal", 0.88)])),
     piece("jantar", "Tapete do sofá", "🟦", "Móveis", rug(R(2.65, 1.7, 1.1, 1.4), linen)),
+    // Banco sapateira na parede de baixo da sala, entre o espelho e a planta: dá para
+    // sentar para tirar o tênis e deixar os pares nos dois nichos de baixo.
+    piece("estar", "Banco sapateira", "👟", "Móveis", [
+      part(4.47, 5.07, 0.7, 0.35, 0.45, "madeira", 0, white),
+      part(4.5, 5.066, 0.31, 0.004, 0.3, "escuro", 0.08, "#3a3b3e"),
+      part(4.83, 5.066, 0.31, 0.004, 0.3, "escuro", 0.08, "#3a3b3e"),
+      part(4.53, 5.1, 0.25, 0.28, 0.1, "tecido", 0.1, "#2b2b2d"),
+      part(4.86, 5.1, 0.25, 0.28, 0.1, "tecido", 0.1, "#e9e4da"),
+      part(4.47, 5.07, 0.7, 0.35, 0.06, "tecido", 0.45, linen),
+    ]),
     // Cozinha
     piece("cozinha", "Passadeira", "🟦", "Móveis", rug(R(0.75, 1.1, 0.55, 1.3), nishi)),
     // Coifa de parede em inox no vão entre os aéreos, 65 cm acima do cooktop, com a chaminé até o teto.
@@ -748,7 +759,7 @@ function proposalG4(): Proposal {
         "Cortina blackout na janela e um tapete no meio, deixando a porta abrir livre.",
         "O frigobar fica no canto do pé da cama, encostado na parede da janela e antes do armário.",
       ],
-      estar: ["Dois pendentes pretos em cima da mesa de jantar e um espelho de 1,40 m atrás dela, que deixa a sala parecer maior."],
+      estar: ["Dois pendentes pretos em cima da mesa de jantar e um espelho de 1,40 m atrás dela, que deixa a sala parecer maior.", "Banco sapateira de 70 × 35 cm com assento estofado na parede de baixo, entre o espelho e a planta, à vista de quem entra: quem chega senta, tira o tênis e deixa nos nichos de baixo."],
       jantar: ["Tapete entre o sofá e a TV, sem mesa de centro, para não fechar o caminho de 1,2 m até a porta de vidro."],
       cozinha: ["Passadeira preta no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto.", "Aéreos refeitos numa linha só, com o topo a 2,30 m: módulo no canto do shaft, vão da coifa, torre mais funda com o micro-ondas embutido e porta basculante em cima, dois módulos em cima da pia com luz embaixo e um armário fundo em cima da geladeira, fechado por um painel lateral. A bancada fica livre.", "O purificador fica na bancada da máquina de lavar, na ponta do lado do shaft, perto do ponto de água."],
       banho: ["Armário em cima do vaso e nicho dentro do box."],
