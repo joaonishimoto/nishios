@@ -6,7 +6,7 @@ import { CATS, buildGrid, createCats, regrid, restCats, stepCats, type Cat, type
 import { buildFixture } from "./fixtures";
 import { homeBox, pieceTop, roomArea, roomBox, type Box } from "./logic";
 import { paletteFor, type Palette } from "./palette";
-import type { Home, Room, ViewMode } from "./types";
+import type { Home, ViewMode } from "./types";
 import { WALL_DEFAULT, WALL_MIN, WALL_REAL } from "./walls";
 
 /**
@@ -98,7 +98,7 @@ export default function HouseScene(props: HouseSceneProps) {
   const box = useMemo(() => homeBox(home), [home]);
 
   const labels = useMemo<Label[]>(() => {
-    const dimLabels = dims ? roomDims(home.rooms, focusId).map((d) => d.label) : [];
+    const dimLabels = dims ? houseDims(home, focusId).map((d) => d.label) : [];
     const catLabels: Label[] = CATS.map((info, i) => ({
       id: `g-${info.id}`,
       text: info.name,
@@ -397,13 +397,14 @@ export default function HouseScene(props: HouseSceneProps) {
     const engine = engineRef.current;
     if (!engine) return;
     const room = focusId ? home.rooms.find((r) => r.id === focusId) : undefined;
-    const target = room ? roomBox(room) : box;
+    // Com as cotas, sobra espaço embaixo e à direita para as medidas totais, que ficam por fora.
+    const target = room ? roomBox(room) : dims ? { ...box, maxX: box.maxX + 0.5, maxZ: box.maxZ + 0.5 } : box;
     const instant =
       firstMove.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     firstMove.current = false;
     moveCamera(engine, target, !!room, instant);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, focusId, homeKey]);
+  }, [mode, focusId, homeKey, dims]);
 
   // As etiquetas mudam de lugar quando a lista muda.
   useEffect(() => {
@@ -842,7 +843,8 @@ function buildHouse(
     const dimMat = new THREE.LineBasicMaterial({ color: pal.highlight });
     const y = mode === "planta" ? FURNITURE_CAP_PLAN + 0.05 : 0.03;
     const pts: THREE.Vector3[] = [];
-    for (const d of roomDims(home.rooms, focusId)) {
+    for (const d of houseDims(home, focusId)) {
+      if (!d.line) continue;
       const [a, b] = d.line;
       pts.push(new THREE.Vector3(a[0], y, a[1]), new THREE.Vector3(b[0], y, b[1]));
       const tick = 0.07;
@@ -857,33 +859,86 @@ function buildHouse(
 
 interface RoomDim {
   axis: "x" | "z";
-  line: [[number, number], [number, number]];
+  /** Sem linha: só o número, como a largura de uma porta ou janela no próprio vão. */
+  line?: [[number, number], [number, number]];
   label: Label;
 }
 
 const cm = (m: number) => String(Math.round(m * 100));
 const area = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
-/** Largura e profundidade de cada retângulo dos cômodos internos, como as cotas da planta. */
-function roomDims(rooms: Room[], focusId: string | null): RoomDim[] {
+/** Uma cota com linha de `a` a `b` (no eixo `axis`) e o número no meio. */
+function dimLine(id: string, axis: "x" | "z", at: number, a: number, b: number): RoomDim {
+  const line: RoomDim["line"] = axis === "x" ? [[a, at], [b, at]] : [[at, a], [at, b]];
+  const pos = axis === "x" ? new THREE.Vector3((a + b) / 2, 0, at) : new THREE.Vector3(at, 0, (a + b) / 2);
+  return { axis, line, label: { id, text: cm(b - a), pos, active: false, dim: true } };
+}
+
+/**
+ * As cotas da planta, sempre de face a face das paredes:
+ * - cada cômodo (de dentro e de fora) com largura e profundidade, a linha encostada na parede
+ *   de baixo e na da esquerda, sem repetir a mesma medida em partes do mesmo cômodo;
+ * - a largura de cada porta, passagem e janela, no próprio vão;
+ * - por fora da casa, a largura e a profundidade totais.
+ * Com um cômodo em foco, só as dele e as dos vãos das paredes dele.
+ */
+function houseDims(home: Home, focusId: string | null): RoomDim[] {
   const out: RoomDim[] = [];
-  for (const room of rooms) {
-    if (room.outdoor || (focusId && room.id !== focusId)) continue;
+  const focus = focusId ? home.rooms.find((r) => r.id === focusId) : null;
+  const inset = 0.16;
+  for (const room of home.rooms) {
+    if (focusId && room.id !== focusId) continue;
+    const widths: string[] = [];
+    const depths: string[] = [];
     room.rects.forEach(([x, z, w, d], i) => {
-      const inset = Math.min(0.22, d / 4);
-      const zLine = z + d - inset;
-      const xLine = x + w - Math.min(0.22, w / 4);
-      out.push({
-        axis: "x",
-        line: [[x, zLine], [x + w, zLine]],
-        label: { id: `d-${room.id}-${i}-w`, text: cm(w), pos: new THREE.Vector3(x + w / 2, 0, zLine), active: false, dim: true },
-      });
-      out.push({
-        axis: "z",
-        line: [[xLine, z], [xLine, z + d]],
-        label: { id: `d-${room.id}-${i}-d`, text: cm(d), pos: new THREE.Vector3(xLine, 0, z + d / 2), active: false, dim: true },
-      });
+      // Pedaços estreitos (faixas de 30 cm da área externa) só poluem.
+      if (w < 0.6 || d < 0.6) return;
+      const wKey = `${x.toFixed(2)}-${w.toFixed(2)}`;
+      const dKey = `${z.toFixed(2)}-${d.toFixed(2)}`;
+      if (!widths.includes(wKey)) {
+        widths.push(wKey);
+        out.push(dimLine(`d-${room.id}-${i}-w`, "x", z + d - Math.min(inset, d / 4), x, x + w));
+      }
+      if (!depths.includes(dKey)) {
+        depths.push(dKey);
+        out.push(dimLine(`d-${room.id}-${i}-d`, "z", x + Math.min(inset, w / 4), z, z + d));
+      }
     });
+  }
+  // Vãos: portas, passagens e janelas. Com foco, só os que tocam o cômodo.
+  const touches = (axis: "x" | "z", at: number, a: number, b: number) =>
+    !focus ||
+    focus.rects.some(([x, z, w, d]) =>
+      axis === "x"
+        ? Math.abs(at - z) < 0.12 || Math.abs(at - (z + d)) < 0.12 ? a < x + w && b > x : false
+        : Math.abs(at - x) < 0.12 || Math.abs(at - (x + w)) < 0.12 ? a < z + d && b > z : false,
+    );
+  const indoor = (px: number, pz: number) =>
+    home.rooms.some((r) => !r.outdoor && r.rects.some(([x, z, w, d]) => px > x && px < x + w && pz > z && pz < z + d));
+  home.walls.forEach((wall, i) => {
+    const spans = [...(wall.gaps ?? []).map((g) => [...g, 0] as const), ...(wall.windows ?? []).map((g) => [...g, 1] as const)];
+    spans.forEach(([a, b, isWindow], j) => {
+      if (!touches(wall.axis, wall.at, a, b)) return;
+      const mid = (a + b) / 2;
+      // A janela ganha o número do lado de fora, para não brigar com a cota do cômodo.
+      // A porta, um pouco para o lado de cima (ou da esquerda), longe da cota do cômodo de baixo.
+      let off = -0.2;
+      if (isWindow) {
+        const at = (o: number) => (wall.axis === "x" ? indoor(mid, wall.at + o) : indoor(wall.at + o, mid));
+        off = at(0.25) ? -0.22 : at(-0.25) ? 0.22 : 0;
+      }
+      const pos = wall.axis === "x" ? new THREE.Vector3(mid, 0, wall.at + off) : new THREE.Vector3(wall.at + off, 0, mid);
+      out.push({ axis: wall.axis, label: { id: `d-v-${i}-${j}`, text: cm(b - a), pos, active: false, dim: true } });
+    });
+  });
+  // Totais, por fora: largura embaixo e profundidade à direita.
+  if (!focusId && home.walls.length) {
+    const half = 0.05;
+    const xs = home.walls.flatMap((w) => (w.axis === "x" ? [w.from, w.to] : [w.at - half, w.at + half]));
+    const zs = home.walls.flatMap((w) => (w.axis === "z" ? [w.from, w.to] : [w.at - half, w.at + half]));
+    const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
+    out.push(dimLine("d-total-w", "x", z1 + 0.35, x0, x1));
+    out.push(dimLine("d-total-d", "z", x1 + 0.35, z0, z1));
   }
   return out;
 }

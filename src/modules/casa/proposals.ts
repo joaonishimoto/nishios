@@ -1104,138 +1104,6 @@ const SUITE: SuiteLayout = {
  */
 export const MAIN: Proposal = { ...suiteVersion(SUITE, officeVersion(OFFICE, G4)), name: G4.name, tagline: G4.tagline, label: "Principal", room: undefined };
 
-// ---------- Versões da sala ----------
-// Os mesmos móveis da principal na sala (sofá, rack com TV, mesa de 6 com as cadeiras,
-// pendentes, espelho, planta e os dois tapetes). A mureta com o balcão fica onde está.
-// A parte de cima (antigo jantar) vai de x 1,70 a 4,19 e de z 1,45 a 3,07, com a porta de
-// vidro da varanda em cima; a de baixo vai de x 1,70 a 5,65 e de z 3,07 a 5,42, com a entrada
-// na parede da cozinha (z 4,42 a 5,32) e a circulação dos quartos no canto (z 3,07 a 4,10).
-
-interface SalaLayout {
-  id: string;
-  label: string;
-  name: string;
-  tagline: string;
-  highlight: string;
-  notes: string[];
-  sofa: [Rect, Side];
-  rack: [Rect, Side];
-  /** A mesa (1,40 × 0,80 m, ou 0,80 × 1,40 m deitada no outro sentido). */
-  table: Rect;
-  tableRug: Rect;
-  sofaRug: Rect;
-  plant: [number, number];
-  /** O espelho: x, z, largura ao longo da parede, e se a parede é vertical (x fixo). */
-  mirror: [number, number, boolean];
-}
-
-function salaVersion(o: SalaLayout): Proposal {
-  const black = "#1c1d1f", cream = "#f1ebdf", linen = "#f3eee4";
-  const t = o.table;
-  const alongX = t.w > t.d;
-  const seat = (x: number, z: number, back: Side) => chair(x, z, back, cream, 0.44, cream);
-  const chairs: Part[] = alongX
-    ? [
-        ...seat(t.x + 0.2, t.z - 0.47, "n"), ...seat(t.x + 0.8, t.z - 0.47, "n"),
-        ...seat(t.x + 0.2, t.z + t.d + 0.05, "s"), ...seat(t.x + 0.8, t.z + t.d + 0.05, "s"),
-        ...seat(t.x - 0.47, t.z + 0.18, "w"), ...seat(t.x + t.w + 0.05, t.z + 0.18, "e"),
-      ]
-    : [
-        ...seat(t.x - 0.47, t.z + 0.2, "w"), ...seat(t.x - 0.47, t.z + 0.8, "w"),
-        ...seat(t.x + t.w + 0.05, t.z + 0.2, "e"), ...seat(t.x + t.w + 0.05, t.z + 0.8, "e"),
-        ...seat(t.x + 0.18, t.z - 0.47, "n"), ...seat(t.x + 0.18, t.z + t.d + 0.05, "s"),
-      ];
-  const pend = (x: number, z: number) => [part(x + 0.12, z + 0.12, 0.01, 0.01, 2.6 - 1.6 - 0.18, "escuro", 1.78), part(x, z, 0.25, 0.25, 0.18, "escuro", 1.6, black)];
-  const cx = t.x + t.w / 2, cz = t.z + t.d / 2;
-  const pendants = alongX ? [...pend(cx - 0.4, cz - 0.125), ...pend(cx + 0.15, cz - 0.125)] : [...pend(cx - 0.125, cz - 0.4), ...pend(cx - 0.125, cz + 0.15)];
-  const [mx, mz, vertical] = o.mirror;
-  const mirror = vertical
-    ? [part(mx, mz, 0.02, 1.4, 1.1, "vidro", 0.9, "#d7e6ea"), part(mx + 0.01, mz - 0.02, 0.01, 1.44, 1.14, "metal", 0.88)]
-    : [part(mx, mz, 1.4, 0.02, 1.1, "vidro", 0.9, "#d7e6ea"), part(mx - 0.02, mz + 0.01, 1.44, 0.01, 1.14, "metal", 0.88)];
-  const pieces: Piece[] = [
-    piece("jantar", "Sofá 2 lugares", "🛋️", "Móveis", sofa(o.sofa[0], o.sofa[1], black, 2, black).map((x) => (x.c === "#4a443d" ? { ...x, c: "#2a2a2c" } : x))),
-    piece("jantar", "Rack e TV", "📺", "Eletrônicos", full(rackTv(o.rack[0], o.rack[1], cream))),
-    piece("jantar", "Tapete do sofá", "🟦", "Móveis", rug(o.sofaRug, linen)),
-    piece("estar", "Mesa de 6 lugares", "🍽️", "Móveis", table(t, cream, "#e2e2de")),
-    piece("estar", "Cadeiras", "🪑", "Móveis", chairs),
-    piece("estar", "Pendentes da mesa", "💡", "Móveis", full(pendants)),
-    piece("estar", "Tapete da mesa", "🟫", "Móveis", rug(o.tableRug, "#e8dfcc")),
-    piece("estar", "Planta grande", "🪴", "Plantas", plant(o.plant[0], o.plant[1], 0.42, 1.4)),
-    piece("estar", "Espelho grande", "🪞", "Móveis", full(mirror)),
-  ];
-  return roomVersion(o, ["estar", "jantar"], "Sala", "estar", pieces, "A mureta com o balcãozinho de pedra continua atrás de onde estava o sofá, na abertura da cozinha.", ["Balcão na mureta"]);
-}
-
-const LIVING_MAIN = { sofa: [R(1.7, 1.55, 0.9, 1.7), "w"] as [Rect, Side], rack: [R(3.82, 1.6, 0.4, 1.45), "e"] as [Rect, Side], sofaRug: R(2.65, 1.7, 1.1, 1.4) };
-const LIVING_FLIP = { sofa: [R(3.29, 1.5, 0.9, 1.7), "e"] as [Rect, Side], rack: [R(1.72, 1.6, 0.4, 1.45), "w"] as [Rect, Side], sofaRug: R(2.17, 1.65, 1.1, 1.4) };
-const TABLE_EAST = { table: R(3.75, 4.05, 1.4, 0.8), tableRug: R(3.05, 3.45, 2.6, 1.95), plant: [2.68, 4.98] as [number, number], mirror: [3.75, 5.4, false] as [number, number, boolean] };
-const TABLE_MAIN = { table: R(3.0, 4.0, 1.4, 0.8), tableRug: R(2.4, 3.42, 2.6, 1.95), plant: [5.2, 4.95] as [number, number], mirror: [3.0, 5.4, false] as [number, number, boolean] };
-
-const SALAS: SalaLayout[] = [
-  {
-    id: "sala1",
-    label: "Sala 1",
-    name: "Sala com a mesa perto da varanda",
-    tagline: "A principal com a mesa de jantar no lado da porta de vidro e a TV na parte de baixo da sala, com o sofá de costas para a parede do banheiro.",
-    highlight: "Sala: mesa de 6 no lado da varanda, com luz da porta de vidro, e a TV na parte de baixo, com o sofá encostado na parede do banheiro.",
-    notes: [
-      "A mesa de 6 vai para o lado da porta de vidro, deitada no sentido da varanda, com os pendentes em cima e o espelho na parede do escritório, do lado dela.",
-      "O sofá fica encostado na parede do banheiro, de frente para a TV na parede do quarto, a 1 m dela: a sala de TV fica mais reservada.",
-      "O caminho da entrada para os quartos passa entre o sofá e a TV, e a passagem da cozinha continua livre.",
-      "A planta vai para o canto da porta de vidro com a parede do escritório.",
-    ],
-    sofa: [R(3.8, 4.52, 1.7, 0.9), "s"],
-    rack: [R(4.0, 3.07, 1.45, 0.4), "n"],
-    sofaRug: R(4.0, 3.6, 1.4, 0.85),
-    table: R(2.55, 1.95, 0.8, 1.4),
-    tableRug: R(1.98, 1.47, 1.95, 2.6),
-    plant: [3.74, 1.5],
-    mirror: [4.17, 1.62, true],
-  },
-  {
-    id: "sala2",
-    label: "Sala 2",
-    name: "Sala com a mesa mais perto dos quartos",
-    tagline: "A principal com o sofá e a TV no mesmo lugar e a mesa de 6 mais para o lado dos quartos, longe da entrada.",
-    highlight: "Sala: sofá e TV como na principal, mesa de 6 mais para o lado dos quartos e a planta do lado da porta de entrada.",
-    notes: [
-      "Sofá e TV como na principal.",
-      "A mesa vai uns 75 cm para o lado dos quartos: a entrada e a passagem da cozinha ficam mais largas.",
-      "O espelho acompanha a mesa na parede de baixo, e a planta vai para o lado da porta de entrada, depois de onde ela abre.",
-    ],
-    ...LIVING_MAIN,
-    ...TABLE_EAST,
-  },
-  {
-    id: "sala3",
-    label: "Sala 3",
-    name: "Sala com a TV na mureta",
-    tagline: "A principal com o sofá encostado na parede do escritório e a TV na frente da mureta da cozinha.",
-    highlight: "Sala: sofá na parede do escritório e a TV na frente da mureta da cozinha, mesa de 6 no mesmo lugar da principal.",
-    notes: [
-      "Sofá e TV trocam de lado: o sofá encosta na parede do escritório e a TV fica na frente da mureta, a uns 1,2 m do sofá.",
-      "A TV passa um pouco da altura da mureta, então quem está na cozinha também consegue ver.",
-      "A mesa de 6, os pendentes, o espelho e a planta ficam como na principal.",
-    ],
-    ...LIVING_FLIP,
-    ...TABLE_MAIN,
-  },
-  {
-    id: "sala4",
-    label: "Sala 4",
-    name: "Sala com a TV na mureta e a mesa perto dos quartos",
-    tagline: "A principal com a TV na frente da mureta, o sofá na parede do escritório e a mesa de 6 mais para o lado dos quartos.",
-    highlight: "Sala: sofá na parede do escritório, TV na frente da mureta e mesa de 6 mais para o lado dos quartos, com a planta do lado da entrada.",
-    notes: [
-      "O sofá encosta na parede do escritório e a TV fica na frente da mureta da cozinha.",
-      "A mesa vai uns 75 cm para o lado dos quartos, com o espelho atrás dela, e a planta vai para o lado da porta de entrada.",
-      "A entrada e a passagem da cozinha ficam bem livres.",
-    ],
-    ...LIVING_FLIP,
-    ...TABLE_EAST,
-  },
-];
-
 /** A principal sem a hidromassagem: o canto da hidro fica vazio, só com o piso. */
 function withoutTub(): Proposal {
   return {
@@ -1254,7 +1122,7 @@ function withoutTub(): Proposal {
   };
 }
 
-export const PROPOSALS: Proposal[] = [MAIN, fixCurtains(withoutTub()), ...SALAS.map(salaVersion)];
+export const PROPOSALS: Proposal[] = [MAIN, fixCurtains(withoutTub())];
 
 /**
  * A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam).
