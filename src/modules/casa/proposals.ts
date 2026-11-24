@@ -746,7 +746,7 @@ function proposalG4(): Proposal {
       cozinha: ["Passadeira preta no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto.", "Aéreos refeitos numa linha só, com o topo a 2,30 m: módulo no canto do shaft, vão da coifa, torre mais funda com o micro-ondas embutido e porta basculante em cima, dois módulos em cima da pia com luz embaixo e um armário fundo em cima da geladeira, fechado por um painel lateral. A bancada fica livre.", "O purificador fica na bancada da máquina de lavar, na ponta do lado do shaft, perto do ponto de água."],
       banho: ["Armário em cima do vaso e nicho dentro do box."],
       banhosuite: ["Armário em cima do vaso e nicho dentro do box."],
-      varanda: ["O freezer horizontal fica no canto do lado da parede, perto da churrasqueira, e o alimentador e o bebedouro dos gatos ficam do lado da casinha. Sobra mais de 1,1 m livre para passar para fora."],
+      varanda: ["O freezer horizontal e o frigobar ficam lado a lado no canto do lado da parede, perto da churrasqueira, em cima de uma base de 8 cm, longe da água do chão: dá para pegar bebida sem entrar em casa.", "O alimentador e o bebedouro dos gatos ficam do lado da casinha, e sobram uns 85 cm livres para passar para fora."],
     }),
   };
   return withOwned(recolor(withExtras, {
@@ -756,7 +756,7 @@ function proposalG4(): Proposal {
     keep: KEEP_COLORS,
     highlights: [
       ...g.highlights,
-      "Cômodo por cômodo, o que faltava: cortinas blackout, criado-mudo e pendente na suíte; guarda-roupa, prateleiras, duas telas e gavetas no escritório; pendentes e espelho na sala; aéreo na geladeira e coifa no cooktop; armários e nichos nos banheiros; freezer na varanda.",
+      "Cômodo por cômodo, o que faltava: cortinas blackout, criado-mudo e pendente na suíte; guarda-roupa, prateleiras, duas telas e gavetas no escritório; pendentes e espelho na sala; aéreo na geladeira e coifa no cooktop; armários e nichos nos banheiros; freezer e frigobar na varanda.",
       "Cores: móveis e cozinha em creme, pedra clara, e preto no sofá, nas cabeceiras, nos tapetes, na mesa do escritório e nos pendentes.",
     ],
     colors: {
@@ -790,18 +790,21 @@ function withOwned(p: Proposal): Proposal {
   const own = (assetId: string, x: Piece): Piece => ({ ...x, assetId });
   const white = "#f2f2f0", gray = "#b9bec4", dark = "#2b2f35";
   const owned: Piece[] = [
-    // Frigobar (48 × 50 × 85 cm) no canto do pé da cama, com a porta virada para o quarto.
-    own(OWNED.frigobar, piece("quarto", "Frigobar Midea 93L", "🧊", "Eletrodomésticos", [
-      part(6.19, 0.02, 0.48, 0.5, 0.85, "branco", 0, white),
-      part(6.2, 0.52, 0.46, 0.004, 0.006, "escuro", 0.62, gray),
-      part(6.61, 0.52, 0.025, 0.025, 0.3, "escuro", 0.4, gray),
+    // Base de 8 cm em porcelanato antiderrapante embaixo do frigobar e do freezer, para os
+    // dois não ficarem no chão molhado da varanda.
+    piece("varanda", "Base elevada", "🧱", "Obras", [part(3.02, 0.46, 1.17, 0.64, 0.08, "pedra", 0, "#cfc8bc")]),
+    // Frigobar (48 × 50 × 85 cm) do lado do freezer, em cima da base, com a porta virada para a porta de vidro.
+    own(OWNED.frigobar, piece("varanda", "Frigobar Midea 93L", "🧊", "Eletrodomésticos", [
+      part(3.06, 0.5, 0.48, 0.5, 0.85, "branco", 0.08, white),
+      part(3.07, 1.0, 0.46, 0.004, 0.006, "escuro", 0.7, gray),
+      part(3.48, 1.0, 0.025, 0.025, 0.3, "escuro", 0.48, gray),
     ])),
-    // Freezer horizontal (57 × 56 × 85 cm) encostado na parede da varanda: tampa por cima.
+    // Freezer horizontal (57 × 56 × 85 cm) encostado na parede da varanda, em cima da base: tampa por cima.
     own(OWNED.freezer, piece("varanda", "Freezer horizontal Midea 100L", "❄️", "Eletrodomésticos", [
-      part(3.61, 0.5, 0.56, 0.57, 0.8, "branco", 0, white),
-      part(3.6, 0.49, 0.58, 0.59, 0.05, "branco", 0.8, "#e9eae8"),
-      part(3.585, 0.68, 0.015, 0.21, 0.025, "escuro", 0.78, gray),
-      part(3.595, 0.53, 0.01, 0.06, 0.03, "escuro", 0.12, dark),
+      part(3.61, 0.5, 0.56, 0.57, 0.8, "branco", 0.08, white),
+      part(3.6, 0.49, 0.58, 0.59, 0.05, "branco", 0.88, "#e9eae8"),
+      part(3.585, 0.68, 0.015, 0.21, 0.025, "escuro", 0.86, gray),
+      part(3.595, 0.53, 0.01, 0.06, 0.03, "escuro", 0.2, dark),
     ])),
     // Micro-ondas preto (52 × 44 × 31 cm) embutido no aéreo, do lado da coifa: só a frente aparece.
     own(OWNED.microondas, piece("cozinha", "Micro-ondas Midea 35L", "📦", "Eletrodomésticos", full([
@@ -905,7 +908,7 @@ const G4: Proposal = proposalG4();
 // ---------- Escritório da principal ----------
 // O quarto vai de x 4,29 a 6,69 e de z -0,01 a 2,97; a janela fica em cima (x 4,87 a 6,10) e a
 // porta embaixo, no canto da suíte (x 5,81 a 6,69), abrindo para dentro e encostando na parede.
-// O frigobar (bem já ligado) fica de fora por enquanto; `minibar` volta com ele quando precisar.
+// O frigobar fica na varanda, do lado do freezer (veja `withOwned`).
 
 function minibar(r: Rect, back: Side): Part[] {
   const { W, D, at } = placer(r, back);
@@ -1005,7 +1008,7 @@ const OFFICE: OfficeLayout = {
     "A cama fica na parede da suíte, com a cabeceira no lado da janela e as gavetas viradas para a mesa. A cortina termina em cima da cabeceira.",
     "A mesa fica na parede da sala, começando perto da janela, com duas telas lado a lado e duas prateleiras em cima, a 1,50 m e a 1,80 m, longe das telas.",
     "Guarda-roupa de 1,50 m e 55 cm de fundo ocupando a parede da porta, do canto da sala até o batente: a porta abre livre.",
-    "O frigobar fica de fora por enquanto.",
+    "O frigobar foi para a varanda, do lado do freezer.",
     "Sobram uns 90 cm entre a mesa e a cama para a cadeira, e uns 50 cm entre a ponta da mesa e o guarda-roupa.",
   ],
   bed: [R(5.81, -0.01, 0.88, 1.88), "n"],
@@ -1019,7 +1022,7 @@ const OFFICE: OfficeLayout = {
 
 
 // ---------- Suíte ----------
-// Os móveis da suíte: cama viúva, painel com TV, frigobar, poltrona tântrica e cortina. A parte
+// Os móveis da suíte: cama viúva, painel com TV, poltrona tântrica e cortina. A parte
 // grande da suíte vai de x 6,79 a 9,87 e de z -0,01 a 2,68; a janela fica em cima (x 7,72 a
 // 8,94) e a entrada vem do corredorzinho do canto de baixo (x 6,79 a 7,71), que fica livre,
 // como a porta do banheiro.
@@ -1033,7 +1036,6 @@ interface SuiteLayout {
   notes: string[];
   bed: [Rect, Side];
   tv: [Rect, Side];
-  minibar: [Rect, Side];
   /** A poltrona: canto de começo, deitada ao longo de x (senão de z), e a ponta alta no fim. */
   chaise: { x: number; z: number; alongX?: boolean; flip?: boolean };
 }
@@ -1045,7 +1047,6 @@ function suiteVersion(o: SuiteLayout, base: Proposal): Proposal {
   const { W, at } = placer(o.tv[0], o.tv[1]);
   const pieces: Piece[] = [
     piece("suite", "Cama viúva", "🛏️", "Móveis", bed(o.bed[0], o.bed[1], linen, cream, black, black)),
-    { ...piece("suite", "Frigobar Midea 93L", "🧊", "Eletrodomésticos", minibar(o.minibar[0], o.minibar[1])), assetId: OWNED.frigobar },
     piece("suite", "Painel e TV", "📺", "Eletrônicos", full([
       at(0, 0, W, 0.28, 0.32, "madeira", 0.3, cream),
       at(0.05, 0.02, W - 0.1, 0.04, 0.66, "escuro", 0.95, "#1c1f24"),
@@ -1075,21 +1076,19 @@ function tantraChaise(o: { x: number; z: number; alongX?: boolean; flip?: boolea
   ];
 }
 
-/** A suíte da principal: cabeceira embaixo da janela, TV na parede do banheiro e o frigobar do lado dela. */
+/** A suíte da principal: cabeceira embaixo da janela, TV na parede do banheiro e a poltrona na parede do escritório. */
 const SUITE: SuiteLayout = {
   id: "g4",
   label: "Principal",
   name: G4.name,
   tagline: G4.tagline,
-  highlight: "Suíte: cama viúva com a cabeceira embaixo da janela, TV na parede do banheiro com o frigobar do lado, e a poltrona tântrica preta na parede do escritório.",
+  highlight: "Suíte: cama viúva com a cabeceira embaixo da janela, TV na parede do banheiro e a poltrona tântrica preta na parede do escritório.",
   notes: [
     "A cama fica com a cabeceira embaixo da janela, no meio do quarto, e a TV na parede do banheiro, de frente para ela.",
-    "O frigobar fica do lado da TV, no canto da parede do banheiro com a parede de fora, com a porta abrindo para o quarto.",
     "Na parede do escritório fica a poltrona tântrica preta (45 × 150 × 71 cm), com a ponta alta do lado da janela e uns 60 cm livres até a cama.",
   ],
   bed: [R(7.9, -0.01, 1.28, 1.88), "n"],
   tv: [R(7.92, 2.4, 1.25, 0.28), "s"],
-  minibar: [R(9.37, 2.17, 0.48, 0.5), "s"],
   chaise: { x: 6.85, z: 0.35 },
 };
 
@@ -1099,15 +1098,14 @@ const SUITES: SuiteLayout[] = [
     label: "Suíte 1",
     name: "Suíte com a cabeceira na parede de fora",
     tagline: "A cama com a cabeceira na parede de fora, a TV na parede do escritório e a poltrona na parede do banheiro.",
-    highlight: "Suíte: cabeceira na parede de fora, TV na parede do escritório, poltrona tântrica na parede do banheiro e frigobar no canto dela.",
+    highlight: "Suíte: cabeceira na parede de fora, TV na parede do escritório, poltrona tântrica na parede do banheiro.",
     notes: [
       "A cama volta para a cabeceira na parede de fora, perto da janela, e a TV vai para a parede do escritório, de frente para ela.",
-      "A poltrona fica deitada ao longo da parede do banheiro, com a ponta alta do lado do frigobar, que fica no canto.",
+      "A poltrona fica deitada ao longo da parede do banheiro, com a ponta alta do lado de fora.",
       "A entrada pelo corredorzinho fica livre, entre a TV e a poltrona.",
     ],
     bed: [R(7.99, 0.15, 1.88, 1.28), "e"],
     tv: [R(6.79, 0.17, 0.28, 1.25), "w"],
-    minibar: [R(9.37, 2.17, 0.48, 0.5), "s"],
     chaise: { x: 7.78, z: 2.2, alongX: true, flip: true },
   },
   {
@@ -1115,47 +1113,44 @@ const SUITES: SuiteLayout[] = [
     label: "Suíte 2",
     name: "Suíte com a cabeceira na parede do escritório",
     tagline: "A cama com a cabeceira na parede do escritório, a TV na parede de fora e a poltrona na parede do banheiro.",
-    highlight: "Suíte: cabeceira na parede do escritório, TV na parede de fora, poltrona tântrica na parede do banheiro e frigobar no canto dela.",
+    highlight: "Suíte: cabeceira na parede do escritório, TV na parede de fora, poltrona tântrica na parede do banheiro.",
     notes: [
       "A cabeceira vai para a parede do escritório e a TV para a parede de fora, a uns 90 cm do pé da cama.",
-      "A poltrona fica deitada ao longo da parede do banheiro, logo depois da entrada, com o frigobar no canto.",
+      "A poltrona fica deitada ao longo da parede do banheiro, logo depois da entrada.",
       "A janela fica livre, do lado da cama.",
     ],
     bed: [R(6.79, 0.15, 1.88, 1.28), "w"],
     tv: [R(9.59, 0.17, 0.28, 1.25), "e"],
-    minibar: [R(9.37, 2.17, 0.48, 0.5), "s"],
     chaise: { x: 7.78, z: 2.2, alongX: true, flip: true },
   },
   {
     id: "sui3",
     label: "Suíte 3",
     name: "Suíte com a poltrona na parede de fora",
-    tagline: "A cabeceira embaixo da janela, mais para o lado do escritório, com a poltrona na parede de fora e o frigobar no canto da janela.",
-    highlight: "Suíte: cabeceira embaixo da janela, mais para o lado do escritório, TV na parede do banheiro, frigobar no canto da janela e poltrona tântrica na parede de fora.",
+    tagline: "A cabeceira embaixo da janela, mais para o lado do escritório, com a poltrona na parede de fora.",
+    highlight: "Suíte: cabeceira embaixo da janela, mais para o lado do escritório, TV na parede do banheiro e poltrona tântrica na parede de fora.",
     notes: [
       "A cama fica embaixo da janela, mais para o lado do escritório, e a TV na parede do banheiro.",
-      "O frigobar vai para o canto da janela com a parede de fora, e a poltrona fica logo depois dele, ao longo da parede de fora, com uns 65 cm livres até a cama.",
+      "A poltrona fica ao longo da parede de fora, com uns 65 cm livres até a cama.",
       "Sobra a parede do escritório livre, perto da entrada.",
     ],
     bed: [R(7.45, -0.01, 1.28, 1.88), "n"],
     tv: [R(7.8, 2.4, 1.25, 0.28), "s"],
-    minibar: [R(9.37, 0.0, 0.48, 0.5), "n"],
     chaise: { x: 9.4, z: 0.7 },
   },
   {
     id: "sui4",
     label: "Suíte 4",
     name: "Suíte com a poltrona embaixo da janela",
-    tagline: "A cama perto da parede do banheiro, a poltrona embaixo da janela e o frigobar no canto dela.",
-    highlight: "Suíte: cama com a cabeceira na parede de fora, perto do banheiro, TV na parede do escritório, poltrona tântrica embaixo da janela e frigobar no canto da janela.",
+    tagline: "A cama perto da parede do banheiro, a poltrona embaixo da janela.",
+    highlight: "Suíte: cama com a cabeceira na parede de fora, perto do banheiro, TV na parede do escritório, poltrona tântrica embaixo da janela.",
     notes: [
       "A cama desce para perto da parede do banheiro, com a cabeceira na parede de fora, e a TV fica na parede do escritório.",
-      "A poltrona fica embaixo da janela, deitada ao longo dela, e o frigobar no canto da janela com a parede de fora.",
+      "A poltrona fica embaixo da janela, deitada ao longo dela.",
       "Sobram uns 75 cm entre a poltrona e a cama.",
     ],
     bed: [R(7.99, 1.3, 1.88, 1.28), "e"],
     tv: [R(6.79, 1.0, 0.28, 1.25), "w"],
-    minibar: [R(9.37, 0.0, 0.48, 0.5), "n"],
     chaise: { x: 7.75, z: 0.1, alongX: true },
   },
 ];

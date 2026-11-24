@@ -106,6 +106,7 @@ const PRICES: [RegExp, number][] = [
   [/^grama para gatos/i, 60],
   [/^espreguiçadeiras/i, 2400],
   [/^balcão na mureta/i, 1500],
+  [/^base elevada/i, 300],
   [/^casinha dos gatos/i, 900],
   [/^tanque/i, 600],
   [/^tela de proteção/i, 1500],
