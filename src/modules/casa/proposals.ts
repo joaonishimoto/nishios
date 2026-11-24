@@ -553,11 +553,11 @@ function extraG(): Extra {
   return {
     id: "g",
     name: "Máquina na cozinha, hidro e área coberta",
-    tagline: "A casa com a máquina de lavar dentro da cozinha e a pia perto da geladeira, a hidro embaixo do telhado, a área coberta livre e a área externa vazia, só com grama.",
+    tagline: "A casa com a máquina de lavar dentro da cozinha e a pia perto da geladeira, a hidro embaixo do telhado, uma churrasqueira móvel na área coberta e um balcão de pedra com pia na ponta da área externa.",
     highlights: [
-      "Área de fora: hidromassagem branca de 2,00 × 1,50 m com deque em volta, embaixo do telhado. A área coberta fica livre, sem churrasqueira.",
+      "Área de fora: hidromassagem branca de 2,00 × 1,50 m com deque em volta, embaixo do telhado. A área coberta fica com uma churrasqueira móvel no canto.",
       "Cozinha em L com bancada de ponta a ponta, cooktop de 4 bocas e armários em cima e embaixo. A máquina de lavar fica embaixo da bancada, no canto da janela, e a pia vai para o lado da geladeira.",
-      "Área externa vazia, só com grama, para decidir depois o que vai ali.",
+      "Área externa com grama e, na ponta do lado da suíte, um balcão de pedra sob medida de parede a parede, com uma pia que serve de tanque e uma bancada de corte.",
     ],
     replaceNotes: ["servicoext", "coberta", "externa", "cozinha"],
     replaceOutdoorHighlight: true,
@@ -578,10 +578,11 @@ function extraG(): Extra {
         "Ripado de madeira no lado de dentro do muro, do chão até 2,50 m, atrás e do lado da hidro.",
       ],
       coberta: [
-        "Livre, sem churrasqueira e sem bancada: o muro do lado da hidro fica vazio, e a passagem da varanda até a área externa fica toda aberta.",
+        "Sem churrasqueira fixa: uma churrasqueira móvel de carrinho fica no canto junto do muro, do lado da área externa, e dá para puxar para fora no dia do churrasco.",
+        "A passagem da varanda até a área externa continua aberta.",
         "Os gatos continuam podendo ficar aqui fora sem tomar chuva.",
       ],
-      externa: ["Vazia por enquanto: só grama, da área coberta até o fundo."],
+      externa: ["Grama da área coberta até o fundo.", "Na ponta do lado da suíte, um balcão de pedra cortada sob medida, de 60 cm de fundo, ocupando toda a largura de 1,45 m entre a casa e o muro, aberto embaixo.", "A cuba funda fica do lado da casa, perto da água e do esgoto, e serve de tanque. O resto é bancada de corte, até o muro."],
     },
     outdoorChanges: { servicoext: { name: "Hidro", floor: "pedra" } },
     drop: ["servicoext:Tanque", "servicoext:Máquina de lavar", "servicoext:Armário de serviço", "cozinha:Bancada planejada", "servico:Pia"],
@@ -605,6 +606,37 @@ function extraG(): Extra {
       { ...piece("cozinha", "Pia", "🚰", "Móveis", [part(-0.01, 2.5, 0.61, 0.9, 0.9, "madeira", 0, cab)]), fixture: { kind: "bancada", x: -0.01, z: 2.5, w: 0.61, d: 0.9, wall: "w", colors: { cabinet: cab, stone } } },
       piece("servicoext", "Hidromassagem", "🛁", "Móveis", deckedTub(R(0.02, EXT.z0 + 0.03, 2.43, 1.72), R(0.14, -1.42, 2.0, 1.5))),
       piece("servicoext", "Painel ripado", "🪵", "Obras", [...slatScreen(R(-0.01, EXT.z0, 2.46, 0.03)), ...slatScreen(R(-0.01, EXT.z0, 0.03, 1.75))]),
+      // Balcão de pedra cortada sob medida na ponta da área externa, do lado da suíte, de
+      // parede a parede: cuba funda que serve de tanque do lado da casa e o resto de bancada
+      // de corte. Pedra apoiada em três pés de pedra, aberto embaixo.
+      piece("externa", "Balcão de pedra com pia", "🪨", "Obras", [
+        part(EXT.x1 - 0.6, EXT.z0, 0.6, EXT.z1 - EXT.z0, 0.04, "pedra", 0.86, stone),
+        part(EXT.x1 - 0.6, EXT.z0, 0.6, 0.04, 0.86, "pedra", 0, stone),
+        part(EXT.x1 - 0.6, -0.86, 0.6, 0.04, 0.86, "pedra", 0, stone),
+        part(EXT.x1 - 0.6, EXT.z1 - 0.04, 0.6, 0.04, 0.86, "pedra", 0, stone),
+        part(EXT.x1 - 0.62, EXT.z0, 0.02, EXT.z1 - EXT.z0, 0.1, "pedra", 0.8, stone),
+        // Cuba funda (tanque) no lado da casa, com torneira alta na parede.
+        part(EXT.x1 - 0.52, -0.66, 0.42, 0.48, 0.3, "branco", 0.6, "#e9e6e0"),
+        part(EXT.x1 - 0.5, -0.64, 0.38, 0.44, 0.012, "escuro", 0.895, "#2a2a2c"),
+        ...full([part(EXT.x1 - 0.06, -0.44, 0.03, 0.03, 0.35, "metal", 0.9), part(EXT.x1 - 0.2, -0.44, 0.17, 0.03, 0.03, "metal", 1.22)]),
+        // Tábua de corte em cima da bancada.
+        part(EXT.x1 - 0.48, -1.35, 0.3, 0.4, 0.02, "madeira", 0.9, "#b98a5a"),
+      ]),
+      // Churrasqueira móvel de carrinho no canto da área coberta, junto do muro: caixa preta
+      // com tampa, prateleira lateral e rodinhas, dá para puxar para fora no dia do churrasco.
+      piece("coberta", "Churrasqueira móvel", "🔥", "Móveis", [
+        part(4.08, EXT.z0 + 0.06, 0.04, 0.04, 0.8, "metal", 0, "#2b2b2d"),
+        part(4.6, EXT.z0 + 0.06, 0.04, 0.04, 0.8, "metal", 0, "#2b2b2d"),
+        part(4.08, EXT.z0 + 0.48, 0.04, 0.04, 0.8, "metal", 0, "#2b2b2d"),
+        part(4.6, EXT.z0 + 0.48, 0.04, 0.04, 0.8, "metal", 0, "#2b2b2d"),
+        part(4.06, EXT.z0 + 0.04, 0.6, 0.5, 0.02, "metal", 0.2, "#2b2b2d"),
+        part(4.06, EXT.z0 + 0.04, 0.6, 0.5, 0.25, "escuro", 0.8, "#1c1c1e"),
+        part(4.08, EXT.z0 + 0.06, 0.56, 0.46, 0.12, "escuro", 1.05, "#26262a"),
+        part(4.26, EXT.z0 + 0.54, 0.2, 0.03, 0.03, "metal", 1.1),
+        part(3.76, EXT.z0 + 0.1, 0.3, 0.38, 0.02, "madeira", 0.9, "#6b5a48"),
+        part(4.05, EXT.z0 + 0.03, 0.06, 0.06, 0.1, "escuro", 0, "#111"),
+        part(4.05, EXT.z0 + 0.47, 0.06, 0.06, 0.1, "escuro", 0, "#111"),
+      ]),
     ],
   };
 }

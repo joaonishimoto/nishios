@@ -82,6 +82,8 @@ const PRICES: [RegExp, number][] = [
   [/^toldo/i, 2500],
   [/^armário/i, 1200],
   [/^bancada/i, 1500],
+  [/^churrasqueira móvel/i, 900],
+  [/^balcão de pedra/i, 2500],
   [/^churrasqueira/i, 2500],
   [/^ofurô/i, 6000],
   [/^bicicleta/i, 1500],
