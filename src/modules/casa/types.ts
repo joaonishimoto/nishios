@@ -100,6 +100,9 @@ export interface Piece {
   parts: Part[];
   /** Bem de "Bens e desejos" que este móvel representa. */
   assetId?: string;
+  /** Preço de verdade (em reais) e link da loja, quando o João já escolheu o produto. */
+  price?: number;
+  link?: string;
   /** Parte da construção (muro, porta de vidro): aparece no 3D mas não na lista de móveis. */
   fixed?: boolean;
   /** Louça desenhada com forma própria; quando existe, `parts` é só a área ocupada. */

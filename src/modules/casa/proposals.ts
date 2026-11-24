@@ -1028,6 +1028,8 @@ interface SuiteLayout {
   bed: [Rect, Side];
   wardrobe?: { r: Rect; back: Side; name: string };
   minibar?: [Rect, Side];
+  /** Peças a mais, já montadas. */
+  extras?: Piece[];
   tv: [Rect, Side];
   /** Criado-mudo suspenso (x, z, w, d) e o pendente em cima dele. */
   nightstand: [number, number, number, number];
@@ -1050,8 +1052,25 @@ function suiteVersion(o: SuiteLayout, base: Proposal): Proposal {
     piece("suite", "Criado-mudo suspenso", "🛏️", "Móveis", full([part(nx, nz, nw, nd, 0.25, "madeira", 0.42, cream)])),
     piece("suite", "Pendente da cabeceira", "💡", "Móveis", full([part(px + 0.12, pz + 0.12, 0.01, 0.01, 2.6 - 1.3 - 0.18, "escuro", 1.48), part(px, pz, 0.25, 0.25, 0.18, "escuro", 1.3, black)])),
     piece("suite", "Tapete ao lado da cama", "🟦", "Móveis", rug(o.rug, black)),
+    ...(o.extras ?? []),
   ];
   return roomVersion(o, ["suite"], "Suíte", "suite", pieces, "Cortina blackout na janela, terminando em cima da cabeceira.", undefined, undefined, base);
+}
+
+
+/**
+ * Poltrona tântrica (chaise em onda) de 45 × 150 × 71 cm, em couro sintético preto, deitada ao
+ * longo de z a partir de (x, z): a ponta alta (71 cm) fica em z, desce no meio e sobe de novo
+ * antes da outra ponta. As caixas em fatias fazem a curva, em cima de quatro pezinhos.
+ */
+function tantraChaise(x: number, z: number): Part[] {
+  const W = 0.45, L = 1.5, feet = 0.05;
+  const heights = [0.6, 0.71, 0.68, 0.58, 0.47, 0.4, 0.43, 0.52, 0.58, 0.5];
+  const step = L / heights.length;
+  return [
+    ...heights.map((h, i) => part(x, z + i * step, W, step, h - feet, "tecido", feet, "#1c1d1f")),
+    ...[[0.03, 0.05], [W - 0.07, 0.05], [0.03, L - 0.09], [W - 0.07, L - 0.09]].map(([u, v]) => part(x + u, z + v, 0.04, 0.04, feet, "escuro", 0, "#111214")),
+  ];
 }
 
 /** A suíte da principal: cabeceira embaixo da janela, TV na parede do banheiro e o frigobar do lado dela. */
@@ -1060,16 +1079,21 @@ const SUITE: SuiteLayout = {
   label: "Principal",
   name: G4.name,
   tagline: G4.tagline,
-  highlight: "Suíte: cama viúva com a cabeceira embaixo da janela, TV na parede do banheiro e o frigobar do lado dela, sem guarda-roupa.",
+  highlight: "Suíte: cama viúva com a cabeceira embaixo da janela, TV na parede do banheiro com o frigobar do lado, e a poltrona tântrica preta na parede do escritório, sem guarda-roupa.",
   notes: [
     "A cama fica com a cabeceira embaixo da janela, no meio do quarto, e a TV na parede do banheiro, de frente para ela.",
     "O frigobar fica do lado da TV, no canto da parede do banheiro com a parede de fora, com a porta abrindo para o quarto.",
-    "Sem guarda-roupa por enquanto: a parede do escritório fica livre.",
+    "Sem guarda-roupa por enquanto. Na parede do escritório fica a poltrona tântrica preta (45 × 150 × 71 cm), com a ponta alta do lado da janela e uns 60 cm livres até a cama.",
     "Criado-mudo e pendente do lado de fora da cama, com o tapete desse lado.",
   ],
   bed: [R(7.9, -0.01, 1.28, 1.88), "n"],
   tv: [R(7.92, 2.4, 1.25, 0.28), "s"],
   minibar: [R(9.37, 2.17, 0.48, 0.5), "s"],
+  extras: [{
+    ...piece("suite", "Poltrona tântrica", "🛋️", "Móveis", tantraChaise(6.85, 0.35)),
+    price: 1650,
+    link: "https://www.mercadolivre.com.br/poltrona-cadeira-exotica-tantra-diva-sofa-quarto-preto-desenho-do-tecido-liso/p/MLB41254058",
+  }],
   nightstand: [9.27, 0.02, 0.38, 0.42],
   rug: R(9.22, 0.5, 0.6, 1.35),
 };
