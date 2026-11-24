@@ -288,7 +288,7 @@ function proposalJ(start = 600): Proposal {
       "Suíte: janela no meio da parede de cima, cama com a cabeceira na parede do lado, painel com TV na frente e guarda-roupa de correr na parede do banheiro.",
       "Escritório: cama de solteiro no fundo, embaixo da janela, e a mesa preta de 1,70 m com o computador na parede da sala, até o canto da porta.",
       "Cozinha em L, que agora inclui o antigo serviço: bancada de ponta a ponta, pia embaixo da janela, cooktop de indução e armários em cima e embaixo.",
-      "Sala inteira, sem divisão: sofá e TV no lado da varanda, com porta de vidro de correr, e mesa para 4 no meio, com duas cadeiras de cada lado e as pontas livres.",
+      "Sala inteira, sem divisão: sofá e TV no lado da varanda, com porta de vidro de correr, e mesa para 4 com a ponta encostada na parede de baixo, duas cadeiras de cada lado.",
       "Área de fora: serviço no canto da cozinha (máquina, tanque e armário) e cobertura da parede da esquerda até perto da janela do escritório, para os gatos ficarem no seco.",
     ],
     notes: {
@@ -307,9 +307,9 @@ function proposalJ(start = 600): Proposal {
         "O sofá tampa parte da abertura da cozinha; a passagem para o estar fica com uns 85 cm, entre o sofá e a parede de baixo.",
         "Entre o sofá e o móvel da TV sobra 1,2 m para chegar à porta de vidro.",
         "Atrás do sofá, na abertura da cozinha, uma mureta de 1 m (um pouco mais alta que o encosto, de 78 cm) com um balcãozinho de pedra de 32 cm. Ele avança para o lado da cozinha, onde ainda sobram uns 80 cm de passagem.",
-        "Mesa de 1,40 × 0,80 m para 4: duas cadeiras de cada lado, com 70 cm por pessoa, e as pontas livres.",
-        "Ela fica com a ponta perto da parede do lado do banheiro, a 15 cm do espelho, e o lado da porta de entrada fica livre para o banco sapateira e o tapete.",
-        "Da mesa até a parede de baixo ficam 62 cm, o suficiente para sentar. O caminho da entrada para os quartos passa por cima da mesa, atrás das cadeiras, com uns 45 cm.",
+        "Mesa de 1,40 × 0,80 m para 4, virada e com a ponta encostada na parede de baixo: duas cadeiras de cada lado, com 70 cm por pessoa.",
+        "Ela fica no lado do banheiro, com uns 40 cm entre as cadeiras e o espelho, e o lado da porta de entrada fica livre para o banco sapateira e o tapete.",
+        "O caminho da entrada para os quartos passa por cima da mesa, livre, com quase 1 m.",
       ],
       cozinha: [
         "Bancada planejada de 60 cm de fundo, do canto do shaft até a geladeira (2,5 m), com cooktop de indução e armários embaixo e aéreos em cima.",
@@ -375,10 +375,10 @@ function proposalJ(start = 600): Proposal {
         ...[1.07, 2.29, 2.66, 3.03].map((z) => part(0.34, z, 0.006, 0.008, 0.66, "escuro", 1.52, "#6b5a48")),
       ])),
       piece("cozinha", "Geladeira", "🧊", "Eletrodomésticos", full(fridge(R(-0.01, 3.42, 0.7, 0.66), "w"))),
-      piece("estar", "Mesa de jantar", "🍽️", "Móveis", table(R(4.1, 4.0, 1.4, 0.8), white, "#e2e2de")),
+      piece("estar", "Mesa de jantar", "🍽️", "Móveis", table(R(4.0, 4.02, 0.8, 1.4), white, "#e2e2de")),
       piece("estar", "Cadeiras", "🪑", "Móveis", [
-        ...seatJ(4.28, 3.53, "n"), ...seatJ(4.88, 3.53, "n"),
-        ...seatJ(4.28, 4.83, "s"), ...seatJ(4.88, 4.83, "s"),
+        ...seatJ(3.53, 4.2, "w"), ...seatJ(3.53, 4.8, "w"),
+        ...seatJ(4.83, 4.2, "e"), ...seatJ(4.83, 4.8, "e"),
       ]),
       piece("jantar", "Sofá 2 lugares", "🛋️", "Móveis", sofa(R(1.7, 1.55, 0.9, 1.7), "w", nishi, 2, nishi)),
       // Mureta de 1 m na abertura da cozinha, atrás do sofá, com um balcãozinho de pedra em cima.
@@ -565,7 +565,7 @@ const externa = (floor: FloorKind, catio = false) => garden("externa", "Área ex
 const BATH_NOTES = {
   banhosuite: ["Espelheira em cima da pia, toalheiro na parede do lado do box e um tapete na saída do box."],
   banho: ["Espelheira em cima da pia, toalheiro do lado do box e tapete na saída do box. A porta abre encostada na parede da pia sem bater em nada."],
-  estar: ["Mesa sem tapete embaixo, com duas cadeiras de cada lado e as pontas livres."],
+  estar: ["Mesa sem tapete embaixo, com duas cadeiras de cada lado e a ponta na parede."],
 };
 
 function extraG(): Extra {
@@ -710,7 +710,7 @@ function proposalG4(): Proposal {
     ]),
     piece("quarto", "Tapete do escritório", "🟫", "Móveis", rug(R(5.05, 1.15, 1.15, 0.95), linen)),
     // Sala
-    piece("estar", "Pendentes da mesa", "💡", "Móveis", [...pendant(4.4, 4.27, 1.6), ...pendant(4.95, 4.27, 1.6)]),
+    piece("estar", "Pendentes da mesa", "💡", "Móveis", [...pendant(4.28, 4.38, 1.6), ...pendant(4.28, 4.93, 1.6)]),
     // Espelho na parede do lado do banheiro inteira, do rodapé até 2,10 m, atrás da ponta da mesa.
     piece("estar", "Espelho grande", "🪞", "Móveis", full([part(5.63, 4.14, 0.02, 1.26, 2.0, "vidro", 0.1, "#d7e6ea"), part(5.64, 4.12, 0.01, 1.3, 2.04, "metal", 0.08)])),
     piece("jantar", "Tapete do sofá", "🟦", "Móveis", rug(R(2.65, 1.7, 1.1, 1.4), linen)),
@@ -753,7 +753,7 @@ function proposalG4(): Proposal {
         "Cortina blackout na janela e um tapete no meio, deixando a porta abrir livre.",
         "O frigobar fica no canto do pé da cama, encostado na parede da janela e antes do armário.",
       ],
-      estar: ["Dois pendentes pretos em cima da mesa de jantar.", "Espelho na parede do lado do banheiro inteira (1,30 × 2,10 m), atrás da ponta da mesa: deixa a sala parecer bem maior.", "Logo depois da porta de entrada, fora do giro dela: um tapete fino de 60 × 80 cm e o banco sapateira de 70 × 35 cm com assento estofado na parede de baixo. Quem chega pisa no tapete, senta, tira o tênis e deixa nos nichos de baixo."],
+      estar: ["Dois pendentes pretos em cima da mesa de jantar.", "Espelho na parede do lado do banheiro inteira (1,30 × 2,10 m), do lado da mesa: deixa a sala parecer bem maior.", "Logo depois da porta de entrada, fora do giro dela: um tapete fino de 60 × 80 cm e o banco sapateira de 70 × 35 cm com assento estofado na parede de baixo. Quem chega pisa no tapete, senta, tira o tênis e deixa nos nichos de baixo."],
       jantar: ["Tapete entre o sofá e a TV, sem mesa de centro, para não fechar o caminho de 1,2 m até a porta de vidro."],
       cozinha: ["Passadeira preta no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto.", "Aéreos refeitos numa linha só, com o topo a 2,30 m: módulo no canto do shaft, vão da coifa, torre mais funda com o micro-ondas embutido e porta basculante em cima, dois módulos em cima da pia com luz embaixo e um armário fundo em cima da geladeira, fechado por um painel lateral. A bancada fica livre.", "O purificador fica na bancada da máquina de lavar, na ponta do lado do shaft, perto do ponto de água."],
       banho: ["Armário em cima do vaso e nicho dentro do box."],
