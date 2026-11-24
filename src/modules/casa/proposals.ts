@@ -288,7 +288,7 @@ function proposalJ(start = 600): Proposal {
       "Suíte: janela no meio da parede de cima, cama com a cabeceira na parede do lado, painel com TV na frente e guarda-roupa de correr na parede do banheiro.",
       "Escritório: cama de solteiro no fundo, embaixo da janela, e a mesa preta de 1,70 m com o computador na parede da sala, até o canto da porta.",
       "Cozinha em L, que agora inclui o antigo serviço: bancada de ponta a ponta, pia embaixo da janela, cooktop de 4 bocas e armários em cima e embaixo.",
-      "Sala inteira, sem divisão: sofá e TV no lado da varanda, com porta de vidro de correr, e mesa para 6 no meio.",
+      "Sala inteira, sem divisão: sofá e TV no lado da varanda, com porta de vidro de correr, e mesa para 4 no meio, com duas cadeiras de cada lado e as pontas livres.",
       "Área de fora: serviço no canto da cozinha (máquina, tanque e armário) e cobertura da parede da esquerda até perto da janela do escritório, para os gatos ficarem no seco.",
     ],
     notes: {
@@ -374,11 +374,10 @@ function proposalJ(start = 600): Proposal {
         ...[1.07, 2.29, 2.66, 3.03].map((z) => part(0.34, z, 0.006, 0.008, 0.66, "escuro", 1.52, "#6b5a48")),
       ])),
       piece("cozinha", "Geladeira", "🧊", "Eletrodomésticos", full(fridge(R(-0.01, 3.42, 0.7, 0.66), "w"))),
-      piece("estar", "Mesa de 6 lugares", "🍽️", "Móveis", table(R(3.0, 4.0, 1.4, 0.8), white, "#e2e2de")),
+      piece("estar", "Mesa de jantar", "🍽️", "Móveis", table(R(3.0, 4.0, 1.4, 0.8), white, "#e2e2de")),
       piece("estar", "Cadeiras", "🪑", "Móveis", [
         ...seatJ(3.18, 3.53, "n"), ...seatJ(3.78, 3.53, "n"),
         ...seatJ(3.18, 4.83, "s"), ...seatJ(3.78, 4.83, "s"),
-        ...seatJ(2.53, 4.18, "w"), ...seatJ(4.43, 4.18, "e"),
       ]),
       piece("jantar", "Sofá 2 lugares", "🛋️", "Móveis", sofa(R(1.7, 1.55, 0.9, 1.7), "w", nishi, 2, nishi)),
       // Mureta de 1 m na abertura da cozinha, atrás do sofá, com um balcãozinho de pedra em cima.
@@ -514,10 +513,9 @@ function bathrooms(towel: string, mat: string): Piece[] {
   ];
 }
 
-/** Sala: tapete embaixo da mesa de 6 e uma planta no canto do lado do banheiro. */
-function salaExtras(rugColor: string): Piece[] {
+/** Sala: uma planta no canto do lado do banheiro (a mesa fica sem tapete). */
+function salaExtras(_rugColor: string): Piece[] {
   return [
-    piece("estar", "Tapete da mesa", "🟫", "Móveis", rug(R(2.4, 3.42, 2.6, 1.95), rugColor)),
     piece("estar", "Planta grande", "🪴", "Plantas", plant(5.2, 4.95, 0.42, 1.4)),
   ];
 }
@@ -575,7 +573,7 @@ const externa = (floor: FloorKind, catio = false) => garden("externa", "Área ex
 const BATH_NOTES = {
   banhosuite: ["Espelheira em cima da pia, toalheiro na parede do lado do box e um tapete na saída do box."],
   banho: ["Espelheira em cima da pia, toalheiro do lado do box e tapete na saída do box. A porta abre encostada na parede da pia sem bater em nada."],
-  estar: ["Tapete de 2,60 × 1,95 m embaixo da mesa, largo o bastante para as cadeiras não saírem dele, e uma planta grande no canto do lado do banheiro."],
+  estar: ["Mesa sem tapete embaixo, com duas cadeiras de cada lado e as pontas livres, e uma planta grande no canto do lado do banheiro."],
 };
 
 function extraG(): Extra {
@@ -750,7 +748,7 @@ function proposalG4(): Proposal {
         "Cortina blackout na janela e um tapete no meio, deixando a porta abrir livre.",
         "O frigobar fica no canto do pé da cama, encostado na parede da janela e antes do armário.",
       ],
-      estar: ["Dois pendentes pretos em cima da mesa de 6 e um espelho de 1,40 m atrás dela, que deixa a sala parecer maior."],
+      estar: ["Dois pendentes pretos em cima da mesa de jantar e um espelho de 1,40 m atrás dela, que deixa a sala parecer maior."],
       jantar: ["Tapete entre o sofá e a TV, sem mesa de centro, para não fechar o caminho de 1,2 m até a porta de vidro."],
       cozinha: ["Passadeira preta no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto.", "Aéreos refeitos numa linha só, com o topo a 2,30 m: módulo no canto do shaft, vão da coifa, torre mais funda com o micro-ondas embutido e porta basculante em cima, dois módulos em cima da pia com luz embaixo e um armário fundo em cima da geladeira, fechado por um painel lateral. A bancada fica livre.", "O purificador fica na bancada da máquina de lavar, na ponta do lado do shaft, perto do ponto de água."],
       banho: ["Armário em cima do vaso e nicho dentro do box."],
@@ -1049,6 +1047,8 @@ interface SuiteLayout {
   tv: [Rect, Side];
   /** A poltrona: canto de começo, deitada ao longo de x (senão de z), e a ponta alta no fim. */
   chaise: { x: number; z: number; alongX?: boolean; flip?: boolean };
+  /** Tapete grande do lado da cama. */
+  rug?: Rect;
 }
 
 const CHAISE_LINK = "https://www.mercadolivre.com.br/poltrona-cadeira-exotica-tantra-diva-sofa-quarto-preto-desenho-do-tecido-liso/p/MLB41254058";
@@ -1063,6 +1063,7 @@ function suiteVersion(o: SuiteLayout, base: Proposal): Proposal {
       at(0.05, 0.02, W - 0.1, 0.04, 0.66, "escuro", 0.95, "#1c1f24"),
     ])),
     { ...piece("suite", "Poltrona tântrica", "🛋️", "Móveis", tantraChaise(o.chaise)), price: 1650, link: CHAISE_LINK },
+    ...(o.rug ? [piece("suite", "Tapete ao lado da cama", "🟫", "Móveis", rug(o.rug, "#d6cfc2"))] : []),
   ];
   return roomVersion(o, ["suite"], "Suíte", "suite", pieces, "Cortina blackout na janela; quando a cama fica embaixo dela, a cortina termina em cima da cabeceira.", undefined, undefined, base);
 }
@@ -1097,11 +1098,13 @@ const SUITE: SuiteLayout = {
   notes: [
     "A cabeceira fica na parede do escritório e a TV na parede de fora, a uns 90 cm do pé da cama. A janela fica livre, do lado da cama.",
     "A poltrona tântrica preta (45 × 150 × 71 cm) fica no canto, encostada na parede do banheiro e na parede de fora, com a ponta alta no canto.",
+    "Tapete grande de 1,90 × 0,72 m do lado da cama, do lado da porta, para pisar ao levantar.",
     "A entrada pelo corredorzinho fica livre.",
   ],
   bed: [R(6.79, 0.15, 1.88, 1.28), "w"],
   tv: [R(9.59, 0.17, 0.28, 1.25), "e"],
   chaise: { x: 8.37, z: 2.23, alongX: true, flip: true },
+  rug: R(6.95, 1.48, 1.9, 0.72),
 };
 
 const SUITES: SuiteLayout[] = [
