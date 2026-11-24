@@ -28,17 +28,18 @@ function nextOn(day: number): string {
  */
 export function flowPlans(p: Property, recurrences: Recurrence[]): FlowPlan[] {
   const out: Omit<FlowPlan, "existing" | "outdated">[] = [];
-  const base = { notes: "", every: 1, propertyId: p.id } as const;
+  const base = { notes: "", every: 1 } as const;
+  const link = (role: PropertyFlow) => ({ link: { module: "imoveis" as const, id: p.id, role } });
   if (p.situation === "vendido") return [];
   const f = p.financing;
   const due = f ? nextDue(f) : null;
   if (f && isOwned(p) && f.installment > 0 && due) {
     out.push({
-      flow: "prestacao",
+      flow: "parcela",
       label: "Prestação",
       draft: {
         ...base,
-        propertyFlow: "prestacao",
+        ...link("parcela"),
         kind: "out",
         name: `Prestação ${p.name}`,
         icon: "🏦",
@@ -59,7 +60,7 @@ export function flowPlans(p: Property, recurrences: Recurrence[]): FlowPlan[] {
       label: gets ? (lease.fee ? "Aluguel recebido, sem a taxa" : "Aluguel recebido") : "Aluguel",
       draft: {
         ...base,
-        propertyFlow: "aluguel",
+        ...link("aluguel"),
         kind: gets ? "in" : "out",
         name: `Aluguel ${p.name}`,
         icon: "🏠",
@@ -75,7 +76,7 @@ export function flowPlans(p: Property, recurrences: Recurrence[]): FlowPlan[] {
       label: "Condomínio",
       draft: {
         ...base,
-        propertyFlow: "condominio",
+        ...link("condominio"),
         kind: "out",
         name: `Condomínio ${p.name}`,
         icon: "🏢",
@@ -86,7 +87,7 @@ export function flowPlans(p: Property, recurrences: Recurrence[]): FlowPlan[] {
     });
   }
   return out.map((plan) => {
-    const existing = recurrences.find((r) => r.propertyId === p.id && r.propertyFlow === plan.flow);
+    const existing = recurrences.find((r) => r.link?.module === "imoveis" && r.link.id === p.id && r.link.role === plan.flow);
     return { ...plan, existing, outdated: !!existing && Math.abs(existing.amount - plan.draft.amount) >= 0.01 };
   });
 }

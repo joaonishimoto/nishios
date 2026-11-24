@@ -485,8 +485,8 @@ function FinanceLinkCard({ property: p }: { property: Property }) {
                 size="sm"
                 variant="outline"
                 onClick={() => {
-                  const { propertyId: _a, propertyFlow: _b, ...rest } = x.draft;
-                  updateRecurrence(x.existing!.id, { ...rest, name: x.existing!.name, icon: x.existing!.icon, category: x.existing!.category, notes: x.existing!.notes, first: x.existing!.first, businessDay: x.existing!.businessDay, times: x.draft.times, kind: x.draft.kind });
+                  const { months: _m, id, ...current } = x.existing!;
+                  updateRecurrence(id, { ...current, amount: x.draft.amount });
                   toast({ message: `Valor de ${x.existing!.name} atualizado em Finanças` });
                 }}
               >

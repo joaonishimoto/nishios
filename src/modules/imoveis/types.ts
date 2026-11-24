@@ -116,5 +116,5 @@ export interface Property {
 
 export type PropertyDraft = Omit<Property, "id" | "createdAt" | "plan">;
 
-/** Lançamentos que um imóvel pode ter em Finanças. */
-export type PropertyFlow = "prestacao" | "aluguel" | "condominio" | "iptu" | "seguro";
+/** Lançamentos que um imóvel pode ter em Finanças (o `role` do link da recorrência). */
+export type PropertyFlow = "parcela" | "aluguel" | "condominio";

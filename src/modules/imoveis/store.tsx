@@ -1,47 +1,26 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
-import { markDeleted, pushPending, queuePush } from "@/lib/sync";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { usePersistentCollection } from "@/lib/collection";
 import { toISO, today } from "@/lib/dates";
 import { emptyCosts } from "./logic";
 import { MAIN_ID, mainProperty } from "./seed";
 import type { Property, PropertyDraft } from "./types";
 
 /**
- * Cada imóvel fica na sua chave, `nishios:imoveis:<id>`. Assim a sincronização (que vale a
- * última gravação de cada chave) nunca troca um imóvel inteiro por causa de outro, e editar o
- * aluguel no celular não desfaz a avaliação feita no computador em outro imóvel.
+ * Cada imóvel fica na sua chave, `nishios:imoveis:item:<id>`. Assim a sincronização (que vale
+ * a última gravação de cada chave) nunca troca um imóvel inteiro por causa de outro.
  */
-export const PROPERTY_PREFIX = "nishios:imoveis:";
-const keyOf = (id: string) => `${PROPERTY_PREFIX}${id}`;
+export const PROPERTY_PREFIX = "nishios:imoveis:item";
 
-function readAll(): Property[] {
-  const found: Property[] = [];
-  try {
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (!k?.startsWith(PROPERTY_PREFIX)) continue;
-      try {
-        const p = JSON.parse(localStorage.getItem(k) ?? "null") as Property | null;
-        if (p && typeof p === "object" && p.id) found.push(normalize(p));
-      } catch {
-        /* imóvel corrompido: fica de fora, sem derrubar os outros */
-      }
-    }
-  } catch {
-    /* sem armazenamento */
-  }
-  // O apartamento da planta existe mesmo antes de ser editado.
-  if (!found.some((p) => p.id === MAIN_ID)) found.push(mainProperty());
-  return sortProperties(found);
-}
+/** O apartamento da planta existe mesmo antes de ser editado. */
+const implicit = () => [mainProperty()];
 
 /** Preenche campos que versões antigas não tinham. */
-function normalize(p: Property): Property {
-  const base = p.id === MAIN_ID ? mainProperty() : undefined;
+function migrate(p: Property): Property {
   return {
     ...p,
     values: Array.isArray(p.values) ? p.values : [],
     costs: { ...emptyCosts(), ...(p.costs ?? {}) },
-    plan: base?.plan ?? p.plan,
+    plan: p.id === MAIN_ID ? "apartamento" : p.plan,
   };
 }
 
@@ -49,17 +28,11 @@ const ORDER: Record<Property["situation"], number> = { mora: 0, aluguel: 0, rend
 
 export function sortProperties(list: Property[]): Property[] {
   return [...list].sort(
-    (a, b) => ORDER[a.situation] - ORDER[b.situation] || a.createdAt.localeCompare(b.createdAt) || a.name.localeCompare(b.name, "pt-BR"),
+    (a, b) =>
+      ORDER[a.situation] - ORDER[b.situation] ||
+      a.createdAt.localeCompare(b.createdAt) ||
+      a.name.localeCompare(b.name, "pt-BR"),
   );
-}
-
-function write(p: Property) {
-  try {
-    localStorage.setItem(keyOf(p.id), JSON.stringify(p));
-    queuePush(keyOf(p.id));
-  } catch {
-    /* sem armazenamento: vale só nesta visita */
-  }
 }
 
 interface Store {
@@ -74,13 +47,11 @@ interface Store {
 const Ctx = createContext<Store | null>(null);
 
 export function ImoveisProvider({ children }: { children: ReactNode }) {
-  const [properties, setProperties] = useState<Property[]>(readAll);
+  const collection = usePersistentCollection<Property>(PROPERTY_PREFIX, { migrate, implicit });
+  const { items, put, patch, remove } = collection;
 
   const store = useMemo<Store>(() => {
-    const put = (p: Property) => {
-      write(p);
-      setProperties((list) => sortProperties([...list.filter((x) => x.id !== p.id), p]));
-    };
+    const properties = sortProperties(items);
     return {
       properties,
       get: (id) => properties.find((p) => p.id === id),
@@ -89,28 +60,18 @@ export function ImoveisProvider({ children }: { children: ReactNode }) {
         put(p);
         return p;
       },
-      update(id, patch) {
-        const current = properties.find((p) => p.id === id);
-        if (!current) return;
-        put({ ...current, ...patch, id });
+      update(id, changes) {
+        patch(id, (p) => ({ ...p, ...changes, id }));
       },
       remove(id) {
         // O apartamento da planta não sai: para ele, o caminho é marcar como vendido.
-        if (id === MAIN_ID) return;
-        try {
-          localStorage.removeItem(keyOf(id));
-          markDeleted([keyOf(id)]);
-          void pushPending();
-        } catch {
-          /* sem armazenamento */
-        }
-        setProperties((list) => list.filter((p) => p.id !== id));
+        if (id !== MAIN_ID) remove(id);
       },
       restore(p) {
         put(p);
       },
     };
-  }, [properties]);
+  }, [items, put, patch, remove]);
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;
 }
