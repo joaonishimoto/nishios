@@ -920,7 +920,7 @@ interface OfficeLayout {
   cabinet: { r: Rect; back: Side; name: string; tall?: boolean };
   shelves: Rect;
   lamp: [number, number, number, number];
-  rug: Rect;
+  rug?: Rect;
 }
 
 
@@ -981,7 +981,7 @@ function officeVersion(o: OfficeLayout, base: Proposal): Proposal {
     piece("quarto", o.cabinet.name, "🗄️", "Móveis", full(o.cabinet.tall ? wardrobe(o.cabinet.r, o.cabinet.back, cream) : tallCabinet(o.cabinet.r, o.cabinet.back, cream))),
     piece("quarto", "Prateleiras", "📚", "Móveis", full([1.2, 1.5, 1.8].map((y) => part(s.x, s.z, s.w, s.d, 0.03, "madeira", y, oak)))),
     piece("quarto", "Luminária de braço", "💡", "Móveis", full([part(lx, lz, 0.05, 0.05, 0.5, "metal", 0.76), part(hx, hz, s.w > s.d ? 0.2 : 0.3, s.w > s.d ? 0.3 : 0.2, 0.08, "escuro", 1.22, black)])),
-    piece("quarto", "Tapete do escritório", "🟫", "Móveis", rug(o.rug, linen)),
+    ...(o.rug ? [piece("quarto", "Tapete do escritório", "🟫", "Móveis", rug(o.rug, linen))] : []),
   ];
   return roomVersion(o, ["quarto"], "Escritório", "quarto", pieces, "Cortina blackout na janela.", undefined, undefined, base);
 }
@@ -1007,16 +1007,15 @@ const OFFICE: OfficeLayout = {
   cabinet: { r: R(4.29, 2.42, 1.51, 0.55), back: "s", name: "Guarda-roupa", tall: true },
   shelves: R(4.29, 0.5, 0.25, 1.35),
   lamp: [4.31, 0.22, 4.31, 0.22],
-  rug: R(4.97, 1.45, 0.8, 0.9),
 };
 
 
 
-// ---------- Suíte da principal ----------
-// Os mesmos móveis da principal na suíte (cama viúva, guarda-roupa, painel com TV, criado-mudo,
-// pendente, tapete e cortina). A parte grande da suíte vai de x 6,79 a 9,87 e de z -0,01 a 2,68;
-// a janela fica em cima (x 7,72 a 8,94) e a entrada vem do corredorzinho do canto de baixo
-// (x 6,79 a 7,71), que fica livre, como a porta do banheiro.
+// ---------- Suíte ----------
+// Os móveis da suíte: cama viúva, painel com TV, frigobar, poltrona tântrica e cortina. A parte
+// grande da suíte vai de x 6,79 a 9,87 e de z -0,01 a 2,68; a janela fica em cima (x 7,72 a
+// 8,94) e a entrada vem do corredorzinho do canto de baixo (x 6,79 a 7,71), que fica livre,
+// como a porta do banheiro.
 
 interface SuiteLayout {
   id: string;
@@ -1026,50 +1025,46 @@ interface SuiteLayout {
   highlight: string;
   notes: string[];
   bed: [Rect, Side];
-  wardrobe?: { r: Rect; back: Side; name: string };
-  minibar?: [Rect, Side];
-  /** Peças a mais, já montadas. */
-  extras?: Piece[];
   tv: [Rect, Side];
-  /** Criado-mudo suspenso (x, z, w, d) e o pendente em cima dele. */
-  nightstand: [number, number, number, number];
-  rug: Rect;
+  minibar: [Rect, Side];
+  /** A poltrona: canto de começo, deitada ao longo de x (senão de z), e a ponta alta no fim. */
+  chaise: { x: number; z: number; alongX?: boolean; flip?: boolean };
 }
+
+const CHAISE_LINK = "https://www.mercadolivre.com.br/poltrona-cadeira-exotica-tantra-diva-sofa-quarto-preto-desenho-do-tecido-liso/p/MLB41254058";
 
 function suiteVersion(o: SuiteLayout, base: Proposal): Proposal {
   const black = "#1c1d1f", cream = "#f1ebdf", linen = "#f3eee4";
-  const [nx, nz, nw, nd] = o.nightstand;
-  const px = nx + nw / 2 - 0.125, pz = nz + nd / 2 - 0.125;
   const { W, at } = placer(o.tv[0], o.tv[1]);
   const pieces: Piece[] = [
     piece("suite", "Cama viúva", "🛏️", "Móveis", bed(o.bed[0], o.bed[1], linen, cream, black, black)),
-    ...(o.wardrobe ? [piece("suite", o.wardrobe.name, "🚪", "Móveis", full(wardrobe(o.wardrobe.r, o.wardrobe.back)))] : []),
-    ...(o.minibar ? [{ ...piece("suite", "Frigobar Midea 93L", "🧊", "Eletrodomésticos", minibar(o.minibar[0], o.minibar[1])), assetId: OWNED.frigobar }] : []),
+    { ...piece("suite", "Frigobar Midea 93L", "🧊", "Eletrodomésticos", minibar(o.minibar[0], o.minibar[1])), assetId: OWNED.frigobar },
     piece("suite", "Painel e TV", "📺", "Eletrônicos", full([
       at(0, 0, W, 0.28, 0.32, "madeira", 0.3, cream),
       at(0.05, 0.02, W - 0.1, 0.04, 0.66, "escuro", 0.95, "#1c1f24"),
     ])),
-    piece("suite", "Criado-mudo suspenso", "🛏️", "Móveis", full([part(nx, nz, nw, nd, 0.25, "madeira", 0.42, cream)])),
-    piece("suite", "Pendente da cabeceira", "💡", "Móveis", full([part(px + 0.12, pz + 0.12, 0.01, 0.01, 2.6 - 1.3 - 0.18, "escuro", 1.48), part(px, pz, 0.25, 0.25, 0.18, "escuro", 1.3, black)])),
-    piece("suite", "Tapete ao lado da cama", "🟦", "Móveis", rug(o.rug, black)),
-    ...(o.extras ?? []),
+    { ...piece("suite", "Poltrona tântrica", "🛋️", "Móveis", tantraChaise(o.chaise)), price: 1650, link: CHAISE_LINK },
   ];
-  return roomVersion(o, ["suite"], "Suíte", "suite", pieces, "Cortina blackout na janela, terminando em cima da cabeceira.", undefined, undefined, base);
+  return roomVersion(o, ["suite"], "Suíte", "suite", pieces, "Cortina blackout na janela; quando a cama fica embaixo dela, a cortina termina em cima da cabeceira.", undefined, undefined, base);
 }
 
-
 /**
- * Poltrona tântrica (chaise em onda) de 45 × 150 × 71 cm, em couro sintético preto, deitada ao
- * longo de z a partir de (x, z): a ponta alta (71 cm) fica em z, desce no meio e sobe de novo
- * antes da outra ponta. As caixas em fatias fazem a curva, em cima de quatro pezinhos.
+ * Poltrona tântrica (chaise em onda) de 45 × 150 × 71 cm, em couro sintético preto, a partir
+ * de (x, z), deitada ao longo de z (ou de x com `alongX`). A ponta alta (71 cm) fica no começo,
+ * ou no fim com `flip`; desce no meio e sobe de novo antes da outra ponta. As caixas em fatias
+ * fazem a curva, em cima de quatro pezinhos.
  */
-function tantraChaise(x: number, z: number): Part[] {
+function tantraChaise(o: { x: number; z: number; alongX?: boolean; flip?: boolean }): Part[] {
   const W = 0.45, L = 1.5, feet = 0.05;
-  const heights = [0.6, 0.71, 0.68, 0.58, 0.47, 0.4, 0.43, 0.52, 0.58, 0.5];
+  const profile = [0.6, 0.71, 0.68, 0.58, 0.47, 0.4, 0.43, 0.52, 0.58, 0.5];
+  const heights = o.flip ? [...profile].reverse() : profile;
   const step = L / heights.length;
+  // u corre ao longo da poltrona e v na largura.
+  const at = (u: number, v: number, lu: number, lv: number, h: number, m: Material, y: number, c: string) =>
+    o.alongX ? part(o.x + u, o.z + v, lu, lv, h, m, y, c) : part(o.x + v, o.z + u, lv, lu, h, m, y, c);
   return [
-    ...heights.map((h, i) => part(x, z + i * step, W, step, h - feet, "tecido", feet, "#1c1d1f")),
-    ...[[0.03, 0.05], [W - 0.07, 0.05], [0.03, L - 0.09], [W - 0.07, L - 0.09]].map(([u, v]) => part(x + u, z + v, 0.04, 0.04, feet, "escuro", 0, "#111214")),
+    ...heights.map((h, i) => at(i * step, 0, step, W, h - feet, "tecido", feet, "#1c1d1f")),
+    ...[[0.05, 0.03], [0.05, W - 0.07], [L - 0.09, 0.03], [L - 0.09, W - 0.07]].map(([u, v]) => at(u, v, 0.04, 0.04, feet, "escuro", 0, "#111214")),
   ];
 }
 
@@ -1079,30 +1074,92 @@ const SUITE: SuiteLayout = {
   label: "Principal",
   name: G4.name,
   tagline: G4.tagline,
-  highlight: "Suíte: cama viúva com a cabeceira embaixo da janela, TV na parede do banheiro com o frigobar do lado, e a poltrona tântrica preta na parede do escritório, sem guarda-roupa.",
+  highlight: "Suíte: cama viúva com a cabeceira embaixo da janela, TV na parede do banheiro com o frigobar do lado, e a poltrona tântrica preta na parede do escritório.",
   notes: [
     "A cama fica com a cabeceira embaixo da janela, no meio do quarto, e a TV na parede do banheiro, de frente para ela.",
     "O frigobar fica do lado da TV, no canto da parede do banheiro com a parede de fora, com a porta abrindo para o quarto.",
-    "Sem guarda-roupa por enquanto. Na parede do escritório fica a poltrona tântrica preta (45 × 150 × 71 cm), com a ponta alta do lado da janela e uns 60 cm livres até a cama.",
-    "Criado-mudo e pendente do lado de fora da cama, com o tapete desse lado.",
+    "Na parede do escritório fica a poltrona tântrica preta (45 × 150 × 71 cm), com a ponta alta do lado da janela e uns 60 cm livres até a cama.",
   ],
   bed: [R(7.9, -0.01, 1.28, 1.88), "n"],
   tv: [R(7.92, 2.4, 1.25, 0.28), "s"],
   minibar: [R(9.37, 2.17, 0.48, 0.5), "s"],
-  extras: [{
-    ...piece("suite", "Poltrona tântrica", "🛋️", "Móveis", tantraChaise(6.85, 0.35)),
-    price: 1650,
-    link: "https://www.mercadolivre.com.br/poltrona-cadeira-exotica-tantra-diva-sofa-quarto-preto-desenho-do-tecido-liso/p/MLB41254058",
-  }],
-  nightstand: [9.27, 0.02, 0.38, 0.42],
-  rug: R(9.22, 0.5, 0.6, 1.35),
+  chaise: { x: 6.85, z: 0.35 },
 };
+
+const SUITES: SuiteLayout[] = [
+  {
+    id: "sui1",
+    label: "Suíte 1",
+    name: "Suíte com a cabeceira na parede de fora",
+    tagline: "A cama com a cabeceira na parede de fora, a TV na parede do escritório e a poltrona na parede do banheiro.",
+    highlight: "Suíte: cabeceira na parede de fora, TV na parede do escritório, poltrona tântrica na parede do banheiro e frigobar no canto dela.",
+    notes: [
+      "A cama volta para a cabeceira na parede de fora, perto da janela, e a TV vai para a parede do escritório, de frente para ela.",
+      "A poltrona fica deitada ao longo da parede do banheiro, com a ponta alta do lado do frigobar, que fica no canto.",
+      "A entrada pelo corredorzinho fica livre, entre a TV e a poltrona.",
+    ],
+    bed: [R(7.99, 0.15, 1.88, 1.28), "e"],
+    tv: [R(6.79, 0.17, 0.28, 1.25), "w"],
+    minibar: [R(9.37, 2.17, 0.48, 0.5), "s"],
+    chaise: { x: 7.78, z: 2.2, alongX: true, flip: true },
+  },
+  {
+    id: "sui2",
+    label: "Suíte 2",
+    name: "Suíte com a cabeceira na parede do escritório",
+    tagline: "A cama com a cabeceira na parede do escritório, a TV na parede de fora e a poltrona na parede do banheiro.",
+    highlight: "Suíte: cabeceira na parede do escritório, TV na parede de fora, poltrona tântrica na parede do banheiro e frigobar no canto dela.",
+    notes: [
+      "A cabeceira vai para a parede do escritório e a TV para a parede de fora, a uns 90 cm do pé da cama.",
+      "A poltrona fica deitada ao longo da parede do banheiro, logo depois da entrada, com o frigobar no canto.",
+      "A janela fica livre, do lado da cama.",
+    ],
+    bed: [R(6.79, 0.15, 1.88, 1.28), "w"],
+    tv: [R(9.59, 0.17, 0.28, 1.25), "e"],
+    minibar: [R(9.37, 2.17, 0.48, 0.5), "s"],
+    chaise: { x: 7.78, z: 2.2, alongX: true, flip: true },
+  },
+  {
+    id: "sui3",
+    label: "Suíte 3",
+    name: "Suíte com a poltrona na parede de fora",
+    tagline: "A cabeceira embaixo da janela, mais para o lado do escritório, com a poltrona na parede de fora e o frigobar no canto da janela.",
+    highlight: "Suíte: cabeceira embaixo da janela, mais para o lado do escritório, TV na parede do banheiro, frigobar no canto da janela e poltrona tântrica na parede de fora.",
+    notes: [
+      "A cama fica embaixo da janela, mais para o lado do escritório, e a TV na parede do banheiro.",
+      "O frigobar vai para o canto da janela com a parede de fora, e a poltrona fica logo depois dele, ao longo da parede de fora, com uns 65 cm livres até a cama.",
+      "Sobra a parede do escritório livre, perto da entrada.",
+    ],
+    bed: [R(7.45, -0.01, 1.28, 1.88), "n"],
+    tv: [R(7.8, 2.4, 1.25, 0.28), "s"],
+    minibar: [R(9.37, 0.0, 0.48, 0.5), "n"],
+    chaise: { x: 9.4, z: 0.7 },
+  },
+  {
+    id: "sui4",
+    label: "Suíte 4",
+    name: "Suíte com a poltrona embaixo da janela",
+    tagline: "A cama perto da parede do banheiro, a poltrona embaixo da janela e o frigobar no canto dela.",
+    highlight: "Suíte: cama com a cabeceira na parede de fora, perto do banheiro, TV na parede do escritório, poltrona tântrica embaixo da janela e frigobar no canto da janela.",
+    notes: [
+      "A cama desce para perto da parede do banheiro, com a cabeceira na parede de fora, e a TV fica na parede do escritório.",
+      "A poltrona fica embaixo da janela, deitada ao longo dela, e o frigobar no canto da janela com a parede de fora.",
+      "Sobram uns 75 cm entre a poltrona e a cama.",
+    ],
+    bed: [R(7.99, 1.3, 1.88, 1.28), "e"],
+    tv: [R(6.79, 1.0, 0.28, 1.25), "w"],
+    minibar: [R(9.37, 0.0, 0.48, 0.5), "n"],
+    chaise: { x: 7.75, z: 0.1, alongX: true },
+  },
+];
+
+const BASE_WITH_OFFICE = officeVersion(OFFICE, G4);
 
 /**
  * A principal: a G4 com o escritório e a suíte acima. A Vazia sempre tira as cores da
  * principal (pisos de dentro e de fora), então muda sozinha se a principal mudar.
  */
-export const MAIN: Proposal = { ...suiteVersion(SUITE, officeVersion(OFFICE, G4)), name: G4.name, tagline: G4.tagline, label: "Principal", room: undefined };
+export const MAIN: Proposal = { ...suiteVersion(SUITE, BASE_WITH_OFFICE), name: G4.name, tagline: G4.tagline, label: "Principal", room: undefined };
 
 /** A principal sem a hidromassagem: o canto da hidro fica vazio, só com o piso. */
 function withoutTub(): Proposal {
@@ -1122,7 +1179,7 @@ function withoutTub(): Proposal {
   };
 }
 
-export const PROPOSALS: Proposal[] = [MAIN, fixCurtains(withoutTub())];
+export const PROPOSALS: Proposal[] = [MAIN, fixCurtains(withoutTub()), ...SUITES.map((o) => suiteVersion(o, BASE_WITH_OFFICE))];
 
 /**
  * A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam).
