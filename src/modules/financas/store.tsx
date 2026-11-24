@@ -10,7 +10,7 @@ export const INVESTMENTS_KEY = "nishios:financas:investimentos:v1";
 interface Store {
   recurrences: Recurrence[];
   investments: Investment[];
-  createRecurrence: (draft: RecurrenceDraft) => void;
+  createRecurrence: (draft: RecurrenceDraft) => Recurrence;
   updateRecurrence: (id: string, draft: RecurrenceDraft) => void;
   removeRecurrence: (id: string) => void;
   restoreRecurrence: (rec: Recurrence) => void;
@@ -38,7 +38,9 @@ export function FinancasProvider({ children }: { children: ReactNode }) {
       recurrences,
       investments,
       createRecurrence(draft) {
-        setRecurrences((list) => [...list, { ...draft, id: crypto.randomUUID() }]);
+        const rec: Recurrence = { ...draft, id: crypto.randomUUID() };
+        setRecurrences((list) => [...list, rec]);
+        return rec;
       },
       updateRecurrence(id, draft) {
         setRecurrences((list) => list.map((r) => (r.id === id ? { ...r, ...draft } : r)));
