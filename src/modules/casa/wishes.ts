@@ -148,11 +148,11 @@ export function wishesFor(
       id: crypto.randomUUID(),
       name: label,
       icon: list[0].icon,
-      price: estimate(name) * list.length,
+      price: (list[0].price ?? estimate(name)) * list.length,
       priority: "medium",
       targetDate: "",
-      link: "",
-      notes: `${from}, ${rooms}. Preço estimado.`,
+      link: list[0].link ?? "",
+      notes: `${from}, ${rooms}. ${list[0].price ? "Preço do link." : "Preço estimado."}`,
     });
   }
   return out;

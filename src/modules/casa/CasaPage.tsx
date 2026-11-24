@@ -566,7 +566,9 @@ function RoomPanel({
                         {proposal
                           ? isWished(piece)
                             ? "Na lista de desejos"
-                            : estimate(piece.name) > 0
+                            : piece.price
+                              ? money(piece.price)
+                              : estimate(piece.name) > 0
                               ? `Cerca de ${money(estimate(piece.name))}`
                               : "Da proposta"
                           : asset
