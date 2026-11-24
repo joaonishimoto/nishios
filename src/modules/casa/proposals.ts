@@ -587,7 +587,7 @@ function extraG(): Extra {
     highlights: [
       "Área de fora: hidromassagem branca de 2,00 × 1,50 m com deque em volta, embaixo do telhado. A área coberta fica com a churrasqueira a bafo de carrinho no canto.",
       "Cozinha em L com bancada de ponta a ponta, cooktop de 4 bocas e armários em cima e embaixo. A máquina de lavar fica embaixo da bancada, no canto da janela, e a pia vai para o lado da geladeira.",
-      "Área externa com grama e, na ponta do lado da suíte, um balcão de pedra sob medida de parede a parede, com uma pia que serve de tanque e uma bancada de corte.",
+      "Área externa com grama e, na ponta do lado da suíte, um balcão preto sob medida de parede a parede, fechado embaixo, com uma pia que serve de tanque e uma bancada.",
     ],
     replaceNotes: ["servicoext", "coberta", "externa", "cozinha"],
     replaceOutdoorHighlight: true,
@@ -612,7 +612,7 @@ function extraG(): Extra {
         "A passagem da varanda até a área externa continua aberta.",
         "Os gatos continuam podendo ficar aqui fora sem tomar chuva.",
       ],
-      externa: ["Grama da área coberta até o fundo.", "Na ponta do lado da suíte, um balcão de pedra cortada sob medida, de 60 cm de fundo, ocupando toda a largura de 1,45 m entre a casa e o muro, aberto embaixo.", "A cuba funda fica do lado da casa, perto da água e do esgoto, e serve de tanque. O resto é bancada de corte, até o muro."],
+      externa: ["Grama da área coberta até o fundo.", "Na ponta do lado da suíte, um balcão todo preto sob medida, de 60 cm de fundo, ocupando toda a largura de 1,45 m entre a casa e o muro: tampo de granito preto e armário fechado embaixo, com três portas, para guardar as coisas.", "A cuba funda fica do lado da casa, perto da água e do esgoto, e serve de tanque. O resto é bancada livre, até o muro."],
     },
     outdoorChanges: { servicoext: { name: "Hidro", floor: "pedra" } },
     drop: ["servicoext:Tanque", "servicoext:Máquina de lavar", "servicoext:Armário de serviço", "cozinha:Bancada planejada", "servico:Pia"],
@@ -636,21 +636,23 @@ function extraG(): Extra {
       { ...piece("cozinha", "Pia", "🚰", "Móveis", [part(-0.01, 2.5, 0.61, 0.9, 0.9, "madeira", 0, cab)]), fixture: { kind: "bancada", x: -0.01, z: 2.5, w: 0.61, d: 0.9, wall: "w", colors: { cabinet: cab, stone } } },
       piece("servicoext", "Hidromassagem", "🛁", "Móveis", deckedTub(R(0.02, EXT.z0 + 0.03, 2.43, 1.72), R(0.14, -1.42, 2.0, 1.5))),
       piece("servicoext", "Painel ripado", "🪵", "Obras", [...slatScreen(R(-0.01, EXT.z0, 2.46, 0.03)), ...slatScreen(R(-0.01, EXT.z0, 0.03, 1.75))]),
-      // Balcão de pedra cortada sob medida na ponta da área externa, do lado da suíte, de
-      // parede a parede: cuba funda que serve de tanque do lado da casa e o resto de bancada
-      // de corte. Pedra apoiada em três pés de pedra, aberto embaixo.
+      // Balcão preto sob medida na ponta da área externa, do lado da suíte, de parede a parede:
+      // armário fechado embaixo com três portas, tampo de granito preto, cuba funda que serve de
+      // tanque do lado da casa e o resto de bancada.
       piece("externa", "Balcão de pedra com pia", "🪨", "Obras", [
-        part(EXT.x1 - 0.6, EXT.z0, 0.6, EXT.z1 - EXT.z0, 0.04, "pedra", 0.86, stone),
-        part(EXT.x1 - 0.6, EXT.z0, 0.6, 0.04, 0.86, "pedra", 0, stone),
-        part(EXT.x1 - 0.6, -0.86, 0.6, 0.04, 0.86, "pedra", 0, stone),
-        part(EXT.x1 - 0.6, EXT.z1 - 0.04, 0.6, 0.04, 0.86, "pedra", 0, stone),
-        part(EXT.x1 - 0.62, EXT.z0, 0.02, EXT.z1 - EXT.z0, 0.1, "pedra", 0.8, stone),
-        // Cuba funda (tanque) no lado da casa, com torneira alta na parede.
-        part(EXT.x1 - 0.52, -0.66, 0.42, 0.48, 0.3, "branco", 0.6, "#e9e6e0"),
-        part(EXT.x1 - 0.5, -0.64, 0.38, 0.44, 0.012, "escuro", 0.895, "#2a2a2c"),
-        ...full([part(EXT.x1 - 0.06, -0.44, 0.03, 0.03, 0.35, "metal", 0.9), part(EXT.x1 - 0.2, -0.44, 0.17, 0.03, 0.03, "metal", 1.22)]),
-        // Tábua de corte em cima da bancada.
-        part(EXT.x1 - 0.48, -1.35, 0.3, 0.4, 0.02, "madeira", 0.9, "#b98a5a"),
+        part(EXT.x1 - 0.6, EXT.z0, 0.6, EXT.z1 - EXT.z0, 0.86, "madeira", 0, "#1c1d1f"),
+        part(EXT.x1 - 0.6, EXT.z0, 0.6, EXT.z1 - EXT.z0, 0.04, "pedra", 0.86, "#121213"),
+        part(EXT.x1 - 0.62, EXT.z0, 0.02, EXT.z1 - EXT.z0, 0.08, "pedra", 0.82, "#121213"),
+        // Rodapé recuado e as frestas entre as portas, com puxadores pretos.
+        part(EXT.x1 - 0.6, EXT.z0, 0.01, EXT.z1 - EXT.z0, 0.08, "escuro", 0, "#0d0d0e"),
+        part(EXT.x1 - 0.606, -1.08, 0.006, 0.008, 0.7, "escuro", 0.1, "#3a3b3e"),
+        part(EXT.x1 - 0.606, -0.59, 0.006, 0.008, 0.7, "escuro", 0.1, "#3a3b3e"),
+        part(EXT.x1 - 0.62, -1.14, 0.02, 0.02, 0.18, "metal", 0.6, "#2e2f31"),
+        part(EXT.x1 - 0.62, -1.02, 0.02, 0.02, 0.18, "metal", 0.6, "#2e2f31"),
+        part(EXT.x1 - 0.62, -0.53, 0.02, 0.02, 0.18, "metal", 0.6, "#2e2f31"),
+        // Cuba funda (tanque) no lado da casa, com torneira preta alta na parede.
+        part(EXT.x1 - 0.5, -0.64, 0.38, 0.44, 0.012, "escuro", 0.895, "#050505"),
+        ...full([part(EXT.x1 - 0.06, -0.44, 0.03, 0.03, 0.35, "metal", 0.9, "#222"), part(EXT.x1 - 0.2, -0.44, 0.17, 0.03, 0.03, "metal", 1.22, "#222")]),
       ]),
       // Churrasqueira a bafo a carvão Naterial Centaurus Beta II (108 × 112 × 65 cm) no canto
       // da área coberta, junto do muro, de frente para a casa: carrinho preto com puxador de
@@ -690,7 +692,7 @@ function recolor(base: Proposal, o: { id: string; name: string; tagline: string;
   };
 }
 
-const KEEP_COLORS = ["Hidromassagem", "Espelheira", "Telhado inclinado", "Máquina de lavar", "Painel ripado", "Balcão na mureta"];
+const KEEP_COLORS = ["Hidromassagem", "Espelheira", "Telhado inclinado", "Máquina de lavar", "Painel ripado", "Balcão na mureta", "Balcão de pedra com pia"];
 
 /**
  * G4: a G completa cômodo por cômodo, com o que faltava, sem lotar nem fechar passagem, e
