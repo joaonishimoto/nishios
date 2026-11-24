@@ -308,8 +308,8 @@ function proposalJ(start = 600): Proposal {
         "Entre o sofá e o móvel da TV sobra 1,2 m para chegar à porta de vidro.",
         "Atrás do sofá, na abertura da cozinha, uma mureta de 1 m (um pouco mais alta que o encosto, de 78 cm) com um balcãozinho de pedra de 32 cm. Ele avança para o lado da cozinha, onde ainda sobram uns 80 cm de passagem.",
         "Mesa de 1,40 × 0,80 m para 4: duas cadeiras de cada lado, com 70 cm por pessoa, e as pontas livres.",
-        "Ela fica no meio da parte de baixo da sala, longe do sofá e da cozinha: entre a cozinha e a ponta da mesa sobram 80 cm livres, e a entrada fica desimpedida.",
-        "Da mesa até a parede de baixo ficam 62 cm, o suficiente para sentar. O caminho da entrada para os quartos passa por cima da mesa, com uns 50 cm, e pela ponta do lado do banheiro, com 70 cm.",
+        "Ela fica com a ponta perto da parede do lado do banheiro, a 15 cm do espelho, e o lado da porta de entrada fica livre para o banco sapateira e o tapete.",
+        "Da mesa até a parede de baixo ficam 62 cm, o suficiente para sentar. O caminho da entrada para os quartos passa por cima da mesa, atrás das cadeiras, com uns 45 cm.",
       ],
       cozinha: [
         "Bancada planejada de 60 cm de fundo, do canto do shaft até a geladeira (2,5 m), com cooktop de indução e armários embaixo e aéreos em cima.",
@@ -375,10 +375,10 @@ function proposalJ(start = 600): Proposal {
         ...[1.07, 2.29, 2.66, 3.03].map((z) => part(0.34, z, 0.006, 0.008, 0.66, "escuro", 1.52, "#6b5a48")),
       ])),
       piece("cozinha", "Geladeira", "🧊", "Eletrodomésticos", full(fridge(R(-0.01, 3.42, 0.7, 0.66), "w"))),
-      piece("estar", "Mesa de jantar", "🍽️", "Móveis", table(R(3.0, 4.0, 1.4, 0.8), white, "#e2e2de")),
+      piece("estar", "Mesa de jantar", "🍽️", "Móveis", table(R(4.1, 4.0, 1.4, 0.8), white, "#e2e2de")),
       piece("estar", "Cadeiras", "🪑", "Móveis", [
-        ...seatJ(3.18, 3.53, "n"), ...seatJ(3.78, 3.53, "n"),
-        ...seatJ(3.18, 4.83, "s"), ...seatJ(3.78, 4.83, "s"),
+        ...seatJ(4.28, 3.53, "n"), ...seatJ(4.88, 3.53, "n"),
+        ...seatJ(4.28, 4.83, "s"), ...seatJ(4.88, 4.83, "s"),
       ]),
       piece("jantar", "Sofá 2 lugares", "🛋️", "Móveis", sofa(R(1.7, 1.55, 0.9, 1.7), "w", nishi, 2, nishi)),
       // Mureta de 1 m na abertura da cozinha, atrás do sofá, com um balcãozinho de pedra em cima.
@@ -430,13 +430,6 @@ function bafoGrill(x: number, z: number): Part[] {
 // externa do fundo (x 4,79 a 9,87, com 1,45 m entre a casa e o muro).
 
 const EXT = { x0: 4.79, x1: 9.87, z0: -1.56, z1: -0.11 };
-
-function plant(x: number, z: number, size = 0.4, tall = 0.9): Part[] {
-  return [
-    part(x, z, size, size, 0.35, "pedra", 0, "#cfc8bc"),
-    part(x + size * 0.1, z + size * 0.1, size * 0.8, size * 0.8, tall - 0.35, "planta", 0.35),
-  ];
-}
 
 function rug(r: Rect, color: string): Part[] {
   return [part(r.x, r.z, r.w, r.d, 0.012, "tapete", 0, color)];
@@ -514,11 +507,9 @@ function bathrooms(towel: string, mat: string): Piece[] {
   ];
 }
 
-/** Sala: uma planta no canto do lado do banheiro (a mesa fica sem tapete). */
+/** Sala: sem extras por enquanto (a mesa fica sem tapete e sem planta no canto). */
 function salaExtras(_rugColor: string): Piece[] {
-  return [
-    piece("estar", "Planta grande", "🪴", "Plantas", plant(5.2, 4.95, 0.42, 1.4)),
-  ];
+  return [];
 }
 
 interface Extra {
@@ -574,7 +565,7 @@ const externa = (floor: FloorKind, catio = false) => garden("externa", "Área ex
 const BATH_NOTES = {
   banhosuite: ["Espelheira em cima da pia, toalheiro na parede do lado do box e um tapete na saída do box."],
   banho: ["Espelheira em cima da pia, toalheiro do lado do box e tapete na saída do box. A porta abre encostada na parede da pia sem bater em nada."],
-  estar: ["Mesa sem tapete embaixo, com duas cadeiras de cada lado e as pontas livres, e uma planta grande no canto do lado do banheiro."],
+  estar: ["Mesa sem tapete embaixo, com duas cadeiras de cada lado e as pontas livres."],
 };
 
 function extraG(): Extra {
@@ -719,19 +710,22 @@ function proposalG4(): Proposal {
     ]),
     piece("quarto", "Tapete do escritório", "🟫", "Móveis", rug(R(5.05, 1.15, 1.15, 0.95), linen)),
     // Sala
-    piece("estar", "Pendentes da mesa", "💡", "Móveis", [...pendant(3.3, 4.27, 1.6), ...pendant(3.85, 4.27, 1.6)]),
-    piece("estar", "Espelho grande", "🪞", "Móveis", full([part(3.0, 5.4, 1.4, 0.02, 1.1, "vidro", 0.9, "#d7e6ea"), part(2.98, 5.41, 1.44, 0.01, 1.14, "metal", 0.88)])),
+    piece("estar", "Pendentes da mesa", "💡", "Móveis", [...pendant(4.4, 4.27, 1.6), ...pendant(4.95, 4.27, 1.6)]),
+    // Espelho na parede do lado do banheiro inteira, do rodapé até 2,10 m, atrás da ponta da mesa.
+    piece("estar", "Espelho grande", "🪞", "Móveis", full([part(5.63, 4.14, 0.02, 1.26, 2.0, "vidro", 0.1, "#d7e6ea"), part(5.64, 4.12, 0.01, 1.3, 2.04, "metal", 0.08)])),
     piece("jantar", "Tapete do sofá", "🟦", "Móveis", rug(R(2.65, 1.7, 1.1, 1.4), linen)),
-    // Banco sapateira na parede de baixo da sala, entre o espelho e a planta: dá para
-    // sentar para tirar o tênis e deixar os pares nos dois nichos de baixo.
+    // Banco sapateira logo depois da porta de entrada, na parede de baixo, fora do giro da porta:
+    // dá para sentar para tirar o tênis e deixar os pares nos dois nichos de baixo.
     piece("estar", "Banco sapateira", "👟", "Móveis", [
-      part(4.47, 5.07, 0.7, 0.35, 0.45, "madeira", 0, white),
-      part(4.5, 5.066, 0.31, 0.004, 0.3, "escuro", 0.08, "#3a3b3e"),
-      part(4.83, 5.066, 0.31, 0.004, 0.3, "escuro", 0.08, "#3a3b3e"),
-      part(4.53, 5.1, 0.25, 0.28, 0.1, "tecido", 0.1, "#2b2b2d"),
-      part(4.86, 5.1, 0.25, 0.28, 0.1, "tecido", 0.1, "#e9e4da"),
-      part(4.47, 5.07, 0.7, 0.35, 0.06, "tecido", 0.45, linen),
+      part(2.65, 5.07, 0.7, 0.35, 0.45, "madeira", 0, white),
+      part(2.68, 5.066, 0.31, 0.004, 0.3, "escuro", 0.08, "#3a3b3e"),
+      part(3.01, 5.066, 0.31, 0.004, 0.3, "escuro", 0.08, "#3a3b3e"),
+      part(2.71, 5.1, 0.25, 0.28, 0.1, "tecido", 0.1, "#2b2b2d"),
+      part(3.04, 5.1, 0.25, 0.28, 0.1, "tecido", 0.1, "#e9e4da"),
+      part(2.65, 5.07, 0.7, 0.35, 0.06, "tecido", 0.45, linen),
     ]),
+    // Tapete de entrada fino na frente da porta, por dentro: a porta passa por cima dele.
+    piece("estar", "Tapete de entrada", "🟫", "Móveis", rug(R(1.72, 4.47, 0.6, 0.8), "#2b2b2d")),
     // Cozinha
     piece("cozinha", "Passadeira", "🟦", "Móveis", rug(R(0.75, 1.1, 0.55, 1.3), nishi)),
     // Coifa de parede em inox no vão entre os aéreos, 65 cm acima do cooktop, com a chaminé até o teto.
@@ -759,7 +753,7 @@ function proposalG4(): Proposal {
         "Cortina blackout na janela e um tapete no meio, deixando a porta abrir livre.",
         "O frigobar fica no canto do pé da cama, encostado na parede da janela e antes do armário.",
       ],
-      estar: ["Dois pendentes pretos em cima da mesa de jantar e um espelho de 1,40 m atrás dela, que deixa a sala parecer maior.", "Banco sapateira de 70 × 35 cm com assento estofado na parede de baixo, entre o espelho e a planta, à vista de quem entra: quem chega senta, tira o tênis e deixa nos nichos de baixo."],
+      estar: ["Dois pendentes pretos em cima da mesa de jantar.", "Espelho na parede do lado do banheiro inteira (1,30 × 2,10 m), atrás da ponta da mesa: deixa a sala parecer bem maior.", "Logo depois da porta de entrada, fora do giro dela: um tapete fino de 60 × 80 cm e o banco sapateira de 70 × 35 cm com assento estofado na parede de baixo. Quem chega pisa no tapete, senta, tira o tênis e deixa nos nichos de baixo."],
       jantar: ["Tapete entre o sofá e a TV, sem mesa de centro, para não fechar o caminho de 1,2 m até a porta de vidro."],
       cozinha: ["Passadeira preta no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto.", "Aéreos refeitos numa linha só, com o topo a 2,30 m: módulo no canto do shaft, vão da coifa, torre mais funda com o micro-ondas embutido e porta basculante em cima, dois módulos em cima da pia com luz embaixo e um armário fundo em cima da geladeira, fechado por um painel lateral. A bancada fica livre.", "O purificador fica na bancada da máquina de lavar, na ponta do lado do shaft, perto do ponto de água."],
       banho: ["Armário em cima do vaso e nicho dentro do box."],
