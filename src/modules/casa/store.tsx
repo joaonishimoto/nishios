@@ -23,9 +23,13 @@ const Ctx = createContext<Store | null>(null);
 
 export function CasaProvider({ children }: { children: ReactNode }) {
   const [saved, setHome] = usePersistentState<Home>(KEY, seedHome);
-  // As portas são da construção e ninguém as edita: vêm sempre do seed, para uma mudança nelas
-  // (como a porta de entrada fechada) chegar sem trocar a chave e perder os bens ligados.
-  const home = useMemo(() => ({ ...saved, doors: seedHome().doors }), [saved]);
+  // Paredes e portas são da construção e ninguém as edita: vêm sempre do seed, para uma mudança
+  // nelas (como a porta de entrada fechada ou a parede em cima de uma porta) chegar sem trocar a
+  // chave e perder os bens ligados.
+  const home = useMemo(() => {
+    const seed = seedHome();
+    return { ...saved, walls: seed.walls, doors: seed.doors };
+  }, [saved]);
 
   const store = useMemo<Store>(
     () => ({
