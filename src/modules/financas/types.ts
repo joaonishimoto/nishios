@@ -35,6 +35,9 @@ export interface Recurrence {
   investmentId?: string;
   /** Custo de um bem (seguro do carro, plano do celular). */
   assetId?: string;
+  /** Prestação, aluguel ou custo de um imóvel, e qual deles. */
+  propertyId?: string;
+  propertyFlow?: "prestacao" | "aluguel" | "condominio" | "iptu" | "seguro";
   /** Por mês (yyyy-MM): confirmado e valor ajustado. */
   months?: Record<string, MonthMark>;
   notes: string;

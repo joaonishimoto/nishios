@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AppShell } from "@/components/shell/AppShell";
 import { ToastProvider } from "@/components/ui/Toast";
 import { CalendarioPage } from "@/modules/calendario/CalendarioPage";
@@ -7,8 +7,11 @@ import { CompromissosPage } from "@/modules/compromissos/CompromissosPage";
 import { CommitmentsProvider } from "@/modules/compromissos/store";
 import { BensPage } from "@/modules/bens/BensPage";
 import { BensProvider } from "@/modules/bens/store";
-import { CasaPage } from "@/modules/casa/CasaPage";
 import { CasaProvider } from "@/modules/casa/store";
+import { ImoveisPage } from "@/modules/imoveis/ImoveisPage";
+import { ImovelPage } from "@/modules/imoveis/ImovelPage";
+import { MAIN_ID } from "@/modules/imoveis/seed";
+import { ImoveisProvider } from "@/modules/imoveis/store";
 import { PessoasPage } from "@/modules/pessoas/PessoasPage";
 import { PeopleProvider } from "@/modules/pessoas/store";
 import { PetsPage } from "@/modules/pets/PetsPage";
@@ -48,6 +51,7 @@ export function App() {
           <RoutineProvider>
           <BensProvider>
           <CasaProvider>
+          <ImoveisProvider>
           <PeopleProvider>
           <PetsProvider>
           <Routes>
@@ -60,7 +64,9 @@ export function App() {
               <Route path="treinos" element={<TreinosPage />} />
               <Route path="corpo" element={<CorpoPage />} />
               <Route path="bens" element={<BensPage />} />
-              <Route path="casa" element={<CasaPage />} />
+              <Route path="imoveis" element={<ImoveisPage />} />
+              <Route path="imoveis/:id" element={<ImovelPage />} />
+              <Route path="casa" element={<CasaRedirect />} />
               <Route path="pessoas" element={<PessoasPage />} />
               <Route path="pets" element={<PetsPage />} />
               <Route path="skills" element={<SkillsPage />} />
@@ -73,6 +79,7 @@ export function App() {
           </Routes>
           </PetsProvider>
           </PeopleProvider>
+          </ImoveisProvider>
           </CasaProvider>
           </BensProvider>
           </RoutineProvider>
@@ -88,4 +95,12 @@ export function App() {
       </ToastProvider>
     </BrowserRouter>
   );
+}
+
+/** A antiga página Casa virou a planta do apartamento, dentro de Imóveis. Links antigos continuam valendo. */
+function CasaRedirect() {
+  const { search } = useLocation();
+  const params = new URLSearchParams(search);
+  params.set("aba", "planta");
+  return <Navigate to={`/imoveis/${MAIN_ID}?${params}`} replace />;
 }

@@ -168,7 +168,7 @@ function PetDetail({ pet, onEdit }: { pet: Pet; onEdit: () => void }) {
           <div className="flex flex-wrap items-center gap-2">
             {PETS_IN_HOUSE.includes(pet.id) && (
               <Link
-                to="/casa"
+                to="/imoveis/apartamento?aba=planta"
                 className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium text-primary hover:bg-surface-hover"
               >
                 <Sofa className="size-4" aria-hidden />
