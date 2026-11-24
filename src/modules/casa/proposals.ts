@@ -66,16 +66,21 @@ function placer(r: Rect, back: Side) {
 
 const R = (x: number, z: number, w: number, d: number): Rect => ({ x, z, w, d });
 
-function bed(r: Rect, back: Side, duvet: string, frame = "#9a6b45", pillow?: string, headboard = frame): Part[] {
+/** Largura do travesseiro da cama viúva (1,28 m), usada também quando a cama tem um só. */
+const PILLOW_W = 1.28 / 2 - 0.15;
+
+function bed(r: Rect, back: Side, duvet: string, frame = "#9a6b45", pillow?: string, headboard = frame, pillows = 2): Part[] {
   const { W, D, at } = placer(r, back);
+  const pm = pillow ? "tecido" : "branco";
   return [
     // A base começa depois da cabeceira, para as duas não se atravessarem.
     at(0, 0.07, W, D - 0.07, 0.28, "madeira", 0, frame),
     at(0, 0, W, 0.07, 1.0, headboard === frame ? "madeira" : "tecido", 0, headboard),
     at(0.04, 0.08, W - 0.08, D - 0.12, 0.2, "branco", 0.28),
     at(0.02, 0.62, W - 0.04, D - 0.66, 0.05, "tecido", 0.48, duvet),
-    at(0.1, 0.14, W / 2 - 0.15, 0.36, 0.1, pillow ? "tecido" : "branco", 0.48, pillow),
-    at(W / 2 + 0.05, 0.14, W / 2 - 0.15, 0.36, 0.1, pillow ? "tecido" : "branco", 0.48, pillow),
+    ...(pillows === 1
+      ? [at(W / 2 - PILLOW_W / 2, 0.14, PILLOW_W, 0.36, 0.1, pm, 0.48, pillow)]
+      : [at(0.1, 0.14, W / 2 - 0.15, 0.36, 0.1, pm, 0.48, pillow), at(W / 2 + 0.05, 0.14, W / 2 - 0.15, 0.36, 0.1, pm, 0.48, pillow)]),
   ];
 }
 
@@ -977,7 +982,7 @@ function officeVersion(o: OfficeLayout, base: Proposal): Proposal {
   const black = "#1c1d1f", cream = "#f1ebdf", linen = "#f3eee4", oak = "#d8c3a2";
   const s = o.shelves;
   const pieces: Piece[] = [
-    piece("quarto", "Cama de solteiro", "🛏️", "Móveis", bed(o.bed[0], o.bed[1], linen, cream, black, black)),
+    piece("quarto", "Cama de solteiro", "🛏️", "Móveis", bed(o.bed[0], o.bed[1], linen, cream, black, black, 1)),
     piece("quarto", "Gavetas embaixo da cama", "🗃️", "Móveis", o.drawers.map(([x, z, w, d]) => part(x, z, w, d, 0.2, "madeira", 0.06, cream))),
     piece("quarto", "Mesa com computador", "💻", "Móveis", desk(o.desk[0], o.desk[1], "#1f1f22", "#2b2b2e", 2)),
     piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(o.chair[0], o.chair[1], "#1f1f22", o.chair[2])),
