@@ -44,6 +44,8 @@ export const COUNTED: { key: string; one: string; many: string }[] = [
 /** Listas salvas com uma chave por registro (`<prefixo>:<id>`), veja lib/collection.ts. */
 export const COUNTED_COLLECTIONS: { prefix: string; one: string; many: string }[] = [
   { prefix: "nishios:veiculos:item", one: "veículo", many: "veículos" },
+  // O apartamento da planta volta em branco (é implícito); a planta e os móveis ficam.
+  { prefix: "nishios:imoveis:item", one: "imóvel", many: "imóveis" },
 ];
 
 function keys(): string[] {
