@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { markDeleted, queuePush } from "./sync";
+import { markDeleted, pushPending, queuePush } from "./sync";
 
 /**
  * Lista salva com uma chave por registro (`<prefixo>:<id>`), em vez de um bloco único.
@@ -42,23 +42,52 @@ export function readCollection<T extends { id: string }>(prefix: string, migrate
   return found;
 }
 
+/** Ids de registros implícitos que a pessoa apagou: eles não voltam. */
+const removedKey = (prefix: string) => `${prefix}-removidos`;
+
+function readRemoved(prefix: string): string[] {
+  try {
+    const v = JSON.parse(localStorage.getItem(removedKey(prefix)) ?? "[]");
+    return Array.isArray(v) ? v : [];
+  } catch {
+    return [];
+  }
+}
+
+function load<T extends { id: string }>(prefix: string, migrate?: (stored: T) => T, implicit?: () => T[]): T[] {
+  const stored = readCollection(prefix, migrate);
+  if (!implicit) return stored;
+  const have = new Set(stored.map((i) => i.id));
+  const removed = new Set(readRemoved(prefix));
+  return [...implicit().filter((i) => !have.has(i.id) && !removed.has(i.id)), ...stored];
+}
+
 export function usePersistentCollection<T extends { id: string }>(
   prefix: string,
-  /** Ajusta um registro salvo num formato antigo. */
-  migrate?: (stored: T) => T,
+  options: {
+    /** Ajusta um registro salvo num formato antigo. */
+    migrate?: (stored: T) => T;
+    /**
+     * Registros que existem mesmo sem nada salvo (ex.: o imóvel da planta). Só ganham
+     * chave na primeira edição; apagados, não voltam.
+     */
+    implicit?: () => T[];
+  } = {},
 ): Collection<T> {
-  const [items, setItems] = useState<T[]>(() => readCollection(prefix, migrate));
+  const { migrate, implicit } = options;
+  const [items, setItems] = useState<T[]>(() => load(prefix, migrate, implicit));
   const itemsRef = useRef(items);
   itemsRef.current = items;
 
   // Outra aba gravou: relê para não sobrescrever o que ela fez.
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
-      if (e.key === null || e.key.startsWith(`${prefix}:`)) setItems(readCollection(prefix, migrate));
+      if (e.key === null || e.key.startsWith(`${prefix}:`) || e.key === removedKey(prefix))
+        setItems(load(prefix, migrate, implicit));
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
-  }, [prefix, migrate]);
+  }, [prefix, migrate, implicit]);
 
   const write = useCallback(
     (item: T) => {
@@ -102,9 +131,19 @@ export function usePersistentCollection<T extends { id: string }>(
         /* sem armazenamento */
       }
       markDeleted([key]);
+      if (implicit?.().some((i) => i.id === id)) {
+        const rk = removedKey(prefix);
+        try {
+          localStorage.setItem(rk, JSON.stringify([...new Set([...readRemoved(prefix), id])]));
+          queuePush(rk);
+        } catch {
+          /* sem armazenamento */
+        }
+      }
+      void pushPending();
       setItems((list) => list.filter((i) => i.id !== id));
     },
-    [prefix],
+    [prefix, implicit],
   );
 
   return { items, put, patch, remove };
