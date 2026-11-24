@@ -72,10 +72,12 @@ const PILLOW_W = 1.28 / 2 - 0.15;
 function bed(r: Rect, back: Side, duvet: string, frame = "#9a6b45", pillow?: string, headboard = frame, pillows = 2): Part[] {
   const { W, D, at } = placer(r, back);
   const pm = pillow ? "tecido" : "branco";
+  // headboard "none": cama sem cabeceira, com a base indo até a parede.
+  const head = headboard !== "none";
   return [
     // A base começa depois da cabeceira, para as duas não se atravessarem.
-    at(0, 0.07, W, D - 0.07, 0.28, "madeira", 0, frame),
-    at(0, 0, W, 0.07, 1.0, headboard === frame ? "madeira" : "tecido", 0, headboard),
+    head ? at(0, 0.07, W, D - 0.07, 0.28, "madeira", 0, frame) : at(0, 0, W, D, 0.28, "madeira", 0, frame),
+    ...(head ? [at(0, 0, W, 0.07, 1.0, headboard === frame ? "madeira" : "tecido", 0, headboard)] : []),
     at(0.04, 0.08, W - 0.08, D - 0.12, 0.2, "branco", 0.28),
     at(0.02, 0.62, W - 0.04, D - 0.66, 0.05, "tecido", 0.48, duvet),
     ...(pillows === 1
@@ -692,7 +694,8 @@ const KEEP_COLORS = ["Hidromassagem", "Espelheira", "Telhado inclinado", "Máqui
 function proposalG4(): Proposal {
   const g = proposalG();
   const white = "#f4f4f1", nishi = "#1e3d66", linen = "#e9e4da", oak = "#c9a77c";
-  const curtain = (x: number, w: number) => full([part(x, 0.0, w, 0.04, 2.2, "tecido", 0.05, linen), part(x - 0.05, 0.02, w + 0.1, 0.02, 0.02, "metal", 2.27)]);
+  // Cortina do trilho até 10 cm abaixo do peitoril da janela (1,0 m), que é o que tampa a janela.
+  const curtain = (x: number, w: number) => full([part(x, 0.0, w, 0.04, 1.35, "tecido", 0.9, linen), part(x - 0.05, 0.02, w + 0.1, 0.02, 0.02, "metal", 2.27)]);
   const pendant = (x: number, z: number, y: number) => full([part(x + 0.12, z + 0.12, 0.01, 0.01, 2.6 - y - 0.18, "escuro", y + 0.18), part(x, z, 0.25, 0.25, 0.18, "escuro", y, nishi)]);
   const extra: Piece[] = [
     // Suíte
@@ -989,7 +992,7 @@ function fixCurtains(p: Proposal): Proposal {
           if (hit) bottom = Math.max(bottom, (q.y ?? 0) + q.h + 0.02);
         }
       }
-      if (!bottom) return c;
+      if (bottom <= (cloth.y ?? 0)) return c;
       return { ...c, parts: c.parts.map((q) => (q === cloth ? { ...q, y: bottom, h: top - bottom } : q)) };
     }),
   };
@@ -999,7 +1002,7 @@ function officeVersion(o: OfficeLayout, base: Proposal): Proposal {
   const black = "#1c1d1f", cream = "#f1ebdf", linen = "#f3eee4", oak = "#d8c3a2";
   const s = o.shelves;
   const pieces: Piece[] = [
-    piece("quarto", "Cama de solteiro", "🛏️", "Móveis", bed(o.bed[0], o.bed[1], linen, cream, black, black, 1)),
+    piece("quarto", "Cama de solteiro", "🛏️", "Móveis", bed(o.bed[0], o.bed[1], linen, cream, black, "none", 1)),
     piece("quarto", "Gavetas embaixo da cama", "🗃️", "Móveis", o.drawers.map(([x, z, w, d]) => part(x, z, w, d, 0.2, "madeira", 0.06, cream))),
     piece("quarto", "Mesa com computador", "💻", "Móveis", desk(o.desk[0], o.desk[1], "#1f1f22", "#2b2b2e", 2)),
     piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(o.chair[0], o.chair[1], "#1f1f22", o.chair[2])),
@@ -1017,9 +1020,9 @@ const OFFICE: OfficeLayout = {
   label: "Principal",
   name: G4.name,
   tagline: G4.tagline,
-  highlight: "Escritório: cama na parede da suíte com a cabeceira na janela, mesa de 1,70 m na parede da sala e guarda-roupa de 1,50 m em toda a parede da porta, até o batente.",
+  highlight: "Escritório: cama sem cabeceira na parede da suíte, com o travesseiro no lado da janela, mesa de 1,70 m na parede da sala e guarda-roupa de 1,50 m em toda a parede da porta, até o batente.",
   notes: [
-    "A cama fica na parede da suíte, com a cabeceira no lado da janela e as gavetas viradas para a mesa. A cortina termina em cima da cabeceira.",
+    "A cama fica na parede da suíte, sem cabeceira, com o travesseiro no lado da janela e as gavetas viradas para a mesa.", "A cortina desce do trilho até 10 cm abaixo do peitoril, o suficiente para tampar a janela, na mesma altura da cortina da suíte.",
     "A mesa fica na parede da sala, começando perto da janela, com duas telas lado a lado e duas prateleiras em cima, a 1,50 m e a 1,80 m, longe das telas.",
     "Guarda-roupa de 1,50 m e 55 cm de fundo ocupando a parede da porta, do canto da sala até o batente: a porta abre livre.",
     "O frigobar foi para a varanda, do lado do freezer.",
