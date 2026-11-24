@@ -1010,14 +1010,9 @@ const OFFICE: OfficeLayout = {
   rug: R(4.97, 1.45, 0.8, 0.9),
 };
 
-/**
- * A principal: a G4 com o escritório acima. A Vazia sempre tira as cores da principal
- * (pisos de dentro e de fora), então muda sozinha se a principal mudar.
- */
-export const MAIN: Proposal = fixCurtains({ ...officeVersion(OFFICE, G4), name: G4.name, tagline: G4.tagline, label: "Principal", room: undefined });
 
 
-// ---------- Versões da suíte ----------
+// ---------- Suíte da principal ----------
 // Os mesmos móveis da principal na suíte (cama viúva, guarda-roupa, painel com TV, criado-mudo,
 // pendente, tapete e cortina). A parte grande da suíte vai de x 6,79 a 9,87 e de z -0,01 a 2,68;
 // a janela fica em cima (x 7,72 a 8,94) e a entrada vem do corredorzinho do canto de baixo
@@ -1031,21 +1026,23 @@ interface SuiteLayout {
   highlight: string;
   notes: string[];
   bed: [Rect, Side];
-  wardrobe: { r: Rect; back: Side; name: string };
+  wardrobe?: { r: Rect; back: Side; name: string };
+  minibar?: [Rect, Side];
   tv: [Rect, Side];
   /** Criado-mudo suspenso (x, z, w, d) e o pendente em cima dele. */
   nightstand: [number, number, number, number];
   rug: Rect;
 }
 
-function suiteVersion(o: SuiteLayout): Proposal {
+function suiteVersion(o: SuiteLayout, base: Proposal): Proposal {
   const black = "#1c1d1f", cream = "#f1ebdf", linen = "#f3eee4";
   const [nx, nz, nw, nd] = o.nightstand;
   const px = nx + nw / 2 - 0.125, pz = nz + nd / 2 - 0.125;
   const { W, at } = placer(o.tv[0], o.tv[1]);
   const pieces: Piece[] = [
     piece("suite", "Cama viúva", "🛏️", "Móveis", bed(o.bed[0], o.bed[1], linen, cream, black, black)),
-    piece("suite", o.wardrobe.name, "🚪", "Móveis", full(wardrobe(o.wardrobe.r, o.wardrobe.back))),
+    ...(o.wardrobe ? [piece("suite", o.wardrobe.name, "🚪", "Móveis", full(wardrobe(o.wardrobe.r, o.wardrobe.back)))] : []),
+    ...(o.minibar ? [{ ...piece("suite", "Frigobar Midea 93L", "🧊", "Eletrodomésticos", minibar(o.minibar[0], o.minibar[1])), assetId: OWNED.frigobar }] : []),
     piece("suite", "Painel e TV", "📺", "Eletrônicos", full([
       at(0, 0, W, 0.28, 0.32, "madeira", 0.3, cream),
       at(0.05, 0.02, W - 0.1, 0.04, 0.66, "escuro", 0.95, "#1c1f24"),
@@ -1054,79 +1051,34 @@ function suiteVersion(o: SuiteLayout): Proposal {
     piece("suite", "Pendente da cabeceira", "💡", "Móveis", full([part(px + 0.12, pz + 0.12, 0.01, 0.01, 2.6 - 1.3 - 0.18, "escuro", 1.48), part(px, pz, 0.25, 0.25, 0.18, "escuro", 1.3, black)])),
     piece("suite", "Tapete ao lado da cama", "🟦", "Móveis", rug(o.rug, black)),
   ];
-  return roomVersion(o, ["suite"], "Suíte", "suite", pieces, "Cortina blackout na janela, como na principal.");
+  return roomVersion(o, ["suite"], "Suíte", "suite", pieces, "Cortina blackout na janela, terminando em cima da cabeceira.", undefined, undefined, base);
 }
 
-const SUITES: SuiteLayout[] = [
-  {
-    id: "sui1",
-    label: "Suíte 1",
-    name: "Suíte com a cama virada para o banheiro",
-    tagline: "A principal com a cabeceira na parede do escritório e a TV na parede de fora, do outro lado.",
-    highlight: "Suíte: cama com a cabeceira na parede do escritório, TV na parede de fora, guarda-roupa de correr na parede do banheiro, como na principal.",
-    notes: [
-      "A cama vira: a cabeceira vai para a parede do escritório e a TV para a parede de fora, a uns 90 cm do pé da cama.",
-      "O criado-mudo e o pendente ficam do lado da cama que dá para o guarda-roupa, longe da entrada.",
-      "O guarda-roupa de correr continua na parede do banheiro, com o tapete entre ele e a cama.",
-    ],
-    bed: [R(6.79, 0.15, 1.88, 1.28), "w"],
-    wardrobe: { r: R(7.97, 2.13, 1.9, 0.55), back: "s", name: "Guarda-roupa de correr" },
-    tv: [R(9.59, 0.17, 0.28, 1.25), "e"],
-    nightstand: [6.79, 1.46, 0.42, 0.38],
-    rug: R(7.3, 1.46, 1.35, 0.6),
-  },
-  {
-    id: "sui2",
-    label: "Suíte 2",
-    name: "Suíte com a cama embaixo da janela",
-    tagline: "A principal com a cabeceira embaixo da janela, a TV na parede do banheiro e o guarda-roupa na parede do escritório.",
-    highlight: "Suíte: cama com a cabeceira embaixo da janela, TV na parede do banheiro e guarda-roupa de correr na parede do escritório.",
-    notes: [
-      "A cama fica com a cabeceira embaixo da janela, no meio do quarto, e a TV na parede do banheiro, de frente para ela.",
-      "O guarda-roupa de correr vai para a parede do escritório e termina antes do corredorzinho da entrada.",
-      "Criado-mudo e pendente do lado de fora da cama, com o tapete desse lado.",
-    ],
-    bed: [R(7.9, -0.01, 1.28, 1.88), "n"],
-    wardrobe: { r: R(6.79, 0.1, 0.55, 1.9), back: "w", name: "Guarda-roupa de correr" },
-    tv: [R(7.92, 2.4, 1.25, 0.28), "s"],
-    nightstand: [9.27, 0.02, 0.38, 0.42],
-    rug: R(9.22, 0.5, 0.6, 1.35),
-  },
-  {
-    id: "sui3",
-    label: "Suíte 3",
-    name: "Suíte com a cama longe da janela",
-    tagline: "A principal com a cama descida para o lado do banheiro, a janela livre e um guarda-roupa menor no canto da janela.",
-    highlight: "Suíte: cama com a cabeceira na parede de fora, mais perto do banheiro, TV na parede do escritório e guarda-roupa de correr de 90 cm no canto da janela.",
-    notes: [
-      "A cama continua com a cabeceira na parede de fora, mas desce para perto da parede do banheiro: a janela fica livre.",
-      "Sem o guarda-roupa grande na parede do banheiro, entra um de correr de 90 cm no canto da janela, do lado da parede de fora.",
-      "TV na parede do escritório, de frente para a cama, e o tapete entre a cama e a janela.",
-    ],
-    bed: [R(7.99, 1.3, 1.88, 1.28), "e"],
-    wardrobe: { r: R(8.96, -0.01, 0.9, 0.55), back: "n", name: "Guarda-roupa de correr de 90 cm" },
-    tv: [R(6.79, 1.0, 0.28, 1.25), "w"],
-    nightstand: [9.45, 0.86, 0.42, 0.38],
-    rug: R(8.0, 0.65, 1.35, 0.6),
-  },
-  {
-    id: "sui4",
-    label: "Suíte 4",
-    name: "Suíte com o guarda-roupa na parede de fora",
-    tagline: "A principal com a cabeceira embaixo da janela, a TV na parede do banheiro e o guarda-roupa na parede de fora.",
-    highlight: "Suíte: cama com a cabeceira embaixo da janela, mais para o lado do escritório, TV na parede do banheiro e guarda-roupa de correr na parede de fora.",
-    notes: [
-      "A cama fica com a cabeceira embaixo da janela, mais para o lado do escritório, e a TV na parede do banheiro.",
-      "O guarda-roupa de correr vai para a parede de fora, com uns 60 cm entre ele e a cama.",
-      "Criado-mudo, pendente e tapete do lado do escritório, perto da entrada.",
-    ],
-    bed: [R(7.45, -0.01, 1.28, 1.88), "n"],
-    wardrobe: { r: R(9.32, 0.05, 0.55, 1.9), back: "e", name: "Guarda-roupa de correr" },
-    tv: [R(7.8, 2.4, 1.25, 0.28), "s"],
-    nightstand: [6.98, 0.02, 0.38, 0.42],
-    rug: R(6.82, 0.55, 0.6, 1.35),
-  },
-];
+/** A suíte da principal: cabeceira embaixo da janela, TV na parede do banheiro e o frigobar do lado dela. */
+const SUITE: SuiteLayout = {
+  id: "g4",
+  label: "Principal",
+  name: G4.name,
+  tagline: G4.tagline,
+  highlight: "Suíte: cama viúva com a cabeceira embaixo da janela, TV na parede do banheiro e o frigobar do lado dela, sem guarda-roupa.",
+  notes: [
+    "A cama fica com a cabeceira embaixo da janela, no meio do quarto, e a TV na parede do banheiro, de frente para ela.",
+    "O frigobar fica do lado da TV, no canto da parede do banheiro com a parede de fora, com a porta abrindo para o quarto.",
+    "Sem guarda-roupa por enquanto: a parede do escritório fica livre.",
+    "Criado-mudo e pendente do lado de fora da cama, com o tapete desse lado.",
+  ],
+  bed: [R(7.9, -0.01, 1.28, 1.88), "n"],
+  tv: [R(7.92, 2.4, 1.25, 0.28), "s"],
+  minibar: [R(9.37, 2.17, 0.48, 0.5), "s"],
+  nightstand: [9.27, 0.02, 0.38, 0.42],
+  rug: R(9.22, 0.5, 0.6, 1.35),
+};
+
+/**
+ * A principal: a G4 com o escritório e a suíte acima. A Vazia sempre tira as cores da
+ * principal (pisos de dentro e de fora), então muda sozinha se a principal mudar.
+ */
+export const MAIN: Proposal = { ...suiteVersion(SUITE, officeVersion(OFFICE, G4)), name: G4.name, tagline: G4.tagline, label: "Principal", room: undefined };
 
 // ---------- Versões da sala ----------
 // Os mesmos móveis da principal na sala (sofá, rack com TV, mesa de 6 com as cadeiras,
@@ -1278,7 +1230,7 @@ function withoutTub(): Proposal {
   };
 }
 
-export const PROPOSALS: Proposal[] = [MAIN, fixCurtains(withoutTub()), ...SUITES.map(suiteVersion), ...SALAS.map(salaVersion)];
+export const PROPOSALS: Proposal[] = [MAIN, fixCurtains(withoutTub()), ...SALAS.map(salaVersion)];
 
 /**
  * A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam).
