@@ -413,42 +413,6 @@ function rug(r: Rect, color: string): Part[] {
 }
 
 /**
- * Churrasqueira de alvenaria encostada no muro (`r.z` é o lado do muro), no mesmo
- * acabamento da bancada do lado: corpo branco com portas, tampo de pedra em volta de uma
- * grelha rebaixada, gaveta do carvão na frente e coifa de inox com a chaminé até o telhado.
- * Poucas caixas, para o 3D continuar leve.
- */
-function bbq(r: Rect, body = "#f4f4f1", stone = "#3b3a38"): Part[] {
-  const top = 0.86, rim = 0.08, back = 0.1;
-  const gx = r.x + rim, gz = r.z + back, gw = r.w - 2 * rim, gd = r.d - back - rim;
-  const front = r.z + r.d;
-  const bars: Part[] = [];
-  for (let i = 1; i <= 7; i++) bars.push(part(gx + (gw / 8) * i - 0.006, gz, 0.012, gd, 0.012, "metal", top - 0.03));
-  return [
-    part(r.x, r.z, r.w, r.d, top, "madeira", 0, body),
-    // Tampo de pedra em volta da grelha e a grelha rebaixada, com o braseiro escuro embaixo.
-    part(r.x, r.z, r.w, back, 0.04, "pedra", top, stone),
-    part(r.x, front - rim, r.w, rim, 0.04, "pedra", top, stone),
-    part(r.x, gz, rim, gd, 0.04, "pedra", top, stone),
-    part(r.x + r.w - rim, gz, rim, gd, 0.04, "pedra", top, stone),
-    part(gx, gz, gw, gd, 0.02, "escuro", top - 0.08, "#1c1c1e"),
-    ...bars,
-    // Gaveta do carvão em cima e duas portas embaixo, com puxadores de inox.
-    part(r.x + 0.06, front, r.w - 0.12, 0.006, 0.006, "escuro", 0.62, "#6b5a48"),
-    part(r.x + r.w / 2 - 0.003, front, 0.006, 0.006, 0.56, "escuro", 0.06, "#6b5a48"),
-    part(r.x + r.w / 2 - 0.1, front, 0.2, 0.015, 0.015, "metal", 0.72),
-    part(r.x + r.w / 2 - 0.08, front, 0.015, 0.015, 0.2, "metal", 0.3),
-    part(r.x + r.w / 2 + 0.065, front, 0.015, 0.015, 0.2, "metal", 0.3),
-    // Coifa de inox em degrau e a chaminé subindo até o telhado.
-    ...full([
-      part(r.x + 0.02, r.z, r.w - 0.04, r.d - 0.05, 0.08, "metal", 1.6),
-      part(r.x + 0.12, r.z, r.w - 0.24, r.d - 0.2, 0.18, "metal", 1.68),
-      part(r.x + r.w / 2 - 0.11, r.z, 0.22, 0.2, 0.74, "metal", 1.86),
-    ]),
-  ];
-}
-
-/**
  * Banheira da hidro, oca: borda branca de 10 cm, fundo a 25 cm, dois bancos por dentro,
  * água azul até 13 cm abaixo da borda, apoios de cabeça e jatos nas paredes.
  */
@@ -589,9 +553,9 @@ function extraG(): Extra {
   return {
     id: "g",
     name: "Máquina na cozinha, hidro e área coberta",
-    tagline: "A casa com a máquina de lavar dentro da cozinha e a pia perto da geladeira, a hidro e a churrasqueira embaixo do telhado, e a área externa vazia, só com grama.",
+    tagline: "A casa com a máquina de lavar dentro da cozinha e a pia perto da geladeira, a hidro embaixo do telhado, a área coberta livre e a área externa vazia, só com grama.",
     highlights: [
-      "Área de fora: hidromassagem branca de 2,00 × 1,50 m com deque em volta e churrasqueira com bancada, tudo embaixo do telhado.",
+      "Área de fora: hidromassagem branca de 2,00 × 1,50 m com deque em volta, embaixo do telhado. A área coberta fica livre, sem churrasqueira.",
       "Cozinha em L com bancada de ponta a ponta, cooktop de 4 bocas e armários em cima e embaixo. A máquina de lavar fica embaixo da bancada, no canto da janela, e a pia vai para o lado da geladeira.",
       "Área externa vazia, só com grama, para decidir depois o que vai ali.",
     ],
@@ -614,8 +578,7 @@ function extraG(): Extra {
         "Ripado de madeira no lado de dentro do muro, do chão até 2,50 m, atrás e do lado da hidro.",
       ],
       coberta: [
-        "Churrasqueira e bancada de apoio encostadas no muro, ao lado da hidro: quem está na água fica perto de quem está na grelha.",
-        "Embaixo do telhado, então o churrasco não para com chuva. Sobram uns 90 cm de passagem da varanda até a área externa.",
+        "Livre, sem churrasqueira e sem bancada: o muro do lado da hidro fica vazio, e a passagem da varanda até a área externa fica toda aberta.",
         "Os gatos continuam podendo ficar aqui fora sem tomar chuva.",
       ],
       externa: ["Vazia por enquanto: só grama, da área coberta até o fundo."],
@@ -642,13 +605,6 @@ function extraG(): Extra {
       { ...piece("cozinha", "Pia", "🚰", "Móveis", [part(-0.01, 2.5, 0.61, 0.9, 0.9, "madeira", 0, cab)]), fixture: { kind: "bancada", x: -0.01, z: 2.5, w: 0.61, d: 0.9, wall: "w", colors: { cabinet: cab, stone } } },
       piece("servicoext", "Hidromassagem", "🛁", "Móveis", deckedTub(R(0.02, EXT.z0 + 0.03, 2.43, 1.72), R(0.14, -1.42, 2.0, 1.5))),
       piece("servicoext", "Painel ripado", "🪵", "Obras", [...slatScreen(R(-0.01, EXT.z0, 2.46, 0.03)), ...slatScreen(R(-0.01, EXT.z0, 0.03, 1.75))]),
-      piece("coberta", "Churrasqueira", "🔥", "Móveis", bbq(R(2.85, EXT.z0, 0.9, 0.55))),
-      // Bancada com portas e uma cuba pequena com torneira, para lavar o que vai para a grelha.
-      piece("coberta", "Bancada de apoio", "🗄️", "Móveis", [
-        ...plannedCounter(R(3.8, EXT.z0, 0.95, 0.55), "s", "#f4f4f1", stone),
-        part(4.3, EXT.z0 + 0.1, 0.38, 0.32, 0.012, "escuro", 0.895, "#2a2a2c"),
-        ...full([part(4.47, EXT.z0 + 0.03, 0.03, 0.03, 0.3, "metal", 0.9), part(4.47, EXT.z0 + 0.03, 0.03, 0.14, 0.03, "metal", 1.17)]),
-      ]),
     ],
   };
 }
@@ -746,7 +702,7 @@ function proposalG4(): Proposal {
       cozinha: ["Passadeira preta no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto.", "Aéreos refeitos numa linha só, com o topo a 2,30 m: módulo no canto do shaft, vão da coifa, torre mais funda com o micro-ondas embutido e porta basculante em cima, dois módulos em cima da pia com luz embaixo e um armário fundo em cima da geladeira, fechado por um painel lateral. A bancada fica livre.", "O purificador fica na bancada da máquina de lavar, na ponta do lado do shaft, perto do ponto de água."],
       banho: ["Armário em cima do vaso e nicho dentro do box."],
       banhosuite: ["Armário em cima do vaso e nicho dentro do box."],
-      varanda: ["O freezer horizontal e o frigobar ficam lado a lado no canto do lado da parede, perto da churrasqueira, em cima de uma base de 8 cm, longe da água do chão: dá para pegar bebida sem entrar em casa.", "O alimentador e o bebedouro dos gatos ficam do lado da casinha, e sobram uns 85 cm livres para passar para fora."],
+      varanda: ["O freezer horizontal e o frigobar ficam lado a lado no canto do lado da parede, em cima de uma base de 8 cm, longe da água do chão: dá para pegar bebida sem entrar em casa.", "O alimentador e o bebedouro dos gatos ficam do lado da casinha, e sobram uns 85 cm livres para passar para fora."],
     }),
   };
   return withOwned(recolor(withExtras, {
@@ -876,18 +832,10 @@ function withOwned(p: Proposal): Proposal {
     ...p.pieces.filter((x) => !(x.roomId === "cozinha" && (x.name === "Armários aéreos"))),
     cabinets,
   ];
-  // Churrasqueira e bancada de apoio lá fora em preto fosco com tampo de granito preto um
-  // tom mais claro, que escondem a sujeira da gordura e do carvão.
-  const dirty: Record<string, string> = { "#f1ebdf": "#1c1d1f", "#e6e0d4": "#303134", "#b9ad98": "#5a5d62" };
-  const outside = pieces.map((x) =>
-    x.roomId === "coberta" && (x.name === "Churrasqueira" || x.name === "Bancada de apoio")
-      ? { ...x, parts: x.parts.map((q) => (q.c && dirty[q.c] ? { ...q, c: dirty[q.c] } : q)) }
-      : x,
-  );
   return {
     ...p,
-    pieces: [...outside, ...owned],
-    notes: addNotes(p.notes, { coberta: ["Churrasqueira e bancada de apoio em preto fosco com tampo de granito preto, que não mostram a sujeira.", "O chão da área coberta e do canto da hidro é de pedra clara antiderrapante: a madeira fica só no deque em volta da hidro."] }),
+    pieces: [...pieces, ...owned],
+    notes: addNotes(p.notes, { coberta: ["O chão da área coberta e do canto da hidro é de pedra clara antiderrapante: a madeira fica só no deque em volta da hidro."] }),
   };
 }
 
@@ -1076,20 +1024,21 @@ function tantraChaise(o: { x: number; z: number; alongX?: boolean; flip?: boolea
   ];
 }
 
-/** A suíte da principal: cabeceira embaixo da janela, TV na parede do banheiro e a poltrona na parede do escritório. */
+/** A suíte da principal: cabeceira na parede do escritório, TV na parede de fora e a poltrona no canto do banheiro. */
 const SUITE: SuiteLayout = {
   id: "g4",
   label: "Principal",
   name: G4.name,
   tagline: G4.tagline,
-  highlight: "Suíte: cama viúva com a cabeceira embaixo da janela, TV na parede do banheiro e a poltrona tântrica preta na parede do escritório.",
+  highlight: "Suíte: cama viúva com a cabeceira na parede do escritório, TV na parede de fora e a poltrona tântrica preta no canto da parede do banheiro com a parede de fora.",
   notes: [
-    "A cama fica com a cabeceira embaixo da janela, no meio do quarto, e a TV na parede do banheiro, de frente para ela.",
-    "Na parede do escritório fica a poltrona tântrica preta (45 × 150 × 71 cm), com a ponta alta do lado da janela e uns 60 cm livres até a cama.",
+    "A cabeceira fica na parede do escritório e a TV na parede de fora, a uns 90 cm do pé da cama. A janela fica livre, do lado da cama.",
+    "A poltrona tântrica preta (45 × 150 × 71 cm) fica no canto, encostada na parede do banheiro e na parede de fora, com a ponta alta no canto.",
+    "A entrada pelo corredorzinho fica livre.",
   ],
-  bed: [R(7.9, -0.01, 1.28, 1.88), "n"],
-  tv: [R(7.92, 2.4, 1.25, 0.28), "s"],
-  chaise: { x: 6.85, z: 0.35 },
+  bed: [R(6.79, 0.15, 1.88, 1.28), "w"],
+  tv: [R(9.59, 0.17, 0.28, 1.25), "e"],
+  chaise: { x: 8.37, z: 2.23, alongX: true, flip: true },
 };
 
 const SUITES: SuiteLayout[] = [
@@ -1111,17 +1060,16 @@ const SUITES: SuiteLayout[] = [
   {
     id: "sui2",
     label: "Suíte 2",
-    name: "Suíte com a cabeceira na parede do escritório",
-    tagline: "A cama com a cabeceira na parede do escritório, a TV na parede de fora e a poltrona na parede do banheiro.",
-    highlight: "Suíte: cabeceira na parede do escritório, TV na parede de fora, poltrona tântrica na parede do banheiro.",
+    name: "Suíte com a cabeceira embaixo da janela",
+    tagline: "A cabeceira embaixo da janela, a TV na parede do banheiro e a poltrona na parede do escritório.",
+    highlight: "Suíte: cabeceira embaixo da janela, TV na parede do banheiro e poltrona tântrica na parede do escritório.",
     notes: [
-      "A cabeceira vai para a parede do escritório e a TV para a parede de fora, a uns 90 cm do pé da cama.",
-      "A poltrona fica deitada ao longo da parede do banheiro, logo depois da entrada.",
-      "A janela fica livre, do lado da cama.",
+      "A cama fica com a cabeceira embaixo da janela, no meio do quarto, e a TV na parede do banheiro, de frente para ela.",
+      "A poltrona fica na parede do escritório, com a ponta alta do lado da janela e uns 60 cm livres até a cama.",
     ],
-    bed: [R(6.79, 0.15, 1.88, 1.28), "w"],
-    tv: [R(9.59, 0.17, 0.28, 1.25), "e"],
-    chaise: { x: 7.78, z: 2.2, alongX: true, flip: true },
+    bed: [R(7.9, -0.01, 1.28, 1.88), "n"],
+    tv: [R(7.92, 2.4, 1.25, 0.28), "s"],
+    chaise: { x: 6.85, z: 0.35 },
   },
   {
     id: "sui3",
@@ -1173,7 +1121,7 @@ function withoutTub(): Proposal {
     tagline: "A principal igual, mas sem a hidromassagem: o canto dela fica livre, com o piso antiderrapante e o ripado no muro.",
     highlights: [
       ...MAIN.highlights.filter((h) => !/hidro/i.test(h)),
-      "Área de fora: sem hidromassagem. O canto do lado da cozinha fica vazio, com o piso antiderrapante e o ripado no muro, e a churrasqueira com a bancada continua embaixo do telhado.",
+      "Área de fora: sem hidromassagem. O canto do lado da cozinha fica vazio, com o piso antiderrapante e o ripado no muro.",
     ],
     notes: { ...MAIN.notes, servicoext: ["Sem hidro: o canto fica vazio, só com o piso antiderrapante e o ripado no muro, livre para decidir depois."] },
     outdoor: MAIN.outdoor.map((r) => (r.id === "servicoext" ? { ...r, name: "Canto livre" } : r)),
