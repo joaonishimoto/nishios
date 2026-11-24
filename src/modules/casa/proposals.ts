@@ -138,14 +138,20 @@ function rackTv(r: Rect, back: Side, wood: string): Part[] {
   ];
 }
 
-function desk(r: Rect, back: Side, top: string, legs = "#3d3833"): Part[] {
+function desk(r: Rect, back: Side, top: string, legs = "#3d3833", screens = 1): Part[] {
   const { W, D, at } = placer(r, back);
-  return [
+  const out = [
     at(0, 0, W, D, 0.03, "madeira", 0.72, top),
     at(0.02, 0.02, 0.04, D - 0.04, 0.72, "escuro", 0, legs),
     at(W - 0.06, 0.02, 0.04, D - 0.04, 0.72, "escuro", 0, legs),
-    at(W / 2 - 0.3, 0.05, 0.6, 0.04, 0.38, "escuro", 0.76, "#1c1f24"),
   ];
+  if (screens === 1) return [...out, at(W / 2 - 0.3, 0.05, 0.6, 0.04, 0.38, "escuro", 0.76, "#1c1f24")];
+  // Duas telas de 24" lado a lado, cada uma no seu pé, com 2 cm entre elas.
+  for (const u of [W / 2 - 0.56, W / 2 + 0.02]) {
+    out.push(at(u + 0.24, 0.08, 0.06, 0.12, 0.1, "escuro", 0.75, "#2b2b2e"));
+    out.push(at(u, 0.1, 0.54, 0.03, 0.32, "escuro", 0.85, "#1c1f24"));
+  }
+  return out;
 }
 
 function officeChair(x: number, z: number, color: string, back: Side = "s"): Part[] {
@@ -745,7 +751,7 @@ function proposalG4(): Proposal {
     keep: KEEP_COLORS,
     highlights: [
       ...g.highlights,
-      "Cômodo por cômodo, o que faltava: cortinas blackout, criado-mudo e pendente na suíte; guarda-roupa, prateleiras, luminária e gavetas no escritório; pendentes e espelho na sala; aéreo na geladeira e coifa no cooktop; armários e nichos nos banheiros; freezer na varanda.",
+      "Cômodo por cômodo, o que faltava: cortinas blackout, criado-mudo e pendente na suíte; guarda-roupa, prateleiras, duas telas e gavetas no escritório; pendentes e espelho na sala; aéreo na geladeira e coifa no cooktop; armários e nichos nos banheiros; freezer na varanda.",
       "Cores: móveis e cozinha em creme, pedra clara, e preto no sofá, nas cabeceiras, nos tapetes, na mesa do escritório e nos pendentes.",
     ],
     colors: {
@@ -919,7 +925,6 @@ interface OfficeLayout {
   minibar?: [Rect, Side];
   cabinet: { r: Rect; back: Side; name: string; tall?: boolean };
   shelves: Rect;
-  lamp: [number, number, number, number];
   rug?: Rect;
 }
 
@@ -970,17 +975,15 @@ function fixCurtains(p: Proposal): Proposal {
 
 function officeVersion(o: OfficeLayout, base: Proposal): Proposal {
   const black = "#1c1d1f", cream = "#f1ebdf", linen = "#f3eee4", oak = "#d8c3a2";
-  const [lx, lz, hx, hz] = o.lamp;
   const s = o.shelves;
   const pieces: Piece[] = [
     piece("quarto", "Cama de solteiro", "🛏️", "Móveis", bed(o.bed[0], o.bed[1], linen, cream, black, black)),
     piece("quarto", "Gavetas embaixo da cama", "🗃️", "Móveis", o.drawers.map(([x, z, w, d]) => part(x, z, w, d, 0.2, "madeira", 0.06, cream))),
-    piece("quarto", "Mesa com computador", "💻", "Móveis", desk(o.desk[0], o.desk[1], "#1f1f22", "#2b2b2e")),
+    piece("quarto", "Mesa com computador", "💻", "Móveis", desk(o.desk[0], o.desk[1], "#1f1f22", "#2b2b2e", 2)),
     piece("quarto", "Cadeira de escritório", "🪑", "Móveis", officeChair(o.chair[0], o.chair[1], "#1f1f22", o.chair[2])),
     ...(o.minibar ? [{ ...piece("quarto", "Frigobar Midea 93L", "🧊", "Eletrodomésticos", minibar(o.minibar[0], o.minibar[1])), assetId: OWNED.frigobar }] : []),
     piece("quarto", o.cabinet.name, "🗄️", "Móveis", full(o.cabinet.tall ? wardrobe(o.cabinet.r, o.cabinet.back, cream) : tallCabinet(o.cabinet.r, o.cabinet.back, cream))),
-    piece("quarto", "Prateleiras", "📚", "Móveis", full([1.2, 1.5, 1.8].map((y) => part(s.x, s.z, s.w, s.d, 0.03, "madeira", y, oak)))),
-    piece("quarto", "Luminária de braço", "💡", "Móveis", full([part(lx, lz, 0.05, 0.05, 0.5, "metal", 0.76), part(hx, hz, s.w > s.d ? 0.2 : 0.3, s.w > s.d ? 0.3 : 0.2, 0.08, "escuro", 1.22, black)])),
+    piece("quarto", "Prateleiras", "📚", "Móveis", full([1.5, 1.8].map((y) => part(s.x, s.z, s.w, s.d, 0.03, "madeira", y, oak)))),
     ...(o.rug ? [piece("quarto", "Tapete do escritório", "🟫", "Móveis", rug(o.rug, linen))] : []),
   ];
   return roomVersion(o, ["quarto"], "Escritório", "quarto", pieces, "Cortina blackout na janela.", undefined, undefined, base);
@@ -995,7 +998,7 @@ const OFFICE: OfficeLayout = {
   highlight: "Escritório: cama na parede da suíte com a cabeceira na janela, mesa de 1,70 m na parede da sala e guarda-roupa de 1,50 m em toda a parede da porta, até o batente.",
   notes: [
     "A cama fica na parede da suíte, com a cabeceira no lado da janela e as gavetas viradas para a mesa. A cortina termina em cima da cabeceira.",
-    "A mesa fica na parede da sala, começando perto da janela, com as prateleiras e a luminária em cima.",
+    "A mesa fica na parede da sala, começando perto da janela, com duas telas lado a lado e duas prateleiras em cima, a 1,50 m e a 1,80 m, longe das telas.",
     "Guarda-roupa de 1,50 m e 55 cm de fundo ocupando a parede da porta, do canto da sala até o batente: a porta abre livre.",
     "O frigobar fica de fora por enquanto.",
     "Sobram uns 90 cm entre a mesa e a cama para a cadeira, e uns 50 cm entre a ponta da mesa e o guarda-roupa.",
@@ -1006,7 +1009,6 @@ const OFFICE: OfficeLayout = {
   chair: [4.95, 0.8, "e"],
   cabinet: { r: R(4.29, 2.42, 1.51, 0.55), back: "s", name: "Guarda-roupa", tall: true },
   shelves: R(4.29, 0.5, 0.25, 1.35),
-  lamp: [4.31, 0.22, 4.31, 0.22],
 };
 
 
