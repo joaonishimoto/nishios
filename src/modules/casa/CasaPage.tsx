@@ -6,7 +6,6 @@ import { Badge, type Tone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Segmented } from "@/components/ui/Segmented";
 import { useToast } from "@/components/ui/Toast";
-import { PageHeader } from "@/components/shell/PageHeader";
 import { cn } from "@/lib/cn";
 import { money, plural } from "@/lib/format";
 import { queuePush } from "@/lib/sync";
@@ -53,7 +52,11 @@ function useIsDark() {
   return dark;
 }
 
-export function CasaPage() {
+/**
+ * A planta em 3D de um imóvel (hoje, o apartamento). Fica dentro da página do imóvel, na aba
+ * Planta; o cabeçalho com o nome é da página.
+ */
+export function PlanView({ name }: { name: string }) {
   const { home: real, linkPiece } = useCasa();
   const { assets, updateAsset, wishes, restoreWish, removeWish } = useBens();
   const toast = useToast();
@@ -209,61 +212,60 @@ export function CasaPage() {
 
   return (
     <>
-      <PageHeader
-        title="Casa"
-        description={`${home.name} térreo com ${area.format(indoorArea(home))} m² de área interna, ${plural(whole.pieces.length, "móvel", "móveis")} e ${money(whole.value)} em bens ligados à planta.`}
-        action={
-          <div className="flex flex-wrap items-center justify-end gap-2 select-none">
-            <Segmented<string>
-              label="Móveis"
-              value={proposal?.id ?? "vazia"}
-              onChange={pickProposal}
-              options={[
-                { value: MAIN.id, label: "Principal" },
-                { value: "vazia", label: "Vazia" },
-                ...PROPOSALS.filter((p) => p !== MAIN).map((p) => ({ value: p.id, label: p.label ?? p.id.toUpperCase() })),
-              ]}
-            />
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+        <p className="max-w-[60ch] text-sm text-muted-foreground">
+          {`Térreo com ${area.format(indoorArea(home))} m² de área interna, ${plural(whole.pieces.length, "móvel", "móveis")} e ${money(whole.value)} em bens ligados à planta.`}
+        </p>
+        <div className="flex flex-wrap items-center justify-end gap-2 select-none">
+          <Segmented<string>
+            label="Móveis"
+            value={proposal?.id ?? "vazia"}
+            onChange={pickProposal}
+            options={[
+              { value: MAIN.id, label: "Principal" },
+              { value: "vazia", label: "Vazia" },
+              ...PROPOSALS.filter((p) => p !== MAIN).map((p) => ({ value: p.id, label: p.label ?? p.id.toUpperCase() })),
+            ]}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            aria-pressed={dims}
+            onClick={() => setParam("cotas", dims ? null : "1")}
+            className={cn("h-8", dims && "border-primary text-primary hover:border-primary hover:text-primary")}
+          >
+            <Ruler />
+            Cotas
+          </Button>
+          {(
             <Button
               variant="outline"
               size="sm"
-              aria-pressed={dims}
-              onClick={() => setParam("cotas", dims ? null : "1")}
-              className={cn("h-8", dims && "border-primary text-primary hover:border-primary hover:text-primary")}
+              aria-pressed={names}
+              onClick={() => setParam("nomes", names ? "0" : null)}
+              className={cn("h-8", names && "border-primary text-primary hover:border-primary hover:text-primary")}
             >
-              <Ruler />
-              Cotas
+              <Type />
+              Nomes
             </Button>
-            {(
-              <Button
-                variant="outline"
-                size="sm"
-                aria-pressed={names}
-                onClick={() => setParam("nomes", names ? "0" : null)}
-                className={cn("h-8", names && "border-primary text-primary hover:border-primary hover:text-primary")}
-              >
-                <Type />
-                Nomes
-              </Button>
-            )}
-            <Button variant="outline" size="sm" onClick={openFullscreen} className="h-8">
-              <Maximize2 />
-              Tela cheia
-            </Button>
-            <Segmented<ViewMode>
-              label="Vista"
-              value={mode}
-              onChange={(v) => setParam("vista", v)}
-              options={[
-                { value: "3d", label: "3D" },
-                { value: "planta", label: "Planta" },
-              ]}
-            />
-          </div>
-        }
-      />
+          )}
+          <Button variant="outline" size="sm" onClick={openFullscreen} className="h-8">
+            <Maximize2 />
+            Tela cheia
+          </Button>
+          <Segmented<ViewMode>
+            label="Vista"
+            value={mode}
+            onChange={(v) => setParam("vista", v)}
+            options={[
+              { value: "3d", label: "3D" },
+              { value: "planta", label: "Planta" },
+            ]}
+          />
+        </div>
+      </div>
 
-      <div className="mt-6 flex flex-wrap gap-1.5 select-none" role="group" aria-label="Cômodos">
+      <div className="mt-4 flex flex-wrap gap-1.5 select-none" role="group" aria-label="Cômodos">
         <RoomChip active={!focus} onClick={() => focusRoom(null)}>
           {focus && <ArrowLeft className="size-3.5" />}
           Casa inteira
@@ -337,6 +339,7 @@ export function CasaPage() {
             />
           ) : (
             <HomePanel
+              name={name}
               home={home}
               proposal={proposal}
               onPickRoom={focusRoom}
@@ -412,11 +415,13 @@ function Stat({ value, label }: { value: string; label: string }) {
 }
 
 function HomePanel({
+  name,
   home,
   proposal,
   onPickRoom,
   onWishAll,
 }: {
+  name: string;
   home: Home;
   proposal: Proposal | null;
   onPickRoom: (id: string) => void;
@@ -429,7 +434,7 @@ function HomePanel({
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="border-b border-border p-4">
-        <h2 className="text-xl font-semibold tracking-tight">{home.name}</h2>
+        <h2 className="text-xl font-semibold tracking-tight">{name}</h2>
         <p className="text-sm text-muted-foreground">
           {area.format(indoorArea(home))} m² de área interna, mais a área externa.
         </p>

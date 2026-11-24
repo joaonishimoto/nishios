@@ -20,7 +20,8 @@ export function AppShell() {
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const title = TITLES[pathname] ?? "NishiOS";
+  // Páginas de detalhe (/imoveis/:id) usam o título da seção.
+  const title = TITLES[pathname] ?? TITLES[`/${pathname.split("/")[1]}`] ?? "NishiOS";
 
   useEffect(() => {
     document.title = title === "NishiOS" ? title : `${title} · NishiOS`;

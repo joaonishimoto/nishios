@@ -1,6 +1,6 @@
 # NishiOS
 
-Sistema pessoal de gestão de vida. Já tem o shell do app (barra lateral, topo, tema claro e escuro), o design system um **calendário unificado** e doze módulos: **tarefas**, **rotina e metas**, **compromissos recorrentes**, **treinos**, **corpo**, **bens e desejos**, **casa**, **pessoas**, **pets**, **skills**, **culinária** e **finanças**.
+Sistema pessoal de gestão de vida. Já tem o shell do app (barra lateral, topo, tema claro e escuro), o design system um **calendário unificado** e doze módulos: **tarefas**, **rotina e metas**, **compromissos recorrentes**, **treinos**, **corpo**, **bens e desejos**, **imóveis** (com a casa em 3D), **pessoas**, **pets**, **skills**, **culinária** e **finanças**.
 
 Os dados ficam no `localStorage` do navegador e, com o Supabase configurado, sobem para a nuvem e sincronizam entre computador e celular. Sem o Supabase, o app roda só no navegador, sem login, e começa com exemplos.
 
@@ -98,12 +98,18 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
 - **Bens e desejos**:
   - Meus bens: agrupados por categoria, com valor de compra, data, garantia (avisa quando está acabando) e onde fica. O topo mostra o total.
   - Lista de desejos: preço, prioridade, data pretendida e link. "Comprei" registra a compra e move o item para os bens.
-- **Casa**: o apartamento em 3D, montado a partir da planta (cômodos, paredes e a área externa). Começa vazio, só com o que vem da construção: pias, vasos, boxes, tanque, bancada da cozinha, porta da varanda e muro.
+- **Imóveis**: todos os imóveis, cada um com a sua situação (meu e moro nele, alugado para alguém, vazio, em obra, alugado por mim ou vendido).
+  - A lista soma o valor dos imóveis, o que ainda devo, o patrimônio líquido e o resultado do mês.
+  - Cada imóvel tem valor patrimonial com histórico (vira gráfico e mostra a valorização desde a compra), financiamento (prestação, parcelas pagas que avançam sozinhas todo mês, quanto falta, saldo devedor do extrato ou estimado pelo SAC ou pela Price), aluguel que recebo ou pago (inquilino, contrato, reajuste, taxa da imobiliária e quanto rende ao ano) e custos (condomínio, IPTU, seguro).
+  - "Em Finanças" lança a prestação, o aluguel e o condomínio como recorrências ligadas ao imóvel, para entrarem na previsão do mês.
+  - Cada imóvel fica salvo numa chave própria (`nishios:imoveis:item:<id>`), então editar um nunca apaga o outro ao sincronizar.
+  - O apartamento tem a planta em 3D (a antiga página Casa, que continua em `/casa`).
+- **Planta em 3D** (aba do apartamento): o apartamento em 3D, montado a partir da planta (cômodos, paredes e a área externa). Começa vazio, só com o que vem da construção: pias, vasos, boxes, tanque, bancada da cozinha, porta da varanda e muro.
   - Duas vistas: **3D** (low-poly, com luz e sombra; arraste para girar e role para aproximar) e **Planta** (vista de cima, a padrão no celular).
   - Clique em um cômodo, ou no nome dele, para a câmera ir até ele: as paredes baixam, o resto da casa fica apagado e os móveis ganham etiqueta.
   - Cada móvel pode ser ligado a um bem de **Bens e desejos**. O painel do cômodo soma o valor e mostra as garantias; ligar um móvel também atualiza o "Onde fica" do bem. "Criar bem novo" cadastra o bem já preenchido a partir do móvel.
   - Sugestões de melhoria por cômodo, mais avisos que saem dos dados (garantia acabando, móveis só na planta).
-  - O three.js só é baixado quando a página Casa abre.
+  - O three.js só é baixado quando a planta abre.
 
 ![Casa](docs/screenshots/casa.png)
 
