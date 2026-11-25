@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { add } from "date-fns";
 import { toISO, today } from "@/lib/dates";
+import { revealed, usePrivacy } from "@/lib/privacy";
 import { useBens } from "@/modules/bens/store";
 import { useCulinaria } from "@/modules/culinaria/store";
 import { useCorpo } from "@/modules/corpo/store";
@@ -36,17 +37,26 @@ export function useEverything(): Everything {
   );
 }
 
-/** Itens do calendário entre duas datas, já sem as camadas ocultas. */
-export function useCalendarItems(from: string, to: string): { items: CalItem[]; all: CalItem[] } {
+/**
+ * Itens do calendário entre duas datas, já sem as camadas ocultas.
+ * `reveal` ignora o olhinho: para o que sai do app, como o arquivo do iPhone.
+ */
+export function useCalendarItems(
+  from: string,
+  to: string,
+  { reveal = false }: { reveal?: boolean } = {},
+): { items: CalItem[]; all: CalItem[] } {
   const data = useEverything();
   const { hidden } = useCalendar();
+  const { hidden: valuesHidden } = usePrivacy();
   const todayISO = toISO(today());
   return useMemo(() => {
-    const all = collect(data, from, to, today());
+    const run = () => collect(data, from, to, today());
+    const all = reveal ? revealed(run) : run();
     return { all, items: all.filter((i) => !hidden.includes(i.source)) };
     // todayISO entra para recalcular quando o dia vira com o app aberto.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, from, to, hidden, todayISO]);
+  }, [data, from, to, hidden, todayISO, reveal, valuesHidden]);
 }
 
 /**

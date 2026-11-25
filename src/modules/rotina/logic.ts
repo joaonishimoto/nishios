@@ -1,5 +1,6 @@
 import { add, differenceInCalendarDays, parseISO, startOfWeek, sub } from "date-fns";
 import { toISO, today } from "@/lib/dates";
+import { money } from "@/lib/format";
 import type { Goal, Habit, HabitPeriod } from "./types";
 
 /** Segunda a domingo, como índices de Date.getDay(). */
@@ -216,16 +217,11 @@ export function goalDone(goal: Goal): boolean {
 }
 
 const number = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
-const money = new Intl.NumberFormat("pt-BR", {
-  style: "currency",
-  currency: "BRL",
-  maximumFractionDigits: 0,
-});
 
 /** "19 de 24 livros" ou "R$ 18.500 de R$ 30.000". */
 export function goalAmountLabel(goal: Goal): string {
   if (goal.unit.trim().toLowerCase() === "reais") {
-    return `${money.format(goal.current)} de ${money.format(goal.target)}`;
+    return `${money(Math.round(goal.current))} de ${money(Math.round(goal.target))}`;
   }
   if (goal.start !== undefined && goal.start !== 0) {
     return `${number.format(goal.current)} ${goal.unit} agora, alvo de ${number.format(goal.target)} ${goal.unit}`.trim();
@@ -309,7 +305,7 @@ export function goalNeeded(goal: Goal, now: Date = today()): string | null {
   const monthly = days > 90;
   const per = monthly ? left / (days / 30.44) : left / Math.max(1, days / 7);
   const isMoney = goal.unit.trim().toLowerCase() === "reais";
-  const amount = isMoney ? money.format(per) : `${number.format(per)} ${goal.unit}`.trim();
+  const amount = isMoney ? money(Math.round(per)) : `${number.format(per)} ${goal.unit}`.trim();
   const verb = goalDescends(goal) ? "baixar" : isMoney ? "juntar" : "fazer";
   return `Para chegar no prazo: ${verb} cerca de ${amount} por ${monthly ? "mês" : "semana"}`;
 }

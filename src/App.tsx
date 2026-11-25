@@ -36,8 +36,11 @@ import { FinancasProvider } from "@/modules/financas/store";
 import { DadosPage } from "@/pages/DadosPage";
 import { DesignSystemPage } from "@/pages/DesignSystemPage";
 import { HomePage } from "@/pages/HomePage";
+import { usePrivacy } from "@/lib/privacy";
 
 export function App() {
+  // O olhinho muda o texto de todos os valores: a árvore inteira desenha de novo.
+  usePrivacy();
   return (
     <BrowserRouter>
       <ToastProvider>

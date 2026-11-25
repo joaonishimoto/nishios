@@ -7,6 +7,7 @@ import { Field, Input, Select, Textarea } from "@/components/ui/Field";
 import { IconPicker } from "@/components/ui/IconPicker";
 import { useToast } from "@/components/ui/Toast";
 import { toISO, today } from "@/lib/dates";
+import { money } from "@/lib/format";
 import { latest } from "@/modules/corpo/logic";
 import { useCorpo } from "@/modules/corpo/store";
 import { MEASURES, type MeasureId } from "@/modules/corpo/types";
@@ -346,7 +347,7 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
               >
                 {investments.map((i) => (
                   <option key={i.id} value={i.id}>
-                    {i.name} ({balance(i).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })})
+                    {i.name} ({money(balance(i))})
                   </option>
                 ))}
               </Select>
