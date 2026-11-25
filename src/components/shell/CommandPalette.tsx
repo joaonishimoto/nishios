@@ -187,7 +187,7 @@ function useEntries(go: (to: string) => void): Entry[] {
       list.push({ id: `im-${p.id}`, group: "Imóveis", title: p.name, detail: situationLabel(p.situation), icon: emoji(p.icon), extra: `${p.address} ${p.lease?.who ?? ""} ${p.financing?.lender ?? ""} imóvel`, run: () => go(`/imoveis/${p.id}`) });
     }
     for (const v of vehicles) {
-      list.push({ id: `ve-${v.id}`, group: "Veículos", title: v.name, detail: vehicleSubtitle(v) || "Veículo", icon: emoji(v.icon), extra: `${v.plate} ${v.brand} ${v.model} ${v.insurer ?? ""} ${v.acquisition.lender ?? ""} veículo carro moto`, run: () => go(`/veiculos?v=${v.id}`) });
+      list.push({ id: `ve-${v.id}`, group: "Veículos", title: v.name, detail: vehicleSubtitle(v) || "Veículo", icon: emoji(v.icon), extra: `${v.plate} ${v.brand} ${v.model} ${v.insurer ?? ""} ${v.acquisition.lender ?? ""} veículo carro moto`, run: () => go(`/veiculos/${v.id}`) });
     }
     for (const r of home.rooms) {
       list.push({ id: `r-${r.id}`, group: "Imóveis", title: r.name, detail: "Cômodo do apartamento", icon: page("/imoveis"), run: () => go(`/imoveis/apartamento?aba=planta&comodo=${r.id}`) });

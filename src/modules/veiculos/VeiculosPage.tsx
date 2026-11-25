@@ -1,29 +1,24 @@
-import { lazy, Suspense, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Box, Car, Plus } from "lucide-react";
-import { Badge, type Tone } from "@/components/ui/Badge";
+import { useMemo, useState } from "react";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { Car, Plus } from "lucide-react";
+import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Dialog, DialogBody } from "@/components/ui/Dialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Progress } from "@/components/ui/Progress";
 import { PageHeader } from "@/components/shell/PageHeader";
-import { cn } from "@/lib/cn";
 import { formatDate, shortDate, today } from "@/lib/dates";
-import { modeLabel, monthYear } from "@/lib/financiamento";
 import { money, plural } from "@/lib/format";
 import { useFinancas } from "@/modules/financas/store";
 import { subtitle, totals, view, type VehicleView } from "./logic";
 import { useVeiculos } from "./store";
 import { VehicleForm } from "./VehicleForm";
-import { isMobi } from "./mobi3d/match";
-
-const Mobi3D = lazy(() => import("./mobi3d/Mobi3D"));
+import { VehicleMini } from "./VehicleMini";
 
 /** Lista dos veículos: quanto valem, quanto falta pagar e o que vence nos próximos meses. */
 export function VeiculosPage() {
   const { vehicles } = useVeiculos();
   const { recurrences } = useFinancas();
-  const [params, setParams] = useSearchParams();
+  const [params] = useSearchParams();
   const [creating, setCreating] = useState(false);
   const now = today();
 
@@ -43,10 +38,11 @@ export function VeiculosPage() {
   const t = totals(views);
   const active = views.filter((v) => !v.vehicle.sold);
   const sold = views.filter((v) => v.vehicle.sold);
-  const editing = vehicles.find((v) => v.id === params.get("v"));
-  const open = (id: string) => setParams({ v: id }, { replace: true });
-  const close = () => setParams({}, { replace: true });
-  const in3d = vehicles.find((v) => v.id === params.get("3d") && isMobi(v));
+  const navigate = useNavigate();
+  const openDetail = (id: string) => navigate(`/veiculos/${id}`);
+  // Links antigos (?v=<id>) abrem a página do veículo.
+  const legacy = params.get("v") ?? params.get("3d");
+  if (legacy && vehicles.some((v) => v.id === legacy)) return <Navigate to={`/veiculos/${legacy}`} replace />;
 
   return (
     <>
@@ -88,35 +84,7 @@ export function VeiculosPage() {
             <Kpi label="Custo por mês" value={money(Math.round(t.monthlyCost))} hint="Parcelas e custos fixos, em média" />
           </div>
 
-          <ul className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {active.map((v) => (
-              <li key={v.vehicle.id} className="relative min-w-0">
-                <VehicleCard view={v} onOpen={() => open(v.vehicle.id)} />
-                {isMobi(v.vehicle) && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="absolute top-4 right-4"
-                    onClick={() => setParams({ "3d": v.vehicle.id }, { replace: true })}
-                  >
-                    <Box />
-                    Ver em 3D
-                  </Button>
-                )}
-              </li>
-            ))}
-            <li>
-              <button
-                type="button"
-                onClick={() => setCreating(true)}
-                className="flex h-full min-h-36 w-full flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-border-strong p-4 text-muted-foreground transition-colors duration-(--motion-fast) hover:bg-surface-hover hover:text-foreground"
-              >
-                <Plus className="size-5" />
-                <span className="font-medium">Adicionar veículo</span>
-                <span className="text-sm">Carro, moto, caminhonete...</span>
-              </button>
-            </li>
-          </ul>
+          <Garage views={active} onOpen={openDetail} onAdd={() => setCreating(true)} />
 
           {sold.length > 0 && (
             <section className="mt-8">
@@ -126,7 +94,7 @@ export function VeiculosPage() {
                   <li key={s.id} className="border-b border-border last:border-b-0">
                     <button
                       type="button"
-                      onClick={() => open(s.id)}
+                      onClick={() => openDetail(s.id)}
                       className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-surface-hover"
                     >
                       <span className="text-lg">{s.icon}</span>
@@ -146,23 +114,7 @@ export function VeiculosPage() {
         </>
       )}
 
-      <VehicleForm open={creating} onOpenChange={setCreating} />
-      <VehicleForm open={!!editing} onOpenChange={(o) => !o && close()} vehicle={editing} />
-      <Dialog
-        open={!!in3d}
-        onOpenChange={(o) => !o && close()}
-        title={in3d?.name ?? "Veículo em 3D"}
-        description={in3d ? subtitle(in3d) : undefined}
-        className="max-w-4xl"
-      >
-        <DialogBody>
-          {in3d && (
-            <Suspense fallback={<p className="grid h-[min(52dvh,420px)] sm:h-[min(72dvh,600px)] place-items-center text-sm text-muted-foreground">Montando o carro...</p>}>
-              <Mobi3D color={in3d.color} plate={in3d.plate} className="h-[min(52dvh,420px)] sm:h-[min(72dvh,600px)]" />
-            </Suspense>
-          )}
-        </DialogBody>
-      </Dialog>
+      <VehicleForm open={creating} onOpenChange={setCreating} onCreated={(v) => openDetail(v.id)} />
     </>
   );
 }
@@ -177,89 +129,76 @@ function Kpi({ label, value, hint }: { label: string; value: string; hint: strin
   );
 }
 
-const ROLE_LABEL: Record<string, string> = {
-  parcela: "Parcela",
-  ipva: "IPVA",
-  seguro: "Seguro",
-  licenciamento: "Licenciamento",
-};
-
-function VehicleCard({ view: w, onOpen }: { view: VehicleView; onOpen: () => void }) {
-  const { vehicle: v, installments: inst, debt } = w;
-  const acq = v.acquisition;
-  const financed = acq.mode !== "cash";
-  const paidOff = financed && inst && inst.left === 0 && !acq.payoff;
-  const tone: Tone = !financed || paidOff ? "success" : "info";
+/** A garagem: cada veículo em miniatura numa vaga. Passar o mouse liga o carro; clicar abre os detalhes. */
+function Garage({ views, onOpen, onAdd }: { views: VehicleView[]; onOpen: (id: string) => void; onAdd: () => void }) {
   const now = today();
-  const soon = w.upcoming.filter((o) => o.rec.link?.role !== "parcela").slice(0, 3);
-
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className="flex h-full w-full flex-col gap-3 rounded-lg border border-border bg-surface p-4 text-left transition-colors duration-(--motion-fast) hover:bg-surface-hover"
-    >
-      <div className="flex w-full items-start gap-3">
-        <span className="grid size-10 shrink-0 place-items-center rounded-md bg-surface-muted text-xl">{v.icon}</span>
-        <div className={cn("min-w-0 flex-1", isMobi(v) && "pr-28")}>
-          <p className="truncate font-semibold">{v.name}</p>
-          <p className="truncate text-sm text-muted-foreground">{subtitle(v) || "Sem modelo nem placa"}</p>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-1.5">
-        <Badge tone={tone}>
-          {!financed ? "Quitado" : paidOff ? `${modeLabel(acq.mode)} quitado` : modeLabel(acq.mode)}
-        </Badge>
-        {acq.mode === "consortium" && <Badge tone={acq.contemplated ? "success" : "warning"}>{acq.contemplated ? "Contemplado" : "Não contemplado"}</Badge>}
-        {v.km ? <Badge>{v.km.toLocaleString("pt-BR")} km</Badge> : null}
-      </div>
-
-      {financed && inst && inst.left > 0 && (
-        <div className="flex w-full flex-col gap-1.5">
-          <Progress value={inst.progress} label={`Parcelas pagas de ${v.name}`} className="h-1.5" />
-          <p className="text-sm text-muted-foreground">
-            {inst.paid} de {inst.total} parcelas de {money(w.parcela!.amount)} · termina em {monthYear(inst.last)}
-          </p>
-        </div>
-      )}
-
-      <dl className="grid w-full grid-cols-2 gap-2 text-sm">
-        <div>
-          <dt className="text-muted-foreground">Vale hoje</dt>
-          <dd className="font-medium tabular-nums">{v.marketValue ? money(Math.round(v.marketValue)) : "Sem valor"}</dd>
-        </div>
-        {debt.owed > 0 ? (
-          <div>
-            <dt className="text-muted-foreground">{debt.informed ? "Saldo para quitar" : "Falta pagar"}</dt>
-            <dd className="font-medium tabular-nums text-warning-strong">{money(Math.round(debt.owed))}</dd>
-          </div>
-        ) : (
-          <div>
-            <dt className="text-muted-foreground">Custo por mês</dt>
-            <dd className="font-medium tabular-nums">{w.monthlyCost ? money(Math.round(w.monthlyCost)) : "Sem custos"}</dd>
-          </div>
-        )}
-      </dl>
-
-      {soon.length > 0 && (
-        <ul className="mt-auto flex w-full flex-col gap-1 border-t border-border pt-3 text-sm">
-          {soon.map((o) => {
-            const days = Math.round((new Date(`${o.date}T00:00`).getTime() - now.getTime()) / 86_400_000);
-            return (
-              <li key={o.rec.id} className="flex items-center justify-between gap-2">
-                <span className="truncate">
-                  {o.rec.icon} {ROLE_LABEL[o.rec.link?.role ?? ""] ?? o.rec.name.replace(/ \([^)]*\)$/, "")}{" "}
-                  <span className="text-muted-foreground">{money(o.amount)}</span>
+    <section aria-label="Garagem" className="mt-6 overflow-hidden rounded-xl border border-border bg-[linear-gradient(to_bottom,var(--color-surface)_0%,var(--color-surface-muted)_100%)]">
+      <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+        {views.map((w) => {
+          const v = w.vehicle;
+          const inst = w.installments;
+          const next = w.upcoming.find((o) => o.rec.link?.role !== "parcela");
+          const soon = next && daysUntil(next.date, now) <= 15;
+          return (
+            <li key={v.id} className="border-b border-dashed border-border-strong sm:border-r sm:[&:nth-child(2n)]:border-r-0 xl:[&:nth-child(2n)]:border-r xl:[&:nth-child(3n)]:border-r-0">
+              <button
+                type="button"
+                onClick={() => onOpen(v.id)}
+                className="group flex w-full flex-col items-center gap-2 px-5 pt-6 pb-5 text-center transition-colors duration-(--motion-fast) hover:bg-surface-hover/60 focus-visible:bg-surface-hover/60"
+              >
+                <VehicleMini kind={v.kind} color={v.color} className="h-28 w-full max-w-64" />
+                <span className="mt-1 flex items-center gap-2">
+                  <span className="font-semibold">{v.name}</span>
+                  {v.plate && <Plate text={v.plate} />}
                 </span>
-                <span className={cn("shrink-0", days <= 15 ? "font-medium text-warning-strong" : "text-muted-foreground")}>
-                  {days === 0 ? "vence hoje" : shortDate(o.date)}
+                <span className="text-sm text-muted-foreground">{[v.brand, v.model, v.year].filter(Boolean).join(" ") || "Toque para completar"}</span>
+                <span className="flex flex-wrap justify-center gap-1.5">
+                  {w.debt.owed > 0 ? (
+                    <Badge tone="info">
+                      {inst && inst.left > 0 ? `${inst.paid}/${inst.total} · ` : ""}falta {money(Math.round(w.debt.owed))}
+                    </Badge>
+                  ) : (
+                    <Badge tone="success">Quitado</Badge>
+                  )}
+                  {next && (
+                    <Badge tone={soon ? "warning" : "neutral"}>
+                      {ROLE_LABEL[next.rec.link?.role ?? ""] ?? "Custo"} {shortDate(next.date)}
+                    </Badge>
+                  )}
                 </span>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </button>
+                {inst && inst.left > 0 && <Progress value={inst.progress} label={`Parcelas pagas de ${v.name}`} className="mt-1 h-1 w-40" />}
+              </button>
+            </li>
+          );
+        })}
+        <li className="border-b border-dashed border-border-strong">
+          <button
+            type="button"
+            onClick={onAdd}
+            className="group flex h-full min-h-56 w-full flex-col items-center justify-center gap-1 px-5 py-6 text-muted-foreground transition-colors duration-(--motion-fast) hover:bg-surface-hover/60 hover:text-foreground"
+          >
+            <span className="grid size-12 place-items-center rounded-full border border-dashed border-border-strong transition-transform duration-300 group-hover:scale-110">
+              <Plus className="size-5" />
+            </span>
+            <span className="mt-2 font-medium">Vaga livre</span>
+            <span className="text-sm">Adicionar carro, moto, caminhonete...</span>
+          </button>
+        </li>
+      </ul>
+    </section>
+  );
+}
+
+const ROLE_LABEL: Record<string, string> = { ipva: "IPVA", seguro: "Seguro", licenciamento: "Licenciamento" };
+const daysUntil = (iso: string, now: Date) => Math.round((new Date(`${iso}T00:00`).getTime() - now.getTime()) / 86_400_000);
+
+/** Placa Mercosul pequena. */
+function Plate({ text }: { text: string }) {
+  return (
+    <span className="inline-flex flex-col overflow-hidden rounded-[3px] border border-neutral-700 bg-white text-neutral-900 shadow-xs">
+      <span className="h-1 bg-[#1d3f9b]" />
+      <span className="px-1 font-mono text-[0.625rem] leading-3.5 font-bold tracking-wider">{text.toUpperCase()}</span>
+    </span>
   );
 }

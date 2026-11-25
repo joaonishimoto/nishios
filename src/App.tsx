@@ -12,6 +12,7 @@ import { ImoveisPage } from "@/modules/imoveis/ImoveisPage";
 import { ImovelPage } from "@/modules/imoveis/ImovelPage";
 import { MAIN_ID } from "@/modules/imoveis/seed";
 import { ImoveisProvider } from "@/modules/imoveis/store";
+import { VeiculoPage } from "@/modules/veiculos/VeiculoPage";
 import { VeiculosPage } from "@/modules/veiculos/VeiculosPage";
 import { VeiculosProvider } from "@/modules/veiculos/store";
 import { PessoasPage } from "@/modules/pessoas/PessoasPage";
@@ -73,6 +74,7 @@ export function App() {
               <Route path="imoveis" element={<ImoveisPage />} />
               <Route path="imoveis/:id" element={<ImovelPage />} />
               <Route path="veiculos" element={<VeiculosPage />} />
+              <Route path="veiculos/:id" element={<VeiculoPage />} />
               <Route path="casa" element={<CasaRedirect />} />
               <Route path="pessoas" element={<PessoasPage />} />
               <Route path="pets" element={<PetsPage />} />
