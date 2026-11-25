@@ -40,7 +40,39 @@ export interface Vehicle {
   sold?: { date: string; price: number };
   notes: string;
   createdAt: string;
+  /** Diário do carro: trocas de óleo e pneus, lavagens, batidas, multas... */
+  log?: VehicleEvent[];
 }
+
+export type EventKind = "oleo" | "pneus" | "lavagem" | "revisao" | "batida" | "multa" | "outro";
+
+export interface VehicleEvent {
+  id: string;
+  kind: EventKind;
+  /** yyyy-MM-dd */
+  date: string;
+  /** Quanto custou, em reais (0 quando não teve custo). */
+  cost: number;
+  /** Quilometragem no dia. */
+  km?: number;
+  /** Batida: o seguro cobriu (o custo é só a franquia ou nada). Multa: já paguei. */
+  covered?: boolean;
+  /** Multa: pontos na carteira. */
+  points?: number;
+  /** Título curto: "Troca dos 4 pneus", "Ralado no estacionamento". */
+  title: string;
+  notes: string;
+}
+
+export const EVENT_KINDS: { value: EventKind; label: string; icon: string; hint: string }[] = [
+  { value: "oleo", label: "Troca de óleo", icon: "🛢️", hint: "Óleo e filtros" },
+  { value: "pneus", label: "Pneus", icon: "🛞", hint: "Troca, rodízio, alinhamento" },
+  { value: "lavagem", label: "Lavagem", icon: "🧽", hint: "Lavagem, polimento, higienização" },
+  { value: "revisao", label: "Revisão ou conserto", icon: "🔧", hint: "Revisão, freio, bateria, mecânico" },
+  { value: "batida", label: "Batida", icon: "💥", hint: "Acidente, ralado, amassado" },
+  { value: "multa", label: "Multa", icon: "🚨", hint: "Infração, pontos e valor" },
+  { value: "outro", label: "Outro", icon: "📌", hint: "Qualquer outra coisa" },
+];
 
 /** Os custos fixos que todo veículo costuma ter, cada um vira uma recorrência. */
 export type CostRole = "parcela" | "ipva" | "seguro" | "licenciamento" | "custo";

@@ -109,6 +109,8 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
   - Forma de compra: à vista, financiamento (entrada, banco) ou consórcio (lance, administradora, contemplado ou não). A parcela mostra quantas já venceram, quantas faltam, quanto falta pagar e quando termina; o saldo para quitar do extrato substitui a soma das parcelas.
   - Parcela, IPVA, seguro, licenciamento e outros custos fixos viram recorrências de Finanças ligadas ao veículo: entram na previsão do mês, no calendário e no sino antes de vencer.
   - Vendido, sai do patrimônio e os custos param na data da venda.
+  - A lista é uma garagem: cada veículo aparece em miniatura numa vaga, na cor do cadastro, e abre a página dele (`/veiculos/<id>`).
+  - Na página do veículo: o carro em destaque (o Mobi em 3D), quanto vale e quanto falta, os próximos vencimentos e o **diário** com troca de óleo, pneus, lavagem, revisão, batidas (com quanto saiu do bolso) e multas (pontos e se já pagou). Os quadros de cuidados mostram a última troca de óleo e a próxima (10 mil km ou 1 ano), há quantos dias lavou e o total de batidas e multas.
   - Cada veículo fica numa chave própria (`nishios:veiculos:item:<id>`), como os imóveis.
 - **Planta em 3D** (aba do apartamento): o apartamento em 3D, montado a partir da planta (cômodos, paredes e a área externa). Começa vazio, só com o que vem da construção: pias, vasos, boxes, tanque, bancada da cozinha, porta da varanda e muro.
   - Duas vistas: **3D** (low-poly, com luz e sombra; arraste para girar e role para aproximar) e **Planta** (vista de cima, a padrão no celular).

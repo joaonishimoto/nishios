@@ -14,6 +14,7 @@ import { money } from "@/lib/format";
 import { useFinancas } from "@/modules/financas/store";
 import { EVERY_OPTIONS, type Recurrence } from "@/modules/financas/types";
 import { linkedTo, withRole } from "./logic";
+import { COLOR_NAMES } from "./paint";
 import { useVeiculos, type CostInput, type CostPlan } from "./store";
 import { FIXED_COSTS, VEHICLE_ICONS, VEHICLE_KINDS, type Vehicle, type VehicleKind } from "./types";
 
@@ -21,10 +22,12 @@ export function VehicleForm({
   open,
   onOpenChange,
   vehicle,
+  onCreated,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   vehicle?: Vehicle;
+  onCreated?: (vehicle: Vehicle) => void;
 }) {
   return (
     <Dialog
@@ -34,7 +37,7 @@ export function VehicleForm({
       description={vehicle ? undefined : "Carro, moto ou outro: quanto vale, como foi pago e o que custa todo ano."}
       className="max-w-2xl"
     >
-      <Content key={vehicle?.id ?? "novo"} vehicle={vehicle} onClose={() => onOpenChange(false)} />
+      <Content key={vehicle?.id ?? "novo"} vehicle={vehicle} onCreated={onCreated} onClose={() => onOpenChange(false)} />
     </Dialog>
   );
 }
@@ -49,7 +52,7 @@ const toInput = (r: Recurrence | undefined, name: string): CostInput =>
 /** Nome sem o " (Apelido)" que a recorrência ganha em Finanças. */
 const bareName = (r: Recurrence) => r.name.replace(/ \([^)]*\)$/, "");
 
-function Content({ vehicle, onClose }: { vehicle?: Vehicle; onClose: () => void }) {
+function Content({ vehicle, onCreated, onClose }: { vehicle?: Vehicle; onCreated?: (v: Vehicle) => void; onClose: () => void }) {
   const { save, remove } = useVeiculos();
   const { recurrences } = useFinancas();
   const toast = useToast();
@@ -134,6 +137,7 @@ function Content({ vehicle, onClose }: { vehicle?: Vehicle; onClose: () => void 
       others: others.filter((o) => o.amount > 0),
     };
     save(clean, plan);
+    if (!vehicle) onCreated?.(clean);
     toast({ message: vehicle ? "Alterações salvas" : `${clean.name} entrou nos seus veículos` });
     onClose();
   }
@@ -223,6 +227,18 @@ function Content({ vehicle, onClose }: { vehicle?: Vehicle; onClose: () => void 
                   className="uppercase"
                   onChange={(e) => set("plate", e.target.value)}
                 />
+              )}
+            </Field>
+            <Field label="Cor">
+              {(id) => (
+                <>
+                  <Input id={id} list="veiculo-cores" value={v.color ?? ""} placeholder="Ex.: Azul" onChange={(e) => set("color", e.target.value)} />
+                  <datalist id="veiculo-cores">
+                    {COLOR_NAMES.map((c) => (
+                      <option key={c} value={c} />
+                    ))}
+                  </datalist>
+                </>
               )}
             </Field>
             <Field label="Quilometragem">
