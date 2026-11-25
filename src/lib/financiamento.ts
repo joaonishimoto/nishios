@@ -9,11 +9,12 @@ import { toISO } from "./dates";
  * `first`), ligada por `recurrenceId`. Assim ela entra sozinha na previsão do mês,
  * no calendário e nos avisos, e um único lugar diz quanto e quando se paga.
  */
-export type AcquisitionMode = "cash" | "financing" | "consortium";
+export type AcquisitionMode = "cash" | "financing" | "family" | "consortium";
 
 export const ACQUISITION_MODES: { value: AcquisitionMode; label: string; hint: string }[] = [
   { value: "cash", label: "À vista", hint: "Já é todo seu" },
   { value: "financing", label: "Financiamento", hint: "Parcelas com juros num banco" },
+  { value: "family", label: "Familiar", hint: "Parcelas mandadas para um parente que pagou ou emprestou" },
   { value: "consortium", label: "Consórcio", hint: "Parcelas até ser contemplado e quitar" },
 ];
 
@@ -25,7 +26,7 @@ export interface Acquisition {
   price: number;
   /** Entrada (financiamento) ou lance (consórcio). */
   downPayment?: number;
-  /** Banco do financiamento ou administradora do consórcio. */
+  /** Banco do financiamento, parente (familiar) ou administradora do consórcio. */
   lender?: string;
   /** Recorrência de Finanças com as parcelas. */
   recurrenceId?: string;
@@ -37,10 +38,13 @@ export interface Acquisition {
   /** Consórcio: já foi contemplado (recebeu a carta de crédito). */
   contemplated?: boolean;
   contemplatedOn?: string;
+  /** Familiar: a chave Pix ou a conta para onde mando a parcela. */
+  pix?: string;
   notes?: string;
 }
 
-export const modeLabel = (mode: AcquisitionMode) => ACQUISITION_MODES.find((m) => m.value === mode)?.label ?? mode;
+export const modeLabel = (mode: AcquisitionMode) =>
+  mode === "family" ? "Financiamento familiar" : (ACQUISITION_MODES.find((m) => m.value === mode)?.label ?? mode);
 
 /** O mínimo de uma recorrência de Finanças que o cálculo das parcelas usa. */
 export interface InstallmentPlan {

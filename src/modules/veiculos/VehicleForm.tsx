@@ -127,13 +127,16 @@ function Content({ vehicle, onCreated, onClose }: { vehicle?: Vehicle; onCreated
         downPayment: financed ? acq.downPayment || undefined : undefined,
         lender: financed ? acq.lender?.trim() || undefined : undefined,
         payoff: financed && acq.payoff?.amount ? acq.payoff : undefined,
+        pix: acq.mode === "family" ? acq.pix?.trim() || undefined : undefined,
         contemplated: acq.mode === "consortium" ? acq.contemplated : undefined,
         contemplatedOn: acq.mode === "consortium" && acq.contemplated ? acq.contemplatedOn : undefined,
       },
       sold: selling ? { date: v.sold?.date || toISO(now), price: v.sold?.price ?? 0 } : undefined,
     };
     const plan: CostPlan = {
-      parcela: financed ? { ...parcela, every: 1 } : null,
+      parcela: financed
+        ? { ...parcela, every: 1, name: acq.mode === "family" && acq.lender?.trim() ? `Parcela para ${acq.lender.trim()}` : "Parcela" }
+        : null,
       fixed,
       others: others.filter((o) => o.amount > 0),
     };
@@ -288,25 +291,37 @@ function Content({ vehicle, onCreated, onClose }: { vehicle?: Vehicle; onCreated
               )}
             </Field>
             <Field
-              label={acq.mode === "cash" ? "Valor pago (R$)" : acq.mode === "financing" ? "Valor do veículo (R$)" : "Carta de crédito (R$)"}
+              label={acq.mode === "cash" ? "Valor pago (R$)" : acq.mode === "financing" || acq.mode === "family" ? "Valor do veículo (R$)" : "Carta de crédito (R$)"}
             >
               {money$(acq.price, (n) => setAcq("price", n))}
             </Field>
             {financed && (
               <>
-                <Field label={acq.mode === "financing" ? "Entrada (R$)" : "Lance (R$)"}>
+                <Field label={acq.mode === "consortium" ? "Lance (R$)" : "Entrada (R$)"}>
                   {money$(acq.downPayment, (n) => setAcq("downPayment", n))}
                 </Field>
-                <Field label={acq.mode === "financing" ? "Banco" : "Administradora"}>
+                <Field label={acq.mode === "financing" ? "Banco" : acq.mode === "family" ? "Para quem eu mando" : "Administradora"}>
                   {(id) => (
                     <Input
                       id={id}
                       value={acq.lender ?? ""}
-                      placeholder={acq.mode === "financing" ? "Ex.: Itaú" : "Ex.: Porto Seguro Consórcio"}
+                      placeholder={acq.mode === "financing" ? "Ex.: Itaú" : acq.mode === "family" ? "Ex.: Meu pai" : "Ex.: Porto Seguro Consórcio"}
                       onChange={(e) => setAcq("lender", e.target.value)}
                     />
                   )}
                 </Field>
+                {acq.mode === "family" && (
+                  <Field label="Chave Pix ou conta" hint="Opcional. Para lembrar para onde mandar todo mês.">
+                    {(id) => (
+                      <Input
+                        id={id}
+                        value={acq.pix ?? ""}
+                        placeholder="Ex.: CPF, e-mail ou celular"
+                        onChange={(e) => setAcq("pix", e.target.value)}
+                      />
+                    )}
+                  </Field>
+                )}
               </>
             )}
           </div>
@@ -352,7 +367,7 @@ function Content({ vehicle, onCreated, onClose }: { vehicle?: Vehicle; onCreated
                 </div>
               )}
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Saldo para quitar (R$)" hint="Opcional. O valor do extrato do banco, já sem os juros futuros.">
+                <Field label="Saldo para quitar (R$)" hint={acq.mode === "family" ? "Opcional. Se combinaram um valor para quitar de uma vez." : "Opcional. O valor do extrato do banco, já sem os juros futuros."}>
                   {money$(acq.payoff?.amount, (n) =>
                     setAcq("payoff", n ? { amount: n, date: acq.payoff?.date || toISO(now) } : undefined),
                   )}

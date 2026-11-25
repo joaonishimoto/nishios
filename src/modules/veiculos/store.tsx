@@ -82,7 +82,7 @@ export function VeiculosProvider({ children }: { children: ReactNode }) {
           } else keep.add(createRecurrence(draft).id);
         };
         upsert("parcela", plan.parcela, {
-          icon: vehicle.acquisition.mode === "consortium" ? "🤝" : "🏦",
+          icon: vehicle.acquisition.mode === "consortium" ? "🤝" : vehicle.acquisition.mode === "family" ? "👨‍👩‍👧" : "🏦",
           category: "Parcelamentos",
         });
         for (const f of FIXED_COSTS) upsert(f.role, plan.fixed[f.role], f);
