@@ -9,6 +9,7 @@ import { money } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import { isOwned, month, paidUntil, situationLabel, totals, wealth } from "./logic";
 import { PropertyForm } from "./PropertyForm";
+import { PropertyMini } from "./PropertyMini";
 import { useImoveis } from "./store";
 import type { Property, Situation } from "./types";
 
@@ -59,24 +60,31 @@ export function ImoveisPage() {
         </p>
       )}
 
-      <ul className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {properties.map((p) => (
-          <li key={p.id}>
-            <PropertyCard property={p} />
+      <section
+        aria-label="Seus imóveis"
+        className="mt-6 overflow-hidden rounded-xl border border-border bg-[linear-gradient(to_bottom,var(--color-surface)_0%,var(--color-surface-muted)_100%)]"
+      >
+        <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+          {properties.map((p) => (
+            <li key={p.id} className={LOT}>
+              <PropertyLot property={p} />
+            </li>
+          ))}
+          <li className={LOT}>
+            <button
+              type="button"
+              onClick={() => setCreating(true)}
+              className="group flex h-full min-h-60 w-full flex-col items-center justify-center gap-1 px-5 py-6 text-muted-foreground transition-colors duration-(--motion-fast) hover:bg-surface-hover/60 hover:text-foreground"
+            >
+              <span className="grid size-12 place-items-center rounded-full border border-dashed border-border-strong transition-transform duration-300 group-hover:scale-110">
+                <Plus className="size-5" />
+              </span>
+              <span className="mt-2 font-medium">Lote vago</span>
+              <span className="text-sm">Adicionar apartamento, casa, terreno ou sala</span>
+            </button>
           </li>
-        ))}
-        <li>
-          <button
-            type="button"
-            onClick={() => setCreating(true)}
-            className="flex h-full min-h-36 w-full flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-border-strong p-4 text-muted-foreground transition-colors duration-(--motion-fast) hover:bg-surface-hover hover:text-foreground"
-          >
-            <Plus className="size-5" />
-            <span className="font-medium">Adicionar imóvel</span>
-            <span className="text-sm">Apartamento, casa, terreno ou sala</span>
-          </button>
-        </li>
-      </ul>
+        </ul>
+      </section>
 
       <PropertyForm open={creating} onOpenChange={setCreating} onCreated={(p) => navigate(`/imoveis/${p.id}`)} />
     </>
@@ -101,63 +109,62 @@ function Kpi({ label, value, hint, tone }: { label: string; value: string; hint:
   );
 }
 
-function PropertyCard({ property: p }: { property: Property }) {
+/** Divisória tracejada entre os lotes, como as vagas da garagem. */
+const LOT =
+  "border-b border-dashed border-border-strong sm:border-r sm:[&:nth-child(2n)]:border-r-0 xl:[&:nth-child(2n)]:border-r xl:[&:nth-child(3n)]:border-r-0";
+
+/** Um imóvel em miniatura; tocar abre os detalhes. */
+function PropertyLot({ property: p }: { property: Property }) {
   const w = wealth(p);
   const m = month(p);
   const f = p.financing;
   const paid = f ? paidUntil(f) : 0;
+  const financing = f && isOwned(p) && f.total > 0 && paid < f.total;
+  const main = isOwned(p)
+    ? w.value
+      ? `${w.debt > 0 ? "Já é meu" : "Vale"} ${money(Math.round(w.debt > 0 ? w.equity : w.value))}`
+      : null
+    : p.situation === "vendido"
+      ? p.soldPrice
+        ? `Vendido por ${money(p.soldPrice)}`
+        : null
+      : p.lease?.rent
+        ? `Aluguel ${money(p.lease.rent)}`
+        : null;
+  const hasMonth = p.situation !== "vendido" && m.ins.length + m.outs.length > 0;
   return (
     <Link
       to={`/imoveis/${p.id}`}
-      className="flex h-full flex-col gap-3 rounded-lg border border-border bg-surface p-4 transition-colors duration-(--motion-fast) hover:bg-surface-hover"
+      className="group flex h-full w-full flex-col items-center gap-2 px-5 pt-6 pb-5 text-center transition-colors duration-(--motion-fast) hover:bg-surface-hover/60 focus-visible:bg-surface-hover/60"
     >
-      <div className="flex items-start gap-3">
-        <span className="grid size-10 shrink-0 place-items-center rounded-md bg-surface-muted text-xl">{p.icon}</span>
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold">{p.name}</p>
-          <p className="truncate text-sm text-muted-foreground">{p.address || (p.plan ? "Com planta em 3D" : "Sem endereço")}</p>
-        </div>
+      <PropertyMini kind={p.kind} situation={p.situation} className="h-32 w-full max-w-64" />
+      <span className="mt-1 flex items-center gap-1.5">
+        <span className="font-semibold">{p.name}</span>
         {p.plan && (
           <span title="Tem planta em 3D" className="text-muted-foreground">
             <Box className="size-4" />
           </span>
         )}
-      </div>
-      <div className="flex flex-wrap gap-1.5">
+      </span>
+      <span className="max-w-full truncate text-sm text-muted-foreground">{p.address || "Toque para ver os detalhes"}</span>
+      <span className="flex flex-wrap justify-center gap-1.5">
         <Badge tone={SITUATION_TONE[p.situation]}>{situationLabel(p.situation)}</Badge>
-        {f && isOwned(p) && <Badge>{paid >= f.total ? "Quitado" : `Financiado, ${paid} de ${f.total}`}</Badge>}
-      </div>
-      {f && isOwned(p) && f.total > 0 && paid < f.total && (
-        <Progress value={paid / f.total} label={`Parcelas pagas de ${p.name}`} className="h-1.5" />
+        {f && isOwned(p) && paid >= f.total && <Badge tone="success">Quitado</Badge>}
+        {financing && <Badge>{`${paid}/${f.total} parcelas`}</Badge>}
+      </span>
+      {(main || hasMonth) && (
+        <span className="text-sm tabular-nums text-muted-foreground">
+          {main}
+          {main && hasMonth ? " · " : ""}
+          {hasMonth && (
+            <span className={cn(m.net > 0 && "text-success-strong")}>
+              {m.net > 0 ? "+" : ""}
+              {money(Math.round(m.net))}/mês
+            </span>
+          )}
+        </span>
       )}
-      <dl className="mt-auto grid grid-cols-2 gap-2 text-sm">
-        {isOwned(p) ? (
-          <div>
-            <dt className="text-muted-foreground">{w.debt > 0 ? "Já é meu" : "Valor"}</dt>
-            <dd className="font-medium tabular-nums">{w.value ? money(Math.round(w.debt > 0 ? w.equity : w.value)) : "Sem valor"}</dd>
-          </div>
-        ) : (
-          <div>
-            <dt className="text-muted-foreground">{p.situation === "vendido" ? "Vendido por" : "Aluguel"}</dt>
-            <dd className="font-medium tabular-nums">
-              {p.situation === "vendido" ? (p.soldPrice ? money(p.soldPrice) : "Sem valor") : p.lease?.rent ? money(p.lease.rent) : "Sem valor"}
-            </dd>
-          </div>
-        )}
-        {p.situation !== "vendido" && (
-          <div>
-            <dt className="text-muted-foreground">Por mês</dt>
-            <dd
-              className={cn(
-                "font-medium tabular-nums",
-                m.net > 0 && "text-success-strong",
-              )}
-            >
-              {m.ins.length + m.outs.length === 0 ? "Sem custos" : money(Math.round(m.net))}
-            </dd>
-          </div>
-        )}
-      </dl>
+      {financing && <Progress value={paid / f.total} label={`Parcelas pagas de ${p.name}`} className="mt-1 h-1 w-40" />}
     </Link>
   );
 }
