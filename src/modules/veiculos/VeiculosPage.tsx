@@ -12,7 +12,7 @@ import { useFinancas } from "@/modules/financas/store";
 import { subtitle, totals, view, type VehicleView } from "./logic";
 import { useVeiculos } from "./store";
 import { VehicleForm } from "./VehicleForm";
-import { VehicleMini } from "./VehicleMini";
+import { VehiclePicture } from "./VehiclePicture";
 
 /** Lista dos veículos: quanto valem, quanto falta pagar e o que vence nos próximos meses. */
 export function VeiculosPage() {
@@ -147,7 +147,7 @@ function Garage({ views, onOpen, onAdd }: { views: VehicleView[]; onOpen: (id: s
                 onClick={() => onOpen(v.id)}
                 className="group flex w-full flex-col items-center gap-2 px-5 pt-6 pb-5 text-center transition-colors duration-(--motion-fast) hover:bg-surface-hover/60 focus-visible:bg-surface-hover/60"
               >
-                <VehicleMini kind={v.kind} color={v.color} className="h-28 w-full max-w-64" />
+                <VehiclePicture vehicle={v} className="h-28 w-full max-w-64" />
                 <span className="mt-1 flex items-center gap-2">
                   <span className="font-semibold">{v.name}</span>
                   {v.plate && <Plate text={v.plate} />}
