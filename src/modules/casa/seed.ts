@@ -75,10 +75,10 @@ export function seedHome(): Home {
       w("x", 4.15, -0.11, 1.7),
       w("z", 1.65, 4.1, 5.52, [[4.42, 5.32]]), // porta de entrada, no estar
       w("x", 5.47, 1.6, 8.0),
-      w("z", 7.95, 4.1, 5.52, undefined, [[4.56, 5.2]]),
+      w("z", 7.95, 4.1, 5.52, undefined, [[4.56, 5.2, 1.6]]), // janela alta do banheiro
       w("z", 4.24, -0.11, 3.07),
       w("x", -0.06, 4.19, 9.97, undefined, [[4.87, 6.1], [7.72, 8.94]]), // janelas do quarto e da suíte, para a área externa
-      w("z", 9.92, -0.11, 4.2, undefined, [[3.0, 3.64]]),
+      w("z", 9.92, -0.11, 4.2, undefined, [[3.0, 3.64, 1.6]]), // janela alta do banho da suíte
       w("x", 4.15, 5.65, 9.97, [[5.82, 6.52]]),
       // Internas, com as portas
       w("z", 1.65, 0.19, 2.17),

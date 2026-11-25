@@ -660,14 +660,15 @@ function buildHouse(
   // linha de vidro no meio, como no desenho da construtora.
   const sillMat = mode === "planta" ? material(pal.windowSill) : wallMat;
   const paneMat = mode === "planta" ? material(pal.highlight) : material(pal.material.vidro, 0.45, 0.1);
-  const windowAt = (axis: "x" | "z", at: number, a: number, b: number) => {
+  const windowAt = (axis: "x" | "z", at: number, a: number, b: number, high?: number) => {
     if (mode === "planta") {
       slab(axis, at, a, b, 0, wallH * 0.5, T, sillMat, false);
       slab(axis, at, a, b, 0, wallH * 0.55, 0.018, paneMat, false);
       for (const end of [a, b]) slab(axis, at, end - 0.02, end + 0.02, 0, wallH, T, wallMat, false);
       return;
     }
-    const sill = Math.min(wallH * 0.62, WINDOW_SILL);
+    // Janela alta (banheiros): peitoril mais alto, com o mesmo topo das outras.
+    const sill = high !== undefined ? Math.min(wallH * 0.8, high) : Math.min(wallH * 0.62, WINDOW_SILL);
     const top = Math.min(wallH, WINDOW_TOP);
     slab(axis, at, a, b, 0, sill, T, wallMat);
     slab(axis, at, a, b, sill, top, 0.02, paneMat, false);
@@ -676,13 +677,13 @@ function buildHouse(
   };
   for (const wall of home.walls) {
     const cuts = [
-      ...(wall.gaps ?? []).map(([a, b]) => ({ a, b, window: false })),
-      ...(wall.windows ?? []).map(([a, b]) => ({ a, b, window: true })),
+      ...(wall.gaps ?? []).map(([a, b]) => ({ a, b, window: false, high: undefined as number | undefined })),
+      ...(wall.windows ?? []).map(([a, b, high]) => ({ a, b, window: true, high })),
     ].sort((p, q) => p.a - q.a);
     let start = wall.from;
     for (const cut of cuts) {
       slab(wall.axis, wall.at, start, cut.a, 0, wallH, T, wallMat);
-      if (cut.window) windowAt(wall.axis, wall.at, cut.a, cut.b);
+      if (cut.window) windowAt(wall.axis, wall.at, cut.a, cut.b, cut.high);
       // Vão de porta: com a parede mais alta que a porta, a parede fecha por cima dela.
       else if (mode === "3d" && wallH > DOOR_TOP) slab(wall.axis, wall.at, cut.a, cut.b, DOOR_TOP, wallH, T, wallMat);
       start = cut.b;
@@ -916,7 +917,7 @@ function houseDims(home: Home, focusId: string | null): RoomDim[] {
   const indoor = (px: number, pz: number) =>
     home.rooms.some((r) => !r.outdoor && r.rects.some(([x, z, w, d]) => px > x && px < x + w && pz > z && pz < z + d));
   home.walls.forEach((wall, i) => {
-    const spans = [...(wall.gaps ?? []).map((g) => [...g, 0] as const), ...(wall.windows ?? []).map((g) => [...g, 1] as const)];
+    const spans = [...(wall.gaps ?? []).map((g) => [...g, 0] as const), ...(wall.windows ?? []).map(([a, b]) => [a, b, 1] as const)];
     spans.forEach(([a, b, isWindow], j) => {
       if (!touches(wall.axis, wall.at, a, b)) return;
       const mid = (a + b) / 2;
