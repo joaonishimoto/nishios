@@ -108,8 +108,13 @@ export function VeiculoPage() {
               <Progress value={inst.progress} label="Parcelas pagas" />
               <p className="text-sm text-muted-foreground">
                 {inst.paid} de {inst.total} parcelas de {money(w.parcela!.amount)}
-                {acq.lender ? ` (${acq.lender})` : ""} · termina em {monthYear(inst.last)}
+                {acq.lender ? (acq.mode === "family" ? ` para ${acq.lender}` : ` (${acq.lender})`) : ""} · termina em {monthYear(inst.last)}
               </p>
+              {acq.mode === "family" && acq.pix && (
+                <p className="text-sm text-muted-foreground">
+                  Mandar para o Pix <span className="font-medium text-foreground select-all">{acq.pix}</span>
+                </p>
+              )}
             </div>
           )}
         </div>
