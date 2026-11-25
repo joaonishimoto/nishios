@@ -45,22 +45,24 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: "Rotina e metas", icon: Target, to: "/rotina" },
       { label: "Compromissos", icon: CalendarClock, to: "/compromissos" },
       { label: "Pessoas", icon: Users, to: "/pessoas" },
+      { label: "Pets", icon: PawPrint, to: "/pets" },
     ],
   },
   {
-    label: "Corpo",
+    label: "Saúde",
     items: [
       { label: "Treinos", icon: Dumbbell, to: "/treinos" },
       { label: "Corpo", icon: Ruler, to: "/corpo" },
     ],
   },
   {
-    label: "Casa",
+    // Tudo o que é seu e tem valor: o dinheiro e as coisas que ele compra.
+    label: "Patrimônio",
     items: [
+      { label: "Finanças", icon: Wallet, to: "/financas" },
       { label: "Imóveis", icon: Building2, to: "/imoveis" },
       { label: "Veículos", icon: Car, to: "/veiculos" },
       { label: "Bens e desejos", icon: Package, to: "/bens" },
-      { label: "Pets", icon: PawPrint, to: "/pets" },
     ],
   },
   {
@@ -68,7 +70,6 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: "Skills", icon: GraduationCap, to: "/skills" },
       { label: "Culinária", icon: ChefHat, to: "/culinaria" },
-      { label: "Finanças", icon: Wallet, to: "/financas" },
     ],
   },
 ];
