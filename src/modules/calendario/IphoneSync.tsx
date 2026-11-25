@@ -35,7 +35,8 @@ function Content() {
   const now = today();
   const from = toISO(add(now, { years: -2 }));
   const to = toISO(add(now, { months: MONTHS_AHEAD }));
-  const { items } = useCalendarItems(from, to);
+  // O arquivo leva os valores de verdade, mesmo com o olhinho fechado.
+  const { items } = useCalendarItems(from, to, { reveal: true });
 
   const own = useMemo(
     () => (hidden.includes("eventos") ? [] : events.filter((e) => e.origin === "nishios")),

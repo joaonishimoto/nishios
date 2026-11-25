@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
 import { shortDate, toISO, today } from "@/lib/dates";
 import { money } from "@/lib/format";
+import { usePrivacy } from "@/lib/privacy";
 import { useBens } from "@/modules/bens/store";
 import { useCalendar } from "@/modules/calendario/store";
 import { balance } from "@/modules/financas/logic";
@@ -81,6 +82,8 @@ function useEntries(go: (to: string) => void): Entry[] {
   const { vehicles } = useVeiculos();
   const { recurrences, investments } = useFinancas();
   const { recipes } = useCulinaria();
+  // Os detalhes trazem valores: refaz a lista quando o olhinho muda.
+  const { hidden } = usePrivacy();
 
   return useMemo(() => {
     const emoji = (e: string) => <span className="text-base leading-none">{e}</span>;
@@ -204,7 +207,7 @@ function useEntries(go: (to: string) => void): Entry[] {
       list.push({ id: `inv-${i.id}`, group: "Finanças", title: i.name, detail: money(balance(i)), icon: emoji(i.icon), extra: `${i.institution} ${i.notes} investimento`, run: () => go(`/financas?aba=investimentos&i=${i.id}`) });
     }
     return list;
-  }, [tasks, projects, commitments, habits, goals, events, people, pets, skills, assets, wishes, modalities, exercises, plans, home, properties, vehicles, recurrences, investments, recipes, go]);
+  }, [tasks, projects, commitments, habits, goals, events, people, pets, skills, assets, wishes, modalities, exercises, plans, home, properties, vehicles, recurrences, investments, recipes, go, hidden]);
 }
 
 function Results({ query, onDone }: { query: string; onDone: () => void }) {

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import * as RadixDialog from "@radix-ui/react-dialog";
-import { Menu, Moon, Search, Sun } from "lucide-react";
+import { Eye, EyeOff, Menu, Moon, Search, Sun } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { usePrivacy } from "@/lib/privacy";
 import { useTheme } from "@/lib/theme";
 import { MAIN_NAV } from "./nav";
 import { CommandPalette, SHORTCUT } from "./CommandPalette";
@@ -17,6 +18,7 @@ const TITLES: Record<string, string> = {
 
 export function AppShell() {
   const { theme, toggle } = useTheme();
+  const privacy = usePrivacy();
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -74,6 +76,16 @@ export function AppShell() {
               <Search />
             </Button>
             <Notifications />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={privacy.toggle}
+              aria-label={privacy.hidden ? "Mostrar valores" : "Ocultar valores"}
+              aria-pressed={privacy.hidden}
+              title={privacy.hidden ? "Mostrar valores" : "Ocultar valores"}
+            >
+              {privacy.hidden ? <EyeOff /> : <Eye />}
+            </Button>
             <Button
               variant="ghost"
               size="icon"
