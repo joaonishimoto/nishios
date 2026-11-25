@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState, NoResults } from "@/components/ui/EmptyState";
 import { Field, Input, Select } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover";
 import { Segmented } from "@/components/ui/Segmented";
 import { useToast } from "@/components/ui/Toast";
@@ -470,13 +471,13 @@ function BuyWish({ wish }: { wish: Wish }) {
   const [open, setOpen] = useState(false);
   const max = toISO(today());
   const [date, setDate] = useState(max);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState<number | undefined>(undefined);
   const [category, setCategory] = useState(ASSET_CATEGORIES[0]);
 
   function submit(e: FormEvent) {
     e.preventDefault();
-    const paid = Number(value);
-    if (!date || Number.isNaN(paid) || paid < 0) return;
+    const paid = value ?? 0;
+    if (!date || value === undefined) return;
     const asset = buyWish(wish, { value: paid, purchaseDate: date, category });
     setOpen(false);
     toast({
@@ -498,7 +499,7 @@ function BuyWish({ wish }: { wish: Wish }) {
         setOpen(o);
         if (o) {
           setDate(max);
-          setValue(String(wish.price));
+          setValue(wish.price || undefined);
         }
       }}
     >
@@ -512,17 +513,7 @@ function BuyWish({ wish }: { wish: Wish }) {
         <form className="flex flex-col gap-3" onSubmit={submit}>
           <Field label="Quanto pagou (R$)">
             {(id) => (
-              <Input
-                placeholder="0,00"
-                id={id}
-                type="number"
-                min={0}
-                step="0.01"
-                inputMode="decimal"
-                value={value}
-                required
-                onChange={(e) => setValue(e.target.value)}
-              />
+              <MoneyInput id={id} value={value} required onValueChange={setValue} />
             )}
           </Field>
           <Field label="Quando comprou">

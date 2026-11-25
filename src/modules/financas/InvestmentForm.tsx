@@ -3,6 +3,7 @@ import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { IconPicker } from "@/components/ui/IconPicker";
 import { useToast } from "@/components/ui/Toast";
 import { toISO, today } from "@/lib/dates";
@@ -110,15 +111,10 @@ function Content({ investment, onClose }: { investment?: Investment; onClose: ()
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Saldo de hoje (R$)">
               {(id) => (
-                <Input
+                <MoneyInput
                   id={id}
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  inputMode="decimal"
-                  placeholder="0,00"
-                  value={draft.balance || ""}
-                  onChange={(e) => set("balance", Number(e.target.value))}
+                  value={draft.balance || undefined}
+                  onValueChange={(v) => set("balance", v ?? 0)}
                 />
               )}
             </Field>

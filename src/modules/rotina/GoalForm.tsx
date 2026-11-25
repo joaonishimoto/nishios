@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/Button";
 import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
 import { startOfYear } from "date-fns";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { IconPicker } from "@/components/ui/IconPicker";
 import { useToast } from "@/components/ui/Toast";
 import { toISO, today } from "@/lib/dates";
-import { money } from "@/lib/format";
+import { isMoneyUnit, money } from "@/lib/format";
 import { latest } from "@/modules/corpo/logic";
 import { useCorpo } from "@/modules/corpo/store";
 import { MEASURES, type MeasureId } from "@/modules/corpo/types";
@@ -446,33 +447,41 @@ function Content({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
             </Field>
           ) : kind === "skill" || kind === "skills" || kind === "investimento" || kind === "investimentos" ? null : (
           <Field label="Onde está hoje">
-            {(id) => (
-              <Input
-                id={id}
-                type="number"
-                min={0}
-                step="any"
-                inputMode="decimal"
-                value={draft.current || ""}
-                placeholder="0"
-                onChange={(e) => set("current", Number(e.target.value))}
-              />
-            )}
+            {(id) =>
+              isMoneyUnit(draft.unit) ? (
+                <MoneyInput id={id} value={draft.current || undefined} onValueChange={(v) => set("current", v ?? 0)} />
+              ) : (
+                <Input
+                  id={id}
+                  type="number"
+                  min={0}
+                  step="any"
+                  inputMode="decimal"
+                  value={draft.current || ""}
+                  placeholder="0"
+                  onChange={(e) => set("current", Number(e.target.value))}
+                />
+              )
+            }
           </Field>
           )}
           <Field label="Alvo" error={tried ? targetError : undefined}>
-            {(id) => (
-              <Input
-                placeholder="Ex.: 24"
-                id={id}
-                type="number"
-                min={0}
-                step="any"
-                inputMode="decimal"
-                value={draft.target || ""}
-                onChange={(e) => set("target", Number(e.target.value))}
-              />
-            )}
+            {(id) =>
+              isMoneyUnit(draft.unit) ? (
+                <MoneyInput id={id} value={draft.target || undefined} onValueChange={(v) => set("target", v ?? 0)} />
+              ) : (
+                <Input
+                  placeholder="Ex.: 24"
+                  id={id}
+                  type="number"
+                  min={0}
+                  step="any"
+                  inputMode="decimal"
+                  value={draft.target || ""}
+                  onChange={(e) => set("target", Number(e.target.value))}
+                />
+              )
+            }
           </Field>
           <Field label="Unidade">
             {(id) => (

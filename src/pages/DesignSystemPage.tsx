@@ -4,6 +4,7 @@ import { Badge, Dot, type Tone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState, NoResults } from "@/components/ui/EmptyState";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { Segmented } from "@/components/ui/Segmented";
 import { useToast } from "@/components/ui/Toast";
 import { PageHeader } from "@/components/shell/PageHeader";
@@ -49,6 +50,7 @@ export function DesignSystemPage() {
   const toast = useToast();
   const [checked, setChecked] = useState(true);
   const [seg, setSeg] = useState("a");
+  const [demoMoney, setDemoMoney] = useState<number | undefined>(1234.56);
 
   return (
     <div className="flex flex-col gap-8">
@@ -207,7 +209,8 @@ export function DesignSystemPage() {
         <p className="max-w-[60ch] text-muted-foreground">
           Todo campo tem placeholder, e o componente exige. Ele nunca repete o rótulo: em texto, mostra
           um exemplo real (Ex.: Cortar o cabelo); em número, o formato ou a unidade (0,00); em data
-          opcional, o que o vazio significa (Sem prazo); em texto longo, ideias do que anotar.
+          opcional, o que o vazio significa (Sem prazo); em texto longo, ideias do que anotar. Preço e
+          valor usam a máscara de real: os dígitos entram pela direita, como no app do banco.
         </p>
         <div className="mt-4 grid max-w-2xl gap-4 sm:grid-cols-2">
           <Field label="Texto" hint="Uma dica curta fica aqui.">
@@ -225,6 +228,9 @@ export function DesignSystemPage() {
             {(id) => <Input placeholder="Ex.: Consulta no dentista" id={id} aria-invalid />}
           </Field>
           <Field label="Data">{(id) => <Input placeholder="Sem prazo" id={id} type="date" />}</Field>
+          <Field label="Dinheiro (R$)" hint="Use MoneyInput em todo preço ou valor.">
+            {(id) => <MoneyInput id={id} value={demoMoney} onValueChange={setDemoMoney} />}
+          </Field>
           <Field label="Texto longo" className="sm:col-span-2">
             {(id) => <Textarea id={id} placeholder="Onde faz, com quem, o que lembrar de pedir..." />}
           </Field>

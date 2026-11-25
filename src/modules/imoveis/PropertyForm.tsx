@@ -3,6 +3,7 @@ import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { IconPicker } from "@/components/ui/IconPicker";
 import { useToast } from "@/components/ui/Toast";
 import { toISO, today } from "@/lib/dates";
@@ -73,7 +74,7 @@ function Money({
   value,
   onChange,
   hint,
-  placeholder = "0,00",
+  placeholder,
 }: {
   label: string;
   value: number | undefined;
@@ -83,18 +84,7 @@ function Money({
 }) {
   return (
     <Field label={label} hint={hint}>
-      {(id) => (
-        <Input
-          id={id}
-          type="number"
-          min={0}
-          step="0.01"
-          inputMode="decimal"
-          placeholder={placeholder}
-          value={value || ""}
-          onChange={(e) => onChange(Number(e.target.value))}
-        />
-      )}
+      {(id) => <MoneyInput id={id} placeholder={placeholder} value={value || undefined} onValueChange={(v) => onChange(v ?? 0)} />}
     </Field>
   );
 }

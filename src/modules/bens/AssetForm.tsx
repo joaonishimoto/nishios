@@ -7,6 +7,7 @@ import { cn } from "@/lib/cn";
 import { derive, dueLabel } from "@/modules/compromissos/logic";
 import { useCommitments } from "@/modules/compromissos/store";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { IconPicker } from "@/components/ui/IconPicker";
 import { useToast } from "@/components/ui/Toast";
 import { toISO, today } from "@/lib/dates";
@@ -157,15 +158,10 @@ function Content({
           </Field>
           <Field label="Valor pago (R$)" hint={quantity > 1 ? "O total, somando todas as unidades." : undefined}>
             {(id) => (
-              <Input
+              <MoneyInput
                 id={id}
-                type="number"
-                min={0}
-                step="0.01"
-                inputMode="decimal"
-                placeholder="0,00"
-                value={draft.value || ""}
-                onChange={(e) => set("value", Number(e.target.value))}
+                value={draft.value || undefined}
+                onValueChange={(v) => set("value", v ?? 0)}
               />
             )}
           </Field>

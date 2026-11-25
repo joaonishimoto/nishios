@@ -5,7 +5,8 @@ import { BarChart } from "@/components/ui/BarChart";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { Field, Input } from "@/components/ui/Field";
+import { Field } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover";
 import { cn } from "@/lib/cn";
 import { shortDate, today } from "@/lib/dates";
@@ -214,12 +215,11 @@ function AdjustAmount({ occurrence: o, month }: { occurrence: Occurrence; month:
   const { markMonth, recurrences } = useFinancas();
   const mark = recurrences.find((x) => x.id === o.rec.id)?.months?.[month];
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState<number | undefined>(undefined);
 
   function submit(e: FormEvent) {
     e.preventDefault();
-    const n = Number(value);
-    if (Number.isNaN(n) || n < 0) return;
+    const n = value ?? 0;
     markMonth(o.rec.id, month, { ...mark, amount: n === o.rec.amount ? undefined : n });
     setOpen(false);
   }
@@ -229,7 +229,7 @@ function AdjustAmount({ occurrence: o, month }: { occurrence: Occurrence; month:
       open={open}
       onOpenChange={(v) => {
         setOpen(v);
-        if (v) setValue(String(o.amount));
+        if (v) setValue(o.amount);
       }}
     >
       <PopoverTrigger asChild>
@@ -241,17 +241,7 @@ function AdjustAmount({ occurrence: o, month }: { occurrence: Occurrence; month:
         <form className="flex flex-col gap-3" onSubmit={submit}>
           <Field label="Valor deste mês (R$)" hint={`Previsto: ${money(o.rec.amount)}. Os outros meses não mudam.`}>
             {(id) => (
-              <Input
-                id={id}
-                type="number"
-                min={0}
-                step="0.01"
-                inputMode="decimal"
-                placeholder="0,00"
-                value={value}
-                autoFocus
-                onChange={(e) => setValue(e.target.value)}
-              />
+              <MoneyInput id={id} value={value} autoFocus onValueChange={setValue} />
             )}
           </Field>
           <div className="flex gap-2">
