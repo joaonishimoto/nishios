@@ -123,7 +123,7 @@ export function VeiculoPage() {
             Registrar
           </Button>
         </div>
-        <ul className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+        <ul className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
           <Care
             kind="oleo"
             onAdd={add}
@@ -145,6 +145,12 @@ export function VeiculoPage() {
             onAdd={add}
             value={wash ? (daysSince(wash.date, now) === 0 ? "Hoje" : `Há ${plural(daysSince(wash.date, now), "dia", "dias")}`) : "Sem registro"}
             hint={wash ? shortDate(wash.date) : "Última lavagem"}
+          />
+          <Care
+            kind="modificacao"
+            onAdd={add}
+            value={totals.modCount ? money(totals.mods) : "Original"}
+            hint={totals.modCount ? `${plural(totals.modCount, "modificação", "modificações")}` : "Som, rodas, película..."}
           />
           <Care
             kind="batida"

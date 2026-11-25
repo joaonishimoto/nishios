@@ -124,6 +124,9 @@ export interface LogTotals {
   finesOpen: number;
   /** Pontos na carteira nos últimos 12 meses. */
   points12m: number;
+  /** Investido em modificações (som, rodas, película...). */
+  mods: number;
+  modCount: number;
   /** Tudo o que foi gasto com o carro no diário nos últimos 12 meses. */
   spent12m: number;
 }
@@ -133,7 +136,10 @@ export function logTotals(v: Vehicle, now: Date): LogTotals {
   const yearAgo = toISO(add(now, { years: -1 }));
   const crashes = log.filter((e) => e.kind === "batida");
   const fines = log.filter((e) => e.kind === "multa");
+  const mods = log.filter((e) => e.kind === "modificacao");
   return {
+    mods: mods.reduce((n, e) => n + e.cost, 0),
+    modCount: mods.length,
     crashes: crashes.reduce((n, e) => n + e.cost, 0),
     crashCount: crashes.length,
     fines: fines.reduce((n, e) => n + e.cost, 0),

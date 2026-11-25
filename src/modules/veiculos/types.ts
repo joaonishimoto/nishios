@@ -44,7 +44,7 @@ export interface Vehicle {
   log?: VehicleEvent[];
 }
 
-export type EventKind = "oleo" | "pneus" | "lavagem" | "revisao" | "batida" | "multa" | "outro";
+export type EventKind = "oleo" | "pneus" | "lavagem" | "revisao" | "modificacao" | "batida" | "multa" | "outro";
 
 export interface VehicleEvent {
   id: string;
@@ -69,6 +69,7 @@ export const EVENT_KINDS: { value: EventKind; label: string; icon: string; hint:
   { value: "pneus", label: "Pneus", icon: "🛞", hint: "Troca, rodízio, alinhamento" },
   { value: "lavagem", label: "Lavagem", icon: "🧽", hint: "Lavagem, polimento, higienização" },
   { value: "revisao", label: "Revisão ou conserto", icon: "🔧", hint: "Revisão, freio, bateria, mecânico" },
+  { value: "modificacao", label: "Modificação", icon: "🛠️", hint: "Som, rodas, película, acessórios" },
   { value: "batida", label: "Batida", icon: "💥", hint: "Acidente, ralado, amassado" },
   { value: "multa", label: "Multa", icon: "🚨", hint: "Infração, pontos e valor" },
   { value: "outro", label: "Outro", icon: "📌", hint: "Qualquer outra coisa" },
