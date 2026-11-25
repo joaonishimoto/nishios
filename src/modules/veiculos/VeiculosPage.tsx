@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Car, Plus } from "lucide-react";
+import { Box, Car, Plus } from "lucide-react";
 import { Badge, type Tone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { Dialog, DialogBody } from "@/components/ui/Dialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Progress } from "@/components/ui/Progress";
 import { PageHeader } from "@/components/shell/PageHeader";
@@ -14,6 +15,9 @@ import { useFinancas } from "@/modules/financas/store";
 import { subtitle, totals, view, type VehicleView } from "./logic";
 import { useVeiculos } from "./store";
 import { VehicleForm } from "./VehicleForm";
+import { isMobi } from "./mobi3d/match";
+
+const Mobi3D = lazy(() => import("./mobi3d/Mobi3D"));
 
 /** Lista dos veículos: quanto valem, quanto falta pagar e o que vence nos próximos meses. */
 export function VeiculosPage() {
@@ -42,6 +46,7 @@ export function VeiculosPage() {
   const editing = vehicles.find((v) => v.id === params.get("v"));
   const open = (id: string) => setParams({ v: id }, { replace: true });
   const close = () => setParams({}, { replace: true });
+  const in3d = vehicles.find((v) => v.id === params.get("3d") && isMobi(v));
 
   return (
     <>
@@ -85,8 +90,19 @@ export function VeiculosPage() {
 
           <ul className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {active.map((v) => (
-              <li key={v.vehicle.id}>
+              <li key={v.vehicle.id} className="relative min-w-0">
                 <VehicleCard view={v} onOpen={() => open(v.vehicle.id)} />
+                {isMobi(v.vehicle) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="absolute top-4 right-4"
+                    onClick={() => setParams({ "3d": v.vehicle.id }, { replace: true })}
+                  >
+                    <Box />
+                    Ver em 3D
+                  </Button>
+                )}
               </li>
             ))}
             <li>
@@ -132,6 +148,21 @@ export function VeiculosPage() {
 
       <VehicleForm open={creating} onOpenChange={setCreating} />
       <VehicleForm open={!!editing} onOpenChange={(o) => !o && close()} vehicle={editing} />
+      <Dialog
+        open={!!in3d}
+        onOpenChange={(o) => !o && close()}
+        title={in3d?.name ?? "Veículo em 3D"}
+        description={in3d ? subtitle(in3d) : undefined}
+        className="max-w-4xl"
+      >
+        <DialogBody>
+          {in3d && (
+            <Suspense fallback={<p className="grid h-[min(52dvh,420px)] sm:h-[min(72dvh,600px)] place-items-center text-sm text-muted-foreground">Montando o carro...</p>}>
+              <Mobi3D color={in3d.color} plate={in3d.plate} className="h-[min(52dvh,420px)] sm:h-[min(72dvh,600px)]" />
+            </Suspense>
+          )}
+        </DialogBody>
+      </Dialog>
     </>
   );
 }
@@ -170,7 +201,7 @@ function VehicleCard({ view: w, onOpen }: { view: VehicleView; onOpen: () => voi
     >
       <div className="flex w-full items-start gap-3">
         <span className="grid size-10 shrink-0 place-items-center rounded-md bg-surface-muted text-xl">{v.icon}</span>
-        <div className="min-w-0 flex-1">
+        <div className={cn("min-w-0 flex-1", isMobi(v) && "pr-28")}>
           <p className="truncate font-semibold">{v.name}</p>
           <p className="truncate text-sm text-muted-foreground">{subtitle(v) || "Sem modelo nem placa"}</p>
         </div>
