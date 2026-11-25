@@ -34,7 +34,8 @@ export interface Wall {
   from: number;
   to: number;
   gaps?: [number, number][];
-  windows?: [number, number][];
+  /** Janelas de `a` a `b`; o terceiro número, quando vem, é a altura do peitoril (janela alta). */
+  windows?: [number, number, number?][];
 }
 
 /** Louças e bancadas que vêm com o apartamento, desenhadas com forma própria. */
