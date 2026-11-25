@@ -15,6 +15,7 @@ const PLACEHOLDER: Record<EventKind, string> = {
   pneus: "Ex.: Troca dos 4 pneus, rodízio, alinhamento",
   lavagem: "Ex.: Lavagem completa com cera",
   revisao: "Ex.: Revisão dos 30 mil km, troca da bateria",
+  modificacao: "Ex.: Película nos vidros, central multimídia, rodas aro 15",
   batida: "Ex.: Ralado no para-choque no estacionamento",
   multa: "Ex.: Excesso de velocidade na Marginal",
   outro: "O que foi",
