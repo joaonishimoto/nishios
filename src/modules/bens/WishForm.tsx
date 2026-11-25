@@ -3,6 +3,7 @@ import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { IconPicker } from "@/components/ui/IconPicker";
 import { useToast } from "@/components/ui/Toast";
 import { PRIORITY_META, PRIORITY_ORDER } from "./logic";
@@ -90,15 +91,10 @@ function Content({ wish, onClose }: { wish?: Wish; onClose: () => void }) {
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="Preço (R$)">
             {(id) => (
-              <Input
+              <MoneyInput
                 id={id}
-                type="number"
-                min={0}
-                step="0.01"
-                inputMode="decimal"
-                placeholder="0,00"
-                value={draft.price || ""}
-                onChange={(e) => set("price", Number(e.target.value))}
+                value={draft.price || undefined}
+                onValueChange={(v) => set("price", v ?? 0)}
               />
             )}
           </Field>

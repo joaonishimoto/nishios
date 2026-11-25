@@ -31,3 +31,8 @@ export function shortMoney(value: number): string {
   if (abs >= 1000) return `${compact.format(value / 1000)} mil`;
   return compact.format(value);
 }
+
+/** A unidade de uma meta é dinheiro? ("reais", "R$", "BRL"). Aí o campo usa a máscara de real. */
+export function isMoneyUnit(unit: string | undefined): boolean {
+  return /^\s*(reais|real|r\$|brl)\s*$/i.test(unit ?? "");
+}

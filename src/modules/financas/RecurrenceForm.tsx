@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { IconPicker } from "@/components/ui/IconPicker";
 import { Segmented } from "@/components/ui/Segmented";
 import { useToast } from "@/components/ui/Toast";
@@ -157,15 +158,10 @@ function Content({ recurrence, kind, onClose }: { recurrence?: Recurrence; kind:
           <div className="flex flex-col gap-2">
             <Field label="Valor (R$)" error={tried ? amountError : undefined}>
               {(id) => (
-                <Input
+                <MoneyInput
                   id={id}
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  inputMode="decimal"
-                  placeholder="0,00"
-                  value={draft.amount || ""}
-                  onChange={(e) => set("amount", Number(e.target.value))}
+                  value={draft.amount || undefined}
+                  onValueChange={(v) => set("amount", v ?? 0)}
                 />
               )}
             </Field>

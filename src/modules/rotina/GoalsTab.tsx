@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Field, Input } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
+import { isMoneyUnit } from "@/lib/format";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover";
 import { Segmented } from "@/components/ui/Segmented";
 import { cn } from "@/lib/cn";
@@ -278,20 +280,29 @@ function UpdateProgress({ goal }: { goal: Goal }) {
       <PopoverContent className="w-60">
         <form className="flex flex-col gap-3" onSubmit={submit}>
           <Field label="Onde está agora" hint={`Alvo: ${goal.target} ${goal.unit}`.trim()}>
-            {(id) => (
-              <Input
-                placeholder="0"
-                id={id}
-                type="number"
-                min={0}
-                step="any"
-                inputMode="decimal"
-                value={value}
-                autoFocus
-                onFocus={(e) => e.target.select()}
-                onChange={(e) => setValue(e.target.value)}
-              />
-            )}
+            {(id) =>
+              isMoneyUnit(goal.unit) ? (
+                <MoneyInput
+                  id={id}
+                  autoFocus
+                  value={value === "" ? undefined : Number(value)}
+                  onValueChange={(v) => setValue(v === undefined ? "" : String(v))}
+                />
+              ) : (
+                <Input
+                  placeholder="0"
+                  id={id}
+                  type="number"
+                  min={0}
+                  step="any"
+                  inputMode="decimal"
+                  value={value}
+                  autoFocus
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => setValue(e.target.value)}
+                />
+              )
+            }
           </Field>
           <Button type="submit" size="sm" className="h-8">
             Atualizar progresso

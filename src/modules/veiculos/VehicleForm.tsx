@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { IconPicker } from "@/components/ui/IconPicker";
 import { Progress } from "@/components/ui/Progress";
 import { Segmented } from "@/components/ui/Segmented";
@@ -142,17 +143,8 @@ function Content({ vehicle, onCreated, onClose }: { vehicle?: Vehicle; onCreated
     onClose();
   }
 
-  const money$ = (value: number | undefined, onChange: (n: number) => void, placeholder = "0,00") => (id: string) => (
-    <Input
-      id={id}
-      type="number"
-      min={0}
-      step="0.01"
-      inputMode="decimal"
-      placeholder={placeholder}
-      value={value || ""}
-      onChange={(e) => onChange(Number(e.target.value))}
-    />
+  const money$ = (value: number | undefined, onChange: (n: number) => void, placeholder?: string) => (id: string) => (
+    <MoneyInput id={id} placeholder={placeholder} value={value || undefined} onValueChange={(v) => onChange(v ?? 0)} />
   );
 
   return (
@@ -575,15 +567,10 @@ function CostRow({
           {icon} {label}
         </span>
       )}
-      <Input
+      <MoneyInput
         aria-label={`Valor do ${name}`}
-        type="number"
-        min={0}
-        step="0.01"
-        inputMode="decimal"
-        placeholder="R$ 0,00"
-        value={cost.amount || ""}
-        onChange={(e) => onChange({ amount: Number(e.target.value) })}
+        value={cost.amount || undefined}
+        onValueChange={(v) => onChange({ amount: v ?? 0 })}
       />
       {everyOptions.length > 1 ? (
         <Select aria-label={`Frequência do ${name}`} value={String(cost.every)} onChange={(e) => onChange({ every: Number(e.target.value) })}>

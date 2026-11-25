@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
 import { Field, Input, Textarea } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { IconPicker } from "@/components/ui/IconPicker";
 import { useToast } from "@/components/ui/Toast";
 import { plural } from "@/lib/format";
@@ -62,7 +63,7 @@ function Content({
     hourlyRate: project?.hourlyRate ?? 0,
     archived: project?.archived ?? false,
   });
-  const [rate, setRate] = useState(project?.hourlyRate ? String(project.hourlyRate).replace(".", ",") : "");
+  const [rate, setRate] = useState<number | undefined>(project?.hourlyRate || undefined);
   const [tried, setTried] = useState(false);
   const nameError = draft.name.trim() ? undefined : "Dê um nome ao projeto.";
   const taskCount = project ? tasks.filter((t) => t.projectId === project.id).length : 0;
@@ -71,7 +72,7 @@ function Content({
     e.preventDefault();
     setTried(true);
     if (nameError) return;
-    const hourlyRate = Math.max(0, Number(rate.replace(/\./g, "").replace(",", ".")) || 0);
+    const hourlyRate = rate ?? 0;
     const clean = { ...draft, name: draft.name.trim(), client: draft.client.trim(), hourlyRate };
     if (project) {
       updateProject(project.id, clean);
@@ -115,7 +116,7 @@ function Content({
           </Field>
           <Field label="Valor da hora (R$)" hint="Opcional. Mostra quanto as horas registradas valem.">
             {(id) => (
-              <Input id={id} inputMode="decimal" value={rate} placeholder="0,00" onChange={(e) => setRate(e.target.value)} />
+              <MoneyInput id={id} value={rate} onValueChange={setRate} />
             )}
           </Field>
         </div>

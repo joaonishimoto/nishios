@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Field, Input } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { LineChart } from "@/components/ui/LineChart";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover";
 import { Progress } from "@/components/ui/Progress";
@@ -243,14 +244,14 @@ function FinancingCard({ property: p }: { property: Property }) {
   const next = nextDue(f);
   const last = lastDue(f);
   const d = debt(f);
-  const [balance, setBalance] = useState("");
+  const [balance, setBalance] = useState<number | undefined>(undefined);
 
   function saveBalance(e: FormEvent) {
     e.preventDefault();
-    const v = Number(balance);
+    const v = balance ?? 0;
     if (!(v > 0)) return;
     update(p.id, { financing: { ...f, balance: v, balanceAsOf: toISO(today()) } });
-    setBalance("");
+    setBalance(undefined);
     toast({ message: "Saldo devedor atualizado" });
   }
 
@@ -271,17 +272,7 @@ function FinancingCard({ property: p }: { property: Property }) {
               <form onSubmit={saveBalance} className="flex flex-col gap-3">
                 <Field label="Saldo devedor hoje (R$)" hint="Está no extrato ou no app do banco.">
                   {(id) => (
-                    <Input
-                      id={id}
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      inputMode="decimal"
-                      placeholder="0,00"
-                      autoFocus
-                      value={balance}
-                      onChange={(e) => setBalance(e.target.value)}
-                    />
+                    <MoneyInput id={id} autoFocus value={balance} onValueChange={setBalance} />
                   )}
                 </Field>
                 <Button type="submit" size="sm">
@@ -376,7 +367,7 @@ function MonthCard({ property: p }: { property: Property }) {
 function ValueCard({ property: p }: { property: Property }) {
   const { update } = useImoveis();
   const toast = useToast();
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState<number | undefined>(undefined);
   const [date, setDate] = useState(toISO(today()));
   const points = [
     ...(p.purchasePrice && p.purchaseDate ? [{ date: p.purchaseDate, value: p.purchasePrice }] : []),
@@ -387,10 +378,10 @@ function ValueCard({ property: p }: { property: Property }) {
 
   function save(e: FormEvent) {
     e.preventDefault();
-    const v = Number(value);
+    const v = value ?? 0;
     if (!(v > 0) || !date) return;
     update(p.id, { values: [...p.values.filter((x) => x.date !== date), { date, value: v }] });
-    setValue("");
+    setValue(undefined);
     toast({ message: `Valor de ${money(v)} registrado` });
   }
 
@@ -410,7 +401,7 @@ function ValueCard({ property: p }: { property: Property }) {
             <form onSubmit={save} className="flex flex-col gap-3">
               <Field label="Quanto vale (R$)">
                 {(id) => (
-                  <Input id={id} type="number" min={0} step="1" inputMode="decimal" placeholder="Ex.: 420000" autoFocus value={value} onChange={(e) => setValue(e.target.value)} />
+                  <MoneyInput id={id} placeholder="Ex.: R$ 420.000,00" autoFocus value={value} onValueChange={setValue} />
                 )}
               </Field>
               <Field label="Em">

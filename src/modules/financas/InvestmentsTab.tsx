@@ -4,6 +4,7 @@ import { PiggyBank, Plus, RefreshCw, Target } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Field, Input } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { LineChart, type ChartPoint } from "@/components/ui/LineChart";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover";
 import { Progress } from "@/components/ui/Progress";
@@ -178,14 +179,14 @@ function UpdateBalance({ inv }: { inv: Investment }) {
   const { setBalance, updateInvestment } = useFinancas();
   const toast = useToast();
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState<number | undefined>(undefined);
   const max = toISO(today());
   const [date, setDate] = useState(max);
 
   function submit(e: FormEvent) {
     e.preventDefault();
-    const n = Number(value);
-    if (value === "" || Number.isNaN(n) || n < 0 || !date) return;
+    const n = value;
+    if (n === undefined || !date) return;
     const before = inv.history;
     setBalance(inv.id, date, n);
     setOpen(false);
@@ -201,7 +202,7 @@ function UpdateBalance({ inv }: { inv: Investment }) {
       onOpenChange={(v) => {
         setOpen(v);
         if (v) {
-          setValue(String(balance(inv) || ""));
+          setValue(balance(inv) || undefined);
           setDate(max);
         }
       }}
@@ -216,17 +217,7 @@ function UpdateBalance({ inv }: { inv: Investment }) {
         <form className="flex flex-col gap-3" onSubmit={submit}>
           <Field label="Saldo (R$)">
             {(id) => (
-              <Input
-                id={id}
-                type="number"
-                min={0}
-                step="0.01"
-                inputMode="decimal"
-                placeholder="0,00"
-                value={value}
-                autoFocus
-                onChange={(e) => setValue(e.target.value)}
-              />
+              <MoneyInput id={id} value={value} autoFocus onValueChange={setValue} />
             )}
           </Field>
           <Field label="Em que dia">

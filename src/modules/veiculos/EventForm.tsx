@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Dialog, DialogBody, DialogFooter } from "@/components/ui/Dialog";
 import { Field, Input, Textarea } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
 import { toISO, today } from "@/lib/dates";
@@ -108,15 +109,10 @@ function Content({ vehicle, event, kind, onClose }: { vehicle: Vehicle; event?: 
           </Field>
           <Field label={d.kind === "batida" ? "Gastei (R$)" : "Valor (R$)"}>
             {(id) => (
-              <Input
+              <MoneyInput
                 id={id}
-                type="number"
-                min={0}
-                step="0.01"
-                inputMode="decimal"
-                placeholder="0,00"
-                value={d.cost || ""}
-                onChange={(e) => set("cost", Number(e.target.value))}
+                value={d.cost || undefined}
+                onValueChange={(v) => set("cost", v ?? 0)}
               />
             )}
           </Field>
