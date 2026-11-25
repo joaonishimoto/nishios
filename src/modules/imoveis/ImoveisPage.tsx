@@ -34,7 +34,7 @@ export function ImoveisPage() {
     <>
       <PageHeader
         title="Imóveis"
-        description="Casas e apartamentos: os seus, os que você aluga para alguém e onde você mora de aluguel."
+        description="Os seus, os que você aluga e onde mora de aluguel."
         action={
           <Button onClick={() => setCreating(true)}>
             <Plus />
