@@ -1,17 +1,19 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Box, Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { addMonths, differenceInCalendarDays, getDaysInMonth, setDate } from "date-fns";
+import { Box, CalendarCheck, CalendarClock, Plus } from "lucide-react";
+import { AssetAddCard, AssetCard, AssetGrid, type AssetFooter, type AssetStat } from "@/components/assets/AssetCard";
 import { Badge, type Tone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Progress } from "@/components/ui/Progress";
 import { PageHeader } from "@/components/shell/PageHeader";
-import { money } from "@/lib/format";
+import { formatDate, shortDate, today } from "@/lib/dates";
+import { money, plural } from "@/lib/format";
 import { cn } from "@/lib/cn";
-import { isOwned, month, paidUntil, situationLabel, totals, wealth } from "./logic";
+import { isOwned, lastDue, month, nextDue, paidUntil, paysRent, situationLabel, totals, wealth } from "./logic";
 import { PropertyForm } from "./PropertyForm";
 import { PropertyMini } from "./PropertyMini";
 import { useImoveis } from "./store";
-import type { Property, Situation } from "./types";
+import { PROPERTY_KINDS, type Property, type Situation } from "./types";
 
 export const SITUATION_TONE: Record<Situation, Tone> = {
   mora: "info",
@@ -60,31 +62,12 @@ export function ImoveisPage() {
         </p>
       )}
 
-      <section
-        aria-label="Seus imóveis"
-        className="mt-6 overflow-hidden rounded-xl border border-border bg-[linear-gradient(to_bottom,var(--color-surface)_0%,var(--color-surface-muted)_100%)]"
-      >
-        <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-          {properties.map((p) => (
-            <li key={p.id} className={LOT}>
-              <PropertyLot property={p} />
-            </li>
-          ))}
-          <li className={LOT}>
-            <button
-              type="button"
-              onClick={() => setCreating(true)}
-              className="group flex h-full min-h-60 w-full flex-col items-center justify-center gap-1 px-5 py-6 text-muted-foreground transition-colors duration-(--motion-fast) hover:bg-surface-hover/60 hover:text-foreground"
-            >
-              <span className="grid size-12 place-items-center rounded-full border border-dashed border-border-strong transition-transform duration-300 group-hover:scale-110">
-                <Plus className="size-5" />
-              </span>
-              <span className="mt-2 font-medium">Lote vago</span>
-              <span className="text-sm">Adicionar apartamento, casa, terreno ou sala</span>
-            </button>
-          </li>
-        </ul>
-      </section>
+      <AssetGrid label="Seus imóveis">
+        {properties.map((p) => (
+          <PropertyLot key={p.id} property={p} />
+        ))}
+        <AssetAddCard title="Lote vago" hint="Adicionar apartamento, casa, terreno ou sala" onClick={() => setCreating(true)} />
+      </AssetGrid>
 
       <PropertyForm open={creating} onOpenChange={setCreating} onCreated={(p) => navigate(`/imoveis/${p.id}`)} />
     </>
@@ -109,62 +92,122 @@ function Kpi({ label, value, hint, tone }: { label: string; value: string; hint:
   );
 }
 
-/** Divisória tracejada entre os lotes, como as vagas da garagem. */
-const LOT =
-  "border-b border-dashed border-border-strong sm:border-r sm:[&:nth-child(2n)]:border-r-0 xl:[&:nth-child(2n)]:border-r xl:[&:nth-child(3n)]:border-r-0";
-
-/** Um imóvel em miniatura; tocar abre os detalhes. */
+/** Um imóvel no mesmo card dos veículos; tocar abre os detalhes. */
 function PropertyLot({ property: p }: { property: Property }) {
+  const now = today();
   const w = wealth(p);
   const m = month(p);
   const f = p.financing;
+  const owned = isOwned(p);
   const paid = f ? paidUntil(f) : 0;
-  const financing = f && isOwned(p) && f.total > 0 && paid < f.total;
-  const main = isOwned(p)
-    ? w.value
-      ? `${w.debt > 0 ? "Já é meu" : "Vale"} ${money(Math.round(w.debt > 0 ? w.equity : w.value))}`
-      : null
-    : p.situation === "vendido"
-      ? p.soldPrice
-        ? `Vendido por ${money(p.soldPrice)}`
-        : null
-      : p.lease?.rent
-        ? `Aluguel ${money(p.lease.rent)}`
-        : null;
+  const financing = !!f && owned && f.total > 0 && paid < f.total;
+  const quitado = !!f && owned && f.total > 0 && paid >= f.total;
+  const kind = PROPERTY_KINDS.find((k) => k.value === p.kind)?.label ?? "Imóvel";
+  const subtitle =
+    [p.name !== kind ? kind : "", p.area ? `${p.area.toLocaleString("pt-BR")} m²` : "", p.address].filter(Boolean).join(" · ") ||
+    "Sem endereço nem área ainda";
   const hasMonth = p.situation !== "vendido" && m.ins.length + m.outs.length + m.bills.length > 0;
+  const perMonth: AssetStat = !hasMonth
+    ? { label: "Por mês", value: "Sem custos", tone: "muted" }
+    : m.net > 0
+      ? { label: "Rende por mês", value: `+${money(Math.round(m.net))}`, tone: "up" }
+      : { label: "Custa por mês", value: money(Math.round(-m.net)) };
+  const muted = (label: string, value = "Não informado"): AssetStat => ({ label, value, tone: "muted" });
+
+  const stats: AssetStat[] =
+    p.situation === "vendido"
+      ? [
+          p.soldPrice ? { label: "Vendido por", value: money(p.soldPrice) } : muted("Vendido por"),
+          p.soldDate ? { label: "Em", value: formatDate(p.soldDate, "MMM 'de' yyyy") } : muted("Em", "—"),
+          p.purchasePrice ? { label: "Comprado por", value: money(p.purchasePrice) } : muted("Comprado por"),
+        ]
+      : !owned
+        ? [
+            p.lease?.rent ? { label: "Aluguel", value: money(p.lease.rent) } : muted("Aluguel"),
+            p.lease?.end ? { label: "Contrato até", value: formatDate(p.lease.end, "MM/yyyy") } : muted("Contrato até", "—"),
+            perMonth,
+          ]
+        : [
+            w.value ? { label: "Vale hoje", value: money(Math.round(w.value)) } : muted("Vale hoje", "Sem valor"),
+            w.debt > 0 ? { label: "Falta pagar", value: money(Math.round(w.debt)) } : muted("Falta pagar", "Nada"),
+            perMonth,
+          ];
+
+  const left = f ? f.total - paid : 0;
+  const due = financing ? nextDue(f!) : null;
+  const end = financing ? lastDue(f!) : null;
+  const rentDay = p.lease?.rent && p.lease.dueDay && p.situation !== "vendido" ? nextDay(p.lease.dueDay, now) : null;
+  const footerDate = due ?? rentDay;
+  const days = footerDate ? differenceInCalendarDays(footerDate, now) : 0;
+  const footer: AssetFooter = due
+    ? {
+        icon: CalendarClock,
+        tone: days <= 5 ? "warning" : "muted",
+        text: (
+          <>
+            <span className="font-medium">Parcela</span> {money(f!.installment)} · {shortDate(due)} ({inDays(days)})
+          </>
+        ),
+      }
+    : rentDay
+      ? {
+          icon: CalendarClock,
+          tone: days <= 5 && paysRent(p) ? "warning" : "muted",
+          text: (
+            <>
+              <span className="font-medium">{paysRent(p) ? "Aluguel a pagar" : "Aluguel a receber"}</span> {money(p.lease!.rent)} ·{" "}
+              {shortDate(rentDay)} ({inDays(days)})
+            </>
+          ),
+        }
+      : quitado
+        ? { icon: CalendarCheck, text: "Financiamento quitado" }
+        : p.situation === "vendido"
+          ? { icon: CalendarCheck, text: "Fica no histórico do patrimônio" }
+          : { icon: CalendarCheck, text: "Nenhuma parcela ou aluguel a vencer" };
+
   return (
-    <Link
+    <AssetCard
       to={`/imoveis/${p.id}`}
-      className="group flex h-full w-full flex-col items-center gap-2 px-5 pt-6 pb-5 text-center transition-colors duration-(--motion-fast) hover:bg-surface-hover/60 focus-visible:bg-surface-hover/60"
-    >
-      <PropertyMini kind={p.kind} situation={p.situation} className="h-32 w-full max-w-64" />
-      <span className="mt-1 flex items-center gap-1.5">
-        <span className="font-semibold">{p.name}</span>
-        {p.plan && (
+      picture={<PropertyMini kind={p.kind} situation={p.situation} className="h-full w-full max-w-64" />}
+      title={p.name}
+      titleExtra={
+        p.plan ? (
           <span title="Tem planta em 3D" className="text-muted-foreground">
             <Box className="size-4" />
           </span>
-        )}
-      </span>
-      <span className="max-w-full truncate text-sm text-muted-foreground">{p.address || "Toque para ver os detalhes"}</span>
-      <span className="flex flex-wrap justify-center gap-1.5">
-        <Badge tone={SITUATION_TONE[p.situation]}>{situationLabel(p.situation)}</Badge>
-        {f && isOwned(p) && paid >= f.total && <Badge tone="success">Quitado</Badge>}
-        {financing && <Badge>{`${paid}/${f.total} parcelas`}</Badge>}
-      </span>
-      {(main || hasMonth) && (
-        <span className="text-sm tabular-nums text-muted-foreground">
-          {main}
-          {main && hasMonth ? " · " : ""}
-          {hasMonth && (
-            <span className={cn(m.net > 0 && "text-success-strong")}>
-              {m.net > 0 ? "+" : ""}
-              {money(Math.round(m.net))}/mês
-            </span>
-          )}
-        </span>
-      )}
-      {financing && <Progress value={paid / f.total} label={`Parcelas pagas de ${p.name}`} className="mt-1 h-1 w-40" />}
-    </Link>
+        ) : undefined
+      }
+      subtitle={subtitle}
+      chips={
+        <>
+          <Badge tone={SITUATION_TONE[p.situation]}>{situationLabel(p.situation)}</Badge>
+          {quitado && <Badge tone="success">Quitado</Badge>}
+          {financing && <Badge>{f!.lender ? `Financiado · ${f!.lender}` : "Financiado"}</Badge>}
+        </>
+      }
+      stats={stats}
+      progress={
+        financing
+          ? {
+              value: paid / f!.total,
+              title: "Parcelas",
+              left: `${paid} de ${f!.total} pagas`,
+              right: `${plural(left, "falta", "faltam")}${end ? ` · até ${formatDate(end, "MM/yyyy")}` : ""}`,
+              ariaLabel: `Parcelas pagas de ${p.name}`,
+            }
+          : null
+      }
+      footer={footer}
+    />
   );
 }
+
+/** Próxima vez que cai o dia do mês, a partir de amanhã (dia 31 vira o último dia do mês). */
+function nextDay(day: number, now: Date): Date {
+  const at = (d: Date) => setDate(d, Math.min(day, getDaysInMonth(d)));
+  const here = at(now);
+  return here > now ? here : at(addMonths(now, 1));
+}
+
+const inDays = (d: number) => (d <= 0 ? "hoje" : d === 1 ? "amanhã" : `em ${d} dias`);
