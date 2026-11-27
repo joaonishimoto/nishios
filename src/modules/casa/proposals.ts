@@ -310,7 +310,7 @@ function proposalJ(start = 600): Proposal {
         "Entre o sofá e o móvel da TV sobra 1,2 m para chegar à porta de vidro.",
         "Atrás do sofá, na abertura da cozinha, uma mureta de 1 m (um pouco mais alta que o encosto, de 78 cm) com um balcãozinho de pedra de 32 cm. Ele avança para o lado da cozinha, onde ainda sobram uns 80 cm de passagem.",
         "Mesa de 1,40 × 0,80 m para 4, virada e com a ponta encostada na parede de baixo: duas cadeiras de cada lado, com 70 cm por pessoa.",
-        "Ela fica no lado do banheiro, com uns 40 cm entre as cadeiras e o espelho, e o lado da porta de entrada fica livre para o banco sapateira e o tapete.",
+        "Ela fica no lado do banheiro, com uns 40 cm entre as cadeiras e o espelho, e o lado da porta de entrada fica livre para a sapateira e o tapete.",
         "O caminho da entrada para os quartos passa por cima da mesa, livre, com quase 1 m.",
       ],
       cozinha: [
@@ -721,16 +721,25 @@ function proposalG4(): Proposal {
     // Espelho na parede do lado do banheiro inteira, do rodapé até 2,10 m, atrás da ponta da mesa.
     piece("estar", "Espelho grande", "🪞", "Móveis", full([part(5.63, 4.14, 0.02, 1.26, 2.0, "vidro", 0.1, "#d7e6ea"), part(5.64, 4.12, 0.01, 1.3, 2.04, "metal", 0.08)])),
     piece("jantar", "Tapete do sofá", "🟦", "Móveis", rug(R(2.65, 1.7, 1.1, 1.4), linen)),
-    // Banco sapateira logo depois da porta de entrada, na parede de baixo, fora do giro da porta:
-    // dá para sentar para tirar o tênis e deixar os pares nos dois nichos de baixo.
-    piece("estar", "Banco sapateira", "👟", "Móveis", [
-      part(2.65, 5.07, 0.7, 0.35, 0.45, "madeira", 0, white),
-      part(2.68, 5.066, 0.31, 0.004, 0.3, "escuro", 0.08, "#3a3b3e"),
-      part(3.01, 5.066, 0.31, 0.004, 0.3, "escuro", 0.08, "#3a3b3e"),
-      part(2.71, 5.1, 0.25, 0.28, 0.1, "tecido", 0.1, "#2b2b2d"),
-      part(3.04, 5.1, 0.25, 0.28, 0.1, "tecido", 0.1, "#e9e4da"),
-      part(2.65, 5.07, 0.7, 0.35, 0.06, "tecido", 0.45, linen),
-    ]),
+    // Sapateira modular logo depois da porta de entrada, na parede de baixo, fora do giro da
+    // porta: seis nichos quadrados vazios de 34 cm (dois de largura, três de altura), em
+    // carvalho com fundo grafite, só para largar o tênis sujo da rua. Três nichos com um par.
+    piece("estar", "Sapateira modular", "👟", "Móveis", full((() => {
+      const x0 = 2.66, z0 = 5.07, s = 0.34, t = 0.018, D = 0.34, cols = 2, rows = 3;
+      const W = cols * s, H = rows * s, oak = "#c39a6b";
+      const out: Part[] = [part(x0, z0 + D - 0.008, W, 0.008, H, "escuro", 0, "#3a3b3e")];
+      for (let i = 0; i <= rows; i++) out.push(part(x0, z0, W, D, t, "madeira", Math.min(i * s, H - t), oak));
+      for (let j = 0; j <= cols; j++) out.push(part(Math.min(x0 + j * s, x0 + W - t), z0, t, D, H, "madeira", 0, oak));
+      const shoe = (x: number, y: number, c: string) => [
+        part(x, z0 + 0.03, 0.1, 0.28, 0.03, "tecido", y, "#f2f0ea"),
+        part(x + 0.005, z0 + 0.12, 0.09, 0.18, 0.07, "tecido", y + 0.03, c),
+        part(x + 0.005, z0 + 0.04, 0.09, 0.09, 0.04, "tecido", y + 0.03, c),
+      ];
+      out.push(...shoe(x0 + 0.04, t, "#2b2b2d"), ...shoe(x0 + 0.18, t, "#2b2b2d"));
+      out.push(...shoe(x0 + s + 0.04, s + t, "#e9e4da"), ...shoe(x0 + s + 0.18, s + t, "#e9e4da"));
+      out.push(...shoe(x0 + 0.04, 2 * s + t, "#5b6b7d"), ...shoe(x0 + 0.18, 2 * s + t, "#5b6b7d"));
+      return out;
+    })())),
     // Tapete de entrada fino na frente da porta, por dentro: a porta passa por cima dele.
     piece("estar", "Tapete de entrada", "🟫", "Móveis", rug(R(1.72, 4.47, 0.6, 0.8), "#2b2b2d")),
     // Cozinha
@@ -760,7 +769,7 @@ function proposalG4(): Proposal {
         "Cortina blackout na janela e um tapete no meio, deixando a porta abrir livre.",
         "O frigobar fica no canto do pé da cama, encostado na parede da janela e antes do armário.",
       ],
-      estar: ["Dois pendentes pretos em cima da mesa de jantar.", "Espelho na parede do lado do banheiro inteira (1,30 × 2,10 m), do lado da mesa: deixa a sala parecer bem maior.", "Logo depois da porta de entrada, fora do giro dela: um tapete fino de 60 × 80 cm e o banco sapateira de 70 × 35 cm com assento estofado na parede de baixo. Quem chega pisa no tapete, senta, tira o tênis e deixa nos nichos de baixo."],
+      estar: ["Dois pendentes pretos em cima da mesa de jantar.", "Espelho na parede do lado do banheiro inteira (1,30 × 2,10 m), do lado da mesa: deixa a sala parecer bem maior.", "Logo depois da porta de entrada, fora do giro dela: um tapete fino de 60 × 80 cm e uma sapateira modular na parede de baixo: seis nichos quadrados vazios de 34 cm, em carvalho com fundo grafite (68 × 102 cm, 34 de fundo). Quem chega pisa no tapete, tira o tênis e larga num nicho."],
       jantar: ["Tapete entre o sofá e a TV, sem mesa de centro, para não fechar o caminho de 1,2 m até a porta de vidro."],
       cozinha: ["Passadeira preta no corredor da bancada.", "Coifa de parede em inox em cima do cooktop, no vão entre os aéreos, com a chaminé até o teto.", "Aéreos refeitos numa linha só, com o topo a 2,30 m: módulo no canto do shaft, vão da coifa, torre mais funda com o micro-ondas embutido e porta basculante em cima, dois módulos em cima da pia com luz embaixo e um armário fundo em cima da geladeira, fechado por um painel lateral. A bancada fica livre.", "O purificador fica na bancada da máquina de lavar, na ponta do lado do shaft, perto do ponto de água."],
       banho: ["Armário em cima do vaso e nicho dentro do box."],
@@ -837,10 +846,10 @@ function withOwned(p: Proposal): Proposal {
     ]),
     // Micro-ondas preto (52 × 44 × 31 cm) embutido no aéreo, do lado da coifa: só a frente aparece.
     own(OWNED.microondas, piece("cozinha", "Micro-ondas Midea 35L", "📦", "Eletrodomésticos", full([
-      part(0.462, 1.95, 0.008, 0.5, 0.3, "escuro", 1.48, "#141518"),
-      part(0.47, 1.98, 0.004, 0.32, 0.22, "vidro", 1.52, "#25282d"),
-      part(0.47, 2.33, 0.004, 0.1, 0.22, "escuro", 1.52, "#1d1f23"),
-      part(0.474, 2.36, 0.003, 0.05, 0.02, "metal", 1.7, "#9aa0a6"),
+      part(0.462, 1.95, 0.008, 0.5, 0.3, "escuro", 1.55, "#141518"),
+      part(0.47, 1.98, 0.004, 0.32, 0.22, "vidro", 1.59, "#25282d"),
+      part(0.47, 2.33, 0.004, 0.1, 0.22, "escuro", 1.59, "#1d1f23"),
+      part(0.474, 2.36, 0.003, 0.05, 0.02, "metal", 1.77, "#9aa0a6"),
     ]))),
     // Purificador (33 × 26 × 45 cm) na outra ponta da bancada da máquina de lavar, encostado
     // no shaft, perto do ponto de água e virado para a cozinha.
@@ -868,42 +877,76 @@ function withOwned(p: Proposal): Proposal {
   const oldCab = p.pieces.find((x) => x.roomId === "cozinha" && x.name === "Armários aéreos");
   const cab = oldCab?.parts.find((q) => q.m === "madeira")?.c ?? "#ece3d1";
   const line = "#b9ad98", TOP = 2.3;
-  const door = (z0: number, z1: number, y0: number, y1: number, x: number) => [
-    part(x, z0 + 0.004, 0.006, z1 - z0 - 0.008, 0.004, "escuro", y0 + 0.002, line),
-    part(x, z0 + 0.004, 0.006, 0.004, y1 - y0 - 0.004, "escuro", y0 + 0.002, line),
-  ];
+  // Os módulos de baixo e de cima seguem as mesmas divisões na parede da bancada, para as
+  // frestas se alinharem: canto do shaft (0,89 a 1,25), cooktop e coifa (1,25 a 1,90),
+  // torre do micro-ondas em cima do porta-temperos e da lava-louças (1,90 a 2,50), pia
+  // (2,50 a 3,40, com a fresta no meio) e geladeira (3,42 a 4,08). Embaixo os puxadores são
+  // um perfil contínuo logo abaixo do tampo; em cima, um perfil na borda de baixo das portas.
+  const UP = 1.5;
+  const handle = "#8f949a";
+  const vSeam = (x: number, z: number, y0: number, y1: number) => part(x, z - 0.003, 0.006, 0.006, y1 - y0, "escuro", y0, line);
+  const hSeam = (x: number, z0: number, z1: number, y: number) => part(x, z0, 0.006, z1 - z0, 0.006, "escuro", y, line);
+  const profile = (x: number, z0: number, z1: number, y: number) => part(x, z0 + 0.01, 0.012, z1 - z0 - 0.02, 0.014, "metal", y, handle);
   const cabinets = piece("cozinha", "Armários aéreos", "🗄️", "Móveis", full([
     // Canto do shaft: um módulo de uma porta.
-    part(-0.01, 0.89, 0.35, 0.36, TOP - 1.5, "madeira", 1.5, cab),
-    part(0.34, 1.19, 0.008, 0.03, 0.12, "escuro", 1.54, line),
-    // Torre do micro-ondas, do lado da coifa.
-    // O corpo fica um pouco para trás no vão do micro-ondas, e uma moldura de 3 a 8 cm o
-    // fecha nos quatro lados, deixando o aparelho embutido.
-    part(-0.01, 1.9, 0.46, 0.6, TOP - 1.4, "madeira", 1.4, cab),
-    part(0.45, 1.9, 0.03, 0.05, 0.46, "madeira", 1.4, cab),
-    part(0.45, 2.45, 0.03, 0.05, 0.46, "madeira", 1.4, cab),
-    part(0.45, 1.95, 0.03, 0.5, 0.08, "madeira", 1.4, cab),
-    part(0.45, 1.95, 0.03, 0.5, 0.08, "madeira", 1.78, cab),
-    part(-0.01, 1.9, 0.48, 0.6, TOP - 1.86, "madeira", 1.86, cab),
-    ...door(1.9, 2.5, 1.86, TOP, 0.47),
-    part(0.47, 2.15, 0.008, 0.14, 0.008, "escuro", 1.92, line),
-    // Em cima da pia: dois módulos e uma fita de luz embaixo.
-    part(-0.01, 2.5, 0.35, 0.9, TOP - 1.5, "madeira", 1.5, cab),
-    ...door(2.5, 2.95, 1.5, TOP, 0.34),
-    part(0.34, 2.91, 0.008, 0.03, 0.12, "escuro", 1.54, line),
-    part(0.34, 2.99, 0.008, 0.03, 0.12, "escuro", 1.54, line),
-    part(0.28, 2.52, 0.04, 0.86, 0.01, "vidro", 1.49, "#fff6d8"),
-    // Em cima da geladeira: armário de 66 cm de fundo, alinhado com a frente dela.
+    part(-0.01, 0.89, 0.35, 0.36, TOP - UP, "madeira", UP, cab),
+    profile(0.34, 0.89, 1.25, UP),
+    // Torre do micro-ondas, do lado da coifa, na mesma linha de baixo dos outros: um rodapé
+    // de 5 cm, o nicho do micro-ondas com moldura e uma porta basculante em cima.
+    part(-0.01, 1.9, 0.46, 0.6, TOP - UP, "madeira", UP, cab),
+    part(0.45, 1.9, 0.03, 0.05, 0.4, "madeira", UP, cab),
+    part(0.45, 2.45, 0.03, 0.05, 0.4, "madeira", UP, cab),
+    part(0.45, 1.95, 0.03, 0.5, 0.05, "madeira", UP, cab),
+    part(0.45, 1.95, 0.03, 0.5, 0.05, "madeira", UP + 0.35, cab),
+    part(-0.01, 1.9, 0.48, 0.6, TOP - (UP + 0.4), "madeira", UP + 0.4, cab),
+    hSeam(0.47, 1.9, 2.5, UP + 0.4),
+    profile(0.47, 1.9, 2.5, UP + 0.41),
+    // Em cima da pia: duas portas, com a fresta alinhada com a do armário da pia, e uma fita
+    // de luz embaixo.
+    part(-0.01, 2.5, 0.35, 0.9, TOP - UP, "madeira", UP, cab),
+    vSeam(0.34, 2.95, UP, TOP),
+    profile(0.34, 2.5, 2.95, UP),
+    profile(0.34, 2.95, 3.4, UP),
+    part(0.28, 2.52, 0.04, 0.86, 0.01, "vidro", UP - 0.01, "#fff6d8"),
+    // Em cima da geladeira: armário de 66 cm de fundo, alinhado com a frente dela, com duas
+    // portas e o mesmo perfil.
     part(-0.01, 3.42, 0.68, 0.66, TOP - 1.9, "madeira", 1.9, cab),
-    ...door(3.42, 3.75, 1.9, TOP, 0.67),
-    part(0.67, 3.7, 0.008, 0.1, 0.008, "escuro", 1.94, line),
-    part(0.67, 3.8, 0.008, 0.1, 0.008, "escuro", 1.94, line),
+    vSeam(0.67, 3.75, 1.9, TOP),
+    profile(0.67, 3.42, 3.75, 1.9),
+    profile(0.67, 3.75, 4.08, 1.9),
     // Painel entre a pia e a geladeira, do chão até o alto.
     part(-0.01, 3.4, 0.7, 0.02, TOP, "madeira", 0, cab),
   ]));
+  // Bancada de baixo refeita na mesma divisão: rodapé recuado, porta do canto, gaveteiro de
+  // três gavetas embaixo do cooktop, porta-temperos de 15 cm e a lava-louças. No canto da
+  // janela, a bancada da máquina continua igual.
+  const oldBase = p.pieces.find((x) => x.roomId === "cozinha" && x.name === "Bancada planejada");
+  const baseCab = oldBase?.parts.find((q) => q.m === "madeira")?.c ?? cab;
+  const baseStone = oldBase?.parts.find((q) => q.m === "pedra")?.c ?? "#e6e0d4";
+  const bx = 0.6;
+  const base = oldBase && {
+    ...oldBase,
+    parts: [
+      ...oldBase.parts.filter((q) => q.z + q.d <= 0.9 + 1e-6 || (q.x >= 0.21 && q.z < 0.9)),
+      part(-0.01, 0.89, 0.55, 1.61, 0.1, "escuro", 0, "#3a3633"),
+      part(-0.01, 0.89, 0.61, 1.61, 0.76, "madeira", 0.1, baseCab),
+      part(-0.01, 0.89, 0.61, 1.61, 0.04, "pedra", 0.86, baseStone),
+      vSeam(bx, 1.25, 0.12, 0.84),
+      vSeam(bx, 1.9, 0.12, 0.84),
+      vSeam(bx, 2.05, 0.12, 0.84),
+      hSeam(bx, 1.25, 1.9, 0.36),
+      hSeam(bx, 1.25, 1.9, 0.6),
+      profile(bx, 0.89, 1.25, 0.8),
+      profile(bx, 1.25, 1.9, 0.8),
+      profile(bx, 1.25, 1.9, 0.56),
+      profile(bx, 1.25, 1.9, 0.32),
+      profile(bx, 1.9, 2.05, 0.8),
+    ],
+  };
   const pieces = [
-    ...p.pieces.filter((x) => !(x.roomId === "cozinha" && (x.name === "Armários aéreos"))),
+    ...p.pieces.filter((x) => !(x.roomId === "cozinha" && (x.name === "Armários aéreos" || x.name === "Bancada planejada"))),
     cabinets,
+    ...(base ? [base] : []),
   ];
   return {
     ...p,
