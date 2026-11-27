@@ -25,6 +25,7 @@ import {
 import { PersonForm } from "./PersonForm";
 import { PersonPanel } from "./PersonPanel";
 import { usePeople } from "./store";
+import { balanceLabel } from "./LoansTab";
 import type { Person } from "./types";
 
 const GRID =
@@ -201,6 +202,7 @@ export function PessoasPage() {
 function Row({ person: p, onOpen }: { person: Person; onOpen: () => void }) {
   const c = contact(p);
   const b = birthday(p);
+  const balance = balanceLabel(p);
   const tone =
     c.status === "overdue"
       ? "text-danger-strong"
@@ -228,6 +230,11 @@ function Row({ person: p, onOpen }: { person: Person; onOpen: () => void }) {
           <p className="truncate text-sm text-muted-foreground">
             {[p.context, p.group].filter(Boolean).join(", ")}
           </p>
+          {balance && balance.tone !== "neutral" && (
+            <p className={cn("truncate text-xs font-medium", balance.tone === "success" ? "text-success-strong" : "text-danger-strong")}>
+              {balance.text}
+            </p>
+          )}
         </div>
       </div>
 

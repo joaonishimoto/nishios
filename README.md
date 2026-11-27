@@ -125,6 +125,9 @@ Outros comandos: `npm run build` (checa os tipos e gera a versão final em `dist
   - Cada pessoa tem a frequência com que você quer manter contato; a lista mostra quem está na hora de procurar.
   - "Registrar contato" anota quando e como vocês se falaram. Painel lateral com dados, anotações e histórico.
   - Aniversários dos próximos 30 dias no topo.
+  - **Presentes**: o que você deu e o que recebeu de cada pessoa, com data, ocasião e quanto custou, e o total de cada lado.
+  - **Empréstimos**: dinheiro emprestado nos dois sentidos, com prazo, devoluções parciais, "Quitar tudo" e perdão da dívida. O saldo ("Rafael te deve R$ 300") aparece no topo da ficha e na lista.
+  - **Gostos**: ideias de presente (um toque em "Dei" vira presente registrado), gostos, alergias, tamanhos, família, e-mail, Instagram, endereço e Pix. Perto do aniversário, o resumo lembra das ideias anotadas.
 - **Pets**: um cartão por pet, com o que ele precisa agora.
   - Vacinas e cuidados (vermífugo, antipulgas...) com a frequência de cada um; a trilha mostra quanto falta e "Marcar como feito" recalcula a próxima data.
   - Saúde: consultas, exames, cirurgias e problemas de saúde, com "Em tratamento" ou "Resolvido".
