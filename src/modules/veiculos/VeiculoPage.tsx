@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { lazy, Suspense, useMemo, useState, type ReactNode } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { ArrowLeft, Pencil, Plus } from "lucide-react";
 import { Badge, type Tone } from "@/components/ui/Badge";
@@ -16,9 +16,10 @@ import { daysSince, lastOf, logTotals, oilStatus, sortedLog, subtitle, view } fr
 import { useVeiculos } from "./store";
 import { EVENT_KINDS, type EventKind, type VehicleEvent } from "./types";
 import { VehicleForm } from "./VehicleForm";
+import { isMobi } from "./photos";
 import { VehiclePicture } from "./VehiclePicture";
 
-
+const Mobi3D = lazy(() => import("./mobi3d/Mobi3D"));
 const ROLE_LABEL: Record<string, string> = { parcela: "Parcela", ipva: "IPVA", seguro: "Seguro", licenciamento: "Licenciamento" };
 const km = (n: number) => `${n.toLocaleString("pt-BR")} km`;
 
@@ -58,7 +59,13 @@ export function VeiculoPage() {
 
       <section className="mt-3 grid gap-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-center">
         <div className="group relative overflow-hidden rounded-xl border border-border bg-[radial-gradient(120%_90%_at_50%_70%,var(--color-surface),var(--color-surface-muted))]">
-          <VehiclePicture vehicle={vehicle} large className="mx-auto my-8 h-56 w-full max-w-md px-6" />
+          {isMobi(vehicle) ? (
+            <Suspense fallback={<VehiclePicture vehicle={vehicle} large className="mx-auto my-8 h-56 w-full max-w-md px-6" />}>
+              <Mobi3D color={vehicle.color} plate={vehicle.plate} className="h-[min(52dvh,420px)] p-3" />
+            </Suspense>
+          ) : (
+            <VehiclePicture vehicle={vehicle} large className="mx-auto my-8 h-56 w-full max-w-md px-6" />
+          )}
         </div>
         <div className="min-w-0">
           <div className="flex items-start gap-3">
