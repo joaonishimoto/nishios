@@ -1,16 +1,18 @@
 import { useMemo, useState } from "react";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
-import { Car, Plus } from "lucide-react";
+import { CalendarCheck, CalendarClock, Car, Plus } from "lucide-react";
+import { AssetAddCard, AssetCard, AssetGrid } from "@/components/assets/AssetCard";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { Progress } from "@/components/ui/Progress";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { formatDate, shortDate, today } from "@/lib/dates";
+import { modeLabel, monthYear } from "@/lib/financiamento";
 import { money, plural } from "@/lib/format";
 import { useFinancas } from "@/modules/financas/store";
 import { subtitle, totals, view, type VehicleView } from "./logic";
 import { useVeiculos } from "./store";
+import { VEHICLE_KINDS } from "./types";
 import { VehicleForm } from "./VehicleForm";
 import { VehiclePicture } from "./VehiclePicture";
 
@@ -129,68 +131,83 @@ function Kpi({ label, value, hint }: { label: string; value: string; hint: strin
   );
 }
 
-/** A garagem: cada veículo em miniatura numa vaga. Passar o mouse liga o carro; clicar abre os detalhes. */
+/** A garagem: cada veículo num card do mesmo tamanho dos imóveis. Passar o mouse liga o carro; clicar abre os detalhes. */
 function Garage({ views, onOpen, onAdd }: { views: VehicleView[]; onOpen: (id: string) => void; onAdd: () => void }) {
   const now = today();
   return (
-    <section aria-label="Garagem" className="mt-6 overflow-hidden rounded-xl border border-border bg-[linear-gradient(to_bottom,var(--color-surface)_0%,var(--color-surface-muted)_100%)]">
-      <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-        {views.map((w) => {
-          const v = w.vehicle;
-          const inst = w.installments;
-          const next = w.upcoming.find((o) => o.rec.link?.role !== "parcela");
-          const soon = next && daysUntil(next.date, now) <= 15;
-          return (
-            <li key={v.id} className="border-b border-dashed border-border-strong sm:border-r sm:[&:nth-child(2n)]:border-r-0 xl:[&:nth-child(2n)]:border-r xl:[&:nth-child(3n)]:border-r-0">
-              <button
-                type="button"
-                onClick={() => onOpen(v.id)}
-                className="group flex w-full flex-col items-center gap-2 px-5 pt-6 pb-5 text-center transition-colors duration-(--motion-fast) hover:bg-surface-hover/60 focus-visible:bg-surface-hover/60"
-              >
-                <VehiclePicture vehicle={v} className="h-28 w-full max-w-64" />
-                <span className="mt-1 flex items-center gap-2">
-                  <span className="font-semibold">{v.name}</span>
-                  {v.plate && <Plate text={v.plate} />}
-                </span>
-                <span className="text-sm text-muted-foreground">{[v.brand, v.model, v.year].filter(Boolean).join(" ") || "Toque para completar"}</span>
-                <span className="flex flex-wrap justify-center gap-1.5">
-                  {w.debt.owed > 0 ? (
-                    <Badge tone="info">
-                      {inst && inst.left > 0 ? `${inst.paid}/${inst.total} · ` : ""}falta {money(Math.round(w.debt.owed))}
-                    </Badge>
-                  ) : (
-                    <Badge tone="success">Quitado</Badge>
-                  )}
-                  {next && (
-                    <Badge tone={soon ? "warning" : "neutral"}>
-                      {ROLE_LABEL[next.rec.link?.role ?? ""] ?? "Custo"} {shortDate(next.date)}
-                    </Badge>
-                  )}
-                </span>
-                {inst && inst.left > 0 && <Progress value={inst.progress} label={`Parcelas pagas de ${v.name}`} className="mt-1 h-1 w-40" />}
-              </button>
-            </li>
-          );
-        })}
-        <li className="border-b border-dashed border-border-strong">
-          <button
-            type="button"
-            onClick={onAdd}
-            className="group flex h-full min-h-56 w-full flex-col items-center justify-center gap-1 px-5 py-6 text-muted-foreground transition-colors duration-(--motion-fast) hover:bg-surface-hover/60 hover:text-foreground"
-          >
-            <span className="grid size-12 place-items-center rounded-full border border-dashed border-border-strong transition-transform duration-300 group-hover:scale-110">
-              <Plus className="size-5" />
-            </span>
-            <span className="mt-2 font-medium">Vaga livre</span>
-            <span className="text-sm">Adicionar carro, moto, caminhonete...</span>
-          </button>
-        </li>
-      </ul>
-    </section>
+    <AssetGrid label="Garagem">
+      {views.map((w) => {
+        const v = w.vehicle;
+        const inst = w.installments;
+        const mode = v.acquisition?.mode ?? "cash";
+        const owes = w.debt.owed > 0;
+        const next = w.upcoming[0];
+        const days = next ? daysUntil(next.date, now) : 0;
+        return (
+          <AssetCard
+            key={v.id}
+            onClick={() => onOpen(v.id)}
+            picture={<VehiclePicture vehicle={v} className="h-full w-full max-w-64" />}
+            title={v.name}
+            titleExtra={v.plate ? <Plate text={v.plate} /> : undefined}
+            subtitle={
+              [[v.brand, v.model, v.year].filter(Boolean).join(" "), v.km ? `${v.km.toLocaleString("pt-BR")} km` : ""]
+                .filter(Boolean)
+                .join(" · ") || "Complete marca, modelo e ano"
+            }
+            chips={
+              <>
+                <Badge>{VEHICLE_KINDS.find((k) => k.value === v.kind)?.label ?? "Veículo"}</Badge>
+                {owes ? <Badge tone="info">{modeLabel(mode)}</Badge> : <Badge tone="success">Quitado</Badge>}
+              </>
+            }
+            stats={[
+              v.marketValue > 0
+                ? { label: "Vale hoje", value: money(Math.round(v.marketValue)) }
+                : { label: "Vale hoje", value: "Sem valor", tone: "muted" },
+              owes
+                ? { label: "Falta pagar", value: money(Math.round(w.debt.owed)) }
+                : { label: "Falta pagar", value: "Nada", tone: "muted" },
+              w.monthlyCost > 0
+                ? { label: "Custo por mês", value: money(Math.round(w.monthlyCost)) }
+                : { label: "Custo por mês", value: "Sem custos", tone: "muted" },
+            ]}
+            progress={
+              inst && inst.left > 0
+                ? {
+                    value: inst.progress,
+                    title: "Parcelas",
+                    left: `${inst.paid} de ${inst.total} pagas`,
+                    right: `${plural(inst.left, "falta", "faltam")} · até ${monthYear(inst.last)}`,
+                    ariaLabel: `Parcelas pagas de ${v.name}`,
+                  }
+                : null
+            }
+            footer={
+              next
+                ? {
+                    icon: CalendarClock,
+                    tone: days <= 15 ? "warning" : "muted",
+                    text: (
+                      <>
+                        <span className="font-medium">{ROLE_LABEL[next.rec.link?.role ?? ""] ?? next.rec.name ?? "Custo"}</span>
+                        {` ${money(Math.round(next.amount))} · ${shortDate(next.date)} (${inDays(days)})`}
+                      </>
+                    ),
+                  }
+                : { icon: CalendarCheck, text: "Nada vencendo nos próximos meses" }
+            }
+          />
+        );
+      })}
+      <AssetAddCard title="Vaga livre" hint="Adicionar carro, moto, caminhonete..." onClick={onAdd} />
+    </AssetGrid>
   );
 }
 
-const ROLE_LABEL: Record<string, string> = { ipva: "IPVA", seguro: "Seguro", licenciamento: "Licenciamento" };
+const inDays = (d: number) => (d <= 0 ? "hoje" : d === 1 ? "amanhã" : `em ${d} dias`);
+
+const ROLE_LABEL: Record<string, string> = { parcela: "Parcela", ipva: "IPVA", seguro: "Seguro", licenciamento: "Licenciamento" };
 const daysUntil = (iso: string, now: Date) => Math.round((new Date(`${iso}T00:00`).getTime() - now.getTime()) / 86_400_000);
 
 /** Placa Mercosul pequena. */
