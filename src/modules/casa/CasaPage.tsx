@@ -14,7 +14,7 @@ import { warranty } from "@/modules/bens/logic";
 import { useBens } from "@/modules/bens/store";
 import type { Asset, Wish } from "@/modules/bens/types";
 import { LinkAssetDialog } from "./LinkAssetDialog";
-import { indoorArea, roomSize, suggestions, summarize } from "./logic";
+import { indoorArea, outdoorArea, roomSize, suggestions, summarize } from "./logic";
 import { MAIN, PROPOSALS, withProposal, type Proposal } from "./proposals";
 import { useCasa } from "./store";
 import type { Home, Piece, Room, ViewMode } from "./types";
@@ -214,7 +214,7 @@ export function PlanView({ name }: { name: string }) {
     <>
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         <p className="max-w-[60ch] text-sm text-muted-foreground">
-          {`Térreo com ${area.format(indoorArea(home))} m² de área interna, ${plural(whole.pieces.length, "móvel", "móveis")} e ${money(whole.value)} em bens ligados à planta.`}
+          {`Térreo com ${area.format(Math.round(indoorArea(home)) + Math.round(outdoorArea(home)))} m² no total (${area.format(indoorArea(home))} m² de área interna e ${area.format(outdoorArea(home))} m² de área externa), ${plural(whole.pieces.length, "móvel", "móveis")} e ${money(whole.value)} em bens ligados à planta.`}
         </p>
         <div className="flex flex-wrap items-center justify-end gap-2 select-none">
           <Segmented<string>
@@ -436,7 +436,7 @@ function HomePanel({
       <div className="border-b border-border p-4">
         <h2 className="text-xl font-semibold tracking-tight">{name}</h2>
         <p className="text-sm text-muted-foreground">
-          {area.format(indoorArea(home))} m² de área interna, mais a área externa.
+          {area.format(Math.round(indoorArea(home)) + Math.round(outdoorArea(home)))} m² no total: {area.format(indoorArea(home))} m² de área interna e {area.format(outdoorArea(home))} m² de área externa.
         </p>
         <div className="mt-3 grid grid-cols-[1fr_1.45fr_1fr] gap-2">
           <Stat value={String(rooms.length)} label="ambientes" />

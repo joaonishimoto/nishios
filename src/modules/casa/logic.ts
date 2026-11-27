@@ -21,6 +21,11 @@ export function indoorArea(home: Home): number {
   return home.rooms.filter((r) => !r.outdoor).reduce((sum, r) => sum + roomArea(r), 0);
 }
 
+/** Área de fora (quintal, área coberta e corredor do lado), sem as paredes. */
+export function outdoorArea(home: Home): number {
+  return home.rooms.filter((r) => r.outdoor).reduce((sum, r) => sum + roomArea(r), 0);
+}
+
 export interface Box {
   minX: number;
   maxX: number;
