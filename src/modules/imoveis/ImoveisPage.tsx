@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { addMonths, differenceInCalendarDays, getDaysInMonth, setDate } from "date-fns";
-import { Box, CalendarCheck, CalendarClock, Plus } from "lucide-react";
+import { Box, CalendarCheck, CalendarClock, Pencil, Plus } from "lucide-react";
 import { AssetAddCard, AssetCard, AssetGrid, type AssetFooter, type AssetStat } from "@/components/assets/AssetCard";
 import { Badge, type Tone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -29,6 +29,7 @@ export function ImoveisPage() {
   const { properties } = useImoveis();
   const navigate = useNavigate();
   const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState<string | null>(null);
   const t = totals(properties);
   const anyNumbers = t.value > 0 || t.net !== 0;
 
@@ -64,11 +65,18 @@ export function ImoveisPage() {
 
       <AssetGrid label="Seus imóveis">
         {properties.map((p) => (
-          <PropertyLot key={p.id} property={p} />
+          <PropertyLot key={p.id} property={p} onEdit={() => setEditing(p.id)} />
         ))}
         <AssetAddCard title="Lote vago" hint="Adicionar apartamento, casa, terreno ou sala" onClick={() => setCreating(true)} />
       </AssetGrid>
 
+      {editing && (
+        <PropertyForm
+          open
+          onOpenChange={(o) => !o && setEditing(null)}
+          property={properties.find((p) => p.id === editing)}
+        />
+      )}
       <PropertyForm open={creating} onOpenChange={setCreating} onCreated={(p) => navigate(`/imoveis/${p.id}`)} />
     </>
   );
@@ -93,7 +101,7 @@ function Kpi({ label, value, hint, tone }: { label: string; value: string; hint:
 }
 
 /** Um imóvel no mesmo card dos veículos; tocar abre os detalhes. */
-function PropertyLot({ property: p }: { property: Property }) {
+function PropertyLot({ property: p, onEdit }: { property: Property; onEdit: () => void }) {
   const now = today();
   const w = wealth(p);
   const m = month(p);
@@ -169,15 +177,12 @@ function PropertyLot({ property: p }: { property: Property }) {
   return (
     <AssetCard
       to={`/imoveis/${p.id}`}
+      actions={[
+        ...(p.plan ? [{ label: "Ver 3D", icon: Box, to: `/imoveis/${p.id}?aba=planta` }] : []),
+        { label: "Editar", icon: Pencil, onClick: onEdit },
+      ]}
       picture={<PropertyMini kind={p.kind} situation={p.situation} className="h-full w-full max-w-64" />}
       title={p.name}
-      titleExtra={
-        p.plan ? (
-          <span title="Tem planta em 3D" className="text-muted-foreground">
-            <Box className="size-4" />
-          </span>
-        ) : undefined
-      }
       subtitle={subtitle}
       chips={
         <>

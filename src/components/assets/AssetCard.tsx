@@ -42,9 +42,21 @@ export interface AssetFooter {
 }
 
 const SHELL =
-  "group flex h-full w-full flex-col overflow-hidden rounded-xl border border-border bg-[linear-gradient(to_bottom,var(--color-surface)_0%,var(--color-surface-muted)_100%)] text-left transition-colors duration-(--motion-fast) hover:border-border-strong hover:bg-surface-hover/60 focus-visible:border-border-strong focus-visible:outline-none";
+  "flex h-full w-full flex-col overflow-hidden rounded-xl border border-border bg-[linear-gradient(to_bottom,var(--color-surface)_0%,var(--color-surface-muted)_100%)] text-left transition-colors duration-(--motion-fast) hover:border-border-strong hover:bg-surface-hover/60 focus-visible:border-border-strong focus-visible:outline-none";
+
+/** Botão no canto da imagem (Editar, Ver 3D). Fica fora do link do card, para não abrir os detalhes. */
+export interface AssetAction {
+  label: string;
+  icon: LucideIcon;
+  onClick?: () => void;
+  to?: string;
+}
+
+const ACTION =
+  "inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface/90 px-2 text-xs font-medium text-muted-foreground shadow-xs backdrop-blur-sm transition-colors hover:border-border-strong hover:bg-surface-hover hover:text-foreground [&_svg]:size-3.5";
 
 export function AssetCard({
+  actions,
   to,
   onClick,
   picture,
@@ -66,10 +78,11 @@ export function AssetCard({
   stats: AssetStat[];
   progress?: AssetProgress | null;
   footer: AssetFooter;
+  actions?: AssetAction[];
 }) {
   const body = (
     <>
-      <div className="relative flex h-40 items-end justify-center border-b border-dashed border-border-strong px-6 pt-5 pb-3">
+      <div className="relative flex h-44 items-end justify-center border-b border-dashed border-border-strong px-6 pt-11 pb-3">
         {picture}
       </div>
 
@@ -131,7 +144,7 @@ export function AssetCard({
   );
 
   return (
-    <li className="min-w-0">
+    <li className="relative min-w-0">
       {to ? (
         <Link to={to} className={SHELL}>
           {body}
@@ -140,6 +153,23 @@ export function AssetCard({
         <button type="button" onClick={onClick} className={SHELL}>
           {body}
         </button>
+      )}
+      {actions && actions.length > 0 && (
+        <div className="absolute top-2.5 right-2.5 flex gap-1.5">
+          {actions.map((a) =>
+            a.to ? (
+              <Link key={a.label} to={a.to} className={ACTION}>
+                <a.icon />
+                {a.label}
+              </Link>
+            ) : (
+              <button key={a.label} type="button" onClick={a.onClick} className={ACTION}>
+                <a.icon />
+                {a.label}
+              </button>
+            ),
+          )}
+        </div>
       )}
     </li>
   );
@@ -152,7 +182,7 @@ export function AssetAddCard({ title, hint, onClick }: { title: string; hint: st
       <button
         type="button"
         onClick={onClick}
-        className="group flex h-full min-h-40 w-full sm:min-h-72 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border-strong px-5 py-6 text-center text-muted-foreground transition-colors duration-(--motion-fast) hover:bg-surface-hover/60 hover:text-foreground"
+        className="group flex h-full min-h-40 w-full sm:min-h-76 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border-strong px-5 py-6 text-center text-muted-foreground transition-colors duration-(--motion-fast) hover:bg-surface-hover/60 hover:text-foreground"
       >
         <span className="grid size-12 place-items-center rounded-full border border-dashed border-border-strong transition-transform duration-300 group-hover:scale-110">
           <Plus className="size-5" />

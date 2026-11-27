@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
-import { CalendarCheck, CalendarClock, Car, Plus } from "lucide-react";
+import { CalendarCheck, CalendarClock, Car, Pencil, Plus } from "lucide-react";
 import { AssetAddCard, AssetCard, AssetGrid } from "@/components/assets/AssetCard";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -22,6 +22,7 @@ export function VeiculosPage() {
   const { recurrences } = useFinancas();
   const [params] = useSearchParams();
   const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState<string | null>(null);
   const now = today();
 
   const views = useMemo(
@@ -86,7 +87,7 @@ export function VeiculosPage() {
             <Kpi label="Custo por mês" value={money(Math.round(t.monthlyCost))} hint="Parcelas e custos fixos, em média" />
           </div>
 
-          <Garage views={active} onOpen={openDetail} onAdd={() => setCreating(true)} />
+          <Garage views={active} onOpen={openDetail} onEdit={setEditing} onAdd={() => setCreating(true)} />
 
           {sold.length > 0 && (
             <section className="mt-8">
@@ -117,6 +118,13 @@ export function VeiculosPage() {
       )}
 
       <VehicleForm open={creating} onOpenChange={setCreating} onCreated={(v) => openDetail(v.id)} />
+      {editing && (
+        <VehicleForm
+          open
+          onOpenChange={(o) => !o && setEditing(null)}
+          vehicle={vehicles.find((v) => v.id === editing)}
+        />
+      )}
     </>
   );
 }
@@ -131,8 +139,18 @@ function Kpi({ label, value, hint }: { label: string; value: string; hint: strin
   );
 }
 
-/** A garagem: cada veículo num card do mesmo tamanho dos imóveis. Passar o mouse liga o carro; clicar abre os detalhes. */
-function Garage({ views, onOpen, onAdd }: { views: VehicleView[]; onOpen: (id: string) => void; onAdd: () => void }) {
+/** A garagem: cada veículo num card do mesmo tamanho dos imóveis. Clicar abre os detalhes; Editar abre o formulário ali mesmo. */
+function Garage({
+  views,
+  onOpen,
+  onEdit,
+  onAdd,
+}: {
+  views: VehicleView[];
+  onOpen: (id: string) => void;
+  onEdit: (id: string) => void;
+  onAdd: () => void;
+}) {
   const now = today();
   return (
     <AssetGrid label="Garagem">
@@ -147,6 +165,7 @@ function Garage({ views, onOpen, onAdd }: { views: VehicleView[]; onOpen: (id: s
           <AssetCard
             key={v.id}
             onClick={() => onOpen(v.id)}
+            actions={[{ label: "Editar", icon: Pencil, onClick: () => onEdit(v.id) }]}
             picture={<VehiclePicture vehicle={v} className="h-full w-full max-w-64" />}
             title={v.name}
             titleExtra={v.plate ? <Plate text={v.plate} /> : undefined}
