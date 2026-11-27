@@ -695,7 +695,11 @@ function proposalG4(): Proposal {
   const g = proposalG();
   const white = "#f4f4f1", nishi = "#1e3d66", linen = "#e9e4da", oak = "#c9a77c";
   // Cortina do trilho até 10 cm abaixo do peitoril da janela (1,0 m), que é o que tampa a janela.
-  const curtain = (x: number, w: number) => full([part(x, 0.0, w, 0.04, 1.35, "tecido", 0.9, linen), part(x - 0.05, 0.02, w + 0.1, 0.02, 0.02, "metal", 2.27)]);
+  // Cortina 10 cm mais larga que a janela de cada lado; a altura acompanha a janela no 3D.
+  const curtain = (x: number, w: number) => [
+    { ...part(x - 0.1, 0.0, w + 0.2, 0.04, 1.4, "tecido", 0.9, linen), curtain: "cloth" as const },
+    { ...part(x - 0.15, 0.02, w + 0.3, 0.02, 0.02, "metal", 2.25), curtain: "rail" as const },
+  ];
   const pendant = (x: number, z: number, y: number) => full([part(x + 0.12, z + 0.12, 0.01, 0.01, 2.6 - y - 0.18, "escuro", y + 0.18), part(x, z, 0.25, 0.25, 0.18, "escuro", y, nishi)]);
   const extra: Piece[] = [
     // Suíte

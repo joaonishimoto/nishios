@@ -89,6 +89,11 @@ export interface Part {
   c?: string;
   /** Mostra a altura inteira no 3D, sem o corte dos móveis (armários altos, aéreos e TVs). */
   full?: boolean;
+  /**
+   * Cortina: o pano e o trilho acompanham a janela desenhada (que muda com a altura das
+   * paredes), para a cortina sempre cobrir a janela inteira.
+   */
+  curtain?: "cloth" | "rail";
 }
 
 export interface Piece {
