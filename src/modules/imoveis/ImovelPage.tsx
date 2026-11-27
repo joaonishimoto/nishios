@@ -160,7 +160,7 @@ function Summary({ property: p, onEdit }: { property: Property; onEdit: () => vo
   const m = month(p);
   const gain = appreciation(p);
   const y = rentYield(p);
-  const blank = !owned ? !p.lease?.rent && p.situation !== "vendido" : w.value === 0 && !p.financing && m.outs.length === 0;
+  const blank = !owned ? !p.lease?.rent && p.situation !== "vendido" : w.value === 0 && !p.financing && m.outs.length === 0 && m.bills.length === 0;
 
   if (blank) {
     return (
@@ -336,10 +336,10 @@ function LeaseCard({ property: p }: { property: Property }) {
 
 function MonthCard({ property: p }: { property: Property }) {
   const m = month(p);
-  if (m.ins.length + m.outs.length === 0) {
+  if (m.ins.length + m.outs.length + m.bills.length === 0) {
     return (
       <Card icon={Banknote} title="Mês a mês">
-        <EmptyState size="sm" title="Sem entradas nem custos" description="Coloque aluguel, prestação ou custos em Editar." />
+        <EmptyState size="sm" title="Sem entradas nem custos" description="Coloque aluguel, prestação, custos ou as contas da casa em Editar." />
       </Card>
     );
   }
@@ -352,6 +352,14 @@ function MonthCard({ property: p }: { property: Property }) {
         {m.outs.map((l) => (
           <Row key={l.label} label={l.label} value={`− ${money(Math.round(l.amount))}`} />
         ))}
+        {m.bills.length > 0 && (
+          <>
+            <p className="mt-3 mb-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">Contas da casa (média)</p>
+            {m.bills.map((l) => (
+              <Row key={l.label} label={l.label} value={`− ${money(Math.round(l.amount))}`} />
+            ))}
+          </>
+        )}
         <div className="mt-2 border-t border-border pt-2">
           <Row
             label={m.net >= 0 ? "Sobra por mês" : "Sai do bolso por mês"}

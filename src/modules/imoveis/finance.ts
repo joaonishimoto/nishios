@@ -1,8 +1,8 @@
 import { addMonths, getDaysInMonth, setDate } from "date-fns";
 import { toISO, today } from "@/lib/dates";
 import type { Recurrence, RecurrenceDraft } from "@/modules/financas/types";
-import { isOwned, nextDue, paysRent, receivesRent, remaining } from "./logic";
-import type { Property, PropertyFlow } from "./types";
+import { isOwned, nextDue, paysBills, paysRent, receivesRent, remaining } from "./logic";
+import { BILLS, type Property, type PropertyFlow } from "./types";
 
 export interface FlowPlan {
   flow: PropertyFlow;
@@ -85,6 +85,28 @@ export function flowPlans(p: Property, recurrences: Recurrence[]): FlowPlan[] {
         first: nextOn(10),
       },
     });
+  }
+  // Contas de consumo: o valor muda todo mês, então entram como aproximadas.
+  if (paysBills(p.situation)) {
+    for (const b of BILLS) {
+      const amount = p.costs[b.key];
+      if (!(amount > 0)) continue;
+      out.push({
+        flow: b.flow,
+        label: `${b.label} (média)`,
+        draft: {
+          ...base,
+          ...link(b.flow),
+          kind: "out",
+          name: `${b.label} ${p.name}`,
+          icon: b.icon,
+          category: "Contas da casa",
+          amount,
+          approx: true,
+          first: nextOn(15),
+        },
+      });
+    }
   }
   return out.map((plan) => {
     const existing = recurrences.find((r) => r.link?.module === "imoveis" && r.link.id === p.id && r.link.role === plan.flow);

@@ -131,7 +131,7 @@ function PropertyLot({ property: p }: { property: Property }) {
       : p.lease?.rent
         ? `Aluguel ${money(p.lease.rent)}`
         : null;
-  const hasMonth = p.situation !== "vendido" && m.ins.length + m.outs.length > 0;
+  const hasMonth = p.situation !== "vendido" && m.ins.length + m.outs.length + m.bills.length > 0;
   return (
     <Link
       to={`/imoveis/${p.id}`}

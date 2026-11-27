@@ -86,7 +86,23 @@ export interface Costs {
   insurance: number;
   /** Outros custos por mês (manutenção, taxa de lixo). */
   other: number;
+  /**
+   * Contas de consumo, pela média do mês. Não são custo do imóvel em si (dependem de quem mora),
+   * por isso aparecem separadas, e só quando eu moro nele ou ele está vazio.
+   */
+  water: number;
+  power: number;
+  gas: number;
+  internet: number;
 }
+
+/** As contas de consumo, na ordem em que aparecem. */
+export const BILLS: { key: "water" | "power" | "gas" | "internet"; label: string; icon: string; flow: PropertyFlow }[] = [
+  { key: "water", label: "Água", icon: "💧", flow: "agua" },
+  { key: "power", label: "Luz", icon: "💡", flow: "luz" },
+  { key: "gas", label: "Gás", icon: "🔥", flow: "gas" },
+  { key: "internet", label: "Internet", icon: "🌐", flow: "internet" },
+];
 
 export interface Property {
   id: string;
@@ -117,4 +133,4 @@ export interface Property {
 export type PropertyDraft = Omit<Property, "id" | "createdAt" | "plan">;
 
 /** Lançamentos que um imóvel pode ter em Finanças (o `role` do link da recorrência). */
-export type PropertyFlow = "parcela" | "aluguel" | "condominio";
+export type PropertyFlow = "parcela" | "aluguel" | "condominio" | "agua" | "luz" | "gas" | "internet";

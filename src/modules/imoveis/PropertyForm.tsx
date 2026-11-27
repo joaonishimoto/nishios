@@ -6,11 +6,13 @@ import { Field, Input, Select, Textarea } from "@/components/ui/Field";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { IconPicker } from "@/components/ui/IconPicker";
 import { useToast } from "@/components/ui/Toast";
+import { cn } from "@/lib/cn";
 import { toISO, today } from "@/lib/dates";
-import { currentValue, emptyCosts, isOwned } from "./logic";
+import { currentValue, emptyCosts, isOwned, paysBills } from "./logic";
 import { MAIN_ID } from "./seed";
 import { useImoveis } from "./store";
 import {
+  BILLS,
   PROPERTY_KINDS,
   SITUATIONS,
   type Financing,
@@ -224,6 +226,33 @@ function Content({
   return (
     <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col" noValidate>
       <DialogBody className="flex flex-col gap-5">
+        <fieldset className="flex flex-col gap-2">
+          <legend className="mb-2 text-sm font-medium">O que é?</legend>
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+            {PROPERTY_KINDS.map((k) => {
+              const active = draft.kind === k.value;
+              return (
+                <button
+                  key={k.value}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() =>
+                    setDraft((d) => ({ ...d, kind: k.value, icon: PROPERTY_KINDS.some((x) => x.icon === d.icon) ? k.icon : d.icon }))
+                  }
+                  className={cn(
+                    "flex flex-col items-center gap-1 rounded-md border px-2 py-2.5 text-sm font-medium transition-colors duration-(--motion-fast)",
+                    active ? "border-primary bg-primary/10 text-foreground" : "border-border text-muted-foreground hover:bg-surface-hover",
+                  )}
+                >
+                  <span className="text-xl" aria-hidden>
+                    {k.icon}
+                  </span>
+                  {k.label}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
         <div className="flex items-start gap-3">
           <IconPicker icons={ICONS} value={draft.icon} onChange={(i) => set("icon", i)} />
           <Field label="Nome" className="flex-1" error={tried ? nameError : undefined}>
@@ -240,25 +269,6 @@ function Content({
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Tipo">
-            {(id) => (
-              <Select
-                id={id}
-                value={draft.kind}
-                onChange={(e) => {
-                  const kind = e.target.value as PropertyDraft["kind"];
-                  const icon = PROPERTY_KINDS.find((k) => k.value === kind)?.icon;
-                  setDraft((d) => ({ ...d, kind, icon: PROPERTY_KINDS.some((k) => k.icon === d.icon) && icon ? icon : d.icon }));
-                }}
-              >
-                {PROPERTY_KINDS.map((k) => (
-                  <option key={k.value} value={k.value}>
-                    {k.label}
-                  </option>
-                ))}
-              </Select>
-            )}
-          </Field>
           <Field label="Situação" hint={SITUATIONS.find((x) => x.value === s)?.hint}>
             {(id) => (
               <Select id={id} value={s} onChange={(e) => set("situation", e.target.value as Situation)}>
@@ -452,12 +462,25 @@ function Content({
         )}
 
         {s !== "vendido" && (
-          <Section title="Custos que eu pago" hint="Deixe 0 no que o inquilino paga.">
+          <Section title="Custos do imóvel" hint="O que eu pago para ter o imóvel. Deixe 0 no que o inquilino paga.">
             <div className="grid gap-4 sm:grid-cols-2">
               <Money label="Condomínio (R$ por mês)" value={draft.costs.condo} onChange={(v) => setCost("condo", v)} />
               <Money label="IPTU (R$ por ano)" value={draft.costs.iptu} onChange={(v) => setCost("iptu", v)} />
               <Money label="Seguro (R$ por ano)" value={draft.costs.insurance} onChange={(v) => setCost("insurance", v)} />
               <Money label="Outros (R$ por mês)" value={draft.costs.other} onChange={(v) => setCost("other", v)} hint="Manutenção, taxa de lixo." />
+            </div>
+          </Section>
+        )}
+
+        {paysBills(s) && (
+          <Section
+            title="Contas da casa"
+            hint="Água, luz, gás e internet mudam todo mês: coloque a média. Ficam separadas dos custos do imóvel, porque dependem de quem mora. Deixe 0 no que não tem."
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              {BILLS.map((b) => (
+                <Money key={b.key} label={`${b.icon} ${b.label} (R$ por mês, média)`} value={draft.costs[b.key]} onChange={(v) => setCost(b.key, v)} />
+              ))}
             </div>
           </Section>
         )}
