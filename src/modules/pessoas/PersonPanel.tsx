@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { MessageCircle, Pencil, Trash2, X } from "lucide-react";
+import { Gift, MessageCircle, Pencil, Trash2, X } from "lucide-react";
+import { Segmented } from "@/components/ui/Segmented";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge, Dot } from "@/components/ui/Badge";
@@ -11,7 +12,11 @@ import { useToast } from "@/components/ui/Toast";
 import { formatDate, shortDate, today } from "@/lib/dates";
 import { useCalendar } from "@/modules/calendario/store";
 import { upcomingWith } from "./linked";
+import { giftTotals, profileCount, profileOf, remainingOf } from "./extras";
+import { GiftsTab } from "./GiftsTab";
+import { balanceLabel, LoansTab } from "./LoansTab";
 import { LogContact } from "./LogContact";
+import { ProfileTab } from "./ProfileTab";
 import {
   birthday,
   birthdayLabel,
@@ -25,6 +30,8 @@ import { PersonForm } from "./PersonForm";
 import { usePeople } from "./store";
 import type { Person } from "./types";
 
+type Tab = "resumo" | "presentes" | "dinheiro" | "gostos";
+
 export function PersonPanel({ person, onClose }: { person: Person | undefined; onClose: () => void }) {
   return (
     <Dialog
@@ -34,7 +41,7 @@ export function PersonPanel({ person, onClose }: { person: Person | undefined; o
       title={person?.name ?? "Pessoa"}
       hideTitle
     >
-      {person && <PanelContent person={person} onClose={onClose} />}
+      {person && <PanelContent key={person.id} person={person} onClose={onClose} />}
     </Dialog>
   );
 }
@@ -48,6 +55,11 @@ function PanelContent({ person: p, onClose }: { person: Person; onClose: () => v
   const c = contact(p);
   const meta = CONTACT_META[c.status];
   const b = birthday(p);
+  const [tab, setTab] = useState<Tab>("resumo");
+  const balance = balanceLabel(p);
+  const gifts = giftTotals(p);
+  const openLoans = (p.loans ?? []).filter((l) => remainingOf(l) > 0).length;
+  const ideas = profileOf(p).ideas;
 
   return (
     <>
@@ -64,8 +76,30 @@ function PanelContent({ person: p, onClose }: { person: Person; onClose: () => v
               {meta.label}
             </Badge>
             <Badge>{p.group}</Badge>
+            {balance && balance.tone !== "neutral" && (
+              <Badge tone={balance.tone === "success" ? "success" : "danger"}>{balance.text}</Badge>
+            )}
           </div>
         </header>
+
+        <Segmented<Tab>
+          label="Seções da pessoa"
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: "resumo", label: "Resumo" },
+            { value: "presentes", label: "Presentes", count: gifts.given + gifts.received || undefined },
+            { value: "dinheiro", label: "Empréstimos", count: openLoans || undefined },
+            { value: "gostos", label: "Gostos", count: profileCount(p) || undefined },
+          ]}
+        />
+
+        {tab === "presentes" && <GiftsTab person={p} />}
+        {tab === "dinheiro" && <LoansTab person={p} />}
+        {tab === "gostos" && <ProfileTab person={p} />}
+
+        {tab === "resumo" && (
+        <>
 
         <section aria-label="Contato" className="rounded-lg border border-border bg-background p-4">
           <p className="text-lg font-semibold">{nextContactLabel(c)}</p>
@@ -112,6 +146,16 @@ function PanelContent({ person: p, onClose }: { person: Person; onClose: () => v
                   {" "}
                   ({birthdayLabel(b).toLowerCase()}, faz {b.turning})
                 </span>
+                {b.daysUntil <= 30 && ideas.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setTab("gostos")}
+                    className="mt-1 flex items-center gap-1.5 text-sm text-primary hover:underline"
+                  >
+                    <Gift className="size-3.5" aria-hidden />
+                    {ideas.length === 1 ? "1 ideia de presente anotada" : `${ideas.length} ideias de presente anotadas`}
+                  </button>
+                )}
               </dd>
             </>
           )}
@@ -210,6 +254,8 @@ function PanelContent({ person: p, onClose }: { person: Person; onClose: () => v
             </ol>
           )}
         </section>
+        </>
+        )}
       </DialogBody>
 
       <div className="flex items-center gap-2 border-t border-border px-6 py-3">
