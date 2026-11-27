@@ -8,6 +8,7 @@ import {
   ChevronRight,
   ClipboardList,
   Dumbbell,
+  LayoutTemplate,
   Pencil,
   Play,
   Plus,
@@ -30,6 +31,7 @@ import { plural } from "@/lib/format";
 import { ExerciseForm } from "./ExerciseForm";
 import { daysAgoLabel, formatDuration, inCurrentMonth, sum } from "./logic";
 import { PlanForm } from "./PlanForm";
+import { TemplatesDialog } from "./TemplatesDialog";
 import {
   defaultMetric,
   evolution,
@@ -399,6 +401,7 @@ function SuggestPlans({ sessions }: { sessions: Session[] }) {
   const { createPlan, removePlan, exercises } = useTreinos();
   const toast = useToast();
   const [form, setForm] = useState(false);
+  const [templates, setTemplates] = useState(false);
   const suggestions = useMemo(() => suggestPlans(sessions.filter((s) => s.date >= toISO(sub(today(), { days: 60 })))), [sessions]);
   const names = new Map(exercises.map((d) => [d.id, d]));
 
@@ -409,7 +412,7 @@ function SuggestPlans({ sessions }: { sessions: Session[] }) {
         <p className="text-sm text-muted-foreground">
           {suggestions.length > 0
             ? `Seus treinos dos últimos 60 dias formam ${plural(suggestions.length, "ficha", "fichas")}. Dá para criar de uma vez e ajustar depois.`
-            : "Com as fichas, o próximo treino do rodízio aparece aqui com as cargas da última vez."}
+            : "Com as fichas, o próximo treino do rodízio aparece aqui com as cargas da última vez. Comece de um modelo pronto ou monte do zero."}
         </p>
       </div>
       <div className="flex flex-wrap gap-2">
@@ -432,12 +435,17 @@ function SuggestPlans({ sessions }: { sessions: Session[] }) {
             Criar a partir dos treinos
           </Button>
         )}
-        <Button variant={suggestions.length > 0 ? "ghost" : "outline"} onClick={() => setForm(true)}>
+        <Button variant={suggestions.length > 0 ? "outline" : "primary"} onClick={() => setTemplates(true)}>
+          <LayoutTemplate />
+          Usar um modelo
+        </Button>
+        <Button variant="ghost" onClick={() => setForm(true)}>
           <Plus />
           Nova ficha
         </Button>
       </div>
       <PlanForm open={form} onOpenChange={setForm} />
+      <TemplatesDialog open={templates} onOpenChange={setTemplates} />
     </div>
   );
 }
@@ -457,6 +465,7 @@ function PlansTab({
 }) {
   const { plans, movePlan } = useTreinos();
   const [form, setForm] = useState<{ open: boolean; plan?: Plan }>({ open: false });
+  const [templates, setTemplates] = useState(false);
   const next = nextPlan(plans, sessions);
 
   return (
@@ -465,10 +474,16 @@ function PlansTab({
         <p className="text-sm text-muted-foreground">
           {plans.length > 1 ? "A ordem das fichas é a ordem do rodízio: depois da última volta para a primeira." : "Cada ficha é um treino: os exercícios, as séries, as repetições e a carga alvo."}
         </p>
-        <Button variant="outline" size="sm" className="h-8" onClick={() => setForm({ open: true })}>
-          <Plus />
-          Nova ficha
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="ghost" size="sm" className="h-8" onClick={() => setTemplates(true)}>
+            <LayoutTemplate />
+            Modelos
+          </Button>
+          <Button variant="outline" size="sm" className="h-8" onClick={() => setForm({ open: true })}>
+            <Plus />
+            Nova ficha
+          </Button>
+        </div>
       </div>
 
       {plans.length === 0 ? (
@@ -537,6 +552,7 @@ function PlansTab({
         </ul>
       )}
       <PlanForm open={form.open} plan={form.plan} onOpenChange={(open) => setForm((f) => ({ ...f, open }))} />
+      <TemplatesDialog open={templates} onOpenChange={setTemplates} />
     </div>
   );
 }
@@ -555,13 +571,22 @@ function CatalogTab({
   const { exercises } = useTreinos();
   const [query, setQuery] = useState("");
   const [equipment, setEquipment] = useState<Equipment | "todos">("todos");
+  const [muscle, setMuscle] = useState<MuscleGroup | "todos">("todos");
   const [form, setForm] = useState<{ open: boolean; exercise?: ExerciseDef }>({ open: false });
 
   const q = normalizeName(query);
-  const filtered = exercises.filter((d) => (equipment === "todos" || d.equipment === equipment) && (!q || normalizeName(d.name).includes(q)));
+  const filtered = exercises.filter(
+    (d) =>
+      (equipment === "todos" || d.equipment === equipment) &&
+      (muscle === "todos" || d.muscle === muscle || d.secondary?.includes(muscle)) &&
+      (!q || normalizeName(d.name).includes(q)),
+  );
   const groups = MUSCLE_ORDER.map((m) => ({
     muscle: m,
-    items: filtered.filter((d) => d.muscle === m).sort((a, b) => a.name.localeCompare(b.name, "pt-BR")),
+    items: filtered
+      .filter((d) => (muscle === "todos" ? d.muscle === m : m === muscle))
+      // Os que você já fez primeiro; depois em ordem alfabética.
+      .sort((a, b) => Number(histories.has(b.id)) - Number(histories.has(a.id)) || a.name.localeCompare(b.name, "pt-BR")),
   })).filter((g) => g.items.length > 0);
 
   const counts = (eq: Equipment) => exercises.filter((d) => d.equipment === eq).length;
@@ -577,6 +602,14 @@ function CatalogTab({
           <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-subtle-foreground" aria-hidden />
           <Input aria-label="Buscar exercício" value={query} placeholder="Buscar exercício" className="pl-8" onChange={(e) => setQuery(e.target.value)} />
         </div>
+        <Select aria-label="Grupo muscular" value={muscle} onChange={(e) => setMuscle(e.target.value as MuscleGroup | "todos")} className="w-auto min-w-40">
+          <option value="todos">Todos os grupos</option>
+          {MUSCLE_ORDER.map((m) => (
+            <option key={m} value={m}>
+              {MUSCLE_LABELS[m]}
+            </option>
+          ))}
+        </Select>
         <Button variant="outline" onClick={() => setForm({ open: true })}>
           <Plus />
           Novo exercício
@@ -601,7 +634,7 @@ function CatalogTab({
           }
         />
       ) : groups.length === 0 ? (
-        <NoResults query={query} onClear={() => (setQuery(""), setEquipment("todos"))} />
+        <NoResults query={query} onClear={() => (setQuery(""), setEquipment("todos"), setMuscle("todos"))} />
       ) : (
         <div className="flex flex-col gap-5">
           {groups.map((g) => (
@@ -618,11 +651,15 @@ function CatalogTab({
                   return (
                     <li key={d.id} className="relative flex items-center gap-3 border-b border-border px-3 py-2.5 last:border-b-0 hover:bg-surface-hover">
                       <div className="min-w-0 flex-1">
-                        <button type="button" onClick={() => onOpenExercise(d.id)} className="block max-w-full truncate text-left font-medium after:absolute after:inset-0">
+                        <button
+                          type="button"
+                          onClick={() => (last ? onOpenExercise(d.id) : setForm({ open: true, exercise: d }))}
+                          className="block max-w-full truncate text-left font-medium after:absolute after:inset-0"
+                        >
                           {d.name}
                         </button>
-                        <p className="truncate text-sm text-muted-foreground">
-                          {last ? `${setsLabel(last.exercise)}, ${daysAgoLabel(last.date)}` : "Ainda não feito"}
+                        <p className="truncate text-sm text-muted-foreground" title={last ? undefined : d.notes || undefined}>
+                          {last ? `${setsLabel(last.exercise)}, ${daysAgoLabel(last.date)}` : d.notes || "Ainda não feito"}
                         </p>
                       </div>
                       <Badge className="max-sm:hidden">{EQUIPMENT_LABELS[d.equipment]}</Badge>
@@ -678,7 +715,8 @@ function ExercisePicker({
   exclude?: string[];
   placeholder?: string;
 }) {
-  const list = [...byId.values()].filter((d) => !exclude.includes(d.id));
+  // Só os que já têm treino: a biblioteca inteira deixaria a lista longa demais.
+  const list = [...byId.values()].filter((d) => !exclude.includes(d.id) && (d.id === value || histories.has(d.id)));
   return (
     <Select aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} className="w-full sm:w-80">
       {placeholder && <option value="">{placeholder}</option>}

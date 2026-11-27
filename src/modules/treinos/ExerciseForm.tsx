@@ -6,6 +6,7 @@ import { Field, Input, Select, Textarea } from "@/components/ui/Field";
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
 import { plural } from "@/lib/format";
+import { LIBRARY_BY_ID } from "./library";
 import { normalizeName } from "./strength";
 import { useTreinos } from "./store";
 import {
@@ -128,7 +129,13 @@ function Content({
           )}
         </Field>
 
-        <Field label="Anotações">
+        {exercise?.secondary && exercise.secondary.length > 0 && (
+          <p className="-mt-2 text-sm text-muted-foreground">
+            Também trabalha: {exercise.secondary.map((m) => MUSCLE_LABELS[m].toLowerCase()).join(", ")}.
+          </p>
+        )}
+
+        <Field label={exercise && LIBRARY_BY_ID.has(exercise.id) ? "Como fazer e anotações" : "Anotações"}>
           {(id) => (
             <Textarea id={id} value={draft.notes} placeholder="Ajuste do banco, pegada, cuidados..." onChange={(e) => setDraft((d) => ({ ...d, notes: e.target.value }))} />
           )}
