@@ -1104,6 +1104,8 @@ interface SuiteLayout {
   chaise: { x: number; z: number; alongX?: boolean; flip?: boolean };
   /** Tapete grande do lado da cama. */
   rug?: Rect;
+  /** Espelho na parede do banheiro inteira, do rodapé até 2,10 m. */
+  mirror?: boolean;
 }
 
 const CHAISE_LINK = "https://www.mercadolivre.com.br/poltrona-cadeira-exotica-tantra-diva-sofa-quarto-preto-desenho-do-tecido-liso/p/MLB41254058";
@@ -1119,6 +1121,10 @@ function suiteVersion(o: SuiteLayout, base: Proposal): Proposal {
     ])),
     { ...piece("suite", "Poltrona tântrica", "🛋️", "Móveis", tantraChaise(o.chaise)), price: 1650, link: CHAISE_LINK },
     ...(o.rug ? [piece("suite", "Tapete ao lado da cama", "🟫", "Móveis", rug(o.rug, "#d6cfc2"))] : []),
+    ...(o.mirror ? [piece("suite", "Espelho grande", "🪞", "Móveis", full([
+      part(7.75, 2.656, 2.08, 0.02, 2.0, "vidro", 0.1, "#d7e6ea"),
+      part(7.73, 2.666, 2.12, 0.01, 2.04, "metal", 0.08),
+    ]))] : []),
   ];
   return roomVersion(o, ["suite"], "Suíte", "suite", pieces, "Cortina blackout na janela; quando a cama fica embaixo dela, a cortina termina em cima da cabeceira.", undefined, undefined, base);
 }
@@ -1143,86 +1149,30 @@ function tantraChaise(o: { x: number; z: number; alongX?: boolean; flip?: boolea
   ];
 }
 
-/** A suíte da principal: cabeceira na parede do escritório, TV na parede de fora e a poltrona no canto do banheiro. */
+/**
+ * A suíte da principal: cabeceira na parede de fora, perto da janela, TV na parede do
+ * escritório, a poltrona deitada ao longo da parede do banheiro e um espelho na parede do
+ * banheiro inteira, atrás dela.
+ */
 const SUITE: SuiteLayout = {
   id: "g4",
   label: "Principal",
   name: G4.name,
   tagline: G4.tagline,
-  highlight: "Suíte: cama viúva com a cabeceira na parede do escritório, TV na parede de fora e a poltrona tântrica preta no canto da parede do banheiro com a parede de fora.",
+  highlight: "Suíte: cama viúva com a cabeceira na parede de fora, TV na parede do escritório, poltrona tântrica preta ao longo da parede do banheiro e um espelho grande ocupando essa parede inteira.",
   notes: [
-    "A cabeceira fica na parede do escritório e a TV na parede de fora, a uns 90 cm do pé da cama. A janela fica livre, do lado da cama.",
-    "A poltrona tântrica preta (45 × 150 × 71 cm) fica no canto, encostada na parede do banheiro e na parede de fora, com a ponta alta no canto.",
-    "Tapete grande de 1,90 × 0,72 m do lado da cama, do lado da porta, para pisar ao levantar.",
-    "A entrada pelo corredorzinho fica livre.",
+    "A cabeceira fica na parede de fora, do lado da janela, e a TV na parede do escritório, de frente para a cama.",
+    "A poltrona tântrica preta (45 × 150 × 71 cm) fica deitada ao longo da parede do banheiro, com a ponta alta do lado de fora.",
+    "Espelho de 2,10 × 2,00 m ocupando a parede do banheiro inteira, do rodapé até 2,10 m, atrás da poltrona: reflete a cama e a janela e deixa a suíte parecer bem maior.",
+    "Tapete grande de 1,85 × 1,16 m do lado direito da cama, quase do comprimento dela, indo até a parede do banheiro: a poltrona fica em cima dele.",
+    "A entrada pelo corredorzinho fica livre, entre a TV e a poltrona.",
   ],
-  bed: [R(6.79, 0.15, 1.88, 1.28), "w"],
-  tv: [R(9.59, 0.17, 0.28, 1.25), "e"],
-  chaise: { x: 8.37, z: 2.23, alongX: true, flip: true },
-  rug: R(6.95, 1.48, 1.9, 0.72),
+  bed: [R(7.99, 0.15, 1.88, 1.28), "e"],
+  tv: [R(6.79, 0.17, 0.28, 1.25), "w"],
+  chaise: { x: 7.78, z: 2.2, alongX: true, flip: true },
+  rug: R(7.85, 1.46, 1.85, 1.16),
+  mirror: true,
 };
-
-const SUITES: SuiteLayout[] = [
-  {
-    id: "sui1",
-    label: "Suíte 1",
-    name: "Suíte com a cabeceira na parede de fora",
-    tagline: "A cama com a cabeceira na parede de fora, a TV na parede do escritório e a poltrona na parede do banheiro.",
-    highlight: "Suíte: cabeceira na parede de fora, TV na parede do escritório, poltrona tântrica na parede do banheiro.",
-    notes: [
-      "A cama volta para a cabeceira na parede de fora, perto da janela, e a TV vai para a parede do escritório, de frente para ela.",
-      "A poltrona fica deitada ao longo da parede do banheiro, com a ponta alta do lado de fora.",
-      "A entrada pelo corredorzinho fica livre, entre a TV e a poltrona.",
-    ],
-    bed: [R(7.99, 0.15, 1.88, 1.28), "e"],
-    tv: [R(6.79, 0.17, 0.28, 1.25), "w"],
-    chaise: { x: 7.78, z: 2.2, alongX: true, flip: true },
-  },
-  {
-    id: "sui2",
-    label: "Suíte 2",
-    name: "Suíte com a cabeceira embaixo da janela",
-    tagline: "A cabeceira embaixo da janela, a TV na parede do banheiro e a poltrona na parede do escritório.",
-    highlight: "Suíte: cabeceira embaixo da janela, TV na parede do banheiro e poltrona tântrica na parede do escritório.",
-    notes: [
-      "A cama fica com a cabeceira embaixo da janela, no meio do quarto, e a TV na parede do banheiro, de frente para ela.",
-      "A poltrona fica na parede do escritório, com a ponta alta do lado da janela e uns 60 cm livres até a cama.",
-    ],
-    bed: [R(7.9, -0.01, 1.28, 1.88), "n"],
-    tv: [R(7.92, 2.4, 1.25, 0.28), "s"],
-    chaise: { x: 6.85, z: 0.35 },
-  },
-  {
-    id: "sui3",
-    label: "Suíte 3",
-    name: "Suíte com a poltrona na parede de fora",
-    tagline: "A cabeceira embaixo da janela, mais para o lado do escritório, com a poltrona na parede de fora.",
-    highlight: "Suíte: cabeceira embaixo da janela, mais para o lado do escritório, TV na parede do banheiro e poltrona tântrica na parede de fora.",
-    notes: [
-      "A cama fica embaixo da janela, mais para o lado do escritório, e a TV na parede do banheiro.",
-      "A poltrona fica ao longo da parede de fora, com uns 65 cm livres até a cama.",
-      "Sobra a parede do escritório livre, perto da entrada.",
-    ],
-    bed: [R(7.45, -0.01, 1.28, 1.88), "n"],
-    tv: [R(7.8, 2.4, 1.25, 0.28), "s"],
-    chaise: { x: 9.4, z: 0.7 },
-  },
-  {
-    id: "sui4",
-    label: "Suíte 4",
-    name: "Suíte com a poltrona embaixo da janela",
-    tagline: "A cama perto da parede do banheiro, a poltrona embaixo da janela.",
-    highlight: "Suíte: cama com a cabeceira na parede de fora, perto do banheiro, TV na parede do escritório, poltrona tântrica embaixo da janela.",
-    notes: [
-      "A cama desce para perto da parede do banheiro, com a cabeceira na parede de fora, e a TV fica na parede do escritório.",
-      "A poltrona fica embaixo da janela, deitada ao longo dela.",
-      "Sobram uns 75 cm entre a poltrona e a cama.",
-    ],
-    bed: [R(7.99, 1.3, 1.88, 1.28), "e"],
-    tv: [R(6.79, 1.0, 0.28, 1.25), "w"],
-    chaise: { x: 7.75, z: 0.1, alongX: true },
-  },
-];
 
 const BASE_WITH_OFFICE = officeVersion(OFFICE, G4);
 
@@ -1250,7 +1200,7 @@ function withoutTub(): Proposal {
   };
 }
 
-export const PROPOSALS: Proposal[] = [MAIN, fixCurtains(withoutTub()), ...SUITES.map((o) => suiteVersion(o, BASE_WITH_OFFICE))];
+export const PROPOSALS: Proposal[] = [MAIN, fixCurtains(withoutTub())];
 
 /**
  * A casa com a proposta: troca a área externa, os pisos e os móveis (as louças ficam).
