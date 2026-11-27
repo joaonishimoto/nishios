@@ -67,6 +67,8 @@ export interface ExerciseDef {
   equipment: Equipment;
   muscle: MuscleGroup;
   notes: string;
+  /** Outros músculos que o exercício trabalha (vem da biblioteca). */
+  secondary?: MuscleGroup[];
 }
 
 export type ExerciseDefDraft = Omit<ExerciseDef, "id">;

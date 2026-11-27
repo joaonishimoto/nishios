@@ -1,9 +1,11 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { toISO, today } from "@/lib/dates";
 import { usePersistentState } from "@/lib/storage";
 import { ensureDance } from "./danca/migrate";
 import { seedExercises, seedModalities, seedPlans, seedSessions } from "./seed";
-import { linkToCatalog } from "./strength";
+import { LIBRARY, LIBRARY_BY_ID } from "./library";
+import { linkToCatalog, normalizeName } from "./strength";
+import type { TrainingTemplate } from "./templates";
 import type {
   ExerciseDef,
   ExerciseDefDraft,
@@ -19,6 +21,25 @@ const MODALITIES_KEY = "nishios:treinos:modalidades:v1";
 const SESSIONS_KEY = "nishios:treinos:sessoes:v1";
 export const EXERCISES_KEY = "nishios:treinos:exercicios:v1";
 export const PLANS_KEY = "nishios:treinos:fichas:v1";
+/** Exercícios da biblioteca que você excluiu do catálogo. */
+export const HIDDEN_KEY = "nishios:treinos:biblioteca-oculta:v1";
+
+/**
+ * O catálogo que o app enxerga: o que está salvo mais a biblioteca, menos o que
+ * foi escondido e o que já existe salvo com o mesmo nome.
+ */
+function mergeLibrary(stored: ExerciseDef[], hidden: string[]): ExerciseDef[] {
+  const ids = new Set(stored.map((d) => d.id));
+  const names = new Set(stored.map((d) => normalizeName(d.name)));
+  const off = new Set(hidden);
+  return [...stored, ...LIBRARY.filter((d) => !ids.has(d.id) && !off.has(d.id) && !names.has(normalizeName(d.name)))];
+}
+
+/** Igual ao que vem na biblioteca: não precisa ficar salvo. */
+function isPristine(d: ExerciseDef): boolean {
+  const lib = LIBRARY_BY_ID.get(d.id);
+  return !!lib && lib.name === d.name && lib.equipment === d.equipment && lib.muscle === d.muscle && lib.notes === d.notes;
+}
 
 /** Primeira visita (sem treinos salvos): o catálogo e as fichas começam com o exemplo. */
 function isFresh(): boolean {
@@ -66,6 +87,8 @@ interface Store {
   removePlan: (id: string) => void;
   restorePlan: (plan: Plan, index: number) => void;
   movePlan: (id: string, delta: -1 | 1) => void;
+  /** Copia as fichas de um modelo (todas, ou só as dos índices dados). Devolve as criadas. */
+  applyTemplate: (template: TrainingTemplate, only?: number[]) => Plan[];
   resetToExample: () => void;
 }
 
@@ -75,7 +98,28 @@ export function TreinosProvider({ children }: { children: ReactNode }) {
   const [modalities, setModalities] = usePersistentState<Modality[]>(MODALITIES_KEY, seedModalities, ensureDance);
   const [fresh] = useState(isFresh);
   const [all, setSessions] = usePersistentState<Session[]>(SESSIONS_KEY, seedSessions);
-  const [exercises, setExercises] = usePersistentState<ExerciseDef[]>(EXERCISES_KEY, () => (fresh ? seedExercises() : []));
+  const [stored, setStored] = usePersistentState<ExerciseDef[]>(EXERCISES_KEY, () => (fresh ? seedExercises() : []));
+  const [hidden, setHidden] = usePersistentState<string[]>(HIDDEN_KEY, () => []);
+  const exercises = useMemo(() => mergeLibrary(stored, hidden), [stored, hidden]);
+
+  /**
+   * Grava o catálogo inteiro (já com a biblioteca). Só sobe o que difere da biblioteca;
+   * exercício da biblioteca que sumiu da lista passa a ficar escondido, e o que voltou deixa de estar.
+   */
+  const setExercises = useCallback(
+    (next: ExerciseDef[] | ((list: ExerciseDef[]) => ExerciseDef[])) => {
+      const list = typeof next === "function" ? next(exercises) : next;
+      const present = new Set(list.map((d) => d.id));
+      const removed = exercises.filter((d) => LIBRARY_BY_ID.has(d.id) && !present.has(d.id)).map((d) => d.id);
+      setStored(list.filter((d) => !isPristine(d)));
+      setHidden((h) => {
+        const kept = h.filter((id) => !present.has(id));
+        const out = [...kept, ...removed.filter((id) => !kept.includes(id))];
+        return out.length === h.length && out.every((id, i) => id === h[i]) ? h : out;
+      });
+    },
+    [exercises, setStored, setHidden],
+  );
   const [plans, setPlans] = usePersistentState<Plan[]>(PLANS_KEY, () => (fresh ? seedPlans() : []));
 
   // Treinos antigos (e os que chegam de outro aparelho) se ligam ao catálogo pelo nome.
@@ -211,14 +255,38 @@ export function TreinosProvider({ children }: { children: ReactNode }) {
           return next;
         });
       },
+      applyTemplate(template, only) {
+        // Cada exercício do modelo aponta para o que já está no catálogo com o mesmo
+        // nome; o que foi escondido volta.
+        const byName = new Map(exercises.map((d) => [normalizeName(d.name), d.id]));
+        const have = new Set(exercises.map((d) => d.id));
+        const restore: ExerciseDef[] = [];
+        const resolve = (id: string) => {
+          if (have.has(id)) return id;
+          const lib = LIBRARY_BY_ID.get(id);
+          if (!lib) return id;
+          const same = byName.get(normalizeName(lib.name));
+          if (same) return same;
+          restore.push(lib);
+          have.add(id);
+          return id;
+        };
+        const created = template.plans
+          .filter((_, i) => !only || only.includes(i))
+          .map((p) => ({ ...p, id: crypto.randomUUID(), items: p.items.map((i) => ({ ...i, exerciseId: resolve(i.exerciseId) })) }));
+        if (restore.length) setExercises((list) => [...list, ...restore]);
+        setPlans((list) => [...list, ...created]);
+        return created;
+      },
       resetToExample() {
         setModalities(seedModalities());
         setSessions(seedSessions());
-        setExercises(seedExercises());
+        setStored(seedExercises());
+        setHidden([]);
         setPlans(seedPlans());
       },
     }),
-    [modalities, sessions, planned, exercises, plans, setModalities, setSessions, setExercises, setPlans],
+    [modalities, sessions, planned, exercises, plans, setModalities, setSessions, setExercises, setStored, setHidden, setPlans],
   );
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;
