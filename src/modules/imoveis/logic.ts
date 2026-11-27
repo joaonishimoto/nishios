@@ -1,7 +1,7 @@
 import { addMonths, differenceInCalendarMonths, getDaysInMonth, parseISO, setDate } from "date-fns";
 import { toISO, today } from "@/lib/dates";
 import type { Financing, Property, Situation } from "./types";
-import { SITUATIONS } from "./types";
+import { BILLS, SITUATIONS } from "./types";
 
 export const situationLabel = (s: Situation) => SITUATIONS.find((x) => x.value === s)?.label ?? s;
 
@@ -11,6 +11,8 @@ export const isOwned = (p: Property) => p.situation !== "aluguel" && p.situation
 export const receivesRent = (p: Property) => p.situation === "renda";
 /** Eu pago aluguel dele. */
 export const paysRent = (p: Property) => p.situation === "aluguel";
+/** As contas de consumo (água, luz, gás, internet) são minhas: moro nele ou ele está vazio. */
+export const paysBills = (s: Situation) => s === "mora" || s === "aluguel" || s === "vazio";
 
 /** Valor patrimonial de hoje: a última avaliação ou, sem nenhuma, o preço de compra. */
 export function currentValue(p: Property): number {
@@ -100,7 +102,10 @@ export interface MonthLine {
 
 export interface Month {
   ins: MonthLine[];
+  /** Custos do imóvel: aluguel, prestação, condomínio, IPTU, seguro. */
   outs: MonthLine[];
+  /** Contas de consumo pela média: água, luz, gás, internet. */
+  bills: MonthLine[];
   net: number;
 }
 
@@ -108,7 +113,8 @@ export interface Month {
 export function month(p: Property, on: Date = today()): Month {
   const ins: MonthLine[] = [];
   const outs: MonthLine[] = [];
-  if (p.situation === "vendido") return { ins, outs, net: 0 };
+  const bills: MonthLine[] = [];
+  if (p.situation === "vendido") return { ins, outs, bills, net: 0 };
   const lease = p.lease;
   if (lease && lease.rent > 0 && receivesRent(p)) {
     ins.push({ label: "Aluguel recebido", amount: lease.rent });
@@ -121,8 +127,9 @@ export function month(p: Property, on: Date = today()): Month {
   if (c.iptu) outs.push({ label: "IPTU (por mês)", amount: c.iptu / 12 });
   if (c.insurance) outs.push({ label: "Seguro (por mês)", amount: c.insurance / 12 });
   if (c.other) outs.push({ label: "Outros custos", amount: c.other });
+  if (paysBills(p.situation)) for (const b of BILLS) if (c[b.key]) bills.push({ label: b.label, amount: c[b.key] });
   const sum = (l: MonthLine[]) => l.reduce((n, x) => n + x.amount, 0);
-  return { ins, outs, net: sum(ins) - sum(outs) };
+  return { ins, outs, bills, net: sum(ins) - sum(outs) - sum(bills) };
 }
 
 export interface Wealth {
@@ -168,5 +175,5 @@ export function totals(list: Property[], on: Date = today()) {
 }
 
 export function emptyCosts() {
-  return { condo: 0, iptu: 0, insurance: 0, other: 0 };
+  return { condo: 0, iptu: 0, insurance: 0, other: 0, water: 0, power: 0, gas: 0, internet: 0 };
 }
