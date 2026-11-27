@@ -795,7 +795,19 @@ function buildHouse(
       // O que fica no alto (pergolado, cobertura, a partir de 2 m) desce para logo acima das
       // paredes cortadas, e some com um cômodo em foco para não tampar a vista.
       // Com `full`, o 3D da casa inteira mantém a altura real (telhado apoiado no muro).
-      if (y >= 2) {
+      if (part.curtain && mode === "3d") {
+        // A janela vai do peitoril ao topo, na mesma conta de windowAt: o pano desce 10 cm
+        // abaixo do peitoril e sobe até 15 cm acima do topo, e o trilho fica logo em cima.
+        // Com a cama embaixo da janela, o pano começa acima da cabeceira (y maior que o padrão).
+        const sill = Math.min(wallH * 0.62, WINDOW_SILL);
+        const top = Math.min(wallH, WINDOW_TOP) + 0.15;
+        if (part.curtain === "rail") y = top;
+        else {
+          const above = (part.y ?? 0) > WINDOW_SILL - 0.1 + 1e-6 ? Math.min(part.y ?? 0, cap) : 0;
+          y = Math.min(Math.max(sill - 0.1, above), top - 0.05);
+          h = top - y;
+        }
+      } else if (y >= 2) {
         if (focusId) continue;
         // Com a parede alta, o que fica abaixo dela aparece na altura real.
         const fits = mode === "3d" && y + h <= wall3d;
@@ -805,7 +817,7 @@ function buildHouse(
       // Tudo o que é baixo é cortado na mesma altura, mesmo o que começa acima do chão
       // (puxadores, TV, prateleiras), para nada atravessar o corte.
       // Com `full`, o 3D mostra a peça inteira (armário planejado, TV).
-      else if (!glass && !(part.full && mode === "3d")) h = Math.max(Math.min(y + h, cap) - y, Math.min(h, 0.04));
+      else if (!glass && !part.curtain && !(part.full && mode === "3d")) h = Math.max(Math.min(y + h, cap) - y, Math.min(h, 0.04));
       if (glass && mode === "planta") h = Math.min(h, WALL_PLAN);
       if (glass && focusId && !part.full) h = Math.min(h, WALL_FOCUS + 0.2);
       const see = glass ? 0.4 : screen ? 0.22 : roof ? 0.32 : dim && mode === "3d" ? 0.3 : 1;
